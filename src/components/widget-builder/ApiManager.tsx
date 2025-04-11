@@ -239,14 +239,23 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center my-6">
+      <div className="flex items-center justify-between my-6 gap-3">
+        <TooltipProvider>
+          <Tooltip>
+            <DialogTrigger asChild>
+              <TooltipTrigger asChild>
+                <Button size="icon" className="bg-widget-blue hover:bg-blue-600 h-9 w-9">
+                  <Plus size={16} />
+                </Button>
+              </TooltipTrigger>
+            </DialogTrigger>
+            <TooltipContent>
+              <p>Add new API</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="bg-widget-blue hover:bg-blue-600">
-              <Plus size={16} className="mr-1" /> Add API
-            </Button>
-          </DialogTrigger>
-          
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{selectedApiForEdit ? "Edit API Integration" : "Add New API Integration"}</DialogTitle>
@@ -539,7 +548,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
           </DialogContent>
         </Dialog>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-auto">
           <div className="w-64">
             <SearchBar 
               onSearch={handleSearch} 
@@ -548,17 +557,25 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
               backgroundColor="#f9fafb"
             />
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleSort}
-            className="flex items-center gap-1"
-            title={sortDirection === "asc" ? "Sort Z to A" : sortDirection === "desc" ? "Clear sort" : "Sort A to Z"}
-          >
-            {sortDirection === null && <ArrowDownAZ size={16} />}
-            {sortDirection === "asc" && <ArrowDownAZ size={16} />}
-            {sortDirection === "desc" && <ArrowUpZA size={16} />}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleSort}
+                  className="flex items-center gap-1 h-9 w-9 p-0"
+                >
+                  {sortDirection === null && <ArrowDownAZ size={16} />}
+                  {sortDirection === "asc" && <ArrowDownAZ size={16} />}
+                  {sortDirection === "desc" && <ArrowUpZA size={16} />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{sortDirection === "asc" ? "Sort Z to A" : sortDirection === "desc" ? "Clear sort" : "Sort A to Z"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
       
