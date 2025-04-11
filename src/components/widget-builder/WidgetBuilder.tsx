@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -857,8 +858,4 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                                     ...apiDataMapping,
                                     'title': e.target.value
                                   })}
-                                  className="flex-1"
-                                />
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
+                                  className="flex-1
