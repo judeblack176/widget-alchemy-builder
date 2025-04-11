@@ -425,62 +425,58 @@ const Index = () => {
         
         <div className="flex flex-1 overflow-hidden">
           <div className="w-1/4 border-r border-gray-200 bg-white p-4 overflow-hidden flex flex-col">
-            <div className="sticky top-0 bg-white z-10">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="w-full">
-                  <TabsTrigger value="components" className="flex-1">Components</TabsTrigger>
-                  <TabsTrigger value="tooltips" className="flex-1">Tooltips</TabsTrigger>
-                  <TabsTrigger value="apis" className="flex-1">APIs</TabsTrigger>
-                </TabsList>
-              
+            <div className="flex flex-col h-full">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
+                <div className="sticky top-0 bg-white z-10 pb-4">
+                  <TabsList className="w-full">
+                    <TabsTrigger value="components" className="flex-1">Components</TabsTrigger>
+                    <TabsTrigger value="tooltips" className="flex-1">Tooltips</TabsTrigger>
+                    <TabsTrigger value="apis" className="flex-1">APIs</TabsTrigger>
+                  </TabsList>
+                </div>
+                
                 <div className="flex-1 overflow-hidden">
-                  {activeTab === "components" && (
-                    <TabsContent value="components" className="mt-4 h-full overflow-hidden">
-                      <Droppable droppableId="component-library" isDropDisabled={true}>
-                        {(provided) => (
-                          <div
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                            className="h-full overflow-hidden"
-                          >
-                            <ComponentLibrary 
-                              onAddComponent={handleAddComponent} 
-                              existingComponents={widgetComponents}
-                            />
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
-                    </TabsContent>
-                  )}
+                  <TabsContent value="components" className="h-full overflow-auto">
+                    <Droppable droppableId="component-library" isDropDisabled={true}>
+                      {(provided) => (
+                        <div
+                          {...provided.droppableProps}
+                          ref={provided.innerRef}
+                          className="h-full"
+                        >
+                          <ComponentLibrary 
+                            onAddComponent={handleAddComponent} 
+                            existingComponents={widgetComponents}
+                          />
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </TabsContent>
                   
-                  {activeTab === "tooltips" && (
-                    <TabsContent value="tooltips" className="mt-4 h-full overflow-hidden">
-                      <TooltipManager
-                        tooltips={tooltips}
-                        onAddTooltip={handleAddTooltip}
-                        onUpdateTooltip={handleUpdateTooltip}
-                        onRemoveTooltip={handleRemoveTooltip}
-                      />
-                    </TabsContent>
-                  )}
+                  <TabsContent value="tooltips" className="h-full overflow-auto">
+                    <TooltipManager
+                      tooltips={tooltips}
+                      onAddTooltip={handleAddTooltip}
+                      onUpdateTooltip={handleUpdateTooltip}
+                      onRemoveTooltip={handleRemoveTooltip}
+                    />
+                  </TabsContent>
                   
-                  {activeTab === "apis" && (
-                    <TabsContent value="apis" className="mt-4 h-full overflow-hidden">
-                      <ApiManager 
-                        apis={apis} 
-                        onAddApi={handleAddApi} 
-                        onRemoveApi={handleRemoveApi} 
-                        onUpdateApi={handleUpdateApi}
-                      />
-                    </TabsContent>
-                  )}
+                  <TabsContent value="apis" className="h-full overflow-auto">
+                    <ApiManager 
+                      apis={apis} 
+                      onAddApi={handleAddApi} 
+                      onRemoveApi={handleRemoveApi} 
+                      onUpdateApi={handleUpdateApi}
+                    />
+                  </TabsContent>
                 </div>
               </Tabs>
             </div>
           </div>
           
-          <div className="w-2/5 p-4 bg-widget-gray overflow-y-auto">
+          <div className="w-2/5 p-4 bg-widget-gray overflow-hidden flex flex-col">
             <div className="flex justify-between mb-4">
               <h2 className="text-xl font-semibold">Widget Builder</h2>
               <div className="space-x-2">
@@ -495,26 +491,29 @@ const Index = () => {
               </div>
             </div>
             
-            <Droppable droppableId="widget-builder">
-              {(provided) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                >
-                  <WidgetBuilder
-                    components={widgetComponents}
-                    apis={apis}
-                    onUpdateComponent={handleUpdateComponent}
-                    onRemoveComponent={handleRemoveComponent}
-                    onReorderComponents={handleReorderComponents}
-                    onRequestApiTemplate={openApiTemplateModal}
-                    onApplyTooltip={handleApplyTooltip}
-                    tooltips={tooltips}
-                  />
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
+            <div className="flex-1 overflow-hidden">
+              <Droppable droppableId="widget-builder">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="h-full"
+                  >
+                    <WidgetBuilder
+                      components={widgetComponents}
+                      apis={apis}
+                      onUpdateComponent={handleUpdateComponent}
+                      onRemoveComponent={handleRemoveComponent}
+                      onReorderComponents={handleReorderComponents}
+                      onRequestApiTemplate={openApiTemplateModal}
+                      onApplyTooltip={handleApplyTooltip}
+                      tooltips={tooltips}
+                    />
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
           </div>
           
           <div className="w-1/3 p-4 bg-gray-200 overflow-y-auto flex flex-col items-center">
