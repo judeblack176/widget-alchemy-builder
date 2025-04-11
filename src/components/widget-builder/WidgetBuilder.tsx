@@ -7,6 +7,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip } from './TooltipManager';
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -16,6 +17,7 @@ interface WidgetBuilderProps {
   onReorderComponents: (reorderedComponents: WidgetComponent[]) => void;
   onRequestApiTemplate: (componentId: string) => void;
   onApplyTooltip?: (componentId: string, tooltipId: string) => void;
+  tooltips?: Tooltip[]; // Add tooltips prop
 }
 
 const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
@@ -25,7 +27,8 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   onRemoveComponent,
   onReorderComponents,
   onRequestApiTemplate,
-  onApplyTooltip
+  onApplyTooltip,
+  tooltips = [] // Default to empty array
 }) => {
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -131,6 +134,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                     (tooltipId: string) => onApplyTooltip(filteredHeaderComponent.id, tooltipId) : 
                     undefined}
                   disableRemove={true}
+                  customTooltips={tooltips}
                 />
               </Card>
             )}
@@ -173,6 +177,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                                 onApplyTooltip={onApplyTooltip ? 
                                   (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
                                   undefined}
+                                customTooltips={tooltips}
                               />
                             </Card>
                           </div>

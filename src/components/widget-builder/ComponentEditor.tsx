@@ -40,7 +40,8 @@ import {
   Map,
   Phone,
   ShoppingBag,
-  Star
+  Star,
+  X
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -50,6 +51,7 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
+import { Tooltip as CustomTooltip } from "./TooltipManager";
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -61,6 +63,7 @@ interface ComponentEditorProps {
   onRequestApiTemplate: () => void;
   onApplyTooltip?: (tooltipId: string) => void;
   disableRemove?: boolean;
+  customTooltips?: CustomTooltip[];
 }
 
 const ComponentEditor: React.FC<ComponentEditorProps> = ({
@@ -72,7 +75,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   onRemoveComponent,
   onRequestApiTemplate,
   onApplyTooltip,
-  disableRemove = false
+  disableRemove = false,
+  customTooltips = []
 }) => {
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
@@ -174,12 +178,21 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     }
   };
 
-  const tooltipOptions = [
+  const defaultTooltipOptions = [
     { id: "none", label: "No Tooltip" },
     { id: "help", label: "Help Info" },
     { id: "info", label: "Additional Info" },
     { id: "warning", label: "Warning" },
     { id: "tip", label: "Pro Tip" }
+  ];
+
+  const tooltipOptions = [
+    ...defaultTooltipOptions,
+    ...customTooltips.map(tooltip => ({
+      id: tooltip.id,
+      label: tooltip.title,
+      content: tooltip.content
+    }))
   ];
 
   const renderPropertyEditor = (property: {
@@ -268,7 +281,10 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       case "info": return <Info size={16} className="text-green-500" />;
       case "warning": return <AlertTriangle size={16} className="text-amber-500" />;
       case "tip": return <Star size={16} className="text-purple-500" />;
-      default: return null;
+      default: 
+        return customTooltips.some(t => t.id === tooltipId) ? 
+          <Info size={16} className="text-indigo-500" /> : 
+          null;
     }
   };
 
@@ -356,7 +372,9 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                             {component.tooltipId ? (
                               <div className="flex items-center gap-2">
                                 {getTooltipIcon(component.tooltipId)}
-                                <span>{tooltipOptions.find(o => o.id === component.tooltipId)?.label || component.tooltipId}</span>
+                                <span>
+                                  {tooltipOptions.find(o => o.id === component.tooltipId)?.label || component.tooltipId}
+                                </span>
                               </div>
                             ) : (
                               "No Tooltip"
@@ -378,6 +396,11 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                           ))}
                         </SelectContent>
                       </Select>
+                      {component.tooltipId && customTooltips.some(t => t.id === component.tooltipId) && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {customTooltips.find(t => t.id === component.tooltipId)?.content}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </AccordionContent>
