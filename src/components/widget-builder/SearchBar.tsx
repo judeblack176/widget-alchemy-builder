@@ -6,11 +6,23 @@ import { Input } from '@/components/ui/input';
 interface SearchBarProps {
   onSearch: (query: string) => void;
   placeholder?: string;
+  iconColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  borderColor?: string;
+  showIcon?: boolean;
+  className?: string;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
   onSearch, 
-  placeholder = "Search components..." 
+  placeholder = "Search...",
+  iconColor = "#6B7280",
+  backgroundColor,
+  textColor,
+  borderColor,
+  showIcon = true,
+  className = "w-full"
 }) => {
   const [query, setQuery] = useState('');
 
@@ -21,14 +33,24 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <div className="relative flex items-center w-full mb-4">
-      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+    <div className={`relative flex items-center ${className}`}>
+      {showIcon && (
+        <Search 
+          className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" 
+          style={{ color: iconColor }}
+        />
+      )}
       <Input
         type="text"
         placeholder={placeholder}
         value={query}
         onChange={handleChange}
-        className="pl-10 w-full bg-white border-gray-200 focus:border-widget-blue"
+        className={showIcon ? 'pl-10' : 'pl-4'}
+        style={{
+          backgroundColor: backgroundColor,
+          color: textColor,
+          borderColor: borderColor
+        }}
       />
     </div>
   );

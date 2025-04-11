@@ -4,7 +4,6 @@ import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import ComponentEditor from './ComponentEditor';
 import { Card } from '@/components/ui/card';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import SearchBar from './SearchBar';
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -67,8 +66,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
 
   return (
     <div className="space-y-4">
-      <SearchBar onSearch={handleSearch} placeholder="Search components..." />
-      
       {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
         <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
           <p className="text-gray-500">No components match your search</p>

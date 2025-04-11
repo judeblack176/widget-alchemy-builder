@@ -18,7 +18,8 @@ import {
   Italic,
   Filter,
   AlertTriangle,
-  Table2
+  Table2,
+  Search
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -345,6 +346,29 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
         { name: "borderColor", type: "color", label: "Border Color" },
         { name: "altRowBackgroundColor", type: "color", label: "Alt Row Background Color" }
       ]
+    },
+    {
+      type: "searchbar",
+      name: "Search Bar",
+      icon: "Search",
+      defaultProps: {
+        placeholder: "Search...",
+        backgroundColor: "#FFFFFF",
+        textColor: "#333333",
+        borderColor: "#E2E8F0",
+        width: "full",
+        iconColor: "#6B7280",
+        showIcon: true
+      },
+      availableProps: [
+        { name: "placeholder", type: "text", label: "Placeholder" },
+        { name: "backgroundColor", type: "color", label: "Background Color" },
+        { name: "textColor", type: "color", label: "Text Color" },
+        { name: "borderColor", type: "color", label: "Border Color" },
+        { name: "width", type: "select", label: "Width", options: ["full", "medium", "small"] },
+        { name: "iconColor", type: "color", label: "Icon Color" },
+        { name: "showIcon", type: "select", label: "Show Icon", options: ["true", "false"] }
+      ]
     }
   ];
 
@@ -367,6 +391,7 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       case "Filter": return <Filter size={24} />;
       case "AlertTriangle": return <AlertTriangle size={24} />;
       case "Table2": return <Table2 size={24} />;
+      case "Search": return <Search size={24} />;
       default: return <div className="w-6 h-6 bg-gray-200 rounded" />;
     }
   };

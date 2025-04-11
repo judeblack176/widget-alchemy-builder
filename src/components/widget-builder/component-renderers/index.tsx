@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { WidgetComponent, AlertType, TableColumn } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
 import { 
@@ -8,11 +7,13 @@ import {
   CheckCircle, 
   Info, 
   AlertCircle,
-  ExternalLink 
+  ExternalLink,
+  Search 
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 
 export const renderComponent = (component: WidgetComponent, apiData?: any) => {
   const { props, type } = component;
@@ -306,6 +307,37 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
         </Card>
       );
       
+    case 'searchbar':
+      const [searchQuery, setSearchQuery] = useState('');
+      const showIcon = finalProps.showIcon !== 'false';
+      const widthClass = 
+        finalProps.width === 'small' ? 'w-64' : 
+        finalProps.width === 'medium' ? 'w-96' : 
+        'w-full';
+      
+      return (
+        <div className={`relative flex items-center ${widthClass} mb-4`}>
+          {showIcon && (
+            <Search 
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" 
+              style={{ color: finalProps.iconColor || '#6B7280' }}
+            />
+          )}
+          <Input
+            type="text"
+            placeholder={finalProps.placeholder || "Search..."}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={showIcon ? 'pl-10' : 'pl-4'}
+            style={{
+              backgroundColor: finalProps.backgroundColor || '#FFFFFF',
+              color: finalProps.textColor || '#333333',
+              borderColor: finalProps.borderColor || '#E2E8F0'
+            }}
+          />
+        </div>
+      );
+    
     default:
       console.error(`Unsupported component type: ${type}`);
       return (
