@@ -1,5 +1,6 @@
+
 import React from "react";
-import { ComponentDefinition, WidgetComponent, FontFamily } from "@/types/widget-types";
+import { ComponentDefinition, WidgetComponent, FontFamily, PREDEFINED_COLORS } from "@/types/widget-types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   BookOpen, 
@@ -20,6 +21,7 @@ import {
   AlertTriangle,
   Table2
 } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface ComponentLibraryProps {
   onAddComponent: (component: WidgetComponent) => void;
