@@ -311,16 +311,16 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-1/2">Content</TableHead>
                 <TableHead className="w-1/3">Title</TableHead>
+                <TableHead className="w-1/2">Content</TableHead>
                 <TableHead className="w-[100px] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredAndSortedTooltips.map((tooltip) => (
                 <TableRow key={tooltip.id} className="border-b">
-                  <TableCell className="max-w-[250px] align-top">{tooltip.content}</TableCell>
                   <TableCell className="font-medium align-top">{tooltip.title}</TableCell>
+                  <TableCell className="max-w-[250px] align-top">{tooltip.content}</TableCell>
                   <TableCell className="text-right align-top">
                     <div className="flex justify-end">
                       <div className="flex space-x-1">
