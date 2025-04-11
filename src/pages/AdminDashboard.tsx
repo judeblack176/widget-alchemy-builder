@@ -125,15 +125,13 @@ const AdminDashboard = () => {
   
   const renderWidgetCard = (widget: WidgetSubmission) => {
     // Extract APIs and links from the widget for demonstration
-    const apis = widget.components
+    const apis = widget.config.components
       ?.filter(comp => comp.apiConfig?.apiId)
       .map(comp => comp.apiConfig?.apiId ? 
-        widgets
-          .flatMap(w => w.apis || [])
-          .find(api => api.id === comp.apiConfig?.apiId) : null)
+        widget.config.apis.find(api => api.id === comp.apiConfig?.apiId) : null)
       .filter(api => api) as ApiConfig[];
     
-    const links = widget.components
+    const links = widget.config.components
       ?.filter(comp => comp.type === 'link')
       .map(comp => comp.props.url)
       .filter(url => url) as string[];
@@ -148,8 +146,8 @@ const AdminDashboard = () => {
         </CardHeader>
         
         <div className="p-4 flex justify-center items-center bg-gray-50">
-          {widget.components && widget.apis && (
-            <WidgetPreview components={widget.components} apis={widget.apis} />
+          {widget.config.components && widget.config.apis && (
+            <WidgetPreview components={widget.config.components} apis={widget.config.apis} />
           )}
         </div>
         
@@ -250,15 +248,13 @@ const AdminDashboard = () => {
               )
               .map((widget) => {
                 // Extract APIs and links for this widget
-                const apis = widget.components
+                const apis = widget.config.components
                   ?.filter(comp => comp.apiConfig?.apiId)
                   .map(comp => comp.apiConfig?.apiId ? 
-                    widgets
-                      .flatMap(w => w.apis || [])
-                      .find(api => api.id === comp.apiConfig?.apiId) : null)
+                    widget.config.apis.find(api => api.id === comp.apiConfig?.apiId) : null)
                   .filter(api => api) as ApiConfig[];
                 
-                const links = widget.components
+                const links = widget.config.components
                   ?.filter(comp => comp.type === 'link')
                   .map(comp => comp.props.url)
                   .filter(url => url) as string[];
