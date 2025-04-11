@@ -6,13 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Check, X, Clock, LayoutGrid, List, Filter, Search, Link as LinkIcon, Database, ExternalLink, Shield, ShieldCheck, ShieldX } from "lucide-react";
+import { Check, X, Clock, LayoutGrid, List, Filter, Search, Link as LinkIcon, Database, ExternalLink, Shield, ShieldCheck, ShieldX, BarChart3, LineChart, PieChart, Users, AlertTriangle, Activity, TrendingUp } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { WidgetSubmission, WidgetApprovalStatus, ApiConfig } from "@/types/widget-types";
 import WidgetPreview from "@/components/widget-builder/WidgetPreview";
 import AdminLayout from "@/components/layouts/AdminLayout";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { AreaChart, Area, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 
 const AdminDashboard = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid' | 'card'>('card');
@@ -42,6 +44,32 @@ const AdminDashboard = () => {
 
     loadWidgets();
   }, [toast]);
+
+  const widgetActivityData = [
+    { name: 'Jan', submissions: 4, approvals: 3, rejections: 1 },
+    { name: 'Feb', submissions: 7, approvals: 5, rejections: 2 },
+    { name: 'Mar', submissions: 10, approvals: 7, rejections: 3 },
+    { name: 'Apr', submissions: 15, approvals: 12, rejections: 3 },
+    { name: 'May', submissions: 12, approvals: 10, rejections: 2 },
+    { name: 'Jun', submissions: 18, approvals: 15, rejections: 3 },
+  ];
+
+  const widgetCategoryData = [
+    { name: 'Data Visualization', value: 35 },
+    { name: 'Interactive Tools', value: 25 },
+    { name: 'Learning Materials', value: 20 },
+    { name: 'Assessment', value: 15 },
+    { name: 'Other', value: 5 },
+  ];
+
+  const pieColors = ['#9b87f5', '#7E69AB', '#6E59A5', '#D6BCFA', '#E5DEFF'];
+  
+  const apiSafetyData = [
+    { name: 'Verified APIs', value: 65 },
+    { name: 'Unverified APIs', value: 35 },
+  ];
+  
+  const safetyColors = ['#33C3F0', '#FEC6A1'];
 
   const getStatusBadge = (status: WidgetApprovalStatus) => {
     switch(status) {
@@ -313,14 +341,274 @@ const AdminDashboard = () => {
     );
   };
   
+  const renderOverviewTab = () => {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center text-lg font-medium">
+                <Activity className="h-4 w-4 mr-2 text-primary" />
+                Total Widgets
+              </CardTitle>
+              <CardDescription>All widgets in the platform</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="text-3xl font-bold">{widgets.length}</div>
+                <div className="flex flex-col text-right">
+                  <span className="text-sm text-muted-foreground">
+                    {approvedWidgets.length} Published
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {pendingWidgets.length} Pending
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center text-lg font-medium">
+                <Users className="h-4 w-4 mr-2 text-primary" />
+                API Usage
+              </CardTitle>
+              <CardDescription>Number of API connections</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="text-3xl font-bold">
+                  {widgets.reduce((acc, widget) => {
+                    const apis = widget.config.components
+                      ?.filter(comp => comp.apiConfig?.apiId)
+                      .map(comp => comp.apiConfig?.apiId)
+                      .filter(api => api);
+                    return acc + (apis?.length || 0);
+                  }, 0)}
+                </div>
+                <div className="flex flex-col text-right">
+                  <span className="text-sm text-muted-foreground">
+                    Across {widgets.length} Widgets
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center text-lg font-medium">
+                <AlertTriangle className="h-4 w-4 mr-2 text-primary" />
+                Security Status
+              </CardTitle>
+              <CardDescription>API and link verification</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="text-3xl font-bold text-green-500">Good</div>
+                <div className="flex flex-col text-right">
+                  <span className="text-sm text-muted-foreground">
+                    65% Verified Sources
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    35% Need Review
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Card className="col-span-1">
+            <CardHeader>
+              <CardTitle className="flex items-center text-lg font-medium">
+                <LineChart className="h-4 w-4 mr-2 text-primary" />
+                Widget Activity
+              </CardTitle>
+              <CardDescription>
+                Submissions, approvals, and rejections over time
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full">
+                <ChartContainer
+                  config={{
+                    submissions: { label: "Submissions", color: "#9b87f5" },
+                    approvals: { label: "Approvals", color: "#33C3F0" },
+                    rejections: { label: "Rejections", color: "#ea384c" },
+                  }}
+                >
+                  <AreaChart
+                    data={widgetActivityData}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="colorSubmissions" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#9b87f5" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#9b87f5" stopOpacity={0.1}/>
+                      </linearGradient>
+                      <linearGradient id="colorApprovals" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#33C3F0" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#33C3F0" stopOpacity={0.1}/>
+                      </linearGradient>
+                      <linearGradient id="colorRejections" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ea384c" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#ea384c" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Area type="monotone" dataKey="submissions" stroke="#9b87f5" fillOpacity={1} fill="url(#colorSubmissions)" />
+                    <Area type="monotone" dataKey="approvals" stroke="#33C3F0" fillOpacity={1} fill="url(#colorApprovals)" />
+                    <Area type="monotone" dataKey="rejections" stroke="#ea384c" fillOpacity={1} fill="url(#colorRejections)" />
+                  </AreaChart>
+                </ChartContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="col-span-1">
+            <CardHeader>
+              <CardTitle className="flex items-center text-lg font-medium">
+                <PieChart className="h-4 w-4 mr-2 text-primary" />
+                Widget Categories
+              </CardTitle>
+              <CardDescription>
+                Distribution by widget type
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full">
+                <ChartContainer
+                  config={{
+                    dataVisualization: { label: "Data Visualization", color: "#9b87f5" },
+                    interactiveTools: { label: "Interactive Tools", color: "#7E69AB" },
+                    learningMaterials: { label: "Learning Materials", color: "#6E59A5" },
+                    assessment: { label: "Assessment", color: "#D6BCFA" },
+                    other: { label: "Other", color: "#E5DEFF" },
+                  }}
+                >
+                  <RechartsPieChart>
+                    <Pie
+                      data={widgetCategoryData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={120}
+                      fill="#8884d8"
+                      dataKey="value"
+                      nameKey="name"
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {widgetCategoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Legend />
+                  </RechartsPieChart>
+                </ChartContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center text-lg font-medium">
+                <BarChart3 className="h-4 w-4 mr-2 text-primary" />
+                Monthly Submissions
+              </CardTitle>
+              <CardDescription>
+                Widget submissions over the last 6 months
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full">
+                <ChartContainer
+                  config={{
+                    submissions: { label: "Submissions", color: "#9b87f5" },
+                  }}
+                >
+                  <BarChart
+                    data={widgetActivityData}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="submissions" fill="#9b87f5" />
+                  </BarChart>
+                </ChartContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center text-lg font-medium">
+                <ShieldCheck className="h-4 w-4 mr-2 text-primary" />
+                API Safety Overview
+              </CardTitle>
+              <CardDescription>
+                Verified vs unverified API connections
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full">
+                <ChartContainer
+                  config={{
+                    verified: { label: "Verified APIs", color: "#33C3F0" },
+                    unverified: { label: "Unverified APIs", color: "#FEC6A1" },
+                  }}
+                >
+                  <RechartsPieChart>
+                    <Pie
+                      data={apiSafetyData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={120}
+                      fill="#8884d8"
+                      dataKey="value"
+                      nameKey="name"
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {apiSafetyData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={safetyColors[index % safetyColors.length]} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Legend />
+                  </RechartsPieChart>
+                </ChartContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+  
   return (
     <AdminLayout title="Widget Management">
       <div className="container mx-auto">
-        <Tabs defaultValue="published" className="mb-8">
+        <Tabs defaultValue="overview" className="mb-8">
           <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="published">Published Widgets</TabsTrigger>
             <TabsTrigger value="pending">Pending Approvals</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="overview">
+            {renderOverviewTab()}
+          </TabsContent>
           
           <TabsContent value="published">
             <div className="space-y-4">
