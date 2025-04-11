@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { WidgetComponent, ComponentDefinition, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -208,14 +207,16 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             <div>
               <Label htmlFor="tooltip-bg-color">Background Color</Label>
               <ColorPalettePicker
-                value={tooltip.backgroundColor || "#1E293B"}
+                label="Background Color"
+                value={component.props.tooltip?.backgroundColor || "#1E293B"}
                 onChange={(val) => handleTooltipPropertyChange("backgroundColor", val)}
               />
             </div>
             <div>
               <Label htmlFor="tooltip-text-color">Text Color</Label>
               <ColorPalettePicker
-                value={tooltip.textColor || "#FFFFFF"}
+                label="Text Color"
+                value={component.props.tooltip?.textColor || "#FFFFFF"}
                 onChange={(val) => handleTooltipPropertyChange("textColor", val)}
               />
             </div>
