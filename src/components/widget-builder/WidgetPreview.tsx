@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { WidgetComponent, ApiConfig, CalendarServiceType, AlertType, TableColumn } from "@/types/widget-types";
 import { 
   BookOpen, 
@@ -28,7 +29,8 @@ import {
   XCircle,
   Info,
   X,
-  Table2
+  Table2,
+  Loader2
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -42,6 +44,8 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
+import { useToast } from "@/components/ui/use-toast";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface WidgetPreviewProps {
   components: WidgetComponent[];
@@ -50,12 +54,116 @@ interface WidgetPreviewProps {
 
 const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
+  const [apiData, setApiData] = useState<Record<string, any>>({});
+  const [apiLoading, setApiLoading] = useState<Record<string, boolean>>({});
+  const [apiError, setApiError] = useState<Record<string, string>>({});
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const componentsWithApis = components.filter(comp => comp.apiConfig?.apiId);
+    
+    componentsWithApis.forEach(async (component) => {
+      const apiId = component.apiConfig?.apiId;
+      if (!apiId) return;
+      
+      const api = apis.find(a => a.id === apiId);
+      if (!api) return;
+      
+      // Skip if we're already loading this API or if we already have the data
+      if (apiLoading[apiId]) return;
+      
+      try {
+        setApiLoading(prev => ({ ...prev, [apiId]: true }));
+        
+        // Only mock API calls in this demo
+        // In a real implementation, this would be a real API call
+        await mockApiCall(api, component, apiId);
+      } catch (error) {
+        console.error(`Error fetching data from API ${api.name}:`, error);
+        setApiError(prev => ({ 
+          ...prev, 
+          [apiId]: error instanceof Error ? error.message : 'Unknown error' 
+        }));
+        toast({
+          title: "API Error",
+          description: `Failed to fetch data from ${api.name}`,
+          variant: "destructive"
+        });
+      } finally {
+        setApiLoading(prev => ({ ...prev, [apiId]: false }));
+      }
+    });
+  }, [components, apis]);
+
+  const mockApiCall = async (api: ApiConfig, component: WidgetComponent, apiId: string) => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    let mockData;
+    
+    // Generate different mock data based on component type
+    if (component.type === 'alert') {
+      mockData = {
+        title: `${api.name} Alert`,
+        message: `This is a sample alert message from ${api.name} API. It would normally contain real-time data.`,
+        type: ['info', 'warning', 'success', 'error'][Math.floor(Math.random() * 4)] as AlertType,
+      };
+    } else if (component.type === 'table') {
+      mockData = {
+        rows: [
+          { id: 1, name: 'Product A', price: 29.99, stock: 42 },
+          { id: 2, name: 'Product B', price: 49.99, stock: 13 },
+          { id: 3, name: 'Product C', price: 19.99, stock: 89 }
+        ]
+      };
+    } else {
+      mockData = {
+        content: `Sample content from ${api.name} API`,
+        title: `Data from ${api.name}`,
+        values: [10, 45, 25, 60, 30]
+      };
+    }
+    
+    setApiData(prev => ({ ...prev, [apiId]: mockData }));
+    return mockData;
+  };
 
   const dismissAlert = (id: string) => {
     setDismissedAlerts([...dismissedAlerts, id]);
   };
 
+  const getApiDataForComponent = (component: WidgetComponent) => {
+    if (!component.apiConfig?.apiId) return null;
+    return apiData[component.apiConfig.apiId];
+  };
+
   const renderComponent = (component: WidgetComponent) => {
+    const componentApiData = getApiDataForComponent(component);
+    const isLoading = component.apiConfig?.apiId ? apiLoading[component.apiConfig.apiId] : false;
+    const hasError = component.apiConfig?.apiId ? apiError[component.apiConfig.apiId] : false;
+
+    if (isLoading) {
+      return (
+        <div className="p-3 flex items-center justify-center">
+          <Loader2 className="h-5 w-5 animate-spin mr-2" />
+          <span>Loading data...</span>
+        </div>
+      );
+    }
+
+    if (hasError) {
+      return (
+        <div className="p-3">
+          <Alert variant="destructive">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              {apiError[component.apiConfig?.apiId || '']}
+            </AlertDescription>
+          </Alert>
+        </div>
+      );
+    }
+
     switch (component.type) {
       case "header":
         return (
@@ -76,7 +184,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
               {component.props.icon === "Video" && <Video size={18} className="mr-2" />}
               {component.props.icon === "BarChart" && <BarChart size={18} className="mr-2" />}
               {component.props.icon === "FormInput" && <FormInput size={18} className="mr-2" />}
-              <span className="font-medium">{component.props.title}</span>
+              <span className="font-medium">{componentApiData?.title || component.props.title}</span>
             </div>
             <div className="flex space-x-1">
               {component.props.actions?.includes("Edit") && (
@@ -453,7 +561,12 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
           }
         };
         
-        const defaultColors = getDefaultColors(component.props.type as AlertType);
+        // Use API data if available, otherwise use component props
+        const alertType = componentApiData?.type || component.props.type;
+        const alertTitle = componentApiData?.title || component.props.title;
+        const alertMessage = componentApiData?.message || component.props.message;
+        
+        const defaultColors = getDefaultColors(alertType as AlertType);
         
         return (
           <div className="p-3">
@@ -465,11 +578,11 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
                 color: component.props.textColor || defaultColors.text
               }}
             >
-              {component.props.icon && getAlertIcon(component.props.type as AlertType)}
+              {component.props.icon && getAlertIcon(alertType as AlertType)}
               
               <div className="flex-1">
-                <div className="font-medium">{component.props.title}</div>
-                <div className="text-sm">{component.props.message}</div>
+                <div className="font-medium">{alertTitle}</div>
+                <div className="text-sm">{alertMessage}</div>
               </div>
               
               {component.props.dismissible && (
@@ -485,6 +598,9 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         );
       
       case "table":
+        // Use API data if available, otherwise use component props
+        const tableData = componentApiData?.rows || component.props.data || [];
+        
         return (
           <div className="p-3">
             <div 
@@ -513,7 +629,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {component.props.data?.map((row: any, rowIndex: number) => (
+                  {tableData.map((row: any, rowIndex: number) => (
                     <TableRow 
                       key={rowIndex}
                       style={{ 

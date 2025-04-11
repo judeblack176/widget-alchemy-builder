@@ -1,6 +1,5 @@
-
 import React, { useState } from "react";
-import { WidgetComponent, ApiConfig, CalendarServiceType, ICSConfig, PREDEFINED_COLORS, FontFamily } from "@/types/widget-types";
+import { WidgetComponent, ApiConfig, CalendarServiceType, ICSConfig, PREDEFINED_COLORS, FontFamily, COLOR_PALETTE } from "@/types/widget-types";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar, Download, Upload, RefreshCw, Palette, Bold, Italic } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -43,6 +43,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     icsUrl: '',
     syncInterval: 'daily'
   });
+  const [activeColorGroup, setActiveColorGroup] = useState<string>("neutrals");
 
   const handleMoveUp = (index: number) => {
     if (index > 0) {
@@ -195,33 +196,144 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                 <span className="sr-only">Pick a color</span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-64">
-              <div className="grid grid-cols-5 gap-2">
-                {PREDEFINED_COLORS.map(color => (
-                  <Button
-                    key={color}
-                    variant="outline"
-                    className={`w-8 h-8 rounded-md p-0 ${color === "transparent" ? "bg-transparent" : ""}`}
-                    style={{ 
-                      backgroundColor: color, 
-                      border: color === propValue ? "2px solid black" : "1px solid #e2e8f0",
-                      boxShadow: color === propValue ? "0 0 0 2px rgba(0,0,0,0.1)" : "none"
-                    }}
-                    onClick={() => handleInputChange(propName, color)}
-                  >
-                    <span className="sr-only">{color}</span>
-                  </Button>
-                ))}
-              </div>
-              <div className="flex items-center mt-3">
-                <Label htmlFor={`custom-${propName}`} className="mr-2 text-xs">Custom:</Label>
-                <Input
-                  id={`custom-${propName}`}
-                  value={propValue}
-                  onChange={(e) => handleInputChange(propName, e.target.value)}
-                  className="h-8 font-mono text-xs"
-                />
-              </div>
+            <PopoverContent className="w-auto">
+              <Tabs defaultValue="palette" className="w-full">
+                <TabsList className="w-full">
+                  <TabsTrigger value="palette" className="flex-1">Color Palette</TabsTrigger>
+                  <TabsTrigger value="custom" className="flex-1">Custom</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="palette" className="space-y-3">
+                  <div className="flex space-x-2 overflow-x-auto pb-2 mt-2">
+                    <Button 
+                      variant={activeColorGroup === "neutrals" ? "default" : "outline"} 
+                      size="sm" 
+                      onClick={() => setActiveColorGroup("neutrals")}
+                      className="whitespace-nowrap"
+                    >
+                      Neutrals
+                    </Button>
+                    <Button 
+                      variant={activeColorGroup === "reds" ? "default" : "outline"} 
+                      size="sm" 
+                      onClick={() => setActiveColorGroup("reds")}
+                      className="whitespace-nowrap"
+                    >
+                      Reds
+                    </Button>
+                    <Button 
+                      variant={activeColorGroup === "oranges" ? "default" : "outline"} 
+                      size="sm" 
+                      onClick={() => setActiveColorGroup("oranges")}
+                      className="whitespace-nowrap"
+                    >
+                      Oranges
+                    </Button>
+                    <Button 
+                      variant={activeColorGroup === "yellows" ? "default" : "outline"} 
+                      size="sm" 
+                      onClick={() => setActiveColorGroup("yellows")}
+                      className="whitespace-nowrap"
+                    >
+                      Yellows
+                    </Button>
+                    <Button 
+                      variant={activeColorGroup === "greens" ? "default" : "outline"} 
+                      size="sm" 
+                      onClick={() => setActiveColorGroup("greens")}
+                      className="whitespace-nowrap"
+                    >
+                      Greens
+                    </Button>
+                    <Button 
+                      variant={activeColorGroup === "blues" ? "default" : "outline"} 
+                      size="sm" 
+                      onClick={() => setActiveColorGroup("blues")}
+                      className="whitespace-nowrap"
+                    >
+                      Blues
+                    </Button>
+                    <Button 
+                      variant={activeColorGroup === "purples" ? "default" : "outline"} 
+                      size="sm" 
+                      onClick={() => setActiveColorGroup("purples")}
+                      className="whitespace-nowrap"
+                    >
+                      Purples
+                    </Button>
+                    <Button 
+                      variant={activeColorGroup === "pinks" ? "default" : "outline"} 
+                      size="sm" 
+                      onClick={() => setActiveColorGroup("pinks")}
+                      className="whitespace-nowrap"
+                    >
+                      Pinks
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-6 gap-2">
+                    {COLOR_PALETTE[activeColorGroup as keyof typeof COLOR_PALETTE].map(color => (
+                      <Button
+                        key={color}
+                        variant="outline"
+                        className="w-8 h-8 rounded-md p-0"
+                        style={{ 
+                          backgroundColor: color, 
+                          border: color === propValue ? "2px solid black" : "1px solid #e2e8f0",
+                          boxShadow: color === propValue ? "0 0 0 2px rgba(0,0,0,0.1)" : "none"
+                        }}
+                        onClick={() => handleInputChange(propName, color)}
+                      >
+                        <span className="sr-only">{color}</span>
+                      </Button>
+                    ))}
+                    <Button
+                      variant="outline"
+                      className="w-8 h-8 rounded-md p-0 bg-transparent"
+                      style={{ 
+                        backgroundImage: "linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, white 25%, white 75%, #ccc 75%, #ccc)",
+                        backgroundSize: "6px 6px",
+                        backgroundPosition: "0 0, 3px 3px",
+                        border: "transparent" === propValue ? "2px solid black" : "1px solid #e2e8f0",
+                      }}
+                      onClick={() => handleInputChange(propName, "transparent")}
+                    >
+                      <span className="sr-only">Transparent</span>
+                    </Button>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="custom">
+                  <div className="space-y-2">
+                    <div className="flex items-center mt-3">
+                      <Label htmlFor={`custom-${propName}`} className="mr-2 text-xs">Custom:</Label>
+                      <Input
+                        id={`custom-${propName}`}
+                        value={propValue}
+                        onChange={(e) => handleInputChange(propName, e.target.value)}
+                        className="h-8 font-mono text-xs"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-5 gap-2 mt-2">
+                      {PREDEFINED_COLORS.slice(0, 10).map(color => (
+                        <Button
+                          key={color}
+                          variant="outline"
+                          className="w-8 h-8 rounded-md p-0"
+                          style={{ 
+                            backgroundColor: color, 
+                            border: color === propValue ? "2px solid black" : "1px solid #e2e8f0",
+                          }}
+                          onClick={() => handleInputChange(propName, color)}
+                        >
+                          <span className="sr-only">{color}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </PopoverContent>
           </Popover>
           <Input 
@@ -556,6 +668,9 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Edit Component Settings</DialogTitle>
+            <DialogDescription>
+              Customize the appearance and behavior of the component
+            </DialogDescription>
           </DialogHeader>
           
           {editingComponent && (
@@ -628,7 +743,8 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                     return null;
                   }
                   
-                  if (propName === 'bold' || propName === 'italic' || propName === 'fontFamily') {
+                  if (propName === 'bold' || propName === 'italic' || propName === 'fontFamily' ||
+                      (editingComponent.type === 'header' && (propName === 'backgroundColor' || propName === 'textColor'))) {
                     return null;
                   }
                   
@@ -660,6 +776,9 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Configure API Integration</DialogTitle>
+            <DialogDescription>
+              Connect this component to an API to display dynamic data
+            </DialogDescription>
           </DialogHeader>
           
           {editingComponent && (
@@ -692,7 +811,51 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                       Map component properties to API response data
                     </p>
                     
-                    {Object.keys(editingComponent.props).map((propName) => (
+                    {editingComponent.type === 'alert' && (
+                      <>
+                        <div className="grid grid-cols-2 gap-2 items-center">
+                          <div>
+                            <Label className="text-sm">Title:</Label>
+                          </div>
+                          <Input
+                            placeholder="response.title"
+                            value={apiDataMapping['title'] || ""}
+                            onChange={(e) => setApiDataMapping({
+                              ...apiDataMapping,
+                              'title': e.target.value
+                            })}
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 items-center">
+                          <div>
+                            <Label className="text-sm">Message:</Label>
+                          </div>
+                          <Input
+                            placeholder="response.message"
+                            value={apiDataMapping['message'] || ""}
+                            onChange={(e) => setApiDataMapping({
+                              ...apiDataMapping,
+                              'message': e.target.value
+                            })}
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 items-center">
+                          <div>
+                            <Label className="text-sm">Alert Type:</Label>
+                          </div>
+                          <Input
+                            placeholder="response.type"
+                            value={apiDataMapping['type'] || ""}
+                            onChange={(e) => setApiDataMapping({
+                              ...apiDataMapping,
+                              'type': e.target.value
+                            })}
+                          />
+                        </div>
+                      </>
+                    )}
+                    
+                    {editingComponent.type !== 'alert' && Object.keys(editingComponent.props).map((propName) => (
                       <div key={propName} className="grid grid-cols-2 gap-2 items-center">
                         <div>
                           <Label className="text-sm capitalize">
