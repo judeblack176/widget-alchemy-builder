@@ -236,65 +236,69 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Tooltips</h3>
-        <div className="flex space-x-2">
+      {/* Fixed header section that doesn't scroll */}
+      <div className="sticky top-0 bg-white z-10 pb-4 space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-medium">Tooltips</h3>
+          <div className="flex space-x-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex items-center gap-1"
+                    onClick={handleImportDialogOpen}
+                  >
+                    <Upload size={16} className="inline-flex" />
+                    <span>Import</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Import tooltips from CSV or Excel</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex items-center gap-1"
+              onClick={handleAddNewTooltip}
+            >
+              <Plus size={16} className="inline-flex" />
+              <span>Add Tooltip</span>
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex gap-2 mb-2">
+          <SearchBar 
+            onSearch={handleSearch} 
+            placeholder="Search tooltips..." 
+            className="flex-1"
+          />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  size="sm"
+                  size="icon"
                   variant="outline"
-                  className="flex items-center gap-1"
-                  onClick={handleImportDialogOpen}
+                  onClick={toggleSortDirection}
+                  className="flex items-center justify-center"
                 >
-                  <Upload size={16} className="inline-flex" />
-                  <span>Import</span>
+                  {sortDirection === 'asc' ? <SortAsc size={16} /> : <SortDesc size={16} />}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Import tooltips from CSV or Excel</p>
+                <p>Sort {sortDirection === 'asc' ? 'A to Z' : 'Z to A'}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex items-center gap-1"
-            onClick={handleAddNewTooltip}
-          >
-            <Plus size={16} className="inline-flex" />
-            <span>Add Tooltip</span>
-          </Button>
         </div>
       </div>
 
-      <div className="flex gap-2 mb-2">
-        <SearchBar 
-          onSearch={handleSearch} 
-          placeholder="Search tooltips..." 
-          className="flex-1"
-        />
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={toggleSortDirection}
-                className="flex items-center justify-center"
-              >
-                {sortDirection === 'asc' ? <SortAsc size={16} /> : <SortDesc size={16} />}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Sort {sortDirection === 'asc' ? 'A to Z' : 'Z to A'}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-
+      {/* Scrollable content area */}
       <ScrollArea className="h-[calc(100vh-240px)]">
         {filteredAndSortedTooltips.length === 0 ? (
           <div className="py-8 text-center text-gray-500">

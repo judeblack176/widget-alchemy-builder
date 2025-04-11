@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -88,7 +87,6 @@ const Index = () => {
   }, [widgetId, toast]);
 
   const handleAddComponent = (component: WidgetComponent) => {
-    // Check if trying to add an alert when one already exists
     if (component.type === 'alert' && widgetComponents.some(c => c.type === 'alert')) {
       toast({
         title: "Alert Already Exists",
@@ -426,20 +424,25 @@ const Index = () => {
         </header>
         
         <div className="flex flex-1 overflow-hidden">
-          <div className="w-1/4 border-r border-gray-200 bg-white p-4 overflow-y-auto">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="w-full">
-                <TabsTrigger value="components" className="flex-1">Components</TabsTrigger>
-                <TabsTrigger value="tooltips" className="flex-1">Tooltips</TabsTrigger>
-                <TabsTrigger value="apis" className="flex-1">APIs</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="components" className="mt-4">
+          <div className="w-1/4 border-r border-gray-200 bg-white p-4 overflow-hidden flex flex-col">
+            <div className="sticky top-0 bg-white z-10">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="w-full">
+                  <TabsTrigger value="components" className="flex-1">Components</TabsTrigger>
+                  <TabsTrigger value="tooltips" className="flex-1">Tooltips</TabsTrigger>
+                  <TabsTrigger value="apis" className="flex-1">APIs</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+            
+            <div className="flex-1 overflow-hidden">
+              <TabsContent value="components" className="mt-4 h-full overflow-hidden">
                 <Droppable droppableId="component-library" isDropDisabled={true}>
                   {(provided) => (
                     <div
                       {...provided.droppableProps}
                       ref={provided.innerRef}
+                      className="h-full overflow-hidden"
                     >
                       <ComponentLibrary 
                         onAddComponent={handleAddComponent} 
@@ -451,7 +454,7 @@ const Index = () => {
                 </Droppable>
               </TabsContent>
               
-              <TabsContent value="tooltips" className="mt-4">
+              <TabsContent value="tooltips" className="mt-4 h-full overflow-hidden">
                 <TooltipManager
                   tooltips={tooltips}
                   onAddTooltip={handleAddTooltip}
@@ -460,7 +463,7 @@ const Index = () => {
                 />
               </TabsContent>
               
-              <TabsContent value="apis" className="mt-4">
+              <TabsContent value="apis" className="mt-4 h-full overflow-hidden">
                 <ApiManager 
                   apis={apis} 
                   onAddApi={handleAddApi} 
@@ -468,7 +471,7 @@ const Index = () => {
                   onUpdateApi={handleUpdateApi}
                 />
               </TabsContent>
-            </Tabs>
+            </div>
           </div>
           
           <div className="w-2/5 p-4 bg-widget-gray overflow-y-auto">
