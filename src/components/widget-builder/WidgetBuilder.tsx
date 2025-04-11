@@ -125,10 +125,8 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         <div className="mb-4">
           <SearchBar
             placeholder="Search components..."
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="w-full"
             onSearch={handleSearch}
+            className="w-full"
           />
         </div>
         
