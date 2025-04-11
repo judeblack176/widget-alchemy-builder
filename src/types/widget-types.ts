@@ -40,3 +40,12 @@ export interface WidgetConfig {
   components: WidgetComponent[];
   apis: ApiConfig[];
 }
+
+export type CalendarServiceType = 'google' | 'outlook' | 'apple' | 'custom';
+
+export interface CalendarIntegrationConfig {
+  serviceType: CalendarServiceType;
+  apiKey?: string;
+  calendarId?: string;
+  syncEnabled: boolean;
+}

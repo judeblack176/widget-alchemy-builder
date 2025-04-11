@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { WidgetComponent, ApiConfig } from "@/types/widget-types";
+import { WidgetComponent, ApiConfig, CalendarServiceType } from "@/types/widget-types";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUp, ArrowDown, Settings, Trash2, Link } from "lucide-react";
+import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar } from "lucide-react";
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -27,8 +27,10 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   const [editingComponent, setEditingComponent] = useState<WidgetComponent | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isApiConfigOpen, setIsApiConfigOpen] = useState(false);
+  const [isCalendarConfigOpen, setIsCalendarConfigOpen] = useState(false);
   const [selectedApiId, setSelectedApiId] = useState<string>("");
   const [apiDataMapping, setApiDataMapping] = useState<Record<string, string>>({});
+  const [calendarServiceType, setCalendarServiceType] = useState<CalendarServiceType | 'none'>('none');
 
   const handleMoveUp = (index: number) => {
     if (index > 0) {
@@ -58,6 +60,14 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     setIsApiConfigOpen(true);
   };
 
+  const handleOpenCalendarConfig = (component: WidgetComponent) => {
+    if (component.type === 'calendar') {
+      setEditingComponent(component);
+      setCalendarServiceType(component.props.calendarIntegration?.serviceType || 'none');
+      setIsCalendarConfigOpen(true);
+    }
+  };
+
   const handleSaveSettings = () => {
     if (editingComponent) {
       onUpdateComponent(editingComponent);
@@ -78,6 +88,25 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
       
       onUpdateComponent(updatedComponent);
       setIsApiConfigOpen(false);
+      setEditingComponent(null);
+    }
+  };
+
+  const handleSaveCalendarConfig = () => {
+    if (editingComponent && editingComponent.type === 'calendar') {
+      const updatedComponent = {
+        ...editingComponent,
+        props: {
+          ...editingComponent.props,
+          calendarIntegration: {
+            serviceType: calendarServiceType,
+            syncEnabled: calendarServiceType !== 'none'
+          }
+        }
+      };
+      
+      onUpdateComponent(updatedComponent);
+      setIsCalendarConfigOpen(false);
       setEditingComponent(null);
     }
   };
@@ -169,6 +198,46 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           onChange={(e) => handleInputChange(propName, e.target.value.split(",").map(v => v.trim()))}
         />
       );
+    } else if (propName === "calendarIntegration.serviceType") {
+      return (
+        <Select
+          value={component.props.calendarIntegration?.serviceType || 'none'}
+          onValueChange={(value) => {
+            const calendarIntegration = {
+              ...(component.props.calendarIntegration || {}),
+              serviceType: value as CalendarServiceType | 'none',
+              syncEnabled: value !== 'none'
+            };
+            handleInputChange('calendarIntegration', calendarIntegration);
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select calendar service" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            <SelectItem value="google">Google Calendar</SelectItem>
+            <SelectItem value="outlook">Outlook Calendar</SelectItem>
+            <SelectItem value="apple">Apple Calendar</SelectItem>
+            <SelectItem value="custom">Custom Calendar</SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    } else if (propName === "allowExternalSync" && typeof propValue === "boolean") {
+      return (
+        <Select
+          value={propValue.toString()}
+          onValueChange={(value) => handleInputChange(propName, value === "true")}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="true">Yes</SelectItem>
+            <SelectItem value="false">No</SelectItem>
+          </SelectContent>
+        </Select>
+      );
     } else if (typeof propValue === "boolean") {
       return (
         <Select
@@ -242,6 +311,16 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                 >
                   <Settings size={16} />
                 </Button>
+                {component.type === 'calendar' && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className={`h-8 w-8 p-0 ${component.props.calendarIntegration?.serviceType !== 'none' ? 'text-green-500' : ''}`}
+                    onClick={() => handleOpenCalendarConfig(component)}
+                  >
+                    <Calendar size={16} />
+                  </Button>
+                )}
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -268,7 +347,16 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
               {component.type === "video" && "Video"}
               {component.type === "chart" && `Chart: ${component.props.type}`}
               {component.type === "form" && `Form: ${component.props.label}`}
-              {component.type === "calendar" && `Calendar: ${component.props.label}`}
+              {component.type === "calendar" && (
+                <>
+                  {`Calendar: ${component.props.label}`}
+                  {component.props.calendarIntegration?.serviceType && component.props.calendarIntegration?.serviceType !== 'none' && (
+                    <span className="ml-2 text-xs bg-green-50 text-green-800 p-1 rounded inline-block capitalize">
+                      {component.props.calendarIntegration.serviceType}
+                    </span>
+                  )}
+                </>
+              )}
               {component.type === "dropdown" && `Dropdown: ${component.props.label}`}
               {component.type === "link" && `Link: ${component.props.text}`}
               {component.type === "multi-text" && `Multi-text: ${component.props.label}`}
@@ -291,14 +379,19 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           {editingComponent && (
             <div className="py-4">
               <div className="space-y-4">
-                {Object.entries(editingComponent.props).map(([propName, propValue]) => (
-                  <div key={propName} className="grid gap-2">
-                    <Label htmlFor={propName} className="capitalize">
-                      {propName.replace(/([A-Z])/g, ' $1').trim()}
-                    </Label>
-                    {renderPropertyEditor(propName, propValue, editingComponent)}
-                  </div>
-                ))}
+                {Object.entries(editingComponent.props).map(([propName, propValue]) => {
+                  if (typeof propValue === 'object' && propValue !== null && !Array.isArray(propValue)) {
+                    return null;
+                  }
+                  return (
+                    <div key={propName} className="grid gap-2">
+                      <Label htmlFor={propName} className="capitalize">
+                        {propName.replace(/([A-Z])/g, ' $1').trim()}
+                      </Label>
+                      {renderPropertyEditor(propName, propValue, editingComponent)}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -379,6 +472,104 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
             </Button>
             <Button onClick={handleSaveApiConfig}>
               Save Configuration
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isCalendarConfigOpen} onOpenChange={setIsCalendarConfigOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Configure Calendar Integration</DialogTitle>
+          </DialogHeader>
+          
+          {editingComponent && editingComponent.type === 'calendar' && (
+            <div className="py-4">
+              <div className="space-y-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="calendar-service">Calendar Service</Label>
+                  <Select
+                    value={calendarServiceType}
+                    onValueChange={(value: any) => setCalendarServiceType(value)}
+                  >
+                    <SelectTrigger id="calendar-service">
+                      <SelectValue placeholder="Select a calendar service" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="google">Google Calendar</SelectItem>
+                      <SelectItem value="outlook">Outlook Calendar</SelectItem>
+                      <SelectItem value="apple">Apple Calendar</SelectItem>
+                      <SelectItem value="custom">Custom Calendar</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {calendarServiceType !== 'none' && (
+                  <div className="border rounded p-3 space-y-3">
+                    <h4 className="font-medium capitalize">{calendarServiceType} Calendar Integration</h4>
+                    
+                    {calendarServiceType === 'google' && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="google-api-key">Google API Key</Label>
+                          <Input id="google-api-key" placeholder="Enter your Google API Key" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="google-calendar-id">Calendar ID</Label>
+                          <Input id="google-calendar-id" placeholder="Enter calendar ID" />
+                        </div>
+                      </>
+                    )}
+                    
+                    {calendarServiceType === 'outlook' && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="outlook-client-id">Microsoft App Client ID</Label>
+                          <Input id="outlook-client-id" placeholder="Enter your Microsoft Client ID" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="outlook-tenant-id">Tenant ID</Label>
+                          <Input id="outlook-tenant-id" placeholder="Enter tenant ID" />
+                        </div>
+                      </>
+                    )}
+                    
+                    {calendarServiceType === 'apple' && (
+                      <div className="space-y-2">
+                        <Label htmlFor="apple-calendar-name">Apple Calendar Name</Label>
+                        <Input id="apple-calendar-name" placeholder="Enter calendar name" />
+                      </div>
+                    )}
+                    
+                    {calendarServiceType === 'custom' && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="custom-api-endpoint">API Endpoint</Label>
+                          <Input id="custom-api-endpoint" placeholder="https://example.com/calendar/api" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="custom-api-key">API Key</Label>
+                          <Input id="custom-api-key" placeholder="Enter API Key" />
+                        </div>
+                      </>
+                    )}
+                    
+                    <p className="text-xs text-gray-500 mt-2">
+                      Note: This is a mockup for demonstration. Actual authentication would require OAuth flow.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCalendarConfigOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveCalendarConfig}>
+              Save Integration
             </Button>
           </DialogFooter>
         </DialogContent>

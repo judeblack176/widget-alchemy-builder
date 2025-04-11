@@ -1,5 +1,5 @@
 import React from "react";
-import { WidgetComponent, ApiConfig } from "@/types/widget-types";
+import { WidgetComponent, ApiConfig, CalendarServiceType } from "@/types/widget-types";
 import { 
   BookOpen, 
   Type, 
@@ -13,8 +13,13 @@ import {
   CalendarDays,
   List,
   Link as LinkIcon,
-  Text
+  Text,
+  Calendar as CalendarIcon,
+  UploadCloud
 } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 interface WidgetPreviewProps {
   components: WidgetComponent[];
@@ -145,20 +150,82 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
           </div>
         );
 
-      case "calendar":
+      case "calendar": {
+        const allowExternalSync = component.props.allowExternalSync === true;
+        const serviceType = component.props.calendarIntegration?.serviceType || 'none';
+        
+        const getCalendarServiceIcon = (type: string) => {
+          switch (type) {
+            case 'google':
+              return <div className="text-red-500">G</div>;
+            case 'outlook':
+              return <div className="text-blue-500">O</div>;
+            case 'apple':
+              return <div className="text-gray-500">A</div>;
+            case 'custom':
+              return <div className="text-purple-500">C</div>;
+            default:
+              return null;
+          }
+        };
+        
         return (
           <div className="p-3">
             <label className="block text-sm font-medium mb-1">
               {component.props.label}
+              {serviceType !== 'none' && (
+                <span className="ml-2 text-xs inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 rounded">
+                  {getCalendarServiceIcon(serviceType)}
+                  <span className="ml-1 capitalize">{serviceType}</span>
+                </span>
+              )}
             </label>
-            <div className="relative">
-              <div className="flex items-center w-full p-2 border rounded-md bg-white">
-                <CalendarDays size={16} className="mr-2 text-gray-500" />
-                <span className="text-gray-500">{component.props.placeholder}</span>
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <div className="relative cursor-pointer">
+                  <div className="flex items-center w-full p-2 border rounded-md bg-white">
+                    <CalendarDays size={16} className="mr-2 text-gray-500" />
+                    <span className="text-gray-500">{component.props.placeholder}</span>
+                  </div>
+                </div>
+              </PopoverTrigger>
+              {allowExternalSync && (
+                <PopoverContent className="w-auto p-0">
+                  <div className="p-2">
+                    <Calendar />
+                    {serviceType === 'none' && (
+                      <div className="mt-2 border-t pt-2">
+                        <p className="text-xs text-gray-500 mb-2">Connect to external calendar</p>
+                        <div className="flex flex-wrap gap-1">
+                          <Button size="sm" variant="outline" className="text-xs h-7">
+                            <div className="mr-1 text-red-500 font-bold">G</div> Google
+                          </Button>
+                          <Button size="sm" variant="outline" className="text-xs h-7">
+                            <div className="mr-1 text-blue-500 font-bold">O</div> Outlook
+                          </Button>
+                          <Button size="sm" variant="outline" className="text-xs h-7">
+                            <div className="mr-1 text-gray-500 font-bold">A</div> Apple
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </PopoverContent>
+              )}
+            </Popover>
+            
+            {allowExternalSync && serviceType === 'none' && (
+              <div className="mt-2">
+                <Button variant="outline" size="sm" className="text-xs w-full">
+                  <UploadCloud size={14} className="mr-1" />
+                  Connect Calendar
+                </Button>
               </div>
-            </div>
+            )}
           </div>
         );
+      }
 
       case "dropdown":
         return (

@@ -134,12 +134,20 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       defaultProps: {
         label: "Select Date",
         placeholder: "Pick a date",
-        initialDate: ""
+        initialDate: "",
+        calendarIntegration: {
+          serviceType: "none",
+          syncEnabled: false
+        },
+        allowExternalSync: false
       },
       availableProps: [
         { name: "label", type: "text", label: "Label" },
         { name: "placeholder", type: "text", label: "Placeholder" },
-        { name: "initialDate", type: "text", label: "Initial Date (YYYY-MM-DD)" }
+        { name: "initialDate", type: "text", label: "Initial Date (YYYY-MM-DD)" },
+        { name: "allowExternalSync", type: "select", label: "Allow External Calendar Sync", options: ["true", "false"] },
+        { name: "calendarIntegration.serviceType", type: "select", label: "Calendar Service", 
+          options: ["none", "google", "outlook", "apple", "custom"] }
       ]
     },
     {
