@@ -21,6 +21,7 @@ interface WidgetBuilderProps {
   onUpdateComponent: (component: WidgetComponent) => void;
   onRemoveComponent: (componentId: string) => void;
   onReorderComponents: (components: WidgetComponent[]) => void;
+  onRequestApiTemplate?: (componentId: string) => void;
 }
 
 const WidgetBuilder: React.FC<WidgetBuilderProps> = ({

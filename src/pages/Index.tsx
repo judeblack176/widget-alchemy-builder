@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -289,7 +290,7 @@ const Index = () => {
       ...componentToUpdate,
       apiConfig: {
         apiId: apiToUse.id,
-        fields: {}
+        dataMapping: {}  // Fixed: Initialize with empty dataMapping object
       }
     };
     
