@@ -58,3 +58,11 @@ export interface ICSConfig {
   icsUrl?: string;
   syncInterval?: 'hourly' | 'daily' | 'weekly' | 'never';
 }
+
+export interface ColorPalette {
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  textColor: string;
+  backgroundColor: string;
+}

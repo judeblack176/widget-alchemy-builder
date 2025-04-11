@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar, Download, Upload, RefreshCw } from "lucide-react";
+import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar, Download, Upload, RefreshCw, Palette } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -164,6 +165,68 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   };
 
   const renderPropertyEditor = (propName: string, propValue: any, component: WidgetComponent) => {
+    if ((propName === "color" || propName === "backgroundColor" || propName === "textColor" || 
+        propName === "borderColor" || propName.includes("Color")) && 
+        typeof propValue === "string" && 
+        (propValue.startsWith("#") || propValue === "transparent")) {
+      return (
+        <div className="flex items-center space-x-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="w-8 h-8 p-0 border-2" 
+                style={{ backgroundColor: propValue }}
+              >
+                <span className="sr-only">Pick a color</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64">
+              <div className="grid grid-cols-5 gap-2">
+                {[
+                  "#FFFFFF", "#F8FAFC", "#F1F5F9", "#E2E8F0", "#CBD5E1",
+                  "#94A3B8", "#64748B", "#475569", "#334155", "#1E293B",
+                  "#0F172A", "#000000", "#EF4444", "#F97316", "#F59E0B",
+                  "#EAB308", "#84CC16", "#22C55E", "#10B981", "#14B8A6",
+                  "#06B6D4", "#0EA5E9", "#3B82F6", "#6366F1", "#8B5CF6",
+                  "#A855F7", "#D946EF", "#EC4899", "#F43F5E", "transparent"
+                ].map(color => (
+                  <Button
+                    key={color}
+                    variant="outline"
+                    className={`w-8 h-8 rounded-md p-0 ${color === "transparent" ? "bg-transparent" : ""}`}
+                    style={{ 
+                      backgroundColor: color, 
+                      border: color === propValue ? "2px solid black" : "1px solid #e2e8f0",
+                      boxShadow: color === propValue ? "0 0 0 2px rgba(0,0,0,0.1)" : "none"
+                    }}
+                    onClick={() => handleInputChange(propName, color)}
+                  >
+                    <span className="sr-only">{color}</span>
+                  </Button>
+                ))}
+              </div>
+              <div className="flex items-center mt-3">
+                <Label htmlFor={`custom-${propName}`} className="mr-2 text-xs">Custom:</Label>
+                <Input
+                  id={`custom-${propName}`}
+                  value={propValue}
+                  onChange={(e) => handleInputChange(propName, e.target.value)}
+                  className="h-8 font-mono text-xs"
+                />
+              </div>
+            </PopoverContent>
+          </Popover>
+          <Input 
+            type="text"
+            value={propValue}
+            onChange={(e) => handleInputChange(propName, e.target.value)}
+            className="flex-1"
+          />
+        </div>
+      );
+    }
+    
     if (propName === "actions" && Array.isArray(propValue)) {
       return (
         <Select 
@@ -236,6 +299,13 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         <Input 
           value={propValue.join(", ")} 
           onChange={(e) => handleInputChange(propName, e.target.value.split(",").map(v => v.trim()))}
+        />
+      );
+    } else if (propName === "colors" && Array.isArray(propValue)) {
+      return (
+        <Input 
+          value={propValue.join(", ")} 
+          onChange={(e) => handleInputChange(propName, e.target.value.split(","))}
         />
       );
     } else if (propName === "calendarIntegration.serviceType") {

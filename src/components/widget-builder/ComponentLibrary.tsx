@@ -1,4 +1,3 @@
-
 import React from "react";
 import { ComponentDefinition, WidgetComponent } from "@/types/widget-types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +12,8 @@ import {
   CalendarDays, 
   List, 
   Link as LinkIcon, 
-  Text 
+  Text,
+  Palette
 } from "lucide-react";
 
 interface ComponentLibraryProps {
@@ -29,12 +29,16 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       defaultProps: {
         icon: "BookOpen",
         title: "Widget Title",
-        actions: ["Edit", "More"]
+        actions: ["Edit", "More"],
+        backgroundColor: "#3B82F6",
+        textColor: "#FFFFFF"
       },
       availableProps: [
         { name: "icon", type: "icon", label: "Icon" },
         { name: "title", type: "text", label: "Title" },
-        { name: "actions", type: "select", label: "Actions", options: ["None", "Edit", "More", "Both"] }
+        { name: "actions", type: "select", label: "Actions", options: ["None", "Edit", "More", "Both"] },
+        { name: "backgroundColor", type: "color", label: "Background Color" },
+        { name: "textColor", type: "color", label: "Text Color" }
       ]
     },
     {
@@ -44,12 +48,16 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       defaultProps: {
         content: "Your text content here",
         size: "medium",
-        color: "#333333"
+        color: "#333333",
+        backgroundColor: "transparent",
+        fontWeight: "normal"
       },
       availableProps: [
         { name: "content", type: "text", label: "Content" },
         { name: "size", type: "select", label: "Size", options: ["small", "medium", "large"] },
-        { name: "color", type: "color", label: "Color" }
+        { name: "color", type: "color", label: "Text Color" },
+        { name: "backgroundColor", type: "color", label: "Background Color" },
+        { name: "fontWeight", type: "select", label: "Font Weight", options: ["normal", "bold", "light"] }
       ]
     },
     {
@@ -74,12 +82,16 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       defaultProps: {
         label: "Click me",
         style: "primary",
-        action: "none"
+        action: "none",
+        backgroundColor: "#3B82F6",
+        textColor: "#FFFFFF"
       },
       availableProps: [
         { name: "label", type: "text", label: "Label" },
         { name: "style", type: "select", label: "Style", options: ["primary", "secondary", "outline"] },
-        { name: "action", type: "text", label: "Action" }
+        { name: "action", type: "text", label: "Action" },
+        { name: "backgroundColor", type: "color", label: "Background Color" },
+        { name: "textColor", type: "color", label: "Text Color" }
       ]
     },
     {
@@ -104,12 +116,20 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       defaultProps: {
         type: "bar",
         data: [10, 20, 30, 40],
-        labels: ["A", "B", "C", "D"]
+        labels: ["A", "B", "C", "D"],
+        colors: ["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6"],
+        backgroundColor: "#FFFFFF",
+        borderColor: "#E5E7EB",
+        legendPosition: "top"
       },
       availableProps: [
-        { name: "type", type: "select", label: "Chart Type", options: ["bar", "line", "pie"] },
+        { name: "type", type: "select", label: "Chart Type", options: ["bar", "line", "pie", "doughnut", "radar"] },
         { name: "data", type: "text", label: "Data Values (comma separated)" },
-        { name: "labels", type: "text", label: "Labels (comma separated)" }
+        { name: "labels", type: "text", label: "Labels (comma separated)" },
+        { name: "colors", type: "text", label: "Chart Colors (comma separated hex)" },
+        { name: "backgroundColor", type: "color", label: "Background Color" },
+        { name: "borderColor", type: "color", label: "Border Color" },
+        { name: "legendPosition", type: "select", label: "Legend Position", options: ["top", "right", "bottom", "left", "none"] }
       ]
     },
     {
@@ -220,6 +240,7 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       case "List": return <List size={24} />;
       case "LinkIcon": return <LinkIcon size={24} />;
       case "Text": return <Text size={24} />;
+      case "Palette": return <Palette size={24} />;
       default: return <div className="w-6 h-6 bg-gray-200 rounded" />;
     }
   };

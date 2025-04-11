@@ -34,7 +34,13 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     switch (component.type) {
       case "header":
         return (
-          <div className="bg-widget-blue text-white p-3 flex justify-between items-center rounded-t-md">
+          <div 
+            className="p-3 flex justify-between items-center rounded-t-md"
+            style={{ 
+              backgroundColor: component.props.backgroundColor || "#3B82F6", 
+              color: component.props.textColor || "#FFFFFF" 
+            }}
+          >
             <div className="flex items-center">
               {component.props.icon === "BookOpen" && <BookOpen size={18} className="mr-2" />}
               {component.props.icon === "Type" && <Type size={18} className="mr-2" />}
@@ -46,12 +52,12 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
             </div>
             <div className="flex space-x-1">
               {component.props.actions?.includes("Edit") && (
-                <button className="p-1 hover:bg-blue-600 rounded">
+                <button className="p-1 hover:opacity-80 rounded">
                   <Edit size={16} />
                 </button>
               )}
               {component.props.actions?.includes("More") && (
-                <button className="p-1 hover:bg-blue-600 rounded">
+                <button className="p-1 hover:opacity-80 rounded">
                   <MoreHorizontal size={16} />
                 </button>
               )}
@@ -66,7 +72,9 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
             style={{ 
               fontSize: component.props.size === "small" ? "0.875rem" : 
                       component.props.size === "large" ? "1.25rem" : "1rem",
-              color: component.props.color || "#333333"
+              color: component.props.color || "#333333",
+              backgroundColor: component.props.backgroundColor || "transparent",
+              fontWeight: component.props.fontWeight || "normal"
             }}
           >
             {component.props.content}
@@ -88,18 +96,16 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         );
       
       case "button":
-        const buttonStyles = {
-          primary: "bg-widget-blue text-white hover:bg-blue-600",
-          secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300",
-          outline: "border border-widget-blue text-widget-blue hover:bg-blue-50"
-        };
-        
         return (
           <div className="p-3">
             <button 
-              className={`px-4 py-2 rounded transition-colors w-full flex items-center justify-center ${
-                buttonStyles[component.props.style as keyof typeof buttonStyles] || buttonStyles.primary
-              }`}
+              className="px-4 py-2 rounded transition-colors w-full flex items-center justify-center"
+              style={{ 
+                backgroundColor: component.props.backgroundColor || "#3B82F6",
+                color: component.props.textColor || "#FFFFFF",
+                border: component.props.style === "outline" ? "1px solid" : "none",
+                borderColor: component.props.style === "outline" ? (component.props.backgroundColor || "#3B82F6") : "transparent"
+              }}
             >
               <MousePointer size={16} className="mr-2" />
               {component.props.label}
@@ -120,9 +126,18 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       case "chart":
         return (
           <div className="p-3">
-            <div className="bg-gray-100 rounded-md p-3 h-[150px] flex items-center justify-center">
-              <BarChart size={24} className="mr-2 text-widget-blue" />
-              <span>{component.props.type.charAt(0).toUpperCase() + component.props.type.slice(1)} Chart</span>
+            <div 
+              className="rounded-md p-3 h-[150px] flex items-center justify-center"
+              style={{
+                backgroundColor: component.props.backgroundColor || "#F8FAFC",
+                border: "1px solid",
+                borderColor: component.props.borderColor || "#E2E8F0"
+              }}
+            >
+              <BarChart size={24} className="mr-2" style={{ color: component.props.colors?.[0] || "#3B82F6" }} />
+              <span style={{ color: component.props.textColor || "#1E293B" }}>
+                {component.props.type.charAt(0).toUpperCase() + component.props.type.slice(1)} Chart
+              </span>
             </div>
           </div>
         );
