@@ -5,12 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar, Download, Upload, RefreshCw, Palette, Bold, Italic } from "lucide-react";
+import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar, RefreshCw, Palette, Bold, Italic } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -44,6 +45,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     syncInterval: 'daily'
   });
   const [activeColorGroup, setActiveColorGroup] = useState<string>("neutrals");
+  const [selectedProperty, setSelectedProperty] = useState<string>("");
 
   const handleMoveUp = (index: number) => {
     if (index > 0) {
@@ -551,6 +553,23 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     
     return <Input value={JSON.stringify(propValue)} disabled />;
   };
+  
+  const getSelectedApiFields = () => {
+    if (!selectedApiId) return [];
+    
+    const api = apis.find(api => api.id === selectedApiId);
+    return api?.possibleFields || [];
+  };
+  
+  const handleSelectField = (field: string) => {
+    if (selectedProperty) {
+      setApiDataMapping({
+        ...apiDataMapping,
+        [selectedProperty]: field
+      });
+      setSelectedProperty("");
+    }
+  };
 
   return (
     <div className="space-y-3">
@@ -654,6 +673,9 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
               {component.type === "dropdown" && `Dropdown: ${component.props.label}`}
               {component.type === "link" && `Link: ${component.props.text}`}
               {component.type === "multi-text" && `Multi-text: ${component.props.label}`}
+              {component.type === "alert" && `Alert: ${component.props.title || "Alert"}`}
+              {component.type === "filter" && `Filter: ${component.props.label || "Filter"}`}
+              {component.type === "table" && `Table: ${component.props.title || "Table"}`}
             </div>
             {component.apiConfig && (
               <div className="mt-1 text-xs bg-blue-50 text-blue-800 p-1 rounded inline-block">
@@ -773,7 +795,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
       </Dialog>
       
       <Dialog open={isApiConfigOpen} onOpenChange={setIsApiConfigOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[650px] max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Configure API Integration</DialogTitle>
             <DialogDescription>
@@ -782,13 +804,19 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           </DialogHeader>
           
           {editingComponent && (
-            <div className="py-4">
+            <div className="py-4 overflow-y-auto">
               <div className="space-y-4">
                 <div className="grid gap-2">
                   <Label htmlFor="api-selection">Select API</Label>
                   <Select
                     value={selectedApiId}
-                    onValueChange={(value) => setSelectedApiId(value)}
+                    onValueChange={(value) => {
+                      setSelectedApiId(value);
+                      // Reset data mapping when changing APIs
+                      if (value !== selectedApiId) {
+                        setApiDataMapping(editingComponent.apiConfig?.dataMapping || {});
+                      }
+                    }}
                   >
                     <SelectTrigger id="api-selection">
                       <SelectValue placeholder="Select an API" />
@@ -806,333 +834,31 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                 
                 {selectedApiId && (
                   <div className="border rounded p-3 space-y-3">
-                    <h4 className="font-medium">Data Mapping</h4>
-                    <p className="text-sm text-gray-500">
-                      Map component properties to API response data
-                    </p>
-                    
-                    {editingComponent.type === 'alert' && (
-                      <>
-                        <div className="grid grid-cols-2 gap-2 items-center">
-                          <div>
-                            <Label className="text-sm">Title:</Label>
-                          </div>
-                          <Input
-                            placeholder="response.title"
-                            value={apiDataMapping['title'] || ""}
-                            onChange={(e) => setApiDataMapping({
-                              ...apiDataMapping,
-                              'title': e.target.value
-                            })}
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 items-center">
-                          <div>
-                            <Label className="text-sm">Message:</Label>
-                          </div>
-                          <Input
-                            placeholder="response.message"
-                            value={apiDataMapping['message'] || ""}
-                            onChange={(e) => setApiDataMapping({
-                              ...apiDataMapping,
-                              'message': e.target.value
-                            })}
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 items-center">
-                          <div>
-                            <Label className="text-sm">Alert Type:</Label>
-                          </div>
-                          <Input
-                            placeholder="response.type"
-                            value={apiDataMapping['type'] || ""}
-                            onChange={(e) => setApiDataMapping({
-                              ...apiDataMapping,
-                              'type': e.target.value
-                            })}
-                          />
-                        </div>
-                      </>
-                    )}
-                    
-                    {editingComponent.type !== 'alert' && Object.keys(editingComponent.props).map((propName) => (
-                      <div key={propName} className="grid grid-cols-2 gap-2 items-center">
-                        <div>
-                          <Label className="text-sm capitalize">
-                            {propName.replace(/([A-Z])/g, ' $1').trim()}:
-                          </Label>
-                        </div>
-                        <Input
-                          placeholder="response.data.field"
-                          value={apiDataMapping[propName] || ""}
-                          onChange={(e) => setApiDataMapping({
-                            ...apiDataMapping,
-                            [propName]: e.target.value
-                          })}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsApiConfigOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveApiConfig}>
-              Save Configuration
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      <Dialog open={isCalendarConfigOpen} onOpenChange={setIsCalendarConfigOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Configure Calendar Integration</DialogTitle>
-          </DialogHeader>
-          
-          {editingComponent && editingComponent.type === 'calendar' && (
-            <div className="py-4">
-              <div className="space-y-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="calendar-service">Calendar Service</Label>
-                  <Select
-                    value={calendarServiceType}
-                    onValueChange={(value: any) => setCalendarServiceType(value)}
-                  >
-                    <SelectTrigger id="calendar-service">
-                      <SelectValue placeholder="Select a calendar service" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
-                      <SelectItem value="google">Google Calendar</SelectItem>
-                      <SelectItem value="outlook">Outlook Calendar</SelectItem>
-                      <SelectItem value="apple">Apple Calendar</SelectItem>
-                      <SelectItem value="custom">Custom Calendar</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                {calendarServiceType !== 'none' && (
-                  <div className="border rounded p-3 space-y-3">
-                    <h4 className="font-medium capitalize">{calendarServiceType} Calendar Integration</h4>
-                    
-                    {calendarServiceType === 'google' && (
-                      <>
-                        <div className="space-y-2">
-                          <Label htmlFor="google-api-key">Google API Key</Label>
-                          <Input id="google-api-key" placeholder="Enter your Google API Key" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="google-calendar-id">Calendar ID</Label>
-                          <Input id="google-calendar-id" placeholder="Enter calendar ID" />
-                        </div>
-                      </>
-                    )}
-                    
-                    {calendarServiceType === 'outlook' && (
-                      <>
-                        <div className="space-y-2">
-                          <Label htmlFor="outlook-client-id">Microsoft App Client ID</Label>
-                          <Input id="outlook-client-id" placeholder="Enter your Microsoft Client ID" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="outlook-tenant-id">Tenant ID</Label>
-                          <Input id="outlook-tenant-id" placeholder="Enter tenant ID" />
-                        </div>
-                      </>
-                    )}
-                    
-                    {calendarServiceType === 'apple' && (
-                      <div className="space-y-2">
-                        <Label htmlFor="apple-calendar-name">Apple Calendar Name</Label>
-                        <Input id="apple-calendar-name" placeholder="Enter calendar name" />
-                      </div>
-                    )}
-                    
-                    {calendarServiceType === 'custom' && (
-                      <>
-                        <div className="space-y-2">
-                          <Label htmlFor="custom-api-endpoint">API Endpoint</Label>
-                          <Input id="custom-api-endpoint" placeholder="https://example.com/calendar/api" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="custom-api-key">API Key</Label>
-                          <Input id="custom-api-key" placeholder="Enter API Key" />
-                        </div>
-                      </>
-                    )}
-                    
-                    <p className="text-xs text-gray-500 mt-2">
-                      Note: This is a mockup for demonstration. Actual authentication would require OAuth flow.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCalendarConfigOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveCalendarConfig}>
-              Save Integration
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      <Dialog open={isIcsConfigOpen} onOpenChange={setIsIcsConfigOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Configure ICS Integration</DialogTitle>
-          </DialogHeader>
-          
-          {editingComponent && editingComponent.type === 'calendar' && (
-            <div className="py-4">
-              <div className="space-y-4">
-                <div className="grid gap-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="ics-enabled">Enable ICS Integration</Label>
-                    <Select
-                      value={icsConfig.enabled ? "true" : "false"}
-                      onValueChange={(value) => setIcsConfig({
-                        ...icsConfig,
-                        enabled: value === "true"
-                      })}
-                    >
-                      <SelectTrigger id="ics-enabled" className="w-24">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="true">Yes</SelectItem>
-                        <SelectItem value="false">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                {icsConfig.enabled && (
-                  <div className="border rounded p-3 space-y-3">
-                    <h4 className="font-medium">ICS Options</h4>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="import-enabled">Import ICS Files</Label>
-                        <Select
-                          value={icsConfig.importEnabled ? "true" : "false"}
-                          onValueChange={(value) => setIcsConfig({
-                            ...icsConfig,
-                            importEnabled: value === "true"
-                          })}
-                        >
-                          <SelectTrigger id="import-enabled">
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="true">Yes</SelectItem>
-                            <SelectItem value="false">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="export-enabled">Export as ICS</Label>
-                        <Select
-                          value={icsConfig.exportEnabled ? "true" : "false"}
-                          onValueChange={(value) => setIcsConfig({
-                            ...icsConfig,
-                            exportEnabled: value === "true"
-                          })}
-                        >
-                          <SelectTrigger id="export-enabled">
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="true">Yes</SelectItem>
-                            <SelectItem value="false">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div className="flex justify-between">
+                      <h4 className="font-medium">Data Mapping</h4>
+                      <span className="text-xs text-gray-500">Map component properties to API data</span>
                     </div>
                     
-                    <div className="space-y-2">
-                      <Label htmlFor="allow-subscribe">Allow Subscribe to ICS URL</Label>
-                      <Select
-                        value={icsConfig.allowSubscribe ? "true" : "false"}
-                        onValueChange={(value) => setIcsConfig({
-                          ...icsConfig,
-                          allowSubscribe: value === "true"
-                        })}
-                      >
-                        <SelectTrigger id="allow-subscribe">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="true">Yes</SelectItem>
-                          <SelectItem value="false">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    {icsConfig.allowSubscribe && (
-                      <div className="space-y-2">
-                        <Label htmlFor="ics-url">ICS Feed URL</Label>
-                        <Input
-                          id="ics-url"
-                          placeholder="https://example.com/calendar.ics"
-                          value={icsConfig.icsUrl || ''}
-                          onChange={(e) => setIcsConfig({
-                            ...icsConfig,
-                            icsUrl: e.target.value
-                          })}
-                        />
-                      </div>
-                    )}
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="sync-interval">Sync Interval</Label>
-                      <Select
-                        value={icsConfig.syncInterval || 'daily'}
-                        onValueChange={(value: 'hourly' | 'daily' | 'weekly' | 'never') => setIcsConfig({
-                          ...icsConfig,
-                          syncInterval: value
-                        })}
-                      >
-                        <SelectTrigger id="sync-interval">
-                          <SelectValue placeholder="Select interval" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="hourly">Hourly</SelectItem>
-                          <SelectItem value="daily">Daily</SelectItem>
-                          <SelectItem value="weekly">Weekly</SelectItem>
-                          <SelectItem value="never">Never</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsIcsConfigOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveIcsConfig}>
-              Save Configuration
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
-
-export default WidgetBuilder;
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-4">
+                        <h5 className="text-sm font-medium">Component Properties</h5>
+                        
+                        {editingComponent.type === 'alert' && (
+                          <>
+                            <div className="grid grid-cols-2 gap-2 items-center">
+                              <div>
+                                <Label className="text-sm">Title:</Label>
+                              </div>
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="response.title"
+                                  value={apiDataMapping['title'] || ""}
+                                  onChange={(e) => setApiDataMapping({
+                                    ...apiDataMapping,
+                                    'title': e.target.value
+                                  })}
+                                  className="flex-1"
+                                />
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"

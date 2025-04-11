@@ -1,14 +1,18 @@
 
 import React, { useState } from "react";
-import { ApiConfig } from "@/types/widget-types";
+import { ApiConfig, extractFieldPaths } from "@/types/widget-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Plus, Globe, Code } from "lucide-react";
+import { Trash2, Plus, Globe, Code, List, UploadCloud } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ApiManagerProps {
   apis: ApiConfig[];
@@ -18,6 +22,7 @@ interface ApiManagerProps {
 }
 
 const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, onUpdateApi }) => {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
   const [selectedApiForEdit, setSelectedApiForEdit] = useState<string | null>(null);
@@ -28,7 +33,9 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
     method: "GET",
     headers: {},
     parameters: {},
-    responseMapping: {}
+    responseMapping: {},
+    sampleResponse: "",
+    possibleFields: []
   });
   
   const [headerKey, setHeaderKey] = useState("");
@@ -45,7 +52,9 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
       method: "GET",
       headers: {},
       parameters: {},
-      responseMapping: {}
+      responseMapping: {},
+      sampleResponse: "",
+      possibleFields: []
     });
     setHeaderKey("");
     setHeaderValue("");
@@ -99,6 +108,31 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
     }
   };
 
+  const processSampleResponse = () => {
+    if (!newApi.sampleResponse) return;
+    
+    try {
+      const jsonData = JSON.parse(newApi.sampleResponse);
+      const extractedFields = extractFieldPaths(jsonData);
+      
+      setNewApi({
+        ...newApi,
+        possibleFields: extractedFields
+      });
+      
+      toast({
+        title: "Fields Extracted",
+        description: `Successfully extracted ${extractedFields.length} possible fields from the sample response.`
+      });
+    } catch (error) {
+      toast({
+        title: "Invalid JSON",
+        description: "Please enter valid JSON for the sample response.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleSubmit = () => {
     if (newApi.name && newApi.endpoint && newApi.method) {
       if (selectedApiForEdit) {
@@ -110,7 +144,9 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
           method: newApi.method as 'GET' | 'POST' | 'PUT' | 'DELETE',
           headers: newApi.headers,
           parameters: newApi.parameters,
-          responseMapping: newApi.responseMapping
+          responseMapping: newApi.responseMapping,
+          sampleResponse: newApi.sampleResponse,
+          possibleFields: newApi.possibleFields
         });
       } else {
         // Add new API
@@ -121,7 +157,9 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
           method: newApi.method as 'GET' | 'POST' | 'PUT' | 'DELETE',
           headers: newApi.headers,
           parameters: newApi.parameters,
-          responseMapping: newApi.responseMapping
+          responseMapping: newApi.responseMapping,
+          sampleResponse: newApi.sampleResponse,
+          possibleFields: newApi.possibleFields
         });
       }
       
@@ -160,6 +198,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                 <TabsTrigger value="general">General</TabsTrigger>
                 <TabsTrigger value="headers">Headers</TabsTrigger>
                 <TabsTrigger value="params">Parameters</TabsTrigger>
+                <TabsTrigger value="sample">Sample Response</TabsTrigger>
                 <TabsTrigger value="mapping">Response Mapping</TabsTrigger>
               </TabsList>
               
@@ -301,11 +340,59 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                 </div>
               </TabsContent>
               
+              <TabsContent value="sample" className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label>Sample API Response</Label>
+                    <Button 
+                      type="button" 
+                      size="sm" 
+                      onClick={processSampleResponse}
+                      variant="outline"
+                    >
+                      <UploadCloud size={14} className="mr-1" /> Process Response
+                    </Button>
+                  </div>
+                  <Textarea 
+                    placeholder="Paste a sample JSON response from this API"
+                    value={newApi.sampleResponse || ''}
+                    onChange={(e) => setNewApi({ ...newApi, sampleResponse: e.target.value })}
+                    className="min-h-[200px] font-mono text-sm"
+                  />
+                  
+                  {newApi.possibleFields && newApi.possibleFields.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      <Label>Available Fields</Label>
+                      <ScrollArea className="h-[150px] border rounded-md p-2">
+                        <div className="flex flex-wrap gap-2">
+                          {newApi.possibleFields.map((field, index) => (
+                            <Badge 
+                              key={index} 
+                              variant="outline" 
+                              className="font-mono text-xs cursor-pointer hover:bg-slate-100"
+                              onClick={() => {
+                                setMappingValue(field);
+                                setActiveTab("mapping");
+                              }}
+                            >
+                              {field}
+                            </Badge>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                      <p className="text-xs text-gray-500">
+                        Click on a field to use it in response mapping
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+              
               <TabsContent value="mapping" className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label>Response Data Mapping</Label>
-                    <span className="text-xs text-gray-500">Map API response fields to component properties</span>
+                    <span className="text-xs text-gray-500">Map component properties to API response data</span>
                   </div>
                   <div className="flex space-x-2">
                     <Input
@@ -330,8 +417,29 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                     </Button>
                   </div>
                   
+                  {newApi.possibleFields && newApi.possibleFields.length > 0 && (
+                    <div className="mt-2 p-2 bg-gray-50 rounded-md">
+                      <Label className="text-xs mb-1">Available Fields (click to use)</Label>
+                      <ScrollArea className="h-[100px]">
+                        <div className="flex flex-wrap gap-1">
+                          {newApi.possibleFields.map((field, index) => (
+                            <Badge 
+                              key={index} 
+                              variant="outline" 
+                              className="font-mono text-xs cursor-pointer hover:bg-slate-100"
+                              onClick={() => setMappingValue(field)}
+                            >
+                              {field}
+                            </Badge>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  )}
+                  
                   {newApi.responseMapping && Object.keys(newApi.responseMapping).length > 0 && (
-                    <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
+                    <div className="mt-4 p-2 bg-gray-50 rounded-md text-sm">
+                      <Label className="text-xs mb-1">Current Mappings</Label>
                       {Object.entries(newApi.responseMapping).map(([key, value]) => (
                         <div key={key} className="flex justify-between items-center py-1">
                           <span className="font-mono">{key} → {value}</span>
@@ -421,7 +529,33 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                     <span className="font-semibold w-20">Mapping:</span>
                     <span className="text-xs">{api.responseMapping ? Object.keys(api.responseMapping).length : 0} defined</span>
                   </div>
+                  <div className="flex">
+                    <span className="font-semibold w-20">Fields:</span>
+                    <span className="text-xs">{api.possibleFields ? api.possibleFields.length : 0} available</span>
+                  </div>
                 </div>
+                
+                {api.possibleFields && api.possibleFields.length > 0 && (
+                  <div className="mt-2 pt-2 border-t">
+                    <Label className="text-xs mb-1">Available Fields</Label>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {api.possibleFields.slice(0, 5).map((field, index) => (
+                        <Badge 
+                          key={index} 
+                          variant="outline" 
+                          className="font-mono text-xs"
+                        >
+                          {field}
+                        </Badge>
+                      ))}
+                      {api.possibleFields.length > 5 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{api.possibleFields.length - 5} more
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
@@ -432,4 +566,3 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
 };
 
 export default ApiManager;
-

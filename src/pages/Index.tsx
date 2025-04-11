@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
 import ComponentLibrary from "@/components/widget-builder/ComponentLibrary";
@@ -6,7 +5,7 @@ import WidgetPreview from "@/components/widget-builder/WidgetPreview";
 import ApiManager from "@/components/widget-builder/ApiManager";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { WidgetComponent, ApiConfig } from "@/types/widget-types";
+import type { WidgetComponent, ApiConfig, extractFieldPaths } from "@/types/widget-types";
 
 const Index = () => {
   const { toast } = useToast();
@@ -53,7 +52,19 @@ const Index = () => {
   };
 
   const handleAddApi = (api: ApiConfig) => {
-    setApis([...apis, api]);
+    // Process sample response if provided to extract possible fields
+    let processedApi = {...api};
+    if (api.sampleResponse) {
+      try {
+        const jsonData = JSON.parse(api.sampleResponse);
+        processedApi.possibleFields = extractFieldPaths(jsonData);
+      } catch (error) {
+        // If JSON parsing fails, just keep the API as is
+        console.error("Failed to parse sample response", error);
+      }
+    }
+    
+    setApis([...apis, processedApi]);
     toast({
       title: "API Added",
       description: `Added API: ${api.name}`
@@ -61,7 +72,20 @@ const Index = () => {
   };
 
   const handleUpdateApi = (apiId: string, updatedApi: ApiConfig) => {
-    setApis(apis.map(api => api.id === apiId ? updatedApi : api));
+    // Process sample response if provided to extract possible fields
+    let processedApi = {...updatedApi};
+    if (updatedApi.sampleResponse) {
+      try {
+        const jsonData = JSON.parse(updatedApi.sampleResponse);
+        processedApi.possibleFields = extractFieldPaths(jsonData);
+      } catch (error) {
+        // If JSON parsing fails, just keep the API as is
+        console.error("Failed to parse sample response", error);
+      }
+    }
+    
+    setApis(apis.map(api => api.id === apiId ? processedApi : api));
+    
     toast({
       title: "API Updated",
       description: `Updated API: ${updatedApi.name}`
@@ -192,4 +216,3 @@ const Index = () => {
 };
 
 export default Index;
-
