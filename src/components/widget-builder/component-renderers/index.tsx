@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { WidgetComponent, AlertType, TableColumn } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
@@ -124,7 +125,7 @@ const getTooltipContent = (tooltipId: string, customTooltips?: CustomTooltip[]) 
 };
 
 const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any, onDismiss?: (id: string) => void) => {
-  const { props, type } = component;
+  const { props, type, id } = component;
   
   let finalProps = { ...props };
   if (component.apiConfig && apiData) {
