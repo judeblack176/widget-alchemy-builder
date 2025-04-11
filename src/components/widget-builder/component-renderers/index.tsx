@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { WidgetComponent, AlertType, TableColumn } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
@@ -61,7 +62,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
             marginLeft: -16,
             marginRight: -16,
             width: 'calc(100% + 32px)',
-            borderBottom: '2px solid black',
           }}
         >
           <div className="flex items-center text-left">
