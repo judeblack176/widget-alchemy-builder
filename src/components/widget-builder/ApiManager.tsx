@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ApiConfig, extractFieldPaths } from "@/types/widget-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,7 +83,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
     
     toast({
       title: "API Template Saved",
-      description: `"${api.name}" is now available as a template."
+      description: `"${api.name}" is now available as a template.`
     });
   };
   
