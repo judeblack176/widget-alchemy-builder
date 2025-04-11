@@ -34,29 +34,25 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   const MAX_COMPONENTS = alertComponents.length > 0 ? 7 : 6;
   const atComponentLimit = components.length >= MAX_COMPONENTS;
 
+  // Separate the header component from other components
+  const headerComponent = components.find(c => c.type === 'header');
+  const nonHeaderComponents = components.filter(c => c.type !== 'header');
+
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
     if (result.destination.index === result.source.index) return;
 
-    // Check if trying to move the header component
-    const draggedItemId = result.draggableId;
-    const draggedComponent = components.find(c => c.id === draggedItemId);
-    
-    if (draggedComponent?.type === 'header') {
-      return; // Prevent header from being moved
-    }
-    
-    // Check if trying to move another component before header
-    const headerIndex = components.findIndex(c => c.type === 'header');
-    if (headerIndex !== -1 && result.destination.index < headerIndex) {
-      return; // Prevent components from being placed before header
-    }
-
-    const items = Array.from(components);
+    // Copy only the non-header components for reordering
+    const items = Array.from(nonHeaderComponents);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    onReorderComponents(items);
+    // Combine with header component if it exists
+    const reorderedComponents = headerComponent 
+      ? [headerComponent, ...items] 
+      : items;
+
+    onReorderComponents(reorderedComponents);
   };
 
   const handleSearch = (query: string) => {
@@ -85,6 +81,12 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     return false;
   });
 
+  // Separate filtered components into header and non-header for rendering
+  const filteredHeaderComponent = headerComponent && filteredComponents.includes(headerComponent) 
+    ? headerComponent 
+    : null;
+  const filteredNonHeaderComponents = filteredComponents.filter(c => c.type !== 'header');
+
   return (
     <div className="space-y-4">
       {atComponentLimit && (
@@ -105,55 +107,79 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           <p className="text-gray-500">Add components to your widget from the left panel</p>
         </Card>
       ) : (
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="components">
-            {(provided) => (
-              <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                className="space-y-4"
-              >
-                {filteredComponents.map((component, index) => (
-                  <Draggable 
-                    key={component.id} 
-                    draggableId={component.id} 
-                    index={index}
-                    isDragDisabled={component.type === 'header'} // Make header non-draggable
-                  >
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className={`relative ${component.type === 'header' ? 'cursor-default' : ''}`}
-                      >
-                        <Card className={`bg-white border shadow-sm ${component.type === 'header' ? 'border-blue-500' : ''}`}>
-                          <ComponentEditor
-                            component={component}
-                            apis={apis}
-                            isExpanded={expandedComponentId === component.id}
-                            onToggleExpand={() => 
-                              setExpandedComponentId(
-                                expandedComponentId === component.id ? null : component.id
-                              )
-                            }
-                            onUpdateComponent={onUpdateComponent}
-                            onRemoveComponent={component.type === 'header' ? undefined : onRemoveComponent} // Prevent header removal
-                            onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
-                            onApplyTooltip={onApplyTooltip ? 
-                              (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
-                              undefined}
-                          />
-                        </Card>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+        <div className="space-y-4">
+          {/* Render header component outside of drag context if it exists and matches filter */}
+          {filteredHeaderComponent && (
+            <Card className="bg-white border border-blue-500 shadow-sm">
+              <ComponentEditor
+                component={filteredHeaderComponent}
+                apis={apis}
+                isExpanded={expandedComponentId === filteredHeaderComponent.id}
+                onToggleExpand={() => 
+                  setExpandedComponentId(
+                    expandedComponentId === filteredHeaderComponent.id ? null : filteredHeaderComponent.id
+                  )
+                }
+                onUpdateComponent={onUpdateComponent}
+                onRemoveComponent={undefined} // Prevent header removal
+                onRequestApiTemplate={() => onRequestApiTemplate(filteredHeaderComponent.id)}
+                onApplyTooltip={onApplyTooltip ? 
+                  (tooltipId: string) => onApplyTooltip(filteredHeaderComponent.id, tooltipId) : 
+                  undefined}
+              />
+            </Card>
+          )}
+          
+          {/* Only make non-header components draggable */}
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="components">
+              {(provided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="space-y-4"
+                >
+                  {filteredNonHeaderComponents.map((component, index) => (
+                    <Draggable 
+                      key={component.id} 
+                      draggableId={component.id} 
+                      index={index}
+                    >
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="relative"
+                        >
+                          <Card className="bg-white border shadow-sm">
+                            <ComponentEditor
+                              component={component}
+                              apis={apis}
+                              isExpanded={expandedComponentId === component.id}
+                              onToggleExpand={() => 
+                                setExpandedComponentId(
+                                  expandedComponentId === component.id ? null : component.id
+                                )
+                              }
+                              onUpdateComponent={onUpdateComponent}
+                              onRemoveComponent={onRemoveComponent}
+                              onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
+                              onApplyTooltip={onApplyTooltip ? 
+                                (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
+                                undefined}
+                            />
+                          </Card>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </div>
       )}
     </div>
   );
