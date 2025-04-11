@@ -436,18 +436,18 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent, exi
 
   let sortedDefinitions = [...filteredDefinitions];
   
+  const headerDef = sortedDefinitions.find(d => d.type === "header");
+  const alertDef = sortedDefinitions.find(d => d.type === "alert");
+  const otherDefs = sortedDefinitions.filter(d => d.type !== "header" && d.type !== "alert");
+  
   if (sortOrder === "a-z") {
-    const headerDef = sortedDefinitions.find(d => d.type === "header");
-    const alertDef = sortedDefinitions.find(d => d.type === "alert");
-    const otherDefs = sortedDefinitions.filter(d => d.type !== "header" && d.type !== "alert");
-    
     otherDefs.sort((a, b) => a.name.localeCompare(b.name));
-    
-    sortedDefinitions = [];
-    if (headerDef) sortedDefinitions.push(headerDef);
-    if (alertDef) sortedDefinitions.push(alertDef);
-    sortedDefinitions = [...sortedDefinitions, ...otherDefs];
   }
+  
+  sortedDefinitions = [];
+  if (headerDef) sortedDefinitions.push(headerDef);
+  if (alertDef) sortedDefinitions.push(alertDef);
+  sortedDefinitions = [...sortedDefinitions, ...otherDefs];
 
   return (
     <div className="space-y-4">
