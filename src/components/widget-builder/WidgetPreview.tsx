@@ -18,7 +18,11 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   const [apiData, setApiData] = useState<Record<string, any>>({});
   const { toast } = useToast();
   const MAX_COMPONENTS = 6;
-  const displayComponents = components.slice(0, MAX_COMPONENTS);
+  
+  // Extract header component and non-header components
+  const headerComponent = components.find(c => c.type === 'header');
+  const nonHeaderComponents = components.filter(c => c.type !== 'header');
+  const displayComponents = nonHeaderComponents.slice(0, headerComponent ? MAX_COMPONENTS - 1 : MAX_COMPONENTS);
   const hasExcessComponents = components.length > MAX_COMPONENTS;
 
   useEffect(() => {
@@ -76,9 +80,39 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     }
   };
 
+  const renderComponentWithTooltip = (component: WidgetComponent, index: number) => (
+    <div 
+      key={component.id} 
+      className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}
+      style={{
+        borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
+      }}
+    >
+      {component.tooltipId && component.tooltipId !== "" ? (
+        <div className="relative">
+          <div className="absolute right-0 top-0 z-10">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="cursor-help">
+                  <HelpCircle size={16} className="text-gray-500" />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{getTooltipContent(component.tooltipId)}</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          {renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined)}
+        </div>
+      ) : (
+        renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined)
+      )}
+    </div>
+  );
+
   return (
     <Card 
-      className="bg-white shadow-md rounded-lg overflow-hidden"
+      className="bg-white shadow-md rounded-lg overflow-hidden relative"
       style={{ 
         width: '316px', 
         height: '384px',
@@ -86,47 +120,33 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         maxHeight: '384px'
       }}
     >
+      {/* Render header component fixed at the top */}
+      {headerComponent && (
+        <TooltipProvider>
+          <div className="sticky top-0 z-20">
+            {renderComponentWithTooltip(headerComponent, 0)}
+          </div>
+        </TooltipProvider>
+      )}
+      
       <ScrollArea className="h-full overflow-x-hidden">
         <TooltipProvider>
-          {displayComponents.map((component, index) => (
-            <div 
-              key={component.id} 
-              className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}
-              style={{
-                borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
-              }}
-            >
-              {component.tooltipId && component.tooltipId !== "" ? (
-                <div className="relative">
-                  <div className="absolute right-0 top-0 z-10">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="cursor-help">
-                          <HelpCircle size={16} className="text-gray-500" />
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{getTooltipContent(component.tooltipId)}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  {renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined)}
-                </div>
-              ) : (
-                renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined)
-              )}
-            </div>
-          ))}
-          
-          {hasExcessComponents && (
-            <Alert variant="destructive" className="mt-2 mx-4 mb-4 py-2">
-              <AlertCircle className="h-4 w-4 mr-2" />
-              <AlertDescription>
-                Only showing {MAX_COMPONENTS} of {components.length} components. 
-                Widgets are limited to {MAX_COMPONENTS} components.
-              </AlertDescription>
-            </Alert>
-          )}
+          {/* Apply padding top if header exists to prevent content from being hidden */}
+          <div className={headerComponent ? "pt-2" : ""}>
+            {displayComponents.map((component, index) => 
+              renderComponentWithTooltip(component, index + (headerComponent ? 1 : 0))
+            )}
+            
+            {hasExcessComponents && (
+              <Alert variant="destructive" className="mt-2 mx-4 mb-4 py-2">
+                <AlertCircle className="h-4 w-4 mr-2" />
+                <AlertDescription>
+                  Only showing {MAX_COMPONENTS} of {components.length} components. 
+                  Widgets are limited to {MAX_COMPONENTS} components.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
         </TooltipProvider>
       </ScrollArea>
     </Card>

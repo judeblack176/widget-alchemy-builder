@@ -89,7 +89,7 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
     case 'header':
       return (
         <div 
-          className="w-full p-3"
+          className="w-full p-3 sticky top-0 z-10"
           style={{
             backgroundColor: finalProps.backgroundColor || '#3B82F6',
             color: finalProps.textColor || '#FFFFFF',
