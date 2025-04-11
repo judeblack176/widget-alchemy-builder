@@ -1,4 +1,3 @@
-
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -45,6 +44,7 @@ import {
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -257,6 +257,16 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const isHeader = component.type === 'header';
 
+  const getTooltipIcon = (tooltipId: string) => {
+    switch(tooltipId) {
+      case "help": return <HelpCircle size={16} className="text-blue-500" />;
+      case "info": return <Info size={16} className="text-green-500" />;
+      case "warning": return <AlertTriangle size={16} className="text-amber-500" />;
+      case "tip": return <Star size={16} className="text-purple-500" />;
+      default: return null;
+    }
+  };
+
   return (
     <div className={`p-4 ${isExpanded ? 'border-t border-gray-200' : ''}`}>
       <div className="flex justify-between items-center mb-2">
@@ -344,7 +354,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                             <SelectItem key={option.id} value={option.id}>
                               {option.id !== "none" ? (
                                 <div className="flex items-center gap-2">
-                                  <HelpCircle size={16} />
+                                  {getTooltipIcon(option.id)}
                                   <span>{option.label}</span>
                                 </div>
                               ) : (
