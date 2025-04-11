@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -25,6 +24,7 @@ const Index = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const widgetId = queryParams.get('widgetId');
+  const MAX_COMPONENTS = 6;
 
   const [widgetComponents, setWidgetComponents] = useState<WidgetComponent[]>([
     {
@@ -87,6 +87,15 @@ const Index = () => {
   }, [widgetId, toast]);
 
   const handleAddComponent = (component: WidgetComponent) => {
+    if (widgetComponents.length >= MAX_COMPONENTS) {
+      toast({
+        title: "Component Limit Reached",
+        description: `Widgets are limited to ${MAX_COMPONENTS} components. Please remove a component first.`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setWidgetComponents([...widgetComponents, {...component, id: `${component.type}-${Date.now()}`}]);
     toast({
       title: "Component Added",

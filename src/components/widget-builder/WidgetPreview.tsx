@@ -4,7 +4,8 @@ import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
 import { renderComponent } from './component-renderers';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface WidgetPreviewProps {
   components: WidgetComponent[];
@@ -13,6 +14,9 @@ interface WidgetPreviewProps {
 
 const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   const [apiData, setApiData] = useState<Record<string, any>>({});
+  const MAX_COMPONENTS = 6;
+  const displayComponents = components.slice(0, MAX_COMPONENTS);
+  const hasExcessComponents = components.length > MAX_COMPONENTS;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,10 +66,18 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   };
 
   return (
-    <Card className="w-full max-w-[400px] bg-white shadow-md rounded-lg overflow-hidden">
-      <div className="p-4 space-y-4">
+    <Card 
+      className="bg-white shadow-md rounded-lg overflow-hidden"
+      style={{ 
+        width: '316px', 
+        height: '384px',
+        maxWidth: '316px',
+        maxHeight: '384px'
+      }}
+    >
+      <div className="p-4 space-y-4 overflow-y-auto" style={{ height: '100%' }}>
         <TooltipProvider>
-          {components.map((component) => (
+          {displayComponents.map((component) => (
             <div key={component.id} className="widget-component relative">
               {component.tooltipId && component.tooltipId !== "" ? (
                 <div className="relative">
@@ -88,6 +100,16 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
               )}
             </div>
           ))}
+          
+          {hasExcessComponents && (
+            <Alert variant="destructive" className="mt-2 py-2">
+              <AlertCircle className="h-4 w-4 mr-2" />
+              <AlertDescription>
+                Only showing {MAX_COMPONENTS} of {components.length} components. 
+                Widgets are limited to {MAX_COMPONENTS} components.
+              </AlertDescription>
+            </Alert>
+          )}
         </TooltipProvider>
       </div>
     </Card>
