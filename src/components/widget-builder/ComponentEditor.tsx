@@ -69,7 +69,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   // Mock tooltips for the UI
   const tooltipOptions = [
-    { id: "", label: "No Tooltip" },
+    { id: "none", label: "No Tooltip" },  // Changed from empty string to "none"
     { id: "help", label: "Help Info" },
     { id: "info", label: "Additional Info" },
     { id: "warning", label: "Warning" },
@@ -210,8 +210,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                     <div className="mb-4">
                       <Label htmlFor="tooltip-select">Tooltip</Label>
                       <Select
-                        value={component.tooltipId || ""}
-                        onValueChange={(val) => onApplyTooltip(val)}
+                        value={component.tooltipId || "none"}  // Default to "none" instead of empty string
+                        onValueChange={(val) => onApplyTooltip(val === "none" ? "" : val)}  // Convert "none" back to empty string
                       >
                         <SelectTrigger id="tooltip-select" className="w-full">
                           <SelectValue placeholder="Select tooltip type" />
@@ -219,7 +219,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                         <SelectContent>
                           {tooltipOptions.map((option) => (
                             <SelectItem key={option.id} value={option.id}>
-                              {option.id ? (
+                              {option.id !== "none" ? (
                                 <div className="flex items-center gap-2">
                                   <HelpCircle size={16} />
                                   <span>{option.label}</span>

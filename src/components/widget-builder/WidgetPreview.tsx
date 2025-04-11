@@ -67,7 +67,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         <TooltipProvider>
           {components.map((component) => (
             <div key={component.id} className="widget-component relative">
-              {component.tooltipId ? (
+              {component.tooltipId && component.tooltipId !== "" ? (
                 <div className="relative">
                   <div className="absolute right-0 top-0 z-10">
                     <Tooltip>
