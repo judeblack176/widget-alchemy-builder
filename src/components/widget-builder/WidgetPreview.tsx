@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
@@ -49,7 +48,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     }
   }, [apis]);
   
-  // Get tooltip content based on tooltipId
   const getTooltipContent = (tooltipId: string) => {
     switch (tooltipId) {
       case "help":
@@ -67,7 +65,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
 
   return (
     <Card 
-      className="bg-white shadow-md rounded-lg overflow-hidden border-2 border-widget-blue"
+      className="bg-white shadow-md rounded-lg overflow-hidden border-2 border-black"
       style={{ 
         width: '316px', 
         height: '384px',
