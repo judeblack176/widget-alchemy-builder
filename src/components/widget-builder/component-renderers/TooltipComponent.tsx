@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Tooltip,
@@ -68,6 +69,8 @@ const TooltipComponent: React.FC<TooltipComponentProps> = ({
           side={side} 
           style={customStyles}
           className="max-w-xs"
+          sideOffset={5}
+          hasArrow={showArrow}
         >
           {content}
         </TooltipContent>
