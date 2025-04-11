@@ -1,6 +1,6 @@
 import { LucideIcon } from 'lucide-react';
 
-export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table' | 'searchbar' | 'code';
+export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table' | 'searchbar';
 
 export interface WidgetComponent {
   id: string;
@@ -209,6 +209,7 @@ export const COLOR_PALETTE = {
   ]
 };
 
+// Default data mapping configurations for each component type
 export const DEFAULT_DATA_MAPPINGS: Record<ComponentType, Record<string, string>> = {
   header: {
     title: "title",
@@ -276,11 +277,6 @@ export const DEFAULT_DATA_MAPPINGS: Record<ComponentType, Record<string, string>
   searchbar: {
     placeholder: "placeholder",
     label: "label"
-  },
-  code: {
-    content: "content",
-    language: "language",
-    title: "title"
   }
 };
 
