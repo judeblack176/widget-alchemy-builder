@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Check, X, Clock, LayoutGrid, List, Eye, Filter, Search } from "lucide-react";
 import ColorPalettePicker from "@/components/widget-builder/ColorPalettePicker";
 import { PREDEFINED_COLORS } from "@/types/widget-types";
