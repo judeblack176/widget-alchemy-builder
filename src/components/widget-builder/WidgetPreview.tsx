@@ -27,9 +27,21 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   
   const nonHeaderNonAlertComponents = components.filter(c => c.type !== 'header' && c.type !== 'alert');
   
-  const alertComponentsToDisplay = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
+  const displayableAlerts = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
+  
   const regularComponentsToDisplay = nonHeaderNonAlertComponents.slice(0, MAX_COMPONENTS);
-  const displayComponents = [...regularComponentsToDisplay, ...alertComponentsToDisplay];
+  
+  const displayComponents = components.filter(component => {
+    if (component.type === 'alert') {
+      return !dismissedAlerts.includes(component.id);
+    }
+    
+    if (component.type === 'header') {
+      return false;
+    }
+    
+    return regularComponentsToDisplay.includes(component);
+  });
   
   const hasExcessComponents = nonHeaderNonAlertComponents.length > MAX_COMPONENTS;
 

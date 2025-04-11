@@ -61,13 +61,21 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     if (!result.destination) return;
     if (result.destination.index === result.source.index) return;
 
-    const items = Array.from(components.filter(c => c.type !== 'header'));
+    const items = Array.from(nonHeaderNonAlertComponents);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    const reorderedComponents = headerComponent 
-      ? [headerComponent, ...items] 
-      : items;
+    let reorderedComponents = [];
+    
+    if (headerComponent) {
+      reorderedComponents.push(headerComponent);
+    }
+    
+    if (alertComponents.length > 0) {
+      reorderedComponents = [...reorderedComponents, ...alertComponents];
+    }
+    
+    reorderedComponents = [...reorderedComponents, ...items];
 
     onReorderComponents(reorderedComponents);
   };
@@ -98,7 +106,8 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   const filteredHeaderComponent = headerComponent && filteredComponents.includes(headerComponent) 
     ? headerComponent 
     : null;
-  const filteredNonHeaderComponents = filteredComponents.filter(c => c.type !== 'header');
+  const filteredAlertComponents = alertComponents.filter(alert => filteredComponents.includes(alert));
+  const filteredRegularComponents = filteredComponents.filter(c => c.type !== 'header' && c.type !== 'alert');
 
   return (
     <ScrollArea className="h-[calc(100vh-16rem)] pr-4">
@@ -156,6 +165,32 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
               </Card>
             )}
             
+            {filteredAlertComponents.length > 0 && (
+              <div className="space-y-4 mb-4">
+                {filteredAlertComponents.map((alertComponent) => (
+                  <Card key={alertComponent.id} className="bg-white border border-amber-500 shadow-sm">
+                    <ComponentEditor
+                      component={alertComponent}
+                      apis={apis}
+                      isExpanded={expandedComponentId === alertComponent.id}
+                      onToggleExpand={() => 
+                        setExpandedComponentId(
+                          expandedComponentId === alertComponent.id ? null : alertComponent.id
+                        )
+                      }
+                      onUpdateComponent={onUpdateComponent}
+                      onRemoveComponent={onRemoveComponent}
+                      onRequestApiTemplate={() => onRequestApiTemplate(alertComponent.id)}
+                      onApplyTooltip={onApplyTooltip ? 
+                        (tooltipId: string) => onApplyTooltip(alertComponent.id, tooltipId) : 
+                        undefined}
+                      customTooltips={tooltips}
+                    />
+                  </Card>
+                ))}
+              </div>
+            )}
+            
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="components">
                 {(provided) => (
@@ -164,7 +199,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                     ref={provided.innerRef}
                     className="space-y-4"
                   >
-                    {filteredNonHeaderComponents.map((component, index) => (
+                    {filteredRegularComponents.map((component, index) => (
                       <Draggable 
                         key={component.id} 
                         draggableId={component.id} 

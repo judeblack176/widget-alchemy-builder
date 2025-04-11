@@ -125,7 +125,23 @@ const Index = () => {
   };
 
   const handleReorderComponents = (reorderedComponents: WidgetComponent[]) => {
-    setWidgetComponents(reorderedComponents);
+    const headerComponent = reorderedComponents.find(c => c.type === 'header');
+    const alertComponents = widgetComponents.filter(c => c.type === 'alert');
+    const otherComponents = reorderedComponents.filter(c => c.type !== 'header' && c.type !== 'alert');
+    
+    let finalOrderComponents = [];
+    
+    if (headerComponent) {
+      finalOrderComponents.push(headerComponent);
+    }
+    
+    if (alertComponents.length > 0) {
+      finalOrderComponents = [...finalOrderComponents, ...alertComponents];
+    }
+    
+    finalOrderComponents = [...finalOrderComponents, ...otherComponents];
+    
+    setWidgetComponents(finalOrderComponents);
   };
 
   const handleAddApi = (api: ApiConfig) => {
