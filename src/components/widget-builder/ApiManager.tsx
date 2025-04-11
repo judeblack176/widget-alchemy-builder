@@ -240,7 +240,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
   return (
     <div className="space-y-4">
       <div className="my-6">
-        <div className="flex justify-between">
+        <div className="flex justify-between mb-4">
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="bg-widget-blue hover:bg-blue-600">
@@ -541,7 +541,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
           </Dialog>
         </div>
         
-        <div className="flex items-center gap-3 mt-3">
+        <div className="flex items-center gap-4 mt-3">
           <div className="w-64">
             <SearchBar 
               onSearch={handleSearch} 
@@ -554,12 +554,13 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
             variant="ghost"
             size="sm"
             onClick={toggleSort}
-            className="flex items-center gap-1 h-9 mr-auto p-2"
+            className="flex items-center gap-1 h-9 p-2"
           >
             {sortDirection === null && <ArrowDownAZ size={16} />}
             {sortDirection === "asc" && <ArrowDownAZ size={16} />}
             {sortDirection === "desc" && <ArrowUpZA size={16} />}
           </Button>
+          <div className="flex-grow"></div>
         </div>
       </div>
       
