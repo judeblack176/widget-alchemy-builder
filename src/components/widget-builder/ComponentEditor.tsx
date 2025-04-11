@@ -44,7 +44,12 @@ import {
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -347,7 +352,16 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                         onValueChange={(val) => onApplyTooltip(val === "none" ? "" : val)}
                       >
                         <SelectTrigger id="tooltip-select" className="w-full">
-                          <SelectValue placeholder="Select tooltip type" />
+                          <SelectValue placeholder="Select tooltip type">
+                            {component.tooltipId ? (
+                              <div className="flex items-center gap-2">
+                                {getTooltipIcon(component.tooltipId)}
+                                <span>{tooltipOptions.find(o => o.id === component.tooltipId)?.label || component.tooltipId}</span>
+                              </div>
+                            ) : (
+                              "No Tooltip"
+                            )}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {tooltipOptions.map((option) => (
