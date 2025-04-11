@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check } from "lucide-react";
+import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check, Search, ArrowDownAZ, ArrowUpZA } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import SearchBar from "./SearchBar";
 
 interface ApiManagerProps {
   apis: ApiConfig[];
@@ -30,6 +31,8 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
   const [activeTab, setActiveTab] = useState("general");
   const [selectedApiForEdit, setSelectedApiForEdit] = useState<string | null>(null);
   const [copyStatus, setCopyStatus] = useState<{[key: string]: boolean}>({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(null);
   
   const [newApi, setNewApi] = useState<Partial<ApiConfig>>({
     name: "",
@@ -205,6 +208,35 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
         });
       });
   };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const toggleSort = () => {
+    if (sortDirection === null) {
+      setSortDirection("asc");
+    } else if (sortDirection === "asc") {
+      setSortDirection("desc");
+    } else {
+      setSortDirection(null);
+    }
+  };
+
+  const filteredApis = apis.filter(api => 
+    api.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    api.endpoint.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    api.method.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sortedApis = [...filteredApis].sort((a, b) => {
+    if (sortDirection === null) return 0;
+    if (sortDirection === "asc") {
+      return a.name.localeCompare(b.name);
+    } else {
+      return b.name.localeCompare(a.name);
+    }
+  });
 
   return (
     <div className="space-y-4">
@@ -509,11 +541,40 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
         </Dialog>
       </div>
       
+      {apis.length > 0 && (
+        <div className="flex justify-between items-center mb-4">
+          <div className="w-full max-w-md">
+            <SearchBar 
+              onSearch={handleSearch} 
+              placeholder="Search APIs..." 
+              showIcon={true}
+              backgroundColor="#f9fafb"
+            />
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleSort}
+            className="flex items-center gap-1"
+          >
+            {sortDirection === null && "Sort"}
+            {sortDirection === "asc" && <ArrowDownAZ size={18} />}
+            {sortDirection === "desc" && <ArrowUpZA size={18} />}
+          </Button>
+        </div>
+      )}
+      
       {apis.length === 0 ? (
         <div className="p-8 text-center border border-dashed rounded-lg">
           <Globe className="mx-auto text-gray-400 mb-2" size={32} />
           <p className="text-gray-500">No APIs configured yet</p>
           <p className="text-sm text-gray-400 mt-1">Click "Add API" to create your first API integration</p>
+        </div>
+      ) : sortedApis.length === 0 ? (
+        <div className="p-8 text-center border border-dashed rounded-lg">
+          <Search className="mx-auto text-gray-400 mb-2" size={32} />
+          <p className="text-gray-500">No matching APIs found</p>
+          <p className="text-sm text-gray-400 mt-1">Try adjusting your search query</p>
         </div>
       ) : (
         <div className="rounded-md border">
@@ -526,7 +587,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
               </TableRow>
             </TableHeader>
             <TableBody>
-              {apis.map((api) => (
+              {sortedApis.map((api) => (
                 <TableRow key={api.id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
