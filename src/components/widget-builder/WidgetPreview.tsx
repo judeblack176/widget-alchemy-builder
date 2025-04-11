@@ -6,6 +6,7 @@ import { renderComponent } from './component-renderers';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { HelpCircle, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface WidgetPreviewProps {
   components: WidgetComponent[];
@@ -74,7 +75,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         maxHeight: '384px'
       }}
     >
-      <div className="overflow-y-auto" style={{ height: '100%' }}>
+      <ScrollArea className="h-full overflow-x-hidden">
         <TooltipProvider>
           {displayComponents.map((component, index) => (
             <div key={component.id} className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}>
@@ -110,7 +111,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
             </Alert>
           )}
         </TooltipProvider>
-      </div>
+      </ScrollArea>
     </Card>
   );
 };

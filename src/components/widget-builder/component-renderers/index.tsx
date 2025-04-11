@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { WidgetComponent, AlertType, TableColumn } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
@@ -315,7 +314,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
       
     case 'searchbar':
-      // Using a pre-defined SearchBar component instead of inline implementation with useState
       return (
         <SearchBar
           placeholder={finalProps.placeholder || "Search..."}
