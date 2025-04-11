@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig, CalendarServiceType, ICSConfig, PREDEFINED_COLORS, FontFamily, COLOR_PALETTE } from "@/types/widget-types";
 import { Card } from "@/components/ui/card";
@@ -305,7 +304,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                       variant="outline"
                       className="w-8 h-8 rounded-md p-0 bg-transparent"
                       style={{ 
-                        backgroundImage: "linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, white 25%, white 75%, #ccc 75%, #ccc)",
+                        backgroundImage: "linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc)",
                         backgroundSize: "6px 6px",
                         backgroundPosition: "0 0, 3px 3px",
                         border: "transparent" === propValue ? "2px solid black" : "1px solid #e2e8f0",
@@ -1130,7 +1129,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                   <div className="flex items-center justify-between">
                     <Label htmlFor="import-enabled">Allow ICS Import</Label>
                     <Select
-                      value={icsConfig.importEnabled.toString()}
+                      value={icsConfig.importEnabled?.toString() || "false"}
                       onValueChange={(value) => setIcsConfig({...icsConfig, importEnabled: value === "true"})}
                     >
                       <SelectTrigger id="import-enabled" className="w-24">
@@ -1148,7 +1147,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                   <div className="flex items-center justify-between">
                     <Label htmlFor="export-enabled">Allow ICS Export</Label>
                     <Select
-                      value={icsConfig.exportEnabled.toString()}
+                      value={icsConfig.exportEnabled?.toString() || "false"}
                       onValueChange={(value) => setIcsConfig({...icsConfig, exportEnabled: value === "true"})}
                     >
                       <SelectTrigger id="export-enabled" className="w-24">
@@ -1166,7 +1165,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                   <div className="flex items-center justify-between">
                     <Label htmlFor="subscribe-enabled">Allow ICS Subscription</Label>
                     <Select
-                      value={icsConfig.allowSubscribe.toString()}
+                      value={icsConfig.allowSubscribe?.toString() || "false"}
                       onValueChange={(value) => setIcsConfig({...icsConfig, allowSubscribe: value === "true"})}
                     >
                       <SelectTrigger id="subscribe-enabled" className="w-24">
@@ -1195,8 +1194,10 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                 <div className="grid gap-2">
                   <Label htmlFor="sync-interval">Sync Interval</Label>
                   <Select
-                    value={icsConfig.syncInterval}
-                    onValueChange={(value: string) => setIcsConfig({...icsConfig, syncInterval: value})}
+                    value={icsConfig.syncInterval || "daily"}
+                    onValueChange={(value: "hourly" | "daily" | "weekly" | "never") => 
+                      setIcsConfig({...icsConfig, syncInterval: value})
+                    }
                   >
                     <SelectTrigger id="sync-interval">
                       <SelectValue />
@@ -1205,7 +1206,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                       <SelectItem value="hourly">Hourly</SelectItem>
                       <SelectItem value="daily">Daily</SelectItem>
                       <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="manual">Manual</SelectItem>
+                      <SelectItem value="never">Never</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
