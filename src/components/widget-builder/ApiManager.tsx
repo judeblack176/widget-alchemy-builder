@@ -82,7 +82,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
     
     toast({
       title: "API Template Saved",
-      description: `"${api.name}" is now available as a template."
+      description: `"${api.name}" is now available as a template.`
     });
   };
   
