@@ -19,27 +19,21 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
   const { toast } = useToast();
   
-  // Get maximum component count based on alert presence
   const alertComponents = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
   const hasAlertComponent = alertComponents.length > 0;
   const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
   
-  // Extract header component and non-header, non-alert components
   const headerComponent = components.find(c => c.type === 'header');
   
-  // Filter out header and alerts from regular components so they don't count against the limit
   const nonHeaderNonAlertComponents = components.filter(c => c.type !== 'header' && c.type !== 'alert');
   
-  // Display all non-header components up to the limit, plus all alerts
   const alertComponentsToDisplay = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
   const regularComponentsToDisplay = nonHeaderNonAlertComponents.slice(0, MAX_COMPONENTS);
   const displayComponents = [...regularComponentsToDisplay, ...alertComponentsToDisplay];
   
-  // Check if we have more components than allowed (excluding header and alerts)
   const hasExcessComponents = nonHeaderNonAlertComponents.length > MAX_COMPONENTS;
 
   useEffect(() => {
-    // Show error toast when component limit is exceeded
     if (nonHeaderNonAlertComponents.length > MAX_COMPONENTS && !hasExcessComponents) {
       toast({
         title: "Maximum Components Exceeded",
@@ -118,14 +112,12 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   };
 
   const renderComponentWithTooltip = (component: WidgetComponent, index: number) => {
-    // Skip rendering dismissed alerts
     if (component.type === 'alert' && dismissedAlerts.includes(component.id)) {
       return null;
     }
     
     const componentContent = renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined, component.type === 'alert' ? handleAlertDismiss : undefined);
     
-    // If component has a tooltip, render it with hover card
     if (component.tooltipId && component.tooltipId !== "") {
       return (
         <div 
@@ -152,7 +144,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       );
     }
     
-    // Otherwise render the component normally
     return (
       <div 
         key={component.id} 
@@ -176,7 +167,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         maxHeight: '384px'
       }}
     >
-      {/* Render header component fixed at the top */}
       {headerComponent && (
         <TooltipProvider>
           <div className="sticky top-0 z-20">
@@ -187,7 +177,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       
       <ScrollArea className="h-full overflow-x-hidden">
         <TooltipProvider>
-          {/* Apply padding top if header exists to prevent content from being hidden */}
           <div className={headerComponent ? "pt-2" : ""}>
             {displayComponents.map((component, index) => 
               renderComponentWithTooltip(component, index + (headerComponent ? 1 : 0))
