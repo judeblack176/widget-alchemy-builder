@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Plus, Edit, Trash2, Upload, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export interface Tooltip {
   id: string;
@@ -33,6 +39,8 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
   const [currentTooltip, setCurrentTooltip] = useState<Tooltip | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddNewTooltip = () => {
     setCurrentTooltip(null);
@@ -101,19 +109,132 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
     });
   };
 
+  const handleImportDialogOpen = () => {
+    setIsImportDialogOpen(true);
+  };
+
+  const handleFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const csvData = event.target?.result as string;
+        const importedTooltips = parseCSVorExcel(csvData);
+        
+        if (importedTooltips.length === 0) {
+          toast({
+            title: "Import Failed",
+            description: "No valid tooltips found in the file.",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        importedTooltips.forEach(tooltip => {
+          onAddTooltip({
+            id: `tooltip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            title: tooltip.title,
+            content: tooltip.content
+          });
+        });
+
+        toast({
+          title: "Import Successful",
+          description: `${importedTooltips.length} tooltips imported.`
+        });
+        setIsImportDialogOpen(false);
+      } catch (error) {
+        console.error("Error parsing file:", error);
+        toast({
+          title: "Import Failed",
+          description: "There was an error processing the file. Please check the format.",
+          variant: "destructive"
+        });
+      }
+    };
+
+    reader.readAsText(file);
+    // Reset file input so the same file can be selected again
+    e.target.value = '';
+  };
+
+  const parseCSVorExcel = (data: string): { title: string; content: string }[] => {
+    const result: { title: string; content: string }[] = [];
+    
+    // Split by newlines and filter out empty lines
+    const lines = data.split(/\r?\n/).filter(line => line.trim().length > 0);
+    
+    if (lines.length === 0) return result;
+    
+    // Skip header row if it exists
+    const startIdx = lines[0].toLowerCase().includes('title') && 
+                     lines[0].toLowerCase().includes('content') ? 1 : 0;
+    
+    for (let i = startIdx; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // Try to split by comma first (CSV format)
+      let parts = line.split(',');
+      
+      // If we don't have at least 2 parts, try tab delimiter (Excel export format)
+      if (parts.length < 2) {
+        parts = line.split('\t');
+      }
+      
+      if (parts.length >= 2) {
+        const title = parts[0].trim();
+        // Join remaining parts as content in case content contains commas
+        const content = parts.slice(1).join(',').trim();
+        
+        if (title && content) {
+          result.push({ title, content });
+        }
+      }
+    }
+    
+    return result;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">Tooltips</h3>
-        <Button
-          size="sm"
-          variant="outline"
-          className="flex items-center gap-1"
-          onClick={handleAddNewTooltip}
-        >
-          <Plus size={16} />
-          Add Tooltip
-        </Button>
+        <div className="flex space-x-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex items-center gap-1"
+                  onClick={handleImportDialogOpen}
+                >
+                  <Upload size={16} />
+                  Import
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Import tooltips from CSV or Excel</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex items-center gap-1"
+            onClick={handleAddNewTooltip}
+          >
+            <Plus size={16} />
+            Add Tooltip
+          </Button>
+        </div>
       </div>
 
       <ScrollArea className="h-[calc(100vh-240px)]">
@@ -192,6 +313,47 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
             </Button>
             <Button onClick={handleSaveTooltip}>
               {currentTooltip ? 'Update' : 'Add'} Tooltip
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Dialog */}
+      <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Import Tooltips</DialogTitle>
+          </DialogHeader>
+          <div className="py-6">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <FileSpreadsheet size={48} className="text-gray-400" />
+              <div className="text-center">
+                <p className="text-sm text-gray-600 mb-1">
+                  Import tooltips from CSV or Excel files
+                </p>
+                <p className="text-xs text-gray-500 mb-4">
+                  File should have columns for Title and Content
+                </p>
+              </div>
+              <Button 
+                onClick={handleFileSelect} 
+                className="flex items-center gap-2"
+              >
+                <Upload size={16} />
+                Select File
+              </Button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept=".csv,.xls,.xlsx,.txt"
+                style={{ display: 'none' }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
+              Cancel
             </Button>
           </DialogFooter>
         </DialogContent>
