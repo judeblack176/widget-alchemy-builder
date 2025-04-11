@@ -354,8 +354,8 @@ const Index = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      <header className="bg-white border-b border-gray-200 p-4">
-        <div className="flex justify-between items-center">
+      <header className="bg-white border-b border-gray-200 p-4 w-full">
+        <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold text-widget-blue">EdTech Widget Builder</h1>
           <div className="flex space-x-2">
             <Link to="/admin/login">
