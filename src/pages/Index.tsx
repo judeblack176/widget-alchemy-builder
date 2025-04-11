@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -400,7 +401,8 @@ const Index = () => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="flex flex-col h-screen bg-gray-100">
-        <header className="bg-white border-b border-gray-200 p-4 w-full">
+        {/* Fixed header - always stays at top */}
+        <header className="bg-white border-b border-gray-200 p-4 w-full sticky top-0 z-50">
           <div className="container mx-auto flex justify-between items-center">
             <h1 className="text-2xl font-bold text-widget-blue">EdTech Widget Builder</h1>
             <div className="flex space-x-2">
@@ -424,10 +426,10 @@ const Index = () => {
         </header>
         
         <div className="flex flex-1 overflow-hidden">
-          <div className="w-1/4 border-r border-gray-200 bg-white p-4 overflow-hidden flex flex-col">
+          <div className="w-1/4 border-r border-gray-200 bg-white overflow-hidden flex flex-col">
             <div className="flex flex-col h-full">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
-                <div className="sticky top-0 bg-white z-10 pb-4">
+                <div className="sticky top-0 bg-white z-40 pb-4">
                   <TabsList className="w-full">
                     <TabsTrigger value="components" className="flex-1">Components</TabsTrigger>
                     <TabsTrigger value="tooltips" className="flex-1">Tooltips</TabsTrigger>
@@ -436,62 +438,70 @@ const Index = () => {
                 </div>
                 
                 <div className="flex-1 overflow-hidden">
-                  <TabsContent value="components" className="h-full overflow-auto">
-                    <Droppable droppableId="component-library" isDropDisabled={true}>
-                      {(provided) => (
-                        <div
-                          {...provided.droppableProps}
-                          ref={provided.innerRef}
-                          className="h-full"
-                        >
-                          <ComponentLibrary 
-                            onAddComponent={handleAddComponent} 
-                            existingComponents={widgetComponents}
-                          />
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
+                  <TabsContent value="components" className="h-full mt-0">
+                    <ScrollArea className="h-full pb-10">
+                      <Droppable droppableId="component-library" isDropDisabled={true}>
+                        {(provided) => (
+                          <div
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                            className="h-full px-4"
+                          >
+                            <ComponentLibrary 
+                              onAddComponent={handleAddComponent} 
+                              existingComponents={widgetComponents}
+                            />
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </ScrollArea>
                   </TabsContent>
                   
-                  <TabsContent value="tooltips" className="h-full overflow-auto">
-                    <TooltipManager
-                      tooltips={tooltips}
-                      onAddTooltip={handleAddTooltip}
-                      onUpdateTooltip={handleUpdateTooltip}
-                      onRemoveTooltip={handleRemoveTooltip}
-                    />
+                  <TabsContent value="tooltips" className="h-full mt-0">
+                    <ScrollArea className="h-full px-4 pb-10">
+                      <TooltipManager
+                        tooltips={tooltips}
+                        onAddTooltip={handleAddTooltip}
+                        onUpdateTooltip={handleUpdateTooltip}
+                        onRemoveTooltip={handleRemoveTooltip}
+                      />
+                    </ScrollArea>
                   </TabsContent>
                   
-                  <TabsContent value="apis" className="h-full overflow-auto">
-                    <ApiManager 
-                      apis={apis} 
-                      onAddApi={handleAddApi} 
-                      onRemoveApi={handleRemoveApi} 
-                      onUpdateApi={handleUpdateApi}
-                    />
+                  <TabsContent value="apis" className="h-full mt-0">
+                    <ScrollArea className="h-full px-4 pb-10">
+                      <ApiManager 
+                        apis={apis} 
+                        onAddApi={handleAddApi} 
+                        onRemoveApi={handleRemoveApi} 
+                        onUpdateApi={handleUpdateApi}
+                      />
+                    </ScrollArea>
                   </TabsContent>
                 </div>
               </Tabs>
             </div>
           </div>
           
-          <div className="w-2/5 p-4 bg-widget-gray overflow-hidden flex flex-col">
-            <div className="flex justify-between mb-4">
-              <h2 className="text-xl font-semibold">Widget Builder</h2>
-              <div className="space-x-2">
-                <Button
-                  variant="outline"
-                  className="gap-1"
-                  onClick={() => setIsApiTemplateModalOpen(true)}
-                >
-                  <Bookmark size={16} />
-                  API Templates
-                </Button>
+          <div className="w-2/5 bg-widget-gray overflow-hidden flex flex-col">
+            <div className="sticky top-0 z-40 bg-widget-gray p-4">
+              <div className="flex justify-between mb-4">
+                <h2 className="text-xl font-semibold">Widget Builder</h2>
+                <div className="space-x-2">
+                  <Button
+                    variant="outline"
+                    className="gap-1"
+                    onClick={() => setIsApiTemplateModalOpen(true)}
+                  >
+                    <Bookmark size={16} />
+                    API Templates
+                  </Button>
+                </div>
               </div>
             </div>
             
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden px-4 pb-4">
               <Droppable droppableId="widget-builder">
                 {(provided) => (
                   <div
@@ -516,29 +526,33 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="w-1/3 p-4 bg-gray-200 overflow-y-auto flex flex-col items-center">
-            <div className="flex justify-between items-center self-stretch mb-6">
-              <h2 className="text-xl font-semibold">Preview</h2>
-              <div className="space-x-2">
-                <Button
-                  onClick={handleSaveWidget}
-                  variant="default"
-                  size="default"
-                  className="bg-widget-blue hover:bg-blue-600 transition-colors"
-                >
-                  Save
-                </Button>
-                <Button
-                  onClick={handleLoadWidget}
-                  variant="outline"
-                  size="default"
-                  className="bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
-                >
-                  Load
-                </Button>
+          <div className="w-1/3 bg-gray-200 overflow-hidden flex flex-col">
+            <div className="sticky top-0 z-40 bg-gray-200 p-4">
+              <div className="flex justify-between items-center self-stretch mb-6">
+                <h2 className="text-xl font-semibold">Preview</h2>
+                <div className="space-x-2">
+                  <Button
+                    onClick={handleSaveWidget}
+                    variant="default"
+                    size="default"
+                    className="bg-widget-blue hover:bg-blue-600 transition-colors"
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    onClick={handleLoadWidget}
+                    variant="outline"
+                    size="default"
+                    className="bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
+                  >
+                    Load
+                  </Button>
+                </div>
               </div>
             </div>
-            <WidgetPreview components={widgetComponents} apis={apis} />
+            <div className="flex-1 overflow-auto p-4 pt-0">
+              <WidgetPreview components={widgetComponents} apis={apis} />
+            </div>
           </div>
         </div>
         
