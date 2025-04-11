@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -7,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { 
   Clock, Check, X, Filter, Search, ArrowLeft, Eye, ShieldCheck, 
   ListFilter, Grid, Calendar, Tag, ArrowUpDown
@@ -26,7 +24,7 @@ const WidgetLibrary = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"list" | "tile">("list");
   const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
-  const [tagFilter, setTagFilter] = useState<string>("");
+  const [tagFilter, setTagFilter] = useState<string>("all_tags");
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -97,7 +95,7 @@ const WidgetLibrary = () => {
       });
     }
     
-    if (tagFilter) {
+    if (tagFilter && tagFilter !== "all_tags") {
       filtered = filtered.filter(
         widget => widget.tags && widget.tags.includes(tagFilter)
       );
@@ -110,7 +108,7 @@ const WidgetLibrary = () => {
     setSearchQuery("");
     setStatusFilter("all");
     setDateFilter(undefined);
-    setTagFilter("");
+    setTagFilter("all_tags");
   };
 
   const getStatusBadge = (status: WidgetApprovalStatus) => {
@@ -208,7 +206,7 @@ const WidgetLibrary = () => {
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Tags</SelectItem>
+                    <SelectItem value="all_tags">All Tags</SelectItem>
                     {availableTags.map(tag => (
                       <SelectItem key={tag} value={tag}>{tag}</SelectItem>
                     ))}
@@ -231,7 +229,7 @@ const WidgetLibrary = () => {
                   </SelectContent>
                 </Select>
                 
-                {(searchQuery || statusFilter !== "all" || dateFilter || tagFilter) && (
+                {(searchQuery || statusFilter !== "all" || dateFilter || tagFilter !== "all_tags") && (
                   <Button variant="ghost" size="sm" onClick={clearFilters}>
                     Clear Filters
                   </Button>
