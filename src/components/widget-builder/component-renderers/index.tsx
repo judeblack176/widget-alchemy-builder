@@ -61,6 +61,7 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
             marginLeft: -16,
             marginRight: -16,
             width: 'calc(100% + 32px)',
+            borderBottom: '2px solid black',
           }}
         >
           <div className="flex items-center text-left">
