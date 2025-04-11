@@ -23,6 +23,50 @@ export const renderComponent = (component: WidgetComponent, apiData?: any) => {
     });
   }
   
+  // Check if we need to wrap this component in a tooltip
+  if (finalProps.tooltip && type !== 'tooltip') {
+    const tooltipProps = finalProps.tooltip;
+    const componentWithoutTooltip = {
+      ...component,
+      props: { ...finalProps, tooltip: undefined }
+    };
+    
+    return (
+      <TooltipComponent
+        content={tooltipProps.content || "Tooltip content"}
+        placement={tooltipProps.placement}
+        backgroundColor={tooltipProps.backgroundColor}
+        textColor={tooltipProps.textColor}
+        showArrow={tooltipProps.showArrow}
+        triggerStyle="custom"
+      >
+        {renderComponentWithoutTooltip(componentWithoutTooltip, apiData)}
+      </TooltipComponent>
+    );
+  }
+  
+  return renderComponentWithoutTooltip(component, apiData);
+};
+
+// Helper function to render component without tooltip wrapping logic
+const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any) => {
+  const { props, type } = component;
+  
+  // Map API data to component props if apiConfig is present
+  let finalProps = { ...props };
+  if (component.apiConfig && apiData) {
+    const { dataMapping } = component.apiConfig;
+    
+    // Map each API field to component prop
+    Object.entries(dataMapping).forEach(([propKey, apiField]) => {
+      // Use lodash-style dot notation to access nested properties
+      const value = getNestedValue(apiData, apiField);
+      if (value !== undefined) {
+        finalProps[propKey] = value;
+      }
+    });
+  }
+  
   switch (type) {
     // ... Add other component type cases here
     
