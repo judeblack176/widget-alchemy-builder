@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { WidgetComponent, ApiConfig, WidgetSubmission } from "@/types/widget-types";
 
 interface TooltipTemplate {
   id: string;
