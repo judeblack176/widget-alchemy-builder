@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -8,7 +9,7 @@ import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionFo
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library } from "lucide-react";
+import { Library, User } from "lucide-react";
 import type { WidgetComponent, ApiConfig, WidgetSubmission } from "@/types/widget-types";
 
 const Index = () => {
@@ -240,7 +241,7 @@ const Index = () => {
           <div className="flex space-x-2">
             <Link to="/admin/login">
               <Button variant="outline">
-                Admin
+                <User size={16} className="mr-2" /> Admin
               </Button>
             </Link>
             <Link to="/library">
