@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check, Search, ArrowDownAZ, ArrowUpZA } from "lucide-react";
+import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check, Search, ArrowDownAZ, ArrowUpZA, Filter } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -244,7 +244,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="bg-widget-blue hover:bg-blue-600">
-                <Plus size={16} className="mr-2" /> Add API
+                Add API
               </Button>
             </DialogTrigger>
             
@@ -541,27 +541,46 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
           </Dialog>
         </div>
         
-        <div className="flex items-center gap-4 mt-3">
-          <div className="w-64">
-            <SearchBar 
-              onSearch={handleSearch} 
-              placeholder="Search APIs..." 
-              showIcon={true}
-              backgroundColor="#f9fafb"
-            />
+        <Card className="p-4 mb-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="relative flex-1 w-full md:w-auto">
+                <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search APIs..."
+                  className="pl-8"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              
+              <div className="flex items-center gap-2 mt-2 md:mt-0">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-1 h-10"
+                  onClick={toggleSort}
+                >
+                  {sortDirection === null && <ArrowDownAZ size={14} className="mr-1" />}
+                  {sortDirection === "asc" && <ArrowDownAZ size={14} className="mr-1" />}
+                  {sortDirection === "desc" && <ArrowUpZA size={14} className="mr-1" />}
+                  {sortDirection === null && "Sort"}
+                  {sortDirection === "asc" && "Sort A-Z"}
+                  {sortDirection === "desc" && "Sort Z-A"}
+                </Button>
+                
+                {(searchQuery || sortDirection !== null) && (
+                  <Button variant="ghost" size="sm" onClick={() => {
+                    setSearchQuery("");
+                    setSortDirection(null);
+                  }}>
+                    Clear Filters
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleSort}
-            className="flex items-center gap-1 h-9 p-2"
-          >
-            {sortDirection === null && <ArrowDownAZ size={16} />}
-            {sortDirection === "asc" && <ArrowDownAZ size={16} />}
-            {sortDirection === "desc" && <ArrowUpZA size={16} />}
-          </Button>
-          <div className="flex-grow"></div>
-        </div>
+        </Card>
       </div>
       
       {apis.length === 0 ? (
