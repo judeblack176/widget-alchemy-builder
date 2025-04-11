@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check, Search, ArrowDownAZ, ArrowUpZA, Filter } from "lucide-react";
+import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check, Search, ArrowDownAZ, ArrowUpZA, ListFilter } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -561,7 +561,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                   className="flex items-center gap-1 h-10"
                   onClick={toggleSort}
                 >
-                  {sortDirection === null && <ArrowDownAZ size={14} className="mr-1" />}
+                  {sortDirection === null && <ListFilter size={14} className="mr-1" />}
                   {sortDirection === "asc" && <ArrowDownAZ size={14} className="mr-1" />}
                   {sortDirection === "desc" && <ArrowUpZA size={14} className="mr-1" />}
                   {sortDirection === null && "Sort"}
