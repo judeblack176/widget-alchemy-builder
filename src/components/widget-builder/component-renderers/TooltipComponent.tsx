@@ -53,7 +53,7 @@ const TooltipComponent: React.FC<TooltipComponentProps> = ({
 
   return (
     <TooltipProvider>
-      <Tooltip>
+      <Tooltip defaultOpen={false} delayDuration={200}>
         <TooltipTrigger asChild>
           {renderTrigger()}
         </TooltipTrigger>
