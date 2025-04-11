@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Check, Users, FileText, LayoutGrid, ListFilter, List } from "lucide-react";
-import { ColorPalettePicker } from "@/components/widget-builder/ColorPalettePicker";
+import ColorPalettePicker from "@/components/widget-builder/ColorPalettePicker";
 import { PREDEFINED_COLORS } from "@/types/widget-types";
 
 const AdminDashboard = () => {
@@ -128,7 +127,6 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
             
-            {/* Widget listing would go here - simplified for clarity */}
             <Card>
               <CardHeader>
                 <CardTitle>Recent Widgets</CardTitle>
