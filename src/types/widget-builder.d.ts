@@ -9,6 +9,5 @@ declare module "@/components/widget-builder/WidgetBuilder" {
     onRemoveComponent: (componentId: string) => void;
     onReorderComponents: (reorderedComponents: WidgetComponent[]) => void;
     onRequestApiTemplate: (componentId: string) => void;
-    onApplyTooltip: (componentId: string, tooltipId: string) => void;
   }
 }

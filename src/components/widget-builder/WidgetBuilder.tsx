@@ -11,7 +11,6 @@ interface WidgetBuilderProps {
   onRemoveComponent: (componentId: string) => void;
   onReorderComponents: (reorderedComponents: WidgetComponent[]) => void;
   onRequestApiTemplate: (componentId: string) => void;
-  onApplyTooltip: (componentId: string, tooltipId: string) => void;
 }
 
 const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
@@ -20,8 +19,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   onUpdateComponent,
   onRemoveComponent,
   onReorderComponents,
-  onRequestApiTemplate,
-  onApplyTooltip
+  onRequestApiTemplate
 }) => {
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
 
