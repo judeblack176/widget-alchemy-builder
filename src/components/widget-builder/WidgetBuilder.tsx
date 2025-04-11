@@ -71,7 +71,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   return (
     <div className="space-y-4">
       {atComponentLimit && (
-        <Alert variant="warning" className="mb-4">
+        <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4 mr-2" />
           <AlertDescription>
             Maximum of {MAX_COMPONENTS} components reached. Please remove a component before adding a new one.
