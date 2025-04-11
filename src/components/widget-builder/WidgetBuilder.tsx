@@ -111,137 +111,142 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   const filteredRegularComponents = filteredComponents.filter(c => c.type !== 'header' && c.type !== 'alert');
 
   return (
-    <ScrollArea className="h-[calc(100vh-16rem)] pr-4">
-      <div className="space-y-4">
-        {atComponentLimit && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4 mr-2" />
-            <AlertDescription>
-              Maximum of {MAX_COMPONENTS} components reached (excluding header and alerts). Please remove a component before adding a new one.
-            </AlertDescription>
-          </Alert>
-        )}
+    <div className="space-y-4">
+      {atComponentLimit && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4 mr-2" />
+          <AlertDescription>
+            Maximum of {MAX_COMPONENTS} components reached (excluding header and alerts). Please remove a component before adding a new one.
+          </AlertDescription>
+        </Alert>
+      )}
 
-        <div className="mb-4">
-          <SearchBar
-            placeholder="Search components..."
-            onSearch={handleSearch}
-            className="w-full"
-          />
-        </div>
-        
-        {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
-          <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
-            <p className="text-gray-500">No components match your search</p>
-          </Card>
-        ) : filteredComponents.length === 0 ? (
-          <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
-            <p className="text-gray-500">Add components to your widget from the left panel</p>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {filteredHeaderComponent && (
-              <Card className="bg-white border border-blue-500 shadow-sm">
-                <ComponentEditor
-                  component={filteredHeaderComponent}
-                  apis={apis}
-                  isExpanded={expandedComponentId === filteredHeaderComponent.id}
-                  onToggleExpand={() => 
-                    setExpandedComponentId(
-                      expandedComponentId === filteredHeaderComponent.id ? null : filteredHeaderComponent.id
-                    )
-                  }
-                  onUpdateComponent={onUpdateComponent}
-                  onRemoveComponent={onRemoveComponent}
-                  onRequestApiTemplate={() => onRequestApiTemplate(filteredHeaderComponent.id)}
-                  onApplyTooltip={onApplyTooltip ? 
-                    (tooltipId: string) => onApplyTooltip(filteredHeaderComponent.id, tooltipId) : 
-                    undefined}
-                  disableRemove={true}
-                  customTooltips={tooltips}
-                />
-              </Card>
-            )}
-            
-            {filteredAlertComponents.length > 0 && (
-              <div className="space-y-4 mb-4">
-                {filteredAlertComponents.map((alertComponent) => (
-                  <Card key={alertComponent.id} className="bg-white border border-amber-500 shadow-sm">
-                    <ComponentEditor
-                      component={alertComponent}
-                      apis={apis}
-                      isExpanded={expandedComponentId === alertComponent.id}
-                      onToggleExpand={() => 
-                        setExpandedComponentId(
-                          expandedComponentId === alertComponent.id ? null : alertComponent.id
-                        )
-                      }
-                      onUpdateComponent={onUpdateComponent}
-                      onRemoveComponent={onRemoveComponent}
-                      onRequestApiTemplate={() => onRequestApiTemplate(alertComponent.id)}
-                      onApplyTooltip={onApplyTooltip ? 
-                        (tooltipId: string) => onApplyTooltip(alertComponent.id, tooltipId) : 
-                        undefined}
-                      customTooltips={tooltips}
-                    />
-                  </Card>
-                ))}
-              </div>
-            )}
-            
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="components">
-                {(provided) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className="space-y-4"
-                  >
-                    {filteredRegularComponents.map((component, index) => (
-                      <Draggable 
-                        key={component.id} 
-                        draggableId={component.id} 
-                        index={index}
-                      >
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="relative"
-                          >
-                            <Card className="bg-white border shadow-sm">
-                              <ComponentEditor
-                                component={component}
-                                apis={apis}
-                                isExpanded={expandedComponentId === component.id}
-                                onToggleExpand={() => 
-                                  setExpandedComponentId(
-                                    expandedComponentId === component.id ? null : component.id
-                                  )
-                                }
-                                onUpdateComponent={onUpdateComponent}
-                                onRemoveComponent={onRemoveComponent}
-                                onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
-                                onApplyTooltip={onApplyTooltip ? 
-                                  (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
-                                  undefined}
-                                customTooltips={tooltips}
-                              />
-                            </Card>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          </div>
-        )}
+      <div className="mb-4">
+        <SearchBar
+          placeholder="Search components..."
+          onSearch={handleSearch}
+          className="w-full"
+        />
       </div>
-    </ScrollArea>
+      
+      {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
+        <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
+          <p className="text-gray-500">No components match your search</p>
+        </Card>
+      ) : filteredComponents.length === 0 ? (
+        <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
+          <p className="text-gray-500">Add components to your widget from the left panel</p>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {/* Fixed header section - always visible */}
+          {filteredHeaderComponent && (
+            <Card className="bg-white border border-blue-500 shadow-sm">
+              <ComponentEditor
+                component={filteredHeaderComponent}
+                apis={apis}
+                isExpanded={expandedComponentId === filteredHeaderComponent.id}
+                onToggleExpand={() => 
+                  setExpandedComponentId(
+                    expandedComponentId === filteredHeaderComponent.id ? null : filteredHeaderComponent.id
+                  )
+                }
+                onUpdateComponent={onUpdateComponent}
+                onRemoveComponent={onRemoveComponent}
+                onRequestApiTemplate={() => onRequestApiTemplate(filteredHeaderComponent.id)}
+                onApplyTooltip={onApplyTooltip ? 
+                  (tooltipId: string) => onApplyTooltip(filteredHeaderComponent.id, tooltipId) : 
+                  undefined}
+                disableRemove={true}
+                customTooltips={tooltips}
+              />
+            </Card>
+          )}
+          
+          {/* Fixed alert section - always visible */}
+          {filteredAlertComponents.length > 0 && (
+            <div className="space-y-4 mb-4">
+              {filteredAlertComponents.map((alertComponent) => (
+                <Card key={alertComponent.id} className="bg-white border border-amber-500 shadow-sm">
+                  <ComponentEditor
+                    component={alertComponent}
+                    apis={apis}
+                    isExpanded={expandedComponentId === alertComponent.id}
+                    onToggleExpand={() => 
+                      setExpandedComponentId(
+                        expandedComponentId === alertComponent.id ? null : alertComponent.id
+                      )
+                    }
+                    onUpdateComponent={onUpdateComponent}
+                    onRemoveComponent={onRemoveComponent}
+                    onRequestApiTemplate={() => onRequestApiTemplate(alertComponent.id)}
+                    onApplyTooltip={onApplyTooltip ? 
+                      (tooltipId: string) => onApplyTooltip(alertComponent.id, tooltipId) : 
+                      undefined}
+                    customTooltips={tooltips}
+                  />
+                </Card>
+              ))}
+            </div>
+          )}
+          
+          {/* Scrollable section - only this part scrolls */}
+          {filteredRegularComponents.length > 0 && (
+            <ScrollArea className="h-[calc(100vh-28rem)]">
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="components">
+                  {(provided) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className="space-y-4 pr-4"
+                    >
+                      {filteredRegularComponents.map((component, index) => (
+                        <Draggable 
+                          key={component.id} 
+                          draggableId={component.id} 
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className="relative"
+                            >
+                              <Card className="bg-white border shadow-sm">
+                                <ComponentEditor
+                                  component={component}
+                                  apis={apis}
+                                  isExpanded={expandedComponentId === component.id}
+                                  onToggleExpand={() => 
+                                    setExpandedComponentId(
+                                      expandedComponentId === component.id ? null : component.id
+                                    )
+                                  }
+                                  onUpdateComponent={onUpdateComponent}
+                                  onRemoveComponent={onRemoveComponent}
+                                  onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
+                                  onApplyTooltip={onApplyTooltip ? 
+                                    (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
+                                    undefined}
+                                  customTooltips={tooltips}
+                                />
+                              </Card>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </ScrollArea>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 
