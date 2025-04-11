@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Plus, Edit, Trash2, Upload, FileSpreadsheet, SortAsc, SortDesc, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -247,8 +248,8 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
                   className="flex items-center gap-1"
                   onClick={handleImportDialogOpen}
                 >
-                  <Upload size={16} />
-                  Import
+                  <Upload size={16} className="inline-flex" />
+                  <span>Import</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -263,8 +264,8 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
             className="flex items-center gap-1"
             onClick={handleAddNewTooltip}
           >
-            <Plus size={16} />
-            Add Tooltip
+            <Plus size={16} className="inline-flex" />
+            <span>Add Tooltip</span>
           </Button>
         </div>
       </div>
@@ -282,6 +283,7 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
                 size="icon"
                 variant="outline"
                 onClick={toggleSortDirection}
+                className="flex items-center justify-center"
               >
                 {sortDirection === 'asc' ? <SortAsc size={16} /> : <SortDesc size={16} />}
               </Button>
@@ -325,6 +327,7 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
                         variant="ghost"
                         size="icon"
                         onClick={() => handleEditTooltip(tooltip)}
+                        className="flex items-center justify-center h-8 w-8"
                       >
                         <Edit size={16} className="text-blue-500" />
                         <span className="sr-only">Edit</span>
@@ -333,6 +336,7 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
                         variant="ghost"
                         size="icon"
                         onClick={() => handleRemoveTooltip(tooltip.id, tooltip.title)}
+                        className="flex items-center justify-center h-8 w-8"
                       >
                         <Trash2 size={16} className="text-red-500" />
                         <span className="sr-only">Delete</span>
