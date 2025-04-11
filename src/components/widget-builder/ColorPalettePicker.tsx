@@ -34,8 +34,8 @@ const ColorPalettePicker: React.FC<ColorPalettePickerProps> = ({
           <ToggleGroupItem
             key={color}
             value={color}
-            color={color}
-            className="w-7 h-7 rounded-md relative border border-gray-200"
+            className="w-7 h-7 rounded-md relative border border-gray-200 p-0"
+            style={{ backgroundColor: color }}
             aria-label={color}
           >
             {value === color && (
