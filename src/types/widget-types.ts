@@ -1,6 +1,6 @@
 import { LucideIcon } from 'lucide-react';
 
-export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table';
+export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table' | 'tooltip';
 
 export interface WidgetComponent {
   id: string;
@@ -272,6 +272,10 @@ export const DEFAULT_DATA_MAPPINGS: Record<ComponentType, Record<string, string>
   table: {
     data: "rows",
     columns: "columns"
+  },
+  tooltip: {
+    content: "content",
+    triggerText: "triggerText"
   }
 };
 
