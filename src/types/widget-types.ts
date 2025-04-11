@@ -45,7 +45,7 @@ export interface WidgetConfig {
   apis: ApiConfig[];
 }
 
-export type CalendarServiceType = 'google' | 'outlook' | 'apple' | 'custom';
+export type CalendarServiceType = 'google' | 'outlook' | 'apple' | 'custom' | 'none';
 
 export interface CalendarIntegrationConfig {
   serviceType: CalendarServiceType;

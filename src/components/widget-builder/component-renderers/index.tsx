@@ -25,6 +25,9 @@ import {
   Coffee,
   X,
   HelpCircle,
+  Download,
+  Link as LinkIconComponent,
+  Calendar,
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
@@ -32,6 +35,8 @@ import { Table } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import SearchBar from '../SearchBar';
 import { Tooltip as CustomTooltip } from '../TooltipManager';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
 // Function to get the icon component based on the icon name
 const getIconByName = (iconName: string) => {
@@ -55,27 +60,47 @@ const getIconByName = (iconName: string) => {
   }
 };
 
+const getLinkIcon = (iconName: string) => {
+  switch (iconName) {
+    case 'LinkIcon': return <LinkIconComponent size={16} className="mr-1" />;
+    case 'ExternalLink': return <ExternalLink size={16} className="mr-1" />;
+    case 'FileText': return <FileText size={16} className="mr-1" />;
+    case 'Download': return <Download size={16} className="mr-1" />;
+    case 'Info': return <Info size={16} className="mr-1" />;
+    default: return null;
+  }
+};
+
 export const renderComponent = (
   component: WidgetComponent, 
   apiData?: any, 
   onDismiss?: (id: string) => void,
   tooltips?: CustomTooltip[]
 ) => {
-  const { props, type } = component;
+  const { props, type, id, tooltipId } = component;
   
-  let finalProps = { ...props };
-  if (component.apiConfig && apiData) {
-    const { dataMapping } = component.apiConfig;
-    
-    Object.entries(dataMapping).forEach(([propKey, apiField]) => {
-      const value = getNestedValue(apiData, apiField);
-      if (value !== undefined) {
-        finalProps[propKey] = value;
-      }
-    });
+  if (!tooltipId) {
+    return renderComponentWithoutTooltip(component, apiData, onDismiss);
   }
   
-  return renderComponentWithoutTooltip(component, apiData, onDismiss);
+  const tooltipContent = getTooltipContent(tooltipId, tooltips);
+  
+  if (!tooltipContent) {
+    return renderComponentWithoutTooltip(component, apiData, onDismiss);
+  }
+  
+  return (
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <div className="tooltip-trigger w-full">
+          {renderComponentWithoutTooltip(component, apiData, onDismiss)}
+        </div>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-80 p-3">
+        {tooltipContent}
+      </HoverCardContent>
+    </HoverCard>
+  );
 };
 
 const getTooltipContent = (tooltipId: string, customTooltips?: CustomTooltip[]) => {
@@ -192,12 +217,31 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'image':
+      // Calculate styles based on new image properties
+      const heightStyles = finalProps.height === 'auto' ? {} : 
+        finalProps.height === 'small' ? { height: '100px' } :
+        finalProps.height === 'medium' ? { height: '200px' } :
+        finalProps.height === 'large' ? { height: '400px' } : {};
+      
+      const borderRadiusStyles = finalProps.borderRadius === 'none' ? {} :
+        finalProps.borderRadius === 'small' ? { borderRadius: '4px' } :
+        finalProps.borderRadius === 'medium' ? { borderRadius: '8px' } :
+        finalProps.borderRadius === 'large' ? { borderRadius: '16px' } :
+        finalProps.borderRadius === 'circle' ? { borderRadius: '50%' } : {};
+        
+      const objectFitStyle = finalProps.objectFit || 'cover';
+      
       return (
-        <figure className="relative">
+        <figure className="relative" style={{ width: finalProps.width || 'auto' }}>
           <img 
-            src={finalProps.source || "https://via.placeholder.com/150"} 
+            src={finalProps.source || "https://via.placeholder.com/150"}
             alt={finalProps.altText || "Image"} 
-            className="w-full h-auto rounded"
+            className="w-full"
+            style={{
+              ...heightStyles,
+              ...borderRadiusStyles,
+              objectFit: objectFitStyle
+            }}
           />
           {finalProps.caption && (
             <figcaption className="text-sm text-gray-500 mt-1">{finalProps.caption}</figcaption>
@@ -206,12 +250,20 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'button':
+      const handleButtonClick = () => {
+        console.log('Button clicked', finalProps.label);
+        if (finalProps.linkUrl) {
+          const target = finalProps.openInNewTab ? '_blank' : '_self';
+          window.open(finalProps.linkUrl, target);
+        }
+      };
+      
       return (
         <Button
           variant={finalProps.variant || "default"}
           size={finalProps.size || "default"}
           className={finalProps.className}
-          onClick={() => console.log('Button clicked', finalProps.label)}
+          onClick={handleButtonClick}
           style={{
             backgroundColor: finalProps.backgroundColor || '#3B82F6',
             color: finalProps.textColor || '#FFFFFF',
@@ -236,12 +288,45 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'chart':
+      // Enhanced chart component with different chart types and options
+      const chartTypeLabel = finalProps.chartType || 'bar';
+      const hasData = finalProps.staticData || (finalProps.dataUrl && finalProps.dataSource !== 'static');
+      
       return (
         <div className="p-3 border rounded" style={{ backgroundColor: finalProps.backgroundColor || '#FFFFFF' }}>
-          <p className="text-center mb-2">Chart Component: {finalProps.type || 'bar'}</p>
-          <div className="aspect-video bg-gray-100 flex items-center justify-center">
-            <p className="text-gray-500 text-sm">Chart visualization would appear here</p>
+          {finalProps.title && <h3 className="text-center font-medium mb-3">{finalProps.title}</h3>}
+          <div className="aspect-video bg-gray-100 flex flex-col items-center justify-center" style={{ height: finalProps.height ? `${finalProps.height}px` : '300px' }}>
+            {hasData ? (
+              <div className="text-center">
+                <p className="text-gray-700 font-medium">{chartTypeLabel.charAt(0).toUpperCase() + chartTypeLabel.slice(1)} Chart</p>
+                <p className="text-gray-500 text-sm mt-1">
+                  {finalProps.dataSource === 'api' ? 'Data from API' : 
+                   finalProps.dataSource === 'url' ? 'Data from URL' : 
+                   'Static data'}
+                </p>
+              </div>
+            ) : (
+              <div className="text-center">
+                <p className="text-gray-500 text-sm">No data configured</p>
+                <p className="text-gray-400 text-xs mt-2">Connect to a data source or provide static data</p>
+              </div>
+            )}
           </div>
+          {finalProps.legend && (
+            <div className={`flex justify-${finalProps.legendPosition || 'bottom'} mt-2 gap-2 flex-wrap`}>
+              {(finalProps.labels || "Item 1,Item 2,Item 3").split(',').map((label, index) => (
+                <div key={index} className="flex items-center">
+                  <div 
+                    className="w-3 h-3 mr-1" 
+                    style={{ 
+                      backgroundColor: (finalProps.colors || "#3B82F6,#EF4444,#10B981,#F59E0B").split(',')[index % 4] 
+                    }}
+                  ></div>
+                  <span className="text-xs">{label.trim()}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       );
     
@@ -258,32 +343,103 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'calendar':
+      // Enhanced calendar with support for different providers
       return (
         <div className="space-y-2">
-          <label className="block text-sm font-medium">{finalProps.label || "Select Date"}</label>
-          <input
-            type="date"
-            placeholder={finalProps.placeholder || "Pick a date"}
-            className="w-full px-3 py-2 border rounded"
-          />
+          {finalProps.label && (
+            <label className="block text-sm font-medium">{finalProps.label}</label>
+          )}
+          
+          {finalProps.calendarType === 'date-picker' ? (
+            <div className="border rounded p-4">
+              <CalendarComponent
+                mode="single"
+                className="rounded-md border"
+              />
+            </div>
+          ) : (
+            <div className="border rounded p-4">
+              <div className="flex items-center justify-between mb-4">
+                <Button variant="outline" size="sm">
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Prev
+                </Button>
+                <h3 className="font-medium">
+                  {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}
+                </h3>
+                <Button variant="outline" size="sm">
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+              <div className="grid grid-cols-7 gap-1">
+                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
+                  <div key={day} className="text-center text-xs text-gray-500 py-1">{day}</div>
+                ))}
+                {Array.from({ length: 35 }).map((_, i) => {
+                  const day = i - 3 + 1; // Adjust to start from Monday of the first week
+                  return (
+                    <div 
+                      key={i} 
+                      className={`text-center text-sm p-2 rounded-full ${
+                        day > 0 && day <= 30 ? "hover:bg-gray-100 cursor-pointer" : "opacity-0"
+                      } ${day === 15 ? "bg-blue-100 text-blue-700" : ""}`}
+                    >
+                      {day > 0 && day <= 30 ? day : ""}
+                    </div>
+                  );
+                })}
+              </div>
+              
+              {finalProps.calendarProvider && finalProps.calendarProvider !== 'none' && (
+                <div className="mt-3 text-xs text-gray-500 flex items-center">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  Connected to {finalProps.calendarProvider} Calendar
+                </div>
+              )}
+            </div>
+          )}
         </div>
       );
     
     case 'dropdown':
+      // Enhanced dropdown with multiple selection and searchable options
       return (
         <div className="space-y-2">
           <label className="block text-sm font-medium">{finalProps.label || "Dropdown"}</label>
-          <select className="w-full px-3 py-2 border rounded">
-            <option value="" disabled selected>{finalProps.placeholder || "Select an option"}</option>
-            {Array.isArray(finalProps.options) && finalProps.options.map((option: string, index: number) => (
-              <option key={index} value={option}>{option}</option>
-            ))}
-          </select>
+          <div className={`relative border rounded overflow-hidden ${finalProps.searchable ? 'flex items-center' : ''}`}>
+            {finalProps.searchable && (
+              <Search size={16} className="absolute left-3 text-gray-400" />
+            )}
+            <select 
+              className={`w-full px-3 py-2 appearance-none ${finalProps.searchable ? 'pl-9' : ''}`}
+              multiple={finalProps.multiple}
+              required={finalProps.required}
+            >
+              <option value="" disabled selected>{finalProps.placeholder || "Select an option"}</option>
+              {Array.isArray(finalProps.options) ? 
+                finalProps.options.map((option: string, index: number) => (
+                  <option key={index} value={option}>{option}</option>
+                )) : 
+                (finalProps.options || "Option 1,Option 2,Option 3").split(',').map((option, index) => (
+                  <option key={index} value={option.trim()}>{option.trim()}</option>
+                ))
+              }
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <ChevronDown size={16} className="text-gray-400" />
+            </div>
+          </div>
+          {finalProps.dynamicOptions && finalProps.optionsUrl && (
+            <p className="text-xs text-gray-500">Options dynamically loaded from API</p>
+          )}
         </div>
       );
     
     case 'link':
       const openInNewTab = finalProps.openInNewTab === true;
+      const displayType = finalProps.displayType || 'text';
+      const icon = displayType !== 'text' ? getLinkIcon(finalProps.icon || 'LinkIcon') : null;
       
       return (
         <div className="inline-flex items-center">
@@ -291,12 +447,17 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
             href={finalProps.url || "#"}
             target={openInNewTab ? "_blank" : "_self"}
             rel={openInNewTab ? "noopener noreferrer" : ""}
-            className={finalProps.style === 'button' ? 'px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600' : 
-                       finalProps.style === 'underlined' ? 'text-blue-500 underline hover:text-blue-700' : 
-                       'text-blue-500 hover:text-blue-700'}
+            className={finalProps.style === 'button' ? 'px-3 py-1.5 rounded hover:bg-opacity-90 flex items-center' : 
+                       finalProps.style === 'underlined' ? 'underline hover:text-opacity-80 flex items-center' : 
+                       'hover:text-opacity-80 flex items-center'}
+            style={{
+              backgroundColor: finalProps.style === 'button' ? (finalProps.backgroundColor || '#3B82F6') : 'transparent',
+              color: finalProps.color || (finalProps.style === 'button' ? '#FFFFFF' : '#3B82F6')
+            }}
           >
-            {finalProps.text || "Link"}
-            {openInNewTab && <ExternalLink size={14} className="ml-1" />}
+            {(displayType === 'icon' || displayType === 'both') && icon}
+            {(displayType === 'text' || displayType === 'both') && (finalProps.text || "Link")}
+            {openInNewTab && displayType === 'text' && <ExternalLink size={14} className="ml-1" />}
           </a>
         </div>
       );
@@ -336,6 +497,7 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
     
     case 'alert':
       const alertType = finalProps.type as AlertType || 'info';
+      const isDismissible = finalProps.dismissible !== false;
       
       return (
         <Alert
@@ -358,7 +520,7 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
             <AlertTitle>{finalProps.title || "Alert"}</AlertTitle>
             <AlertDescription>{finalProps.message || "This is an alert message."}</AlertDescription>
           </div>
-          {onDismiss && (
+          {isDismissible && onDismiss && (
             <Button 
               variant="ghost" 
               size="sm" 
@@ -373,9 +535,38 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'table':
+      // Enhanced table with more options
+      const isPaginated = finalProps.pagination === true;
+      const isSearchable = finalProps.searchable === true;
+      const isSortable = finalProps.sortable === true;
+      const isExportable = finalProps.exportable === true;
+      
       return (
         <Card>
           <CardContent className="p-0">
+            {(isSearchable || isExportable) && (
+              <div className="p-3 border-b flex justify-between items-center">
+                {isSearchable && (
+                  <div className="relative w-64">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                    <input
+                      type="text"
+                      className="pl-9 pr-4 py-1 w-full border rounded text-sm"
+                      placeholder="Search..."
+                    />
+                  </div>
+                )}
+                {isExportable && (
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      <FileText size={16} className="mr-1" />
+                      Export
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+            
             <div className="border rounded overflow-hidden" style={{ borderColor: finalProps.borderColor || '#E2E8F0' }}>
               <Table>
                 <thead style={{ 
@@ -383,33 +574,82 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
                   color: finalProps.headerTextColor || '#334155' 
                 }}>
                   <tr>
-                    {Array.isArray(finalProps.columns) && finalProps.columns.map((column: TableColumn, index: number) => (
-                      <th key={index} className="p-2 text-left">{column.header}</th>
-                    ))}
+                    {Array.isArray(finalProps.columns) ? 
+                      finalProps.columns.map((column: TableColumn, index: number) => (
+                        <th key={index} className="p-2 text-left">
+                          <div className="flex items-center">
+                            {column.header}
+                            {isSortable && (
+                              <button className="ml-1 text-gray-400 hover:text-gray-600">
+                                <ArrowUpDown size={14} />
+                              </button>
+                            )}
+                          </div>
+                        </th>
+                      )) : 
+                      (
+                        <>
+                          <th className="p-2 text-left">Name</th>
+                          <th className="p-2 text-left">Age</th>
+                          <th className="p-2 text-left">Status</th>
+                        </>
+                      )
+                    }
                   </tr>
                 </thead>
                 <tbody>
-                  {Array.isArray(finalProps.data) && finalProps.data.map((row: any, rowIndex: number) => (
-                    <tr 
-                      key={rowIndex}
-                      style={{ 
-                        backgroundColor: finalProps.striped && rowIndex % 2 !== 0 ? 
-                          (finalProps.altRowBackgroundColor || '#F1F5F9') : 
-                          (finalProps.rowBackgroundColor || '#FFFFFF'),
-                        color: finalProps.rowTextColor || '#1E293B'
-                      }}
-                      className={finalProps.hoverable ? 'hover:bg-gray-50' : ''}
-                    >
-                      {Array.isArray(finalProps.columns) && finalProps.columns.map((column: TableColumn, colIndex: number) => (
-                        <td key={colIndex} className={`p-2 ${finalProps.bordered ? 'border' : 'border-b'}`}>
-                          {row[column.accessor]}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
+                  {Array.isArray(finalProps.data) ? 
+                    finalProps.data.map((row: any, rowIndex: number) => (
+                      <tr 
+                        key={rowIndex}
+                        style={{ 
+                          backgroundColor: finalProps.striped && rowIndex % 2 !== 0 ? 
+                            (finalProps.altRowBackgroundColor || '#F1F5F9') : 
+                            (finalProps.rowBackgroundColor || '#FFFFFF'),
+                          color: finalProps.rowTextColor || '#1E293B'
+                        }}
+                        className={finalProps.hoverable ? 'hover:bg-gray-50' : ''}
+                      >
+                        {Array.isArray(finalProps.columns) && finalProps.columns.map((column: TableColumn, colIndex: number) => (
+                          <td key={colIndex} className={`p-2 ${finalProps.bordered ? 'border' : 'border-b'}`}>
+                            {row[column.accessor]}
+                          </td>
+                        ))}
+                      </tr>
+                    )) : 
+                    (
+                      <>
+                        <tr className={finalProps.hoverable ? 'hover:bg-gray-50' : ''}>
+                          <td className={`p-2 ${finalProps.bordered ? 'border' : 'border-b'}`}>John Doe</td>
+                          <td className={`p-2 ${finalProps.bordered ? 'border' : 'border-b'}`}>28</td>
+                          <td className={`p-2 ${finalProps.bordered ? 'border' : 'border-b'}`}>Active</td>
+                        </tr>
+                        <tr className={`${finalProps.striped ? 'bg-gray-50' : ''} ${finalProps.hoverable ? 'hover:bg-gray-100' : ''}`}>
+                          <td className={`p-2 ${finalProps.bordered ? 'border' : 'border-b'}`}>Jane Smith</td>
+                          <td className={`p-2 ${finalProps.bordered ? 'border' : 'border-b'}`}>32</td>
+                          <td className={`p-2 ${finalProps.bordered ? 'border' : 'border-b'}`}>Inactive</td>
+                        </tr>
+                      </>
+                    )
+                  }
                 </tbody>
               </Table>
             </div>
+            
+            {isPaginated && (
+              <div className="p-3 border-t flex justify-between items-center text-sm">
+                <div>
+                  Showing 1-{finalProps.pageSize || 10} of 100 items
+                </div>
+                <div className="flex gap-1">
+                  <Button variant="outline" size="sm" disabled>Previous</Button>
+                  <Button variant="outline" size="sm" className="bg-gray-100">1</Button>
+                  <Button variant="outline" size="sm">2</Button>
+                  <Button variant="outline" size="sm">3</Button>
+                  <Button variant="outline" size="sm">Next</Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       );
@@ -418,7 +658,11 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       return (
         <SearchBar
           placeholder={finalProps.placeholder || "Search..."}
-          onSearch={(query) => console.log('Search for:', query)}
+          onSearch={(query) => {
+            console.log('Search for:', query);
+            console.log('Search target:', finalProps.searchTarget);
+            console.log('Target component:', finalProps.targetComponent);
+          }}
           iconColor={finalProps.iconColor}
           backgroundColor={finalProps.backgroundColor}
           textColor={finalProps.textColor}
@@ -439,6 +683,78 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
   }
 };
+
+// Missing icons definitions that need to be added
+const ChevronDown = ({ size = 24, className = "" }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="m6 9 6 6 6-6"/>
+  </svg>
+);
+
+const ChevronLeft = ({ size = 24, className = "" }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="m15 18-6-6 6-6"/>
+  </svg>
+);
+
+const ChevronRight = ({ size = 24, className = "" }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="m9 18 6-6-6-6"/>
+  </svg>
+);
+
+const ArrowUpDown = ({ size = 24, className = "" }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="m21 16-4 4-4-4"/>
+    <path d="M17 20V4"/>
+    <path d="m3 8 4-4 4 4"/>
+    <path d="M7 4v16"/>
+  </svg>
+);
 
 const getNestedValue = (obj: any, path: string): any => {
   if (!obj || !path) return undefined;
