@@ -54,7 +54,7 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
     case 'header':
       return (
         <div 
-          className="flex justify-between items-center p-3 w-full"
+          className="w-full p-3"
           style={{
             backgroundColor: finalProps.backgroundColor || '#3B82F6',
             color: finalProps.textColor || '#FFFFFF',
@@ -64,9 +64,10 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
             width: 'calc(100% + 32px)',
           }}
         >
-          <div className="flex items-center">
-            <BookOpen className="mr-2" />
+          <div className="flex items-center text-left">
+            <BookOpen className="mr-2 flex-shrink-0" />
             <h2 
+              className="text-left"
               style={{
                 fontFamily: finalProps.fontFamily || 'system-ui',
                 fontWeight: finalProps.bold ? 'bold' : 'normal',
