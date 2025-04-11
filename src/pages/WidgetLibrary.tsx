@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Check, X, Filter, Search, ArrowLeft, Eye } from "lucide-react";
+import { Clock, Check, X, Filter, Search, ArrowLeft, Eye, ShieldCheck } from "lucide-react";
 import type { WidgetSubmission, WidgetApprovalStatus } from "@/types/widget-types";
 
 const WidgetLibrary = () => {
@@ -101,9 +101,14 @@ const WidgetLibrary = () => {
             </Link>
             <h1 className="text-2xl font-bold text-widget-blue">Widget Library</h1>
           </div>
-          <div>
+          <div className="flex items-center gap-2">
             <Link to="/">
               <Button variant="outline" className="mr-2">Create New Widget</Button>
+            </Link>
+            <Link to="/admin">
+              <Button variant="secondary">
+                <ShieldCheck size={16} className="mr-2" /> Admin
+              </Button>
             </Link>
           </div>
         </div>
