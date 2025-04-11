@@ -5,10 +5,11 @@ import ComponentLibrary from "@/components/widget-builder/ComponentLibrary";
 import WidgetPreview from "@/components/widget-builder/WidgetPreview";
 import ApiManager from "@/components/widget-builder/ApiManager";
 import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionForm";
+import TooltipManager from "@/components/widget-builder/TooltipManager";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library, User, Bookmark } from "lucide-react";
+import { Library, User, Bookmark, HelpCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { WidgetComponent, ApiConfig, WidgetSubmission } from "@/types/widget-types";
+import TooltipSelector from "@/components/widget-builder/TooltipSelector";
 
 const Index = () => {
   const { toast } = useToast();
@@ -41,6 +43,7 @@ const Index = () => {
   const [isApiTemplateModalOpen, setIsApiTemplateModalOpen] = useState(false);
   const [savedApiTemplates, setSavedApiTemplates] = useState<ApiConfig[]>([]);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
+  const [isTooltipManagerOpen, setIsTooltipManagerOpen] = useState(false);
 
   useEffect(() => {
     if (widgetId) {
@@ -288,6 +291,19 @@ const Index = () => {
     setIsApiTemplateModalOpen(false);
   };
 
+  const handleApplyTooltip = (componentId: string, tooltipId: string) => {
+    setWidgetComponents(widgetComponents.map(comp => 
+      comp.id === componentId ? { ...comp, tooltipId } : comp
+    ));
+    
+    toast({
+      title: tooltipId ? "Tooltip Applied" : "Tooltip Removed",
+      description: tooltipId ? 
+        "Tooltip has been applied to the component." : 
+        "Tooltip has been removed from the component."
+    });
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <header className="bg-white border-b border-gray-200 p-4">
@@ -343,6 +359,15 @@ const Index = () => {
               <Button
                 variant="outline"
                 className="gap-1"
+                onClick={() => setIsTooltipManagerOpen(true)}
+              >
+                <HelpCircle size={16} />
+                Tooltips
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="gap-1"
                 onClick={() => setIsApiTemplateModalOpen(true)}
               >
                 <Bookmark size={16} />
@@ -371,6 +396,7 @@ const Index = () => {
             onRemoveComponent={handleRemoveComponent}
             onReorderComponents={handleReorderComponents}
             onRequestApiTemplate={openApiTemplateModal}
+            onApplyTooltip={handleApplyTooltip}
           />
         </div>
         
@@ -448,6 +474,11 @@ const Index = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <TooltipManager 
+        open={isTooltipManagerOpen} 
+        onClose={() => setIsTooltipManagerOpen(false)} 
+      />
     </div>
   );
 };
