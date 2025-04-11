@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { 
   Clock, Check, X, Filter, Search, ArrowLeft, Eye, ShieldCheck, 
   ListFilter, Grid, Calendar, Tag, ArrowUpDown
@@ -29,8 +30,6 @@ const WidgetLibrary = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // In a real application, this would fetch from an API
-    // For now, load from localStorage if available
     const loadWidgets = () => {
       setLoading(true);
       try {
@@ -39,7 +38,6 @@ const WidgetLibrary = () => {
           const parsedWidgets = JSON.parse(savedWidgets);
           setWidgets(parsedWidgets);
           
-          // Extract all unique tags
           const tags = new Set<string>();
           parsedWidgets.forEach((widget: WidgetSubmission) => {
             if (widget.tags) {
@@ -48,7 +46,6 @@ const WidgetLibrary = () => {
           });
           setAvailableTags(Array.from(tags));
         } else {
-          // Initialize with some example data if empty
           setWidgets([]);
         }
       } catch (error) {
@@ -67,7 +64,6 @@ const WidgetLibrary = () => {
   }, [toast]);
 
   useEffect(() => {
-    // Filter widgets based on search query, status filter, date filter, and tag filter
     let filtered = [...widgets];
     
     if (searchQuery) {
