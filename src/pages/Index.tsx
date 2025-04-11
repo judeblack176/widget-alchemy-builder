@@ -9,12 +9,12 @@ import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionFo
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library, User, Bookmark, HelpCircle } from "lucide-react";
+import { Library, User, HelpCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { WidgetComponent, ApiConfig, WidgetSubmission } from "@/types/widget-types";
@@ -488,12 +488,11 @@ const Index = () => {
                 <h2 className="text-xl font-semibold">Widget Builder</h2>
                 <div className="space-x-2">
                   <Button
+                    onClick={handleLoadWidget}
                     variant="outline"
-                    className="gap-1"
-                    onClick={() => setIsApiTemplateModalOpen(true)}
+                    size="default"
                   >
-                    <Bookmark size={16} />
-                    API Templates
+                    Load
                   </Button>
                 </div>
               </div>
@@ -536,14 +535,6 @@ const Index = () => {
                     className="bg-widget-blue hover:bg-blue-600 transition-colors"
                   >
                     Save
-                  </Button>
-                  <Button
-                    onClick={handleLoadWidget}
-                    variant="outline"
-                    size="default"
-                    className="bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
-                  >
-                    Load
                   </Button>
                 </div>
               </div>
