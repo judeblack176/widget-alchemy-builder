@@ -125,7 +125,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                     )
                   }
                   onUpdateComponent={onUpdateComponent}
-                  onRemoveComponent={undefined} // Prevent header removal
+                  onRemoveComponent={onRemoveComponent}
                   onRequestApiTemplate={() => onRequestApiTemplate(filteredHeaderComponent.id)}
                   onApplyTooltip={onApplyTooltip ? 
                     (tooltipId: string) => onApplyTooltip(filteredHeaderComponent.id, tooltipId) : 

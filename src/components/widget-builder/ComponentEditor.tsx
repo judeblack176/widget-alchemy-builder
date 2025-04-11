@@ -1,4 +1,3 @@
-
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -78,7 +77,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     onUpdateComponent(updatedComponent);
   };
 
-  // Define component type mappings for the UI
   const componentTypeLabels: Record<string, string> = {
     header: "Header",
     text: "Text",
@@ -96,7 +94,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     table: "Table"
   };
 
-  // Available icons for the icon picker
   const availableIcons = [
     { name: "BookOpen", component: <BookOpen size={18} /> },
     { name: "Library", component: <Library size={18} /> },
@@ -115,7 +112,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     { name: "Coffee", component: <Coffee size={18} /> }
   ];
 
-  // Mock property definitions for UI rendering based on component type
   const getPropertyDefinitions = () => {
     switch (component.type) {
       case 'header':
@@ -170,7 +166,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     }
   };
 
-  // Mock tooltips for the UI
   const tooltipOptions = [
     { id: "none", label: "No Tooltip" },
     { id: "help", label: "Help Info" },
@@ -252,11 +247,12 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             </Select>
           </div>
         );
-      // Add more property types as needed
       default:
         return null;
     }
   };
+
+  const isHeader = component.type === 'header';
 
   return (
     <div className={`p-4 ${isExpanded ? 'border-t border-gray-200' : ''}`}>
@@ -272,20 +268,21 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           >
             {isExpanded ? 'Collapse' : 'Edit'}
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => onRemoveComponent(component.id)}
-            className="text-red-500 hover:text-red-700"
-          >
-            Remove
-          </Button>
+          {!isHeader && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => onRemoveComponent(component.id)}
+              className="text-red-500 hover:text-red-700"
+            >
+              Remove
+            </Button>
+          )}
         </div>
       </div>
 
       {isExpanded && (
         <div className="space-y-4 mt-4">
-          {/* Basic properties section */}
           <Accordion type="single" collapsible defaultValue="properties">
             <AccordionItem value="properties">
               <AccordionTrigger className="text-sm font-medium">Component Properties</AccordionTrigger>
@@ -299,7 +296,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             </AccordionItem>
           </Accordion>
 
-          {/* API integration section */}
           {apis.length > 0 && (
             <Accordion type="single" collapsible>
               <AccordionItem value="api">
@@ -320,7 +316,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             </Accordion>
           )}
 
-          {/* Tooltip section (renamed from Settings) */}
           {onApplyTooltip && (
             <Accordion type="single" collapsible defaultValue="tooltip">
               <AccordionItem value="tooltip">
