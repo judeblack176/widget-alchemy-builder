@@ -1,6 +1,6 @@
 
 import React from "react";
-import { WidgetComponent, ComponentDefinition, ApiConfig } from "@/types/widget-types";
+import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,16 +10,22 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 interface ComponentEditorProps {
   component: WidgetComponent;
-  componentDefinition: ComponentDefinition;
   apis: ApiConfig[];
-  onUpdate: (updatedComponent: WidgetComponent) => void;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  onUpdateComponent: (updatedComponent: WidgetComponent) => void;
+  onRemoveComponent: (componentId: string) => void;
+  onRequestApiTemplate: () => void;
 }
 
 const ComponentEditor: React.FC<ComponentEditorProps> = ({
   component,
-  componentDefinition,
   apis,
-  onUpdate,
+  isExpanded,
+  onToggleExpand,
+  onUpdateComponent,
+  onRemoveComponent,
+  onRequestApiTemplate
 }) => {
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
@@ -29,10 +35,34 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
         [propertyName]: value,
       },
     };
-    onUpdate(updatedComponent);
+    onUpdateComponent(updatedComponent);
   };
 
-  // Remove all tooltip-related methods and state
+  // Define component type mappings for the UI
+  const componentTypeLabels: Record<string, string> = {
+    header: "Header",
+    text: "Text",
+    image: "Image",
+    button: "Button",
+    video: "Video",
+    chart: "Chart",
+    form: "Form",
+    calendar: "Calendar",
+    dropdown: "Dropdown",
+    link: "Link",
+    "multi-text": "Multi-Text",
+    filter: "Filter",
+    alert: "Alert",
+    table: "Table"
+  };
+
+  // Mock property definitions for UI rendering
+  // In a real app, these would come from a schema or component definition
+  const mockPropertyDefinitions = [
+    { name: "title", type: "text", label: "Title" },
+    { name: "content", type: "text", label: "Content" },
+    { name: "color", type: "color", label: "Color", options: ["#FF0000", "#00FF00", "#0000FF"] }
+  ];
 
   const renderPropertyEditor = (property: {
     name: string;
@@ -91,26 +121,69 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     }
   };
 
-  // Remove renderTooltipEditor method
-
   return (
-    <div>
-      <h3 className="text-lg font-medium mb-4">Edit {componentDefinition.name}</h3>
-      <div className="space-y-2">
-        {/* Remove add tooltip button and tooltip editor */}
-
-        {/* Show accordion for component properties */}
-        <Accordion type="single" collapsible defaultValue="properties">
-          <AccordionItem value="properties">
-            <AccordionTrigger className="text-sm font-medium">Component Properties</AccordionTrigger>
-            <AccordionContent>
-              <div className="pt-2">
-                {componentDefinition.availableProps.map((prop) => renderPropertyEditor(prop))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+    <div className={`p-4 ${isExpanded ? 'border-t border-gray-200' : ''}`}>
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="text-lg font-medium">
+          {componentTypeLabels[component.type] || component.type}
+        </h3>
+        <div className="flex space-x-1">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onToggleExpand}
+          >
+            {isExpanded ? 'Collapse' : 'Edit'}
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => onRemoveComponent(component.id)}
+            className="text-red-500 hover:text-red-700"
+          >
+            Remove
+          </Button>
+        </div>
       </div>
+
+      {isExpanded && (
+        <div className="space-y-4 mt-4">
+          {/* Basic properties section */}
+          <Accordion type="single" collapsible defaultValue="properties">
+            <AccordionItem value="properties">
+              <AccordionTrigger className="text-sm font-medium">Component Properties</AccordionTrigger>
+              <AccordionContent>
+                <div className="pt-2 space-y-3">
+                  {mockPropertyDefinitions.map(prop => 
+                    component.props[prop.name] !== undefined && renderPropertyEditor(prop)
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          {/* API integration section */}
+          {apis.length > 0 && (
+            <Accordion type="single" collapsible>
+              <AccordionItem value="api">
+                <AccordionTrigger className="text-sm font-medium">API Integration</AccordionTrigger>
+                <AccordionContent>
+                  <div className="pt-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={onRequestApiTemplate}
+                      className="w-full"
+                    >
+                      {component.apiConfig ? 'Change API Connection' : 'Connect to API'}
+                    </Button>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          )}
+        </div>
+      )}
     </div>
   );
 };

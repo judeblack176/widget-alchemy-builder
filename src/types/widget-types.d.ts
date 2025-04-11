@@ -1,3 +1,4 @@
+
 import { WidgetComponent, ApiConfig } from "./widget-types";
 
 declare module "@/components/widget-builder/WidgetBuilder" {
