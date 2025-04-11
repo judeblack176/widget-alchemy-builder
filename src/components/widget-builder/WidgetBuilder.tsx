@@ -56,7 +56,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   // Get alert components to calculate the max allowed components
   const alertComponents = components.filter(c => c.type === 'alert');
   
-  // Header doesn't count against the component limit, and now neither do alerts
+  // Header and alerts don't count against the component limit
   const nonHeaderNonAlertComponents = components.filter(c => c.type !== 'header' && c.type !== 'alert');
   const MAX_COMPONENTS = 6;
   const atComponentLimit = nonHeaderNonAlertComponents.length >= MAX_COMPONENTS;

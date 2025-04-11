@@ -1,3 +1,4 @@
+
 import React from "react";
 import { ComponentDefinition, WidgetComponent, FontFamily, PREDEFINED_COLORS } from "@/types/widget-types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,9 +20,11 @@ import {
   Filter,
   AlertTriangle,
   Table2,
-  Search
+  Search,
+  GripVertical
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Draggable } from 'react-beautiful-dnd';
 
 interface ComponentLibraryProps {
   onAddComponent: (component: WidgetComponent) => void;
@@ -411,22 +414,40 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       <h3 className="font-medium text-gray-700">Drag & drop components to build your widget</h3>
       
       <div className="grid grid-cols-1 gap-3">
-        {componentDefinitions.map((definition) => (
-          <Card 
-            key={definition.type} 
-            className="cursor-pointer hover:border-widget-blue transition-colors"
-            onClick={() => handleAddComponent(definition)}
+        {componentDefinitions.map((definition, index) => (
+          <Draggable
+            key={definition.type}
+            draggableId={definition.type}
+            index={index}
           >
-            <div className="flex p-3 items-center">
-              <div className="mr-3 text-widget-blue">
-                {getIconComponent(definition.icon)}
+            {(provided, snapshot) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                className="relative"
+              >
+                <Card 
+                  data-component-type={definition.type}
+                  className={`cursor-pointer hover:border-widget-blue transition-colors ${snapshot.isDragging ? 'shadow-lg' : ''}`}
+                  onClick={() => handleAddComponent(definition)}
+                >
+                  <div className="flex p-3 items-center">
+                    <div className="mr-3 text-widget-blue">
+                      {getIconComponent(definition.icon)}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium">{definition.name}</h4>
+                      <p className="text-xs text-gray-500">Click or drag to add</p>
+                    </div>
+                    <div className="text-gray-400">
+                      <GripVertical size={16} />
+                    </div>
+                  </div>
+                </Card>
               </div>
-              <div>
-                <h4 className="font-medium">{definition.name}</h4>
-                <p className="text-xs text-gray-500">Click to add</p>
-              </div>
-            </div>
-          </Card>
+            )}
+          </Draggable>
         ))}
       </div>
     </div>
