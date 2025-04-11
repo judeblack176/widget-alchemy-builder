@@ -10,6 +10,7 @@ export interface WidgetComponent {
     apiId: string;
     dataMapping: Record<string, string>;
   };
+  tooltipId?: string;
 }
 
 export interface ComponentDefinition {
