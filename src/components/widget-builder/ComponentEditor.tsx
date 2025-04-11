@@ -1,4 +1,3 @@
-
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -279,10 +278,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     { id: "tip", label: "Pro Tip" }
   ];
 
-  // Filter out any custom tooltips that don't exist in the provided customTooltips array
   const validCustomTooltips = customTooltips.filter(tooltip => tooltip && tooltip.id);
-  
-  // Combine default tooltips with valid custom tooltips
+
   const tooltipOptions = [
     ...defaultTooltipOptions,
     ...validCustomTooltips.map(tooltip => ({
@@ -371,6 +368,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   };
 
   const isHeader = component.type === 'header';
+  const shouldDisableRemove = disableRemove || isHeader;
 
   const getTooltipIcon = (tooltipId: string) => {
     switch(tooltipId) {
@@ -379,19 +377,16 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       case "warning": return <AlertTriangle size={16} className="text-amber-500" />;
       case "tip": return <Star size={16} className="text-purple-500" />;
       default: 
-        // For custom tooltips, use a distinct icon
         return validCustomTooltips.some(t => t.id === tooltipId) ? 
           <Info size={16} className="text-indigo-500" /> : 
           null;
     }
   };
 
-  // Check if the tooltip ID is still valid (exists in tooltipOptions)
   const isTooltipValid = component.tooltipId ? 
     tooltipOptions.some(option => option.id === component.tooltipId) : 
     true;
   
-  // If tooltip is not valid, remove it from the component
   if (component.tooltipId && !isTooltipValid && onApplyTooltip) {
     setTimeout(() => {
       onApplyTooltip("");
@@ -417,7 +412,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           >
             {isExpanded ? 'Collapse' : 'Edit'}
           </Button>
-          {!disableRemove && (
+          {!shouldDisableRemove && (
             <Button 
               variant="outline" 
               size="sm"
@@ -442,7 +437,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                   )}
                 </div>
                 
-                {/* Tooltip selector in the main properties section */}
                 {onApplyTooltip && (
                   <div className="pt-4 mt-4 border-t border-gray-200">
                     <div className="flex items-center gap-2 mb-3">
