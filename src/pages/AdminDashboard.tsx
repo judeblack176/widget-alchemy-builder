@@ -7,14 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Check, X, Clock, LayoutGrid, List, Eye, Filter, Search } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Check, X, Clock, LayoutGrid, List, Filter, Search, Link as LinkIcon, Database, ExternalLink, Shield, ShieldCheck, ShieldX } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import type { WidgetSubmission, WidgetApprovalStatus } from "@/types/widget-types";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import type { WidgetSubmission, WidgetApprovalStatus, ApiConfig } from "@/types/widget-types";
+import WidgetPreview from "@/components/widget-builder/WidgetPreview";
 
 const AdminDashboard = () => {
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
+  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'card'>('card');
   const [widgets, setWidgets] = useState<WidgetSubmission[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
@@ -63,10 +64,80 @@ const AdminDashboard = () => {
     }
   };
   
+  // Helper function to verify if an API or link is verified
+  const getVerificationStatus = (item: string) => {
+    // This is a mock implementation - in a real app, you would check against a whitelist or database
+    const mockVerifiedDomains = [
+      'api.example.com', 
+      'data.mycompany.com', 
+      'api.trusted-source.org',
+      'example.com',
+      'mycompany.com',
+      'trusted-source.org'
+    ];
+    
+    // Check if the URL is in our verified list
+    const isVerified = mockVerifiedDomains.some(domain => item.includes(domain));
+    
+    return isVerified;
+  };
+  
+  const renderVerificationBadge = (item: string, type: 'api' | 'link') => {
+    const isVerified = getVerificationStatus(item);
+    
+    if (isVerified) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="outline" className="bg-green-50 text-green-700 flex items-center gap-1">
+                <ShieldCheck size={12} />
+                Verified
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>This {type} is from a verified source</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    } else {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 flex items-center gap-1">
+                <Shield size={12} />
+                Unverified
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>This {type} is from an unverified source</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+  };
+  
   const approvedWidgets = widgets.filter(widget => widget.status === 'approved');
   const pendingWidgets = widgets.filter(widget => widget.status === 'pending');
   
   const renderWidgetCard = (widget: WidgetSubmission) => {
+    // Extract APIs and links from the widget for demonstration
+    const apis = widget.components
+      ?.filter(comp => comp.apiConfig?.apiId)
+      .map(comp => comp.apiConfig?.apiId ? 
+        widgets
+          .flatMap(w => w.apis || [])
+          .find(api => api.id === comp.apiConfig?.apiId) : null)
+      .filter(api => api) as ApiConfig[];
+    
+    const links = widget.components
+      ?.filter(comp => comp.type === 'link')
+      .map(comp => comp.props.url)
+      .filter(url => url) as string[];
+    
     return (
       <Card key={widget.id} className="overflow-hidden flex flex-col">
         <CardHeader className="pb-2 border-b">
@@ -77,22 +148,9 @@ const AdminDashboard = () => {
         </CardHeader>
         
         <div className="p-4 flex justify-center items-center bg-gray-50">
-          <div className="w-48 h-48 border rounded-md shadow-sm bg-white flex items-center justify-center overflow-hidden">
-            {widget.thumbnail ? (
-              <img 
-                src={widget.thumbnail} 
-                alt={`${widget.name} preview`} 
-                className="max-w-full max-h-full object-contain"
-              />
-            ) : (
-              <div className="text-center p-4">
-                <div className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center mx-auto mb-2">
-                  <Eye className="h-6 w-6 text-gray-400" />
-                </div>
-                <p className="text-gray-500 text-sm">Widget Preview</p>
-              </div>
-            )}
-          </div>
+          {widget.components && widget.apis && (
+            <WidgetPreview components={widget.components} apis={widget.apis} />
+          )}
         </div>
         
         <CardContent className="py-3">
@@ -100,6 +158,43 @@ const AdminDashboard = () => {
             Created: {new Date(widget.createdAt).toLocaleDateString()}
           </p>
           <p className="text-sm mb-2 line-clamp-2">{widget.description || "No description"}</p>
+          
+          {/* Display APIs used in the widget */}
+          {apis && apis.length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs font-medium text-gray-500 mb-1">APIs:</p>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {apis.map((api, index) => (
+                  <div key={index} className="flex items-center gap-1">
+                    <Badge variant="outline" className="text-xs flex items-center gap-1">
+                      <Database size={10} />
+                      {api.name}
+                    </Badge>
+                    {renderVerificationBadge(api.endpoint, 'api')}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Display links used in the widget */}
+          {links && links.length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs font-medium text-gray-500 mb-1">Links:</p>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {links.map((link, index) => (
+                  <div key={index} className="flex items-center gap-1">
+                    <Badge variant="outline" className="text-xs flex items-center gap-1">
+                      <ExternalLink size={10} />
+                      {link.substring(0, 15)}{link.length > 15 ? '...' : ''}
+                    </Badge>
+                    {renderVerificationBadge(link, 'link')}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
           {widget.tags && widget.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {widget.tags.map(tag => (
@@ -124,11 +219,6 @@ const AdminDashboard = () => {
                   </Button>
                 </>
               )}
-              <Link to={`/?widgetId=${widget.id}`}>
-                <Button variant="default" size="sm">
-                  <Eye size={14} className="mr-1" /> View
-                </Button>
-              </Link>
             </div>
           </div>
         </CardFooter>
@@ -145,6 +235,8 @@ const AdminDashboard = () => {
               <TableHead>Name</TableHead>
               <TableHead>Created</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>APIs</TableHead>
+              <TableHead>External Links</TableHead>
               <TableHead>Version</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -156,33 +248,76 @@ const AdminDashboard = () => {
                 widget.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 (widget.description && widget.description.toLowerCase().includes(searchQuery.toLowerCase()))
               )
-              .map((widget) => (
-                <TableRow key={widget.id}>
-                  <TableCell className="font-medium">{widget.name}</TableCell>
-                  <TableCell>{new Date(widget.createdAt).toLocaleDateString()}</TableCell>
-                  <TableCell>{getStatusBadge(widget.status)}</TableCell>
-                  <TableCell>{widget.version}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
-                      {widget.status === 'pending' && (
-                        <>
-                          <Button variant="outline" size="sm" className="text-red-500 border-red-200">
-                            <X size={14} className="mr-1" /> Reject
-                          </Button>
-                          <Button variant="outline" size="sm" className="text-green-500 border-green-200">
-                            <Check size={14} className="mr-1" /> Approve
-                          </Button>
-                        </>
+              .map((widget) => {
+                // Extract APIs and links for this widget
+                const apis = widget.components
+                  ?.filter(comp => comp.apiConfig?.apiId)
+                  .map(comp => comp.apiConfig?.apiId ? 
+                    widgets
+                      .flatMap(w => w.apis || [])
+                      .find(api => api.id === comp.apiConfig?.apiId) : null)
+                  .filter(api => api) as ApiConfig[];
+                
+                const links = widget.components
+                  ?.filter(comp => comp.type === 'link')
+                  .map(comp => comp.props.url)
+                  .filter(url => url) as string[];
+                
+                return (
+                  <TableRow key={widget.id}>
+                    <TableCell className="font-medium">{widget.name}</TableCell>
+                    <TableCell>{new Date(widget.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell>{getStatusBadge(widget.status)}</TableCell>
+                    <TableCell>
+                      {apis && apis.length > 0 ? (
+                        <div className="flex flex-col gap-1">
+                          {apis.map((api, index) => (
+                            <div key={index} className="flex items-center gap-1">
+                              <Badge variant="outline" className="text-xs">
+                                {api.name}
+                              </Badge>
+                              {renderVerificationBadge(api.endpoint, 'api')}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-sm">None</span>
                       )}
-                      <Link to={`/?widgetId=${widget.id}`}>
-                        <Button variant="default" size="sm">
-                          <Eye size={14} className="mr-1" /> View
-                        </Button>
-                      </Link>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell>
+                      {links && links.length > 0 ? (
+                        <div className="flex flex-col gap-1">
+                          {links.map((link, index) => (
+                            <div key={index} className="flex items-center gap-1">
+                              <Badge variant="outline" className="text-xs">
+                                {link.substring(0, 15)}{link.length > 15 ? '...' : ''}
+                              </Badge>
+                              {renderVerificationBadge(link, 'link')}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-sm">None</span>
+                      )}
+                    </TableCell>
+                    <TableCell>{widget.version}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end space-x-2">
+                        {widget.status === 'pending' && (
+                          <>
+                            <Button variant="outline" size="sm" className="text-red-500 border-red-200">
+                              <X size={14} className="mr-1" /> Reject
+                            </Button>
+                            <Button variant="outline" size="sm" className="text-green-500 border-green-200">
+                              <Check size={14} className="mr-1" /> Approve
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </div>
@@ -223,13 +358,16 @@ const AdminDashboard = () => {
                 <ToggleGroup 
                   type="single" 
                   value={viewMode} 
-                  onValueChange={(value) => value && setViewMode(value as 'list' | 'grid')}
+                  onValueChange={(value) => value && setViewMode(value as 'list' | 'grid' | 'card')}
                 >
                   <ToggleGroupItem value="list" aria-label="List view">
                     <List className="h-4 w-4" />
                   </ToggleGroupItem>
                   <ToggleGroupItem value="grid" aria-label="Grid view">
                     <LayoutGrid className="h-4 w-4" />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="card" aria-label="Card view">
+                    <Card className="h-4 w-4" />
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
@@ -242,6 +380,16 @@ const AdminDashboard = () => {
               </Card>
             ) : viewMode === 'list' ? (
               renderWidgetTable(approvedWidgets)
+            ) : viewMode === 'card' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {approvedWidgets
+                  .filter(widget => 
+                    searchQuery === "" || 
+                    widget.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (widget.description && widget.description.toLowerCase().includes(searchQuery.toLowerCase()))
+                  )
+                  .map(renderWidgetCard)}
+              </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {approvedWidgets
@@ -270,13 +418,16 @@ const AdminDashboard = () => {
                 <ToggleGroup 
                   type="single" 
                   value={viewMode} 
-                  onValueChange={(value) => value && setViewMode(value as 'list' | 'grid')}
+                  onValueChange={(value) => value && setViewMode(value as 'list' | 'grid' | 'card')}
                 >
                   <ToggleGroupItem value="list" aria-label="List view">
                     <List className="h-4 w-4" />
                   </ToggleGroupItem>
                   <ToggleGroupItem value="grid" aria-label="Grid view">
                     <LayoutGrid className="h-4 w-4" />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="card" aria-label="Card view">
+                    <Card className="h-4 w-4" />
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
@@ -288,6 +439,10 @@ const AdminDashboard = () => {
               </Card>
             ) : viewMode === 'list' ? (
               renderWidgetTable(pendingWidgets)
+            ) : viewMode === 'card' ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {pendingWidgets.map(renderWidgetCard)}
+              </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pendingWidgets.map(renderWidgetCard)}
