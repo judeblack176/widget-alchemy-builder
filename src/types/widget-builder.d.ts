@@ -1,7 +1,6 @@
 
 import { WidgetComponent, ApiConfig } from "./widget-types";
 
-// Remove TooltipTemplate import and onRequestTooltipTemplate from WidgetBuilderProps
 declare module "@/components/widget-builder/WidgetBuilder" {
   export interface WidgetBuilderProps {
     components: WidgetComponent[];

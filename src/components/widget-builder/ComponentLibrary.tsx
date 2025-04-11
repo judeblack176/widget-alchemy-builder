@@ -18,8 +18,7 @@ import {
   Italic,
   Filter,
   AlertTriangle,
-  Table2,
-  HelpCircle
+  Table2
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -346,29 +345,6 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
         { name: "borderColor", type: "color", label: "Border Color" },
         { name: "altRowBackgroundColor", type: "color", label: "Alt Row Background Color" }
       ]
-    },
-    {
-      type: "tooltip",
-      name: "Tooltip",
-      icon: "HelpCircle",
-      defaultProps: {
-        triggerText: "Hover me",
-        content: "Tooltip content here",
-        placement: "top",
-        backgroundColor: "#1E293B",
-        textColor: "#FFFFFF",
-        showArrow: true,
-        triggerStyle: "button"
-      },
-      availableProps: [
-        { name: "triggerText", type: "text", label: "Trigger Text" },
-        { name: "content", type: "text", label: "Tooltip Content" },
-        { name: "placement", type: "select", label: "Placement", options: ["top", "right", "bottom", "left"] },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "textColor", type: "color", label: "Text Color" },
-        { name: "showArrow", type: "select", label: "Show Arrow", options: ["true", "false"] },
-        { name: "triggerStyle", type: "select", label: "Trigger Style", options: ["button", "text", "icon", "custom"] }
-      ]
     }
   ];
 
@@ -391,7 +367,6 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       case "Filter": return <Filter size={24} />;
       case "AlertTriangle": return <AlertTriangle size={24} />;
       case "Table2": return <Table2 size={24} />;
-      case "HelpCircle": return <HelpCircle size={24} />;
       default: return <div className="w-6 h-6 bg-gray-200 rounded" />;
     }
   };

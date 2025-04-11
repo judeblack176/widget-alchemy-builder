@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar, RefreshCw, Palette, Bold, Italic, HelpCircle } from "lucide-react";
+import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar, RefreshCw, Palette, Bold, Italic } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +21,6 @@ interface WidgetBuilderProps {
   onRemoveComponent: (componentId: string) => void;
   onReorderComponents: (components: WidgetComponent[]) => void;
   onRequestApiTemplate?: (componentId: string) => void;
-  onRequestTooltipTemplate?: (componentId: string) => void;
 }
 
 const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
@@ -30,8 +29,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   onUpdateComponent,
   onRemoveComponent,
   onReorderComponents,
-  onRequestApiTemplate,
-  onRequestTooltipTemplate
+  onRequestApiTemplate
 }) => {
   const [editingComponent, setEditingComponent] = useState<WidgetComponent | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -100,12 +98,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         syncInterval: 'daily'
       });
       setIsIcsConfigOpen(true);
-    }
-  };
-
-  const handleOpenTooltipConfig = (component: WidgetComponent) => {
-    if (onRequestTooltipTemplate) {
-      onRequestTooltipTemplate(component.id);
     }
   };
 
@@ -647,14 +639,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                   onClick={() => handleOpenApiConfig(component)}
                 >
                   <Link size={16} />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8 w-8 p-0" 
-                  onClick={() => handleOpenTooltipConfig(component)}
-                >
-                  <HelpCircle size={16} />
                 </Button>
                 <Button 
                   variant="ghost" 
