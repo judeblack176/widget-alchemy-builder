@@ -63,8 +63,8 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
             width: 'calc(100% + 32px)',
           }}
         >
-          <div className="flex items-center text-left pl-4">
-            <BookOpen className="mr-3 flex-shrink-0" />
+          <div className="flex items-center text-left pl-8">
+            <BookOpen className="mr-4 flex-shrink-0" />
             <h2 
               className="text-left"
               style={{
