@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
@@ -73,10 +74,10 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         maxHeight: '384px'
       }}
     >
-      <div className="p-4 space-y-4 overflow-y-auto" style={{ height: '100%' }}>
+      <div className="overflow-y-auto" style={{ height: '100%' }}>
         <TooltipProvider>
-          {displayComponents.map((component) => (
-            <div key={component.id} className="widget-component relative">
+          {displayComponents.map((component, index) => (
+            <div key={component.id} className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}>
               {component.tooltipId && component.tooltipId !== "" ? (
                 <div className="relative">
                   <div className="absolute right-0 top-0 z-10">
@@ -100,7 +101,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
           ))}
           
           {hasExcessComponents && (
-            <Alert variant="destructive" className="mt-2 py-2">
+            <Alert variant="destructive" className="mt-2 mx-4 mb-4 py-2">
               <AlertCircle className="h-4 w-4 mr-2" />
               <AlertDescription>
                 Only showing {MAX_COMPONENTS} of {components.length} components. 
