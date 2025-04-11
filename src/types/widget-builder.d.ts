@@ -1,5 +1,6 @@
 
 import { WidgetComponent, ApiConfig } from "./widget-types";
+import { TooltipTemplate } from "@/components/widget-builder/TooltipManager";
 
 // Extend the WidgetBuilder props interface to include onRequestTooltipTemplate
 declare module "@/components/widget-builder/WidgetBuilder" {

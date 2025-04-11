@@ -5,6 +5,7 @@ import ComponentLibrary from "@/components/widget-builder/ComponentLibrary";
 import WidgetPreview from "@/components/widget-builder/WidgetPreview";
 import ApiManager from "@/components/widget-builder/ApiManager";
 import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionForm";
+import TooltipManager, { TooltipTemplate } from "@/components/widget-builder/TooltipManager";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -17,17 +18,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { WidgetComponent, ApiConfig, WidgetSubmission } from "@/types/widget-types";
-
-interface TooltipTemplate {
-  id: string;
-  name: string;
-  content: string;
-  placement: "top" | "right" | "bottom" | "left";
-  backgroundColor: string;
-  textColor: string;
-  showArrow: boolean;
-  triggerStyle: "button" | "text" | "icon" | "custom";
-}
 
 const Index = () => {
   const { toast } = useToast();
@@ -50,19 +40,9 @@ const Index = () => {
   const [apis, setApis] = useState<ApiConfig[]>([]);
   const [activeTab, setActiveTab] = useState<string>("components");
   const [isApiTemplateModalOpen, setIsApiTemplateModalOpen] = useState(false);
-  const [isTooltipTemplateModalOpen, setIsTooltipTemplateModalOpen] = useState(false);
   const [savedApiTemplates, setSavedApiTemplates] = useState<ApiConfig[]>([]);
   const [savedTooltipTemplates, setSavedTooltipTemplates] = useState<TooltipTemplate[]>([]);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
-  const [newTooltipTemplate, setNewTooltipTemplate] = useState<Partial<TooltipTemplate>>({
-    name: '',
-    content: '',
-    placement: 'top',
-    backgroundColor: '#1E293B',
-    textColor: '#FFFFFF',
-    showArrow: true,
-    triggerStyle: 'button'
-  });
 
   useEffect(() => {
     if (widgetId) {
@@ -420,13 +400,10 @@ const Index = () => {
       title: "Tooltip Template Applied",
       description: `Applied "${template.name}" tooltip to the selected component`
     });
-    
-    setIsTooltipTemplateModalOpen(false);
   };
 
   const openTooltipTemplateModal = (componentId: string) => {
     setSelectedComponentId(componentId);
-    setIsTooltipTemplateModalOpen(true);
   };
 
   return (
@@ -460,6 +437,7 @@ const Index = () => {
             <TabsList className="w-full">
               <TabsTrigger value="components" className="flex-1">Components</TabsTrigger>
               <TabsTrigger value="apis" className="flex-1">APIs</TabsTrigger>
+              <TabsTrigger value="tooltips" className="flex-1">Tooltips</TabsTrigger>
             </TabsList>
             
             <TabsContent value="components" className="mt-4">
@@ -474,6 +452,16 @@ const Index = () => {
                 onUpdateApi={handleUpdateApi}
               />
             </TabsContent>
+
+            <TabsContent value="tooltips" className="mt-4">
+              <TooltipManager
+                tooltipTemplates={savedTooltipTemplates}
+                selectedComponentId={selectedComponentId}
+                onAddTooltip={handleAddTooltipTemplate}
+                onApplyTooltip={applyTooltipTemplateToComponent}
+                onDeleteTooltip={handleDeleteTooltipTemplate}
+              />
+            </TabsContent>
           </Tabs>
         </div>
         
@@ -481,69 +469,6 @@ const Index = () => {
           <div className="flex justify-between mb-4">
             <h2 className="text-xl font-semibold">Widget Builder</h2>
             <div className="space-x-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="gap-1"
-                  >
-                    <HelpCircle size={16} />
-                    Tooltip Templates
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80">
-                  <div className="space-y-4">
-                    <h3 className="font-medium">Saved Tooltip Templates</h3>
-                    
-                    {savedTooltipTemplates.length === 0 ? (
-                      <p className="text-sm text-gray-500">No saved tooltip templates yet.</p>
-                    ) : (
-                      <ScrollArea className="h-60">
-                        <div className="space-y-2">
-                          {savedTooltipTemplates.map((template) => (
-                            <div key={template.id} className="border rounded p-2 flex justify-between items-center">
-                              <div>
-                                <p className="font-medium">{template.name}</p>
-                                <p className="text-xs text-gray-500 truncate max-w-[180px]">{template.content}</p>
-                              </div>
-                              <div className="flex gap-2">
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => applyTooltipTemplateToComponent(template)}
-                                  disabled={!selectedComponentId}
-                                >
-                                  Apply
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="text-red-500 hover:text-red-700"
-                                  onClick={() => handleDeleteTooltipTemplate(template.id)}
-                                >
-                                  Delete
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </ScrollArea>
-                    )}
-                    
-                    <div className="pt-2 border-t">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full"
-                        onClick={() => setIsTooltipTemplateModalOpen(true)}
-                      >
-                        Create New Template
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-              
               <Button
                 variant="outline"
                 className="gap-1"
@@ -650,195 +575,6 @@ const Index = () => {
             <Button variant="outline" onClick={() => setIsApiTemplateModalOpen(false)}>
               Cancel
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      <Dialog open={isTooltipTemplateModalOpen} onOpenChange={setIsTooltipTemplateModalOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedComponentId ? "Apply Tooltip Template" : "Create Tooltip Template"}
-            </DialogTitle>
-          </DialogHeader>
-          
-          {savedTooltipTemplates.length === 0 && selectedComponentId ? (
-            <div className="text-center py-8">
-              <HelpCircle className="mx-auto text-gray-400 mb-2" size={32} />
-              <p className="text-gray-500">No saved tooltip templates yet</p>
-              <p className="text-sm text-gray-400 mt-1">
-                Create a new tooltip template below
-              </p>
-            </div>
-          ) : selectedComponentId ? (
-            <ScrollArea className="h-[300px]">
-              <div className="grid grid-cols-1 gap-4 p-1">
-                {savedTooltipTemplates.map((template) => (
-                  <Card 
-                    key={template.id} 
-                    className="cursor-pointer hover:border-widget-blue transition-colors"
-                    onClick={() => applyTooltipTemplateToComponent(template)}
-                  >
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base">{template.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-sm space-y-1">
-                        <div className="flex">
-                          <span className="font-semibold w-20">Content:</span>
-                          <span className="truncate">{template.content}</span>
-                        </div>
-                        <div className="flex">
-                          <span className="font-semibold w-20">Position:</span>
-                          <span>{template.placement}</span>
-                        </div>
-                        <div className="flex">
-                          <span className="font-semibold w-20">Style:</span>
-                          <span>{template.triggerStyle}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </ScrollArea>
-          ) : (
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="tooltip-name">Template Name</Label>
-                <Input 
-                  id="tooltip-name" 
-                  value={newTooltipTemplate.name} 
-                  onChange={(e) => setNewTooltipTemplate({...newTooltipTemplate, name: e.target.value})}
-                  placeholder="e.g., Info Tooltip"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="tooltip-content">Content</Label>
-                <Input 
-                  id="tooltip-content" 
-                  value={newTooltipTemplate.content} 
-                  onChange={(e) => setNewTooltipTemplate({...newTooltipTemplate, content: e.target.value})}
-                  placeholder="Tooltip text content"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="tooltip-placement">Placement</Label>
-                <select 
-                  id="tooltip-placement"
-                  className="w-full p-2 border rounded-md"
-                  value={newTooltipTemplate.placement}
-                  onChange={(e) => setNewTooltipTemplate({
-                    ...newTooltipTemplate, 
-                    placement: e.target.value as "top" | "right" | "bottom" | "left"
-                  })}
-                >
-                  <option value="top">Top</option>
-                  <option value="right">Right</option>
-                  <option value="bottom">Bottom</option>
-                  <option value="left">Left</option>
-                </select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="tooltip-trigger">Trigger Style</Label>
-                <select 
-                  id="tooltip-trigger"
-                  className="w-full p-2 border rounded-md"
-                  value={newTooltipTemplate.triggerStyle}
-                  onChange={(e) => setNewTooltipTemplate({
-                    ...newTooltipTemplate, 
-                    triggerStyle: e.target.value as "button" | "text" | "icon" | "custom"
-                  })}
-                >
-                  <option value="button">Button</option>
-                  <option value="text">Text</option>
-                  <option value="icon">Icon</option>
-                  <option value="custom">Custom</option>
-                </select>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="tooltip-bg">Background Color</Label>
-                  <div className="flex gap-2">
-                    <Input 
-                      id="tooltip-bg" 
-                      type="color"
-                      value={newTooltipTemplate.backgroundColor}
-                      onChange={(e) => setNewTooltipTemplate({
-                        ...newTooltipTemplate, 
-                        backgroundColor: e.target.value
-                      })}
-                      className="w-10 h-10 p-1"
-                    />
-                    <Input 
-                      type="text"
-                      value={newTooltipTemplate.backgroundColor}
-                      onChange={(e) => setNewTooltipTemplate({
-                        ...newTooltipTemplate, 
-                        backgroundColor: e.target.value
-                      })}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="tooltip-text">Text Color</Label>
-                  <div className="flex gap-2">
-                    <Input 
-                      id="tooltip-text" 
-                      type="color"
-                      value={newTooltipTemplate.textColor}
-                      onChange={(e) => setNewTooltipTemplate({
-                        ...newTooltipTemplate, 
-                        textColor: e.target.value
-                      })}
-                      className="w-10 h-10 p-1"
-                    />
-                    <Input 
-                      type="text"
-                      value={newTooltipTemplate.textColor}
-                      onChange={(e) => setNewTooltipTemplate({
-                        ...newTooltipTemplate, 
-                        textColor: e.target.value
-                      })}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="show-arrow"
-                  checked={newTooltipTemplate.showArrow}
-                  onChange={(e) => setNewTooltipTemplate({
-                    ...newTooltipTemplate,
-                    showArrow: e.target.checked
-                  })}
-                />
-                <Label htmlFor="show-arrow">Show Arrow</Label>
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsTooltipTemplateModalOpen(false)}>
-              Cancel
-            </Button>
-            {!selectedComponentId && (
-              <Button 
-                onClick={() => handleAddTooltipTemplate(newTooltipTemplate)}
-                disabled={!newTooltipTemplate.name || !newTooltipTemplate.content}
-              >
-                Save Template
-              </Button>
-            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
