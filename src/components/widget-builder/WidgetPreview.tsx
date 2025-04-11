@@ -19,22 +19,28 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
   const { toast } = useToast();
   
-  // Adjust MAX_COMPONENTS based on presence of alert components
+  // Get maximum component count based on alert presence
   const alertComponents = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
   const MAX_COMPONENTS = alertComponents.length > 0 ? 7 : 6;
   
   // Extract header component and non-header components
   const headerComponent = components.find(c => c.type === 'header');
+  
+  // Filter out header from regular components so it doesn't count against the limit
   const nonHeaderComponents = components.filter(c => c.type !== 'header');
-  const displayComponents = nonHeaderComponents.slice(0, headerComponent ? MAX_COMPONENTS - 1 : MAX_COMPONENTS);
-  const hasExcessComponents = components.length > MAX_COMPONENTS;
+  
+  // Display all non-header components up to the limit
+  const displayComponents = nonHeaderComponents.slice(0, MAX_COMPONENTS);
+  
+  // Check if we have more components than allowed (excluding header)
+  const hasExcessComponents = nonHeaderComponents.length > MAX_COMPONENTS;
 
   useEffect(() => {
     // Show error toast when component limit is exceeded
-    if (components.length > MAX_COMPONENTS && !hasExcessComponents) {
+    if (nonHeaderComponents.length > MAX_COMPONENTS && !hasExcessComponents) {
       toast({
         title: "Maximum Components Exceeded",
-        description: `Widgets can only have ${MAX_COMPONENTS} components. Additional components won't be displayed.`,
+        description: `Widgets can only have ${MAX_COMPONENTS} components (excluding header). Additional components won't be displayed.`,
         variant: "destructive",
       });
     }
@@ -67,7 +73,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     if (apis.length > 0) {
       fetchData();
     }
-  }, [apis, components.length, toast, hasExcessComponents]);
+  }, [apis, nonHeaderComponents.length, toast, hasExcessComponents]);
   
   const getTooltipContent = (tooltipId: string) => {
     switch (tooltipId) {
@@ -156,8 +162,8 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
               <Alert variant="destructive" className="mt-2 mx-4 mb-4 py-2">
                 <AlertCircle className="h-4 w-4 mr-2" />
                 <AlertDescription>
-                  Only showing {MAX_COMPONENTS} of {components.length} components. 
-                  Widgets are limited to {MAX_COMPONENTS} components.
+                  Only showing {MAX_COMPONENTS} of {nonHeaderComponents.length} components. 
+                  Widgets are limited to {MAX_COMPONENTS} components (excluding header).
                 </AlertDescription>
               </Alert>
             )}

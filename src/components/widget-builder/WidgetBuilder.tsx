@@ -30,14 +30,16 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   
-  // Adjust MAX_COMPONENTS based on presence of alert components
+  // Get alert components to calculate the max allowed components
   const alertComponents = components.filter(c => c.type === 'alert');
+  
+  // Header doesn't count against the component limit
+  const nonHeaderComponents = components.filter(c => c.type !== 'header');
   const MAX_COMPONENTS = alertComponents.length > 0 ? 7 : 6;
-  const atComponentLimit = components.length >= MAX_COMPONENTS;
+  const atComponentLimit = nonHeaderComponents.length >= MAX_COMPONENTS;
 
   // Separate the header component from other components
   const headerComponent = components.find(c => c.type === 'header');
-  const nonHeaderComponents = components.filter(c => c.type !== 'header');
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -95,7 +97,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4 mr-2" />
             <AlertDescription>
-              Maximum of {MAX_COMPONENTS} components reached. Please remove a component before adding a new one.
+              Maximum of {MAX_COMPONENTS} components reached (excluding header). Please remove a component before adding a new one.
             </AlertDescription>
           </Alert>
         )}
