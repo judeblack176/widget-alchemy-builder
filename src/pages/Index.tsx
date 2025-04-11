@@ -328,18 +328,6 @@ const Index = () => {
       title: "Tooltip Template Saved",
       description: `Saved tooltip template: ${template.name}`
     });
-    
-    setNewTooltipTemplate({
-      name: '',
-      content: '',
-      placement: 'top',
-      backgroundColor: '#1E293B',
-      textColor: '#FFFFFF',
-      showArrow: true,
-      triggerStyle: 'button'
-    });
-    
-    setIsTooltipTemplateModalOpen(false);
   };
   
   const handleDeleteTooltipTemplate = (templateId: string) => {
@@ -375,25 +363,23 @@ const Index = () => {
       
       handleUpdateComponent(updatedComponent);
     } else {
-      const newTooltipComponent: WidgetComponent = {
-        id: `tooltip-${Date.now()}`,
-        type: 'tooltip',
+      const tooltipProps = {
+        content: template.content,
+        placement: template.placement,
+        backgroundColor: template.backgroundColor,
+        textColor: template.textColor,
+        showArrow: template.showArrow
+      };
+      
+      const updatedComponent = {
+        ...componentToUpdate,
         props: {
-          content: template.content,
-          placement: template.placement,
-          backgroundColor: template.backgroundColor,
-          textColor: template.textColor,
-          showArrow: template.showArrow,
-          triggerStyle: template.triggerStyle,
-          children: componentToUpdate
+          ...componentToUpdate.props,
+          tooltip: tooltipProps
         }
       };
       
-      const updatedComponents = widgetComponents.map(component => 
-        component.id === selectedComponentId ? newTooltipComponent : component
-      );
-      
-      setWidgetComponents(updatedComponents);
+      handleUpdateComponent(updatedComponent);
     }
     
     toast({
