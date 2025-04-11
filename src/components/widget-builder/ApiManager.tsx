@@ -242,20 +242,11 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
       <div className="my-6">
         <div className="flex justify-between">
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <TooltipProvider>
-              <Tooltip>
-                <DialogTrigger asChild>
-                  <TooltipTrigger asChild>
-                    <Button size="icon" className="bg-widget-blue hover:bg-blue-600 h-9 w-9">
-                      <Plus size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                </DialogTrigger>
-                <TooltipContent>
-                  <p>Add new API</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <DialogTrigger asChild>
+              <Button size="sm" className="bg-widget-blue hover:bg-blue-600">
+                <Plus size={16} className="mr-2" /> Add API
+              </Button>
+            </DialogTrigger>
             
             <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
@@ -559,25 +550,16 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
               backgroundColor="#f9fafb"
             />
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggleSort}
-                  className="flex items-center gap-1 h-9 w-9 p-0"
-                >
-                  {sortDirection === null && <ArrowDownAZ size={16} />}
-                  {sortDirection === "asc" && <ArrowDownAZ size={16} />}
-                  {sortDirection === "desc" && <ArrowUpZA size={16} />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{sortDirection === "asc" ? "Sort Z to A" : sortDirection === "desc" ? "Clear sort" : "Sort A to Z"}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleSort}
+            className="flex items-center gap-1 h-9 mr-auto p-2"
+          >
+            {sortDirection === null && <ArrowDownAZ size={16} />}
+            {sortDirection === "asc" && <ArrowDownAZ size={16} />}
+            {sortDirection === "desc" && <ArrowUpZA size={16} />}
+          </Button>
         </div>
       </div>
       
