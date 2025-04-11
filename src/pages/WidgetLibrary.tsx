@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -307,12 +306,11 @@ const WidgetLibrary = () => {
                   </div>
                 </CardHeader>
                 
-                {/* Widget Preview Section */}
                 <div className="p-4 flex justify-center items-center bg-gray-50">
                   <div className="w-64 h-64 border rounded-md shadow-sm bg-white flex items-center justify-center overflow-hidden">
-                    {widget.thumbnailUrl ? (
+                    {widget.thumbnail ? (
                       <img 
-                        src={widget.thumbnailUrl} 
+                        src={widget.thumbnail} 
                         alt={`${widget.name} preview`} 
                         className="max-w-full max-h-full object-contain"
                       />
