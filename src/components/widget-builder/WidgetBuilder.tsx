@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { WidgetComponent, ApiConfig, CalendarServiceType, ICSConfig } from "@/types/widget-types";
+import { WidgetComponent, ApiConfig, CalendarServiceType, ICSConfig, PREDEFINED_COLORS, FontFamily } from "@/types/widget-types";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar, Download, Upload, RefreshCw, Palette } from "lucide-react";
+import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar, Download, Upload, RefreshCw, Palette, Bold, Italic } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -164,6 +165,18 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     }
   };
 
+  const toggleBold = () => {
+    if (editingComponent) {
+      handleInputChange('bold', !editingComponent.props.bold);
+    }
+  };
+
+  const toggleItalic = () => {
+    if (editingComponent) {
+      handleInputChange('italic', !editingComponent.props.italic);
+    }
+  };
+
   const renderPropertyEditor = (propName: string, propValue: any, component: WidgetComponent) => {
     if ((propName === "color" || propName === "backgroundColor" || propName === "textColor" || 
         propName === "borderColor" || propName.includes("Color")) && 
@@ -183,14 +196,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
             </PopoverTrigger>
             <PopoverContent className="w-64">
               <div className="grid grid-cols-5 gap-2">
-                {[
-                  "#FFFFFF", "#F8FAFC", "#F1F5F9", "#E2E8F0", "#CBD5E1",
-                  "#94A3B8", "#64748B", "#475569", "#334155", "#1E293B",
-                  "#0F172A", "#000000", "#EF4444", "#F97316", "#F59E0B",
-                  "#EAB308", "#84CC16", "#22C55E", "#10B981", "#14B8A6",
-                  "#06B6D4", "#0EA5E9", "#3B82F6", "#6366F1", "#8B5CF6",
-                  "#A855F7", "#D946EF", "#EC4899", "#F43F5E", "transparent"
-                ].map(color => (
+                {PREDEFINED_COLORS.map(color => (
                   <Button
                     key={color}
                     variant="outline"
@@ -227,6 +233,56 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
       );
     }
     
+    if (propName === "fontFamily") {
+      return (
+        <Select
+          value={propValue}
+          onValueChange={(value: FontFamily) => handleInputChange(propName, value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select font family" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Arial">Arial</SelectItem>
+            <SelectItem value="Helvetica">Helvetica</SelectItem>
+            <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+            <SelectItem value="Georgia">Georgia</SelectItem>
+            <SelectItem value="Courier New">Courier New</SelectItem>
+            <SelectItem value="Verdana">Verdana</SelectItem>
+            <SelectItem value="Tahoma">Tahoma</SelectItem>
+            <SelectItem value="Trebuchet MS">Trebuchet MS</SelectItem>
+            <SelectItem value="Impact">Impact</SelectItem>
+            <SelectItem value="Comic Sans MS">Comic Sans MS</SelectItem>
+            <SelectItem value="Roboto">Roboto</SelectItem>
+            <SelectItem value="Open Sans">Open Sans</SelectItem>
+            <SelectItem value="Lato">Lato</SelectItem>
+            <SelectItem value="Montserrat">Montserrat</SelectItem>
+            <SelectItem value="Poppins">Poppins</SelectItem>
+            <SelectItem value="Playfair Display">Playfair Display</SelectItem>
+            <SelectItem value="Merriweather">Merriweather</SelectItem>
+            <SelectItem value="system-ui">System Default</SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    }
+    
+    if (propName === "bold" || propName === "italic") {
+      return (
+        <Select
+          value={propValue.toString()}
+          onValueChange={(value) => handleInputChange(propName, value === "true")}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder={propName === "bold" ? "Bold" : "Italic"} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="true">Yes</SelectItem>
+            <SelectItem value="false">No</SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    }
+
     if (propName === "actions" && Array.isArray(propValue)) {
       return (
         <Select 
@@ -503,11 +559,65 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           
           {editingComponent && (
             <div className="py-4">
+              {(editingComponent.type === "text" || editingComponent.type === "header") && (
+                <div className="mb-4 flex space-x-2">
+                  <Button 
+                    variant={editingComponent.props.bold ? "default" : "outline"} 
+                    size="sm" 
+                    onClick={toggleBold}
+                    className="w-10"
+                  >
+                    <Bold size={16} />
+                  </Button>
+                  <Button 
+                    variant={editingComponent.props.italic ? "default" : "outline"} 
+                    size="sm" 
+                    onClick={toggleItalic}
+                    className="w-10"
+                  >
+                    <Italic size={16} />
+                  </Button>
+                  <Select
+                    value={editingComponent.props.fontFamily}
+                    onValueChange={(value: FontFamily) => handleInputChange('fontFamily', value)}
+                  >
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Font Family" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Arial">Arial</SelectItem>
+                      <SelectItem value="Helvetica">Helvetica</SelectItem>
+                      <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+                      <SelectItem value="Georgia">Georgia</SelectItem>
+                      <SelectItem value="Courier New">Courier New</SelectItem>
+                      <SelectItem value="Verdana">Verdana</SelectItem>
+                      <SelectItem value="Tahoma">Tahoma</SelectItem>
+                      <SelectItem value="Trebuchet MS">Trebuchet MS</SelectItem>
+                      <SelectItem value="Impact">Impact</SelectItem>
+                      <SelectItem value="Comic Sans MS">Comic Sans MS</SelectItem>
+                      <SelectItem value="Roboto">Roboto</SelectItem>
+                      <SelectItem value="Open Sans">Open Sans</SelectItem>
+                      <SelectItem value="Lato">Lato</SelectItem>
+                      <SelectItem value="Montserrat">Montserrat</SelectItem>
+                      <SelectItem value="Poppins">Poppins</SelectItem>
+                      <SelectItem value="Playfair Display">Playfair Display</SelectItem>
+                      <SelectItem value="Merriweather">Merriweather</SelectItem>
+                      <SelectItem value="system-ui">System Default</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
               <div className="space-y-4">
                 {Object.entries(editingComponent.props).map(([propName, propValue]) => {
                   if (typeof propValue === 'object' && propValue !== null && !Array.isArray(propValue)) {
                     return null;
                   }
+                  
+                  if (propName === 'bold' || propName === 'italic' || propName === 'fontFamily') {
+                    return null;
+                  }
+                  
                   return (
                     <div key={propName} className="grid gap-2">
                       <Label htmlFor={propName} className="capitalize">

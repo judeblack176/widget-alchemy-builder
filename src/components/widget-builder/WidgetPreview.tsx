@@ -18,7 +18,9 @@ import {
   UploadCloud,
   Upload,
   Download,
-  RefreshCw
+  RefreshCw,
+  Bold,
+  Italic
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -38,7 +40,10 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
             className="p-3 flex justify-between items-center rounded-t-md"
             style={{ 
               backgroundColor: component.props.backgroundColor || "#3B82F6", 
-              color: component.props.textColor || "#FFFFFF" 
+              color: component.props.textColor || "#FFFFFF",
+              fontFamily: component.props.fontFamily || "system-ui",
+              fontWeight: component.props.bold ? "bold" : "normal",
+              fontStyle: component.props.italic ? "italic" : "normal"
             }}
           >
             <div className="flex items-center">
@@ -74,7 +79,9 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
                       component.props.size === "large" ? "1.25rem" : "1rem",
               color: component.props.color || "#333333",
               backgroundColor: component.props.backgroundColor || "transparent",
-              fontWeight: component.props.fontWeight || "normal"
+              fontWeight: component.props.bold ? "bold" : (component.props.fontWeight || "normal"),
+              fontStyle: component.props.italic ? "italic" : "normal",
+              fontFamily: component.props.fontFamily || "system-ui"
             }}
           >
             {component.props.content}

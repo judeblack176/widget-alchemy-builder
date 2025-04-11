@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentDefinition, WidgetComponent } from "@/types/widget-types";
+import { ComponentDefinition, WidgetComponent, FontFamily } from "@/types/widget-types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   BookOpen, 
@@ -13,7 +13,9 @@ import {
   List, 
   Link as LinkIcon, 
   Text,
-  Palette
+  Palette,
+  Bold,
+  Italic
 } from "lucide-react";
 
 interface ComponentLibraryProps {
@@ -31,14 +33,25 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
         title: "Widget Title",
         actions: ["Edit", "More"],
         backgroundColor: "#3B82F6",
-        textColor: "#FFFFFF"
+        textColor: "#FFFFFF",
+        fontFamily: "system-ui",
+        bold: false,
+        italic: false
       },
       availableProps: [
         { name: "icon", type: "icon", label: "Icon" },
         { name: "title", type: "text", label: "Title" },
         { name: "actions", type: "select", label: "Actions", options: ["None", "Edit", "More", "Both"] },
         { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "textColor", type: "color", label: "Text Color" }
+        { name: "textColor", type: "color", label: "Text Color" },
+        { name: "fontFamily", type: "font", label: "Font Family", options: [
+          "Arial", "Helvetica", "Times New Roman", "Georgia", "Courier New",
+          "Verdana", "Tahoma", "Trebuchet MS", "Impact", "Comic Sans MS",
+          "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", 
+          "Playfair Display", "Merriweather", "system-ui"
+        ]},
+        { name: "bold", type: "select", label: "Bold", options: ["true", "false"] },
+        { name: "italic", type: "select", label: "Italic", options: ["true", "false"] }
       ]
     },
     {
@@ -50,14 +63,25 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
         size: "medium",
         color: "#333333",
         backgroundColor: "transparent",
-        fontWeight: "normal"
+        fontWeight: "normal",
+        fontFamily: "system-ui",
+        bold: false,
+        italic: false
       },
       availableProps: [
         { name: "content", type: "text", label: "Content" },
         { name: "size", type: "select", label: "Size", options: ["small", "medium", "large"] },
         { name: "color", type: "color", label: "Text Color" },
         { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "fontWeight", type: "select", label: "Font Weight", options: ["normal", "bold", "light"] }
+        { name: "fontWeight", type: "select", label: "Font Weight", options: ["normal", "bold", "light"] },
+        { name: "fontFamily", type: "font", label: "Font Family", options: [
+          "Arial", "Helvetica", "Times New Roman", "Georgia", "Courier New",
+          "Verdana", "Tahoma", "Trebuchet MS", "Impact", "Comic Sans MS",
+          "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", 
+          "Playfair Display", "Merriweather", "system-ui"
+        ]},
+        { name: "bold", type: "select", label: "Bold", options: ["true", "false"] },
+        { name: "italic", type: "select", label: "Italic", options: ["true", "false"] }
       ]
     },
     {
@@ -241,6 +265,8 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       case "LinkIcon": return <LinkIcon size={24} />;
       case "Text": return <Text size={24} />;
       case "Palette": return <Palette size={24} />;
+      case "Bold": return <Bold size={24} />;
+      case "Italic": return <Italic size={24} />;
       default: return <div className="w-6 h-6 bg-gray-200 rounded" />;
     }
   };

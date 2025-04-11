@@ -20,7 +20,7 @@ export interface ComponentDefinition {
   defaultProps: Record<string, any>;
   availableProps: Array<{
     name: string;
-    type: 'text' | 'number' | 'select' | 'color' | 'icon';
+    type: 'text' | 'number' | 'select' | 'color' | 'icon' | 'font';
     label: string;
     options?: string[];
   }>;
@@ -66,3 +66,32 @@ export interface ColorPalette {
   textColor: string;
   backgroundColor: string;
 }
+
+export type FontFamily = 
+  'Arial' | 
+  'Helvetica' | 
+  'Times New Roman' | 
+  'Georgia' | 
+  'Courier New' | 
+  'Verdana' | 
+  'Tahoma' | 
+  'Trebuchet MS' | 
+  'Impact' | 
+  'Comic Sans MS' | 
+  'Roboto' | 
+  'Open Sans' | 
+  'Lato' | 
+  'Montserrat' | 
+  'Poppins' | 
+  'Playfair Display' | 
+  'Merriweather' | 
+  'system-ui';
+
+export const PREDEFINED_COLORS = [
+  "#FFFFFF", "#F8FAFC", "#F1F5F9", "#E2E8F0", "#CBD5E1",
+  "#94A3B8", "#64748B", "#475569", "#334155", "#1E293B",
+  "#0F172A", "#000000", "#EF4444", "#F97316", "#F59E0B",
+  "#EAB308", "#84CC16", "#22C55E", "#10B981", "#14B8A6",
+  "#06B6D4", "#0EA5E9", "#3B82F6", "#6366F1", "#8B5CF6",
+  "#A855F7", "#D946EF", "#EC4899", "#F43F5E", "transparent"
+];
