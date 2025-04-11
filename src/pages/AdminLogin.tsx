@@ -20,11 +20,15 @@ const AdminLogin = () => {
     e.preventDefault();
     
     if (password === "admin123") {
+      // Set admin status in localStorage
       login();
+      
       toast({
         title: "Login Successful",
         description: "Welcome to the admin dashboard",
       });
+      
+      // Navigate to admin dashboard
       navigate("/admin");
     } else {
       toast({
@@ -40,7 +44,7 @@ const AdminLogin = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
-            <ShieldCheck size={48} className="text-widget-blue" />
+            <ShieldCheck size={48} className="text-primary" />
           </div>
           <CardTitle className="text-2xl text-center">Admin Login</CardTitle>
           <CardDescription className="text-center">

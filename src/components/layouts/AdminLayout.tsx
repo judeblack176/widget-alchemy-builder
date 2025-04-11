@@ -1,9 +1,20 @@
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, createContext, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+
+// Simple admin authentication context
+const AdminAuthContext = createContext<{
+  isAdmin: boolean;
+  login: () => void;
+  logout: () => void;
+}>({
+  isAdmin: false,
+  login: () => {},
+  logout: () => {},
+});
 
 // Simple admin authentication - in a real app, this would connect to a backend
 const isAdmin = () => {
@@ -14,20 +25,9 @@ const isAdmin = () => {
   }
 };
 
-export const useAdminAuth = () => {
+export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
-  useEffect(() => {
-    if (!isAdmin()) {
-      toast({
-        title: "Access Denied",
-        description: "You don't have permission to access the admin area",
-        variant: "destructive",
-      });
-      navigate("/");
-    }
-  }, [navigate, toast]);
   
   const login = () => {
     localStorage.setItem("isAdmin", "true");
@@ -35,9 +35,41 @@ export const useAdminAuth = () => {
   
   const logout = () => {
     localStorage.removeItem("isAdmin");
+    navigate("/");
   };
   
-  return { isAdmin: isAdmin(), login, logout };
+  return (
+    <AdminAuthContext.Provider value={{ isAdmin: isAdmin(), login, logout }}>
+      {children}
+    </AdminAuthContext.Provider>
+  );
+};
+
+export const useAdminAuth = () => {
+  const context = useContext(AdminAuthContext);
+  if (context === undefined) {
+    throw new Error("useAdminAuth must be used within an AdminAuthProvider");
+  }
+  return context;
+};
+
+export const useAdminProtection = () => {
+  const { isAdmin } = useAdminAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    if (!isAdmin) {
+      toast({
+        title: "Access Denied",
+        description: "You need to login to access the admin area",
+        variant: "destructive",
+      });
+      navigate("/admin/login");
+    }
+  }, [isAdmin, navigate, toast]);
+  
+  return { isAdmin };
 };
 
 interface AdminLayoutProps {
@@ -48,6 +80,9 @@ interface AdminLayoutProps {
 const AdminLayout = ({ children, title }: AdminLayoutProps) => {
   const { isAdmin, logout } = useAdminAuth();
   const navigate = useNavigate();
+  
+  // Protect the admin route
+  useAdminProtection();
   
   if (!isAdmin) return null;
   
@@ -61,7 +96,7 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
                 <ArrowLeft size={16} className="mr-1" /> Back to Builder
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold text-widget-blue flex items-center">
+            <h1 className="text-2xl font-bold text-primary flex items-center">
               <ShieldCheck size={24} className="mr-2" />
               Admin Dashboard: {title}
             </h1>
