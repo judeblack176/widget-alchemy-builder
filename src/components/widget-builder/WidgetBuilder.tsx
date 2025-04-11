@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip } from './TooltipManager';
+import { Input } from '@/components/ui/input';
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -103,6 +104,17 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
               Maximum of {MAX_COMPONENTS} components reached (excluding header and alerts). Please remove a component before adding a new one.
             </AlertDescription>
           </Alert>
+        )}
+
+        {searchQuery.trim() !== '' && (
+          <div className="mb-4">
+            <Input
+              placeholder="Search components..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full"
+            />
+          </div>
         )}
         
         {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (

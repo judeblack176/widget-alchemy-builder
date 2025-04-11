@@ -433,6 +433,7 @@ const Index = () => {
             onReorderComponents={handleReorderComponents}
             onRequestApiTemplate={openApiTemplateModal}
             onApplyTooltip={handleApplyTooltip}
+            tooltips={tooltips}
           />
         </div>
         

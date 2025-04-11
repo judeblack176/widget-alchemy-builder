@@ -78,6 +78,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   disableRemove = false,
   customTooltips = []
 }) => {
+  console.log("Custom tooltips in ComponentEditor:", customTooltips);
+
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
       ...component,
