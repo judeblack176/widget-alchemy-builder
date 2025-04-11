@@ -1,14 +1,16 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
 import ComponentLibrary from "@/components/widget-builder/ComponentLibrary";
 import WidgetPreview from "@/components/widget-builder/WidgetPreview";
 import ApiManager from "@/components/widget-builder/ApiManager";
+import TooltipManager, { Tooltip } from "@/components/widget-builder/TooltipManager";
 import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionForm";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library, User, Bookmark } from "lucide-react";
+import { Library, User, Bookmark, HelpCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -37,8 +39,10 @@ const Index = () => {
   ]);
   
   const [apis, setApis] = useState<ApiConfig[]>([]);
+  const [tooltips, setTooltips] = useState<Tooltip[]>([]);
   const [activeTab, setActiveTab] = useState<string>("components");
   const [isApiTemplateModalOpen, setIsApiTemplateModalOpen] = useState(false);
+  const [isTooltipListModalOpen, setIsTooltipListModalOpen] = useState(false);
   const [savedApiTemplates, setSavedApiTemplates] = useState<ApiConfig[]>([]);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
 
@@ -72,8 +76,13 @@ const Index = () => {
       if (saved) {
         setSavedApiTemplates(JSON.parse(saved));
       }
+      
+      const savedTooltips = localStorage.getItem('savedTooltips');
+      if (savedTooltips) {
+        setTooltips(JSON.parse(savedTooltips));
+      }
     } catch (error) {
-      console.error("Failed to load API templates", error);
+      console.error("Failed to load saved data", error);
     }
   }, [widgetId, toast]);
 
@@ -200,7 +209,8 @@ const Index = () => {
   const handleSaveWidget = () => {
     const widgetConfig = {
       components: widgetComponents,
-      apis: apis
+      apis: apis,
+      tooltips: tooltips
     };
     
     localStorage.setItem('savedWidget', JSON.stringify(widgetConfig));
@@ -218,6 +228,7 @@ const Index = () => {
       const widgetConfig = JSON.parse(savedWidget);
       setWidgetComponents(widgetConfig.components || []);
       setApis(widgetConfig.apis || []);
+      setTooltips(widgetConfig.tooltips || []);
       
       toast({
         title: "Widget Loaded",
@@ -301,6 +312,38 @@ const Index = () => {
     });
   };
 
+  const handleAddTooltip = (tooltip: Tooltip) => {
+    const updatedTooltips = [...tooltips, tooltip];
+    setTooltips(updatedTooltips);
+    localStorage.setItem('savedTooltips', JSON.stringify(updatedTooltips));
+  };
+
+  const handleUpdateTooltip = (tooltipId: string, updatedTooltip: Tooltip) => {
+    const updatedTooltips = tooltips.map(tooltip => 
+      tooltip.id === tooltipId ? updatedTooltip : tooltip
+    );
+    setTooltips(updatedTooltips);
+    localStorage.setItem('savedTooltips', JSON.stringify(updatedTooltips));
+  };
+
+  const handleRemoveTooltip = (tooltipId: string) => {
+    // Check if any component is using this tooltip
+    const componentsUsingTooltip = widgetComponents.filter(comp => comp.tooltipId === tooltipId);
+    
+    if (componentsUsingTooltip.length > 0) {
+      toast({
+        title: "Cannot Remove Tooltip",
+        description: `This tooltip is being used by ${componentsUsingTooltip.length} component(s). Please remove the tooltip from these components first.`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const updatedTooltips = tooltips.filter(tooltip => tooltip.id !== tooltipId);
+    setTooltips(updatedTooltips);
+    localStorage.setItem('savedTooltips', JSON.stringify(updatedTooltips));
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <header className="bg-white border-b border-gray-200 p-4">
@@ -331,11 +374,21 @@ const Index = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="w-full">
               <TabsTrigger value="components" className="flex-1">Components</TabsTrigger>
+              <TabsTrigger value="tooltips" className="flex-1">Tooltips</TabsTrigger>
               <TabsTrigger value="apis" className="flex-1">APIs</TabsTrigger>
             </TabsList>
             
             <TabsContent value="components" className="mt-4">
               <ComponentLibrary onAddComponent={handleAddComponent} />
+            </TabsContent>
+            
+            <TabsContent value="tooltips" className="mt-4">
+              <TooltipManager
+                tooltips={tooltips}
+                onAddTooltip={handleAddTooltip}
+                onUpdateTooltip={handleUpdateTooltip}
+                onRemoveTooltip={handleRemoveTooltip}
+              />
             </TabsContent>
             
             <TabsContent value="apis" className="mt-4">
@@ -353,6 +406,14 @@ const Index = () => {
           <div className="flex justify-between mb-4">
             <h2 className="text-xl font-semibold">Widget Builder</h2>
             <div className="space-x-2">
+              <Button
+                variant="outline"
+                className="gap-1"
+                onClick={() => setIsTooltipListModalOpen(true)}
+              >
+                <HelpCircle size={16} />
+                Tooltips
+              </Button>
               <Button
                 variant="outline"
                 className="gap-1"
@@ -465,6 +526,45 @@ const Index = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsApiTemplateModalOpen(false)}>
               Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isTooltipListModalOpen} onOpenChange={setIsTooltipListModalOpen}>
+        <DialogContent className="sm:max-w-[650px]">
+          <DialogHeader>
+            <DialogTitle>Available Tooltips</DialogTitle>
+          </DialogHeader>
+          
+          {tooltips.length === 0 ? (
+            <div className="text-center py-8">
+              <HelpCircle className="mx-auto text-gray-400 mb-2" size={32} />
+              <p className="text-gray-500">No tooltips created yet</p>
+              <p className="text-sm text-gray-400 mt-1">
+                Create tooltips from the Tooltips tab to use them in your components
+              </p>
+            </div>
+          ) : (
+            <ScrollArea className="h-[400px]">
+              <div className="grid grid-cols-1 gap-4 p-1">
+                {tooltips.map((tooltip) => (
+                  <Card key={tooltip.id} className="overflow-hidden">
+                    <CardHeader className="py-3 px-4">
+                      <CardTitle className="text-base font-medium">{tooltip.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="py-2 px-4">
+                      <p className="text-sm">{tooltip.content}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsTooltipListModalOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
