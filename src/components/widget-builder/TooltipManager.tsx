@@ -1,6 +1,5 @@
-
 import React, { useState, useRef } from 'react';
-import { Plus, Edit, Trash2, Upload, FileSpreadsheet } from 'lucide-react';
+import { Plus, Edit, Trash2, Upload, FileSpreadsheet, SortAsc, SortDesc, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import SearchBar from '@/components/widget-builder/SearchBar';
 
 export interface Tooltip {
   id: string;
@@ -49,6 +49,8 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
   const [content, setContent] = useState('');
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const handleAddNewTooltip = () => {
     setCurrentTooltip(null);
@@ -209,6 +211,28 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
     return result;
   };
 
+  const toggleSortDirection = () => {
+    setSortDirection(prevDirection => prevDirection === 'asc' ? 'desc' : 'asc');
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  // Filter and sort tooltips
+  const filteredAndSortedTooltips = tooltips
+    .filter(tooltip => 
+      tooltip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tooltip.content.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortDirection === 'asc') {
+        return a.title.localeCompare(b.title);
+      } else {
+        return b.title.localeCompare(a.title);
+      }
+    });
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -245,27 +269,57 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
         </div>
       </div>
 
+      <div className="flex gap-2 mb-2">
+        <SearchBar 
+          onSearch={handleSearch} 
+          placeholder="Search tooltips..." 
+          className="flex-1"
+        />
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={toggleSortDirection}
+              >
+                {sortDirection === 'asc' ? <SortAsc size={16} /> : <SortDesc size={16} />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Sort {sortDirection === 'asc' ? 'A to Z' : 'Z to A'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
       <ScrollArea className="h-[calc(100vh-240px)]">
-        {tooltips.length === 0 ? (
+        {filteredAndSortedTooltips.length === 0 ? (
           <div className="py-8 text-center text-gray-500">
-            <p>No tooltips created yet</p>
-            <p className="text-sm mt-1">Create tooltips to provide additional information to users</p>
+            {tooltips.length === 0 ? (
+              <>
+                <p>No tooltips created yet</p>
+                <p className="text-sm mt-1">Create tooltips to provide additional information to users</p>
+              </>
+            ) : (
+              <p>No tooltips match your search</p>
+            )}
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Content</TableHead>
-                <TableHead>Title</TableHead>
+                <TableHead className="w-1/2">Content</TableHead>
+                <TableHead className="w-1/3">Title</TableHead>
                 <TableHead className="w-[100px] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tooltips.map((tooltip) => (
+              {filteredAndSortedTooltips.map((tooltip) => (
                 <TableRow key={tooltip.id} className="border-b">
-                  <TableCell className="max-w-[250px]">{tooltip.content}</TableCell>
-                  <TableCell className="font-medium">{tooltip.title}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="max-w-[250px] align-top">{tooltip.content}</TableCell>
+                  <TableCell className="font-medium align-top">{tooltip.title}</TableCell>
+                  <TableCell className="text-right align-top">
                     <div className="flex justify-end gap-2">
                       <Button
                         variant="ghost"
