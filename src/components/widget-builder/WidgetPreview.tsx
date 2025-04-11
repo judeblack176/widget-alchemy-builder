@@ -1,5 +1,5 @@
-import React from "react";
-import { WidgetComponent, ApiConfig, CalendarServiceType } from "@/types/widget-types";
+import React, { useState } from "react";
+import { WidgetComponent, ApiConfig, CalendarServiceType, AlertType, TableColumn } from "@/types/widget-types";
 import { 
   BookOpen, 
   Type, 
@@ -20,11 +20,28 @@ import {
   Download,
   RefreshCw,
   Bold,
-  Italic
+  Italic,
+  Filter,
+  Search,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Info,
+  X,
+  Table2
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { 
+  Table, 
+  TableBody, 
+  TableCaption, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 
 interface WidgetPreviewProps {
   components: WidgetComponent[];
@@ -32,6 +49,12 @@ interface WidgetPreviewProps {
 }
 
 const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
+  const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
+
+  const dismissAlert = (id: string) => {
+    setDismissedAlerts([...dismissedAlerts, id]);
+  };
+
   const renderComponent = (component: WidgetComponent) => {
     switch (component.type) {
       case "header":
@@ -337,6 +360,190 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
               placeholder={component.props.placeholder}
               rows={component.props.rows || 4}
             />
+          </div>
+        );
+      
+      case "filter":
+        return (
+          <div className="p-3">
+            <label className="block text-sm font-medium mb-1" style={{ color: component.props.textColor }}>
+              {component.props.label}
+            </label>
+            <div className="relative">
+              <div 
+                className="flex items-center w-full p-2 rounded-md"
+                style={{ 
+                  backgroundColor: component.props.backgroundColor,
+                  color: component.props.textColor,
+                  border: `1px solid ${component.props.borderColor}`
+                }}
+              >
+                <Filter size={16} className="mr-2" style={{ color: component.props.accentColor }} />
+                <span>{component.props.placeholder}</span>
+                {component.props.searchable && (
+                  <div className="ml-auto">
+                    <Search size={16} style={{ color: component.props.accentColor }} />
+                  </div>
+                )}
+              </div>
+              <div 
+                className="absolute left-0 right-0 mt-1 p-1 rounded-md shadow-md z-10 hidden"
+                style={{ 
+                  backgroundColor: component.props.backgroundColor,
+                  border: `1px solid ${component.props.borderColor}`
+                }}
+              >
+                {component.props.options?.map((option: string, index: number) => (
+                  <div 
+                    key={index} 
+                    className="p-2 rounded hover:bg-opacity-10 cursor-pointer flex items-center"
+                    style={{ 
+                      color: component.props.textColor,
+                      backgroundColor: index % 2 === 0 ? 'rgba(0,0,0,0.03)' : 'transparent'
+                    }}
+                  >
+                    {component.props.multiple && (
+                      <div 
+                        className="w-4 h-4 mr-2 border rounded flex items-center justify-center"
+                        style={{ borderColor: component.props.accentColor }}
+                      >
+                        {index === 0 && <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: component.props.accentColor }}></div>}
+                      </div>
+                    )}
+                    {option}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      
+      case "alert":
+        if (dismissedAlerts.includes(component.id)) {
+          return null;
+        }
+        
+        const getAlertIcon = (type: AlertType) => {
+          switch (type) {
+            case "info":
+              return <Info size={20} className="mr-2 shrink-0" />;
+            case "success":
+              return <CheckCircle size={20} className="mr-2 shrink-0" />;
+            case "warning":
+              return <AlertTriangle size={20} className="mr-2 shrink-0" />;
+            case "error":
+              return <XCircle size={20} className="mr-2 shrink-0" />;
+            default:
+              return <Info size={20} className="mr-2 shrink-0" />;
+          }
+        };
+        
+        const getDefaultColors = (type: AlertType) => {
+          switch (type) {
+            case "info":
+              return { bg: "#EFF6FF", text: "#1E3A8A", border: "#BFDBFE" };
+            case "success":
+              return { bg: "#F0FDF4", text: "#166534", border: "#BBF7D0" };
+            case "warning":
+              return { bg: "#FFFBEB", text: "#854D0E", border: "#FEF3C7" };
+            case "error":
+              return { bg: "#FEF2F2", text: "#991B1B", border: "#FEE2E2" };
+            default:
+              return { bg: "#EFF6FF", text: "#1E3A8A", border: "#BFDBFE" };
+          }
+        };
+        
+        const defaultColors = getDefaultColors(component.props.type as AlertType);
+        
+        return (
+          <div className="p-3">
+            <div 
+              className="rounded-md p-3 flex items-start"
+              style={{ 
+                backgroundColor: component.props.backgroundColor || defaultColors.bg,
+                borderLeft: `4px solid ${component.props.borderColor || defaultColors.border}`,
+                color: component.props.textColor || defaultColors.text
+              }}
+            >
+              {component.props.icon && getAlertIcon(component.props.type as AlertType)}
+              
+              <div className="flex-1">
+                <div className="font-medium">{component.props.title}</div>
+                <div className="text-sm">{component.props.message}</div>
+              </div>
+              
+              {component.props.dismissible && (
+                <button 
+                  onClick={() => dismissAlert(component.id)}
+                  className="ml-2 p-1 rounded-full hover:bg-opacity-10 hover:bg-black"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      
+      case "table":
+        return (
+          <div className="p-3">
+            <div 
+              className="rounded-md border overflow-hidden"
+              style={{ 
+                borderColor: component.props.borderColor 
+              }}
+            >
+              <Table>
+                <TableHeader>
+                  <TableRow style={{ 
+                    backgroundColor: component.props.headerBackgroundColor 
+                  }}>
+                    {component.props.columns?.map((column: TableColumn, index: number) => (
+                      <TableHead 
+                        key={index}
+                        style={{ 
+                          color: component.props.headerTextColor,
+                          borderColor: component.props.bordered ? component.props.borderColor : 'transparent'
+                        }}
+                        className={component.props.compact ? 'py-2' : ''}
+                      >
+                        {column.header}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {component.props.data?.map((row: any, rowIndex: number) => (
+                    <TableRow 
+                      key={rowIndex}
+                      style={{ 
+                        backgroundColor: component.props.striped && rowIndex % 2 === 1 
+                          ? component.props.altRowBackgroundColor 
+                          : component.props.rowBackgroundColor,
+                        color: component.props.rowTextColor,
+                        borderColor: component.props.borderColor,
+                        '--hover-bg': 'rgba(0,0,0,0.05)'
+                      } as React.CSSProperties}
+                      className={`${component.props.hoverable ? 'hover:bg-[--hover-bg]' : ''}`}
+                    >
+                      {component.props.columns?.map((column: TableColumn, colIndex: number) => (
+                        <TableCell 
+                          key={colIndex}
+                          style={{ 
+                            borderColor: component.props.bordered ? component.props.borderColor : 'transparent' 
+                          }}
+                          className={component.props.compact ? 'py-2' : ''}
+                        >
+                          {column.type === 'number' 
+                            ? Number(row[column.accessor]).toLocaleString()
+                            : row[column.accessor]}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         );
       

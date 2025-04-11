@@ -15,7 +15,10 @@ import {
   Text,
   Palette,
   Bold,
-  Italic
+  Italic,
+  Filter,
+  AlertTriangle,
+  Table2
 } from "lucide-react";
 
 interface ComponentLibraryProps {
@@ -248,6 +251,99 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
         { name: "placeholder", type: "text", label: "Placeholder" },
         { name: "rows", type: "number", label: "Number of Rows" }
       ]
+    },
+    {
+      type: "filter",
+      name: "Filter Component",
+      icon: "Filter",
+      defaultProps: {
+        label: "Filter",
+        placeholder: "Filter items...",
+        options: ["All", "Option 1", "Option 2", "Option 3"],
+        multiple: false,
+        searchable: true,
+        backgroundColor: "#FFFFFF",
+        textColor: "#333333",
+        accentColor: "#3B82F6",
+        borderColor: "#E2E8F0"
+      },
+      availableProps: [
+        { name: "label", type: "text", label: "Label" },
+        { name: "placeholder", type: "text", label: "Placeholder" },
+        { name: "options", type: "text", label: "Options (comma separated)" },
+        { name: "multiple", type: "select", label: "Allow Multiple Selection", options: ["true", "false"] },
+        { name: "searchable", type: "select", label: "Allow Search", options: ["true", "false"] },
+        { name: "backgroundColor", type: "color", label: "Background Color" },
+        { name: "textColor", type: "color", label: "Text Color" },
+        { name: "accentColor", type: "color", label: "Accent Color" },
+        { name: "borderColor", type: "color", label: "Border Color" }
+      ]
+    },
+    {
+      type: "alert",
+      name: "Alert Bar",
+      icon: "AlertTriangle",
+      defaultProps: {
+        title: "Alert Title",
+        message: "This is an alert message.",
+        type: "info",
+        icon: true,
+        dismissible: true,
+        backgroundColor: "#EFF6FF",
+        textColor: "#1E3A8A",
+        borderColor: "#BFDBFE"
+      },
+      availableProps: [
+        { name: "title", type: "text", label: "Title" },
+        { name: "message", type: "text", label: "Message" },
+        { name: "type", type: "select", label: "Alert Type", options: ["info", "success", "warning", "error"] },
+        { name: "icon", type: "select", label: "Show Icon", options: ["true", "false"] },
+        { name: "dismissible", type: "select", label: "Dismissible", options: ["true", "false"] },
+        { name: "backgroundColor", type: "color", label: "Background Color" },
+        { name: "textColor", type: "color", label: "Text Color" },
+        { name: "borderColor", type: "color", label: "Border Color" }
+      ]
+    },
+    {
+      type: "table",
+      name: "Table",
+      icon: "Table2",
+      defaultProps: {
+        columns: [
+          { header: "Name", accessor: "name", type: "text" },
+          { header: "Age", accessor: "age", type: "number" },
+          { header: "Status", accessor: "status", type: "text" }
+        ],
+        data: [
+          { name: "John Doe", age: 28, status: "Active" },
+          { name: "Jane Smith", age: 32, status: "Inactive" },
+          { name: "Bob Johnson", age: 45, status: "Active" }
+        ],
+        striped: true,
+        hoverable: true,
+        bordered: false,
+        compact: false,
+        headerBackgroundColor: "#F8FAFC",
+        headerTextColor: "#334155",
+        rowBackgroundColor: "#FFFFFF",
+        rowTextColor: "#1E293B",
+        borderColor: "#E2E8F0",
+        altRowBackgroundColor: "#F1F5F9"
+      },
+      availableProps: [
+        { name: "columns", type: "text", label: "Columns (JSON)" },
+        { name: "data", type: "text", label: "Data (JSON)" },
+        { name: "striped", type: "select", label: "Striped Rows", options: ["true", "false"] },
+        { name: "hoverable", type: "select", label: "Hoverable Rows", options: ["true", "false"] },
+        { name: "bordered", type: "select", label: "Bordered Cells", options: ["true", "false"] },
+        { name: "compact", type: "select", label: "Compact Layout", options: ["true", "false"] },
+        { name: "headerBackgroundColor", type: "color", label: "Header Background Color" },
+        { name: "headerTextColor", type: "color", label: "Header Text Color" },
+        { name: "rowBackgroundColor", type: "color", label: "Row Background Color" },
+        { name: "rowTextColor", type: "color", label: "Row Text Color" },
+        { name: "borderColor", type: "color", label: "Border Color" },
+        { name: "altRowBackgroundColor", type: "color", label: "Alt Row Background Color" }
+      ]
     }
   ];
 
@@ -267,6 +363,9 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       case "Palette": return <Palette size={24} />;
       case "Bold": return <Bold size={24} />;
       case "Italic": return <Italic size={24} />;
+      case "Filter": return <Filter size={24} />;
+      case "AlertTriangle": return <AlertTriangle size={24} />;
+      case "Table2": return <Table2 size={24} />;
       default: return <div className="w-6 h-6 bg-gray-200 rounded" />;
     }
   };

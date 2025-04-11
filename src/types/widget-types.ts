@@ -1,7 +1,7 @@
 
 import { LucideIcon } from 'lucide-react';
 
-export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text';
+export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table';
 
 export interface WidgetComponent {
   id: string;
@@ -95,3 +95,11 @@ export const PREDEFINED_COLORS = [
   "#06B6D4", "#0EA5E9", "#3B82F6", "#6366F1", "#8B5CF6",
   "#A855F7", "#D946EF", "#EC4899", "#F43F5E", "transparent"
 ];
+
+export type AlertType = 'info' | 'success' | 'warning' | 'error';
+
+export interface TableColumn {
+  header: string;
+  accessor: string;
+  type?: 'text' | 'number' | 'date' | 'boolean' | 'icon';
+}
