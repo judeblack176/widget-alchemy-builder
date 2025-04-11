@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
 import ComponentLibrary from "@/components/widget-builder/ComponentLibrary";
 import WidgetPreview from "@/components/widget-builder/WidgetPreview";
@@ -9,7 +9,7 @@ import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionFo
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library, User, HelpCircle, Bookmark } from "lucide-react";
+import { Library, User, HelpCircle, BookmarkIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,7 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 const Index = () => {
   const { toast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const widgetId = queryParams.get('widgetId');
   
@@ -263,25 +264,7 @@ const Index = () => {
   };
 
   const handleLoadWidget = () => {
-    const savedWidget = localStorage.getItem('savedWidget');
-    
-    if (savedWidget) {
-      const widgetConfig = JSON.parse(savedWidget);
-      setWidgetComponents(widgetConfig.components || []);
-      setApis(widgetConfig.apis || []);
-      setTooltips(widgetConfig.tooltips || []);
-      
-      toast({
-        title: "Widget Loaded",
-        description: "Your saved widget configuration has been loaded."
-      });
-    } else {
-      toast({
-        title: "No Saved Widget",
-        description: "No previously saved widget configuration was found.",
-        variant: "destructive"
-      });
-    }
+    navigate('/library?mode=select');
   };
 
   const handleSubmitSuccess = () => {
@@ -492,7 +475,7 @@ const Index = () => {
                     variant="outline"
                     size="default"
                   >
-                    Load
+                    <Library size={16} className="mr-2" /> Load Widget
                   </Button>
                 </div>
               </div>
@@ -553,7 +536,7 @@ const Index = () => {
             
             {savedApiTemplates.length === 0 ? (
               <div className="text-center py-8">
-                <Bookmark className="mx-auto text-gray-400 mb-2" size={32} />
+                <BookmarkIcon className="mx-auto text-gray-400 mb-2" size={32} />
                 <p className="text-gray-500">No saved API templates yet</p>
                 <p className="text-sm text-gray-400 mt-1">
                   Save your APIs as templates from the API tab to reuse them

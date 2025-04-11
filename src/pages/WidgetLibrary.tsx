@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { 
   Clock, Check, X, Filter, Search, ArrowLeft, Eye, ShieldCheck, 
-  ListFilter, Grid, Calendar, Tag, ArrowUpDown
+  ListFilter, Grid, Calendar, Tag, ArrowUpDown, Edit
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -20,6 +19,11 @@ import type { WidgetSubmission, WidgetApprovalStatus } from "@/types/widget-type
 
 const WidgetLibrary = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const isSelectionMode = queryParams.get('mode') === 'select';
+  
   const [widgets, setWidgets] = useState<WidgetSubmission[]>([]);
   const [filteredWidgets, setFilteredWidgets] = useState<WidgetSubmission[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -101,6 +105,14 @@ const WidgetLibrary = () => {
     setFilteredWidgets(filtered);
   }, [widgets, searchQuery, statusFilter, dateFilter, tagFilter]);
 
+  const selectWidgetForEditing = (widgetId: string) => {
+    navigate(`/?widgetId=${widgetId}`);
+    toast({
+      title: "Widget Selected",
+      description: "Opening widget in the builder..."
+    });
+  };
+
   const clearFilters = () => {
     setSearchQuery("");
     setStatusFilter("all");
@@ -139,17 +151,23 @@ const WidgetLibrary = () => {
                 <ArrowLeft size={16} className="mr-1" /> Back
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold text-widget-blue">Widget Library</h1>
+            <h1 className="text-2xl font-bold text-widget-blue">
+              {isSelectionMode ? "Select Widget to Edit" : "Widget Library"}
+            </h1>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/admin/login">
-              <Button variant="secondary">
-                <ShieldCheck size={16} className="mr-2" /> Admin
-              </Button>
-            </Link>
-            <Link to="/">
-              <Button variant="outline">Create New Widget</Button>
-            </Link>
+            {!isSelectionMode && (
+              <>
+                <Link to="/admin/login">
+                  <Button variant="secondary">
+                    <ShieldCheck size={16} className="mr-2" /> Admin
+                  </Button>
+                </Link>
+                <Link to="/">
+                  <Button variant="outline">Create New Widget</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -272,22 +290,30 @@ const WidgetLibrary = () => {
                     <TableCell>{widget.version}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Link to={`/?widgetId=${widget.id}`}>
-                          <Button variant="ghost" size="sm">
-                            <Eye size={16} className="mr-1" /> View
+                        {isSelectionMode ? (
+                          <Button variant="default" size="sm" onClick={() => selectWidgetForEditing(widget.id)}>
+                            <Edit size={16} className="mr-1" /> Edit
                           </Button>
-                        </Link>
-                        {widget.status === 'rejected' && (
-                          <Button variant="ghost" size="sm" 
-                            onClick={() => {
-                              toast({
-                                title: "Feedback",
-                                description: widget.feedback || "No feedback provided"
-                              });
-                            }}
-                          >
-                            Feedback
-                          </Button>
+                        ) : (
+                          <>
+                            <Link to={`/?widgetId=${widget.id}`}>
+                              <Button variant="ghost" size="sm">
+                                <Eye size={16} className="mr-1" /> View
+                              </Button>
+                            </Link>
+                            {widget.status === 'rejected' && (
+                              <Button variant="ghost" size="sm" 
+                                onClick={() => {
+                                  toast({
+                                    title: "Feedback",
+                                    description: widget.feedback || "No feedback provided"
+                                  });
+                                }}
+                              >
+                                Feedback
+                              </Button>
+                            )}
+                          </>
                         )}
                       </div>
                     </TableCell>
@@ -343,23 +369,31 @@ const WidgetLibrary = () => {
                   <div className="flex justify-between w-full">
                     <Badge variant="outline">v{widget.version}</Badge>
                     <div className="flex space-x-2">
-                      {widget.status === 'rejected' && (
-                        <Button variant="ghost" size="sm" 
-                          onClick={() => {
-                            toast({
-                              title: "Feedback",
-                              description: widget.feedback || "No feedback provided"
-                            });
-                          }}
-                        >
-                          Feedback
+                      {isSelectionMode ? (
+                        <Button variant="default" size="sm" onClick={() => selectWidgetForEditing(widget.id)}>
+                          <Edit size={14} className="mr-1" /> Edit
                         </Button>
+                      ) : (
+                        <>
+                          {widget.status === 'rejected' && (
+                            <Button variant="ghost" size="sm" 
+                              onClick={() => {
+                                toast({
+                                  title: "Feedback",
+                                  description: widget.feedback || "No feedback provided"
+                                });
+                              }}
+                            >
+                              Feedback
+                            </Button>
+                          )}
+                          <Link to={`/?widgetId=${widget.id}`}>
+                            <Button variant="default" size="sm">
+                              <Eye size={14} className="mr-1" /> View
+                            </Button>
+                          </Link>
+                        </>
                       )}
-                      <Link to={`/?widgetId=${widget.id}`}>
-                        <Button variant="default" size="sm">
-                          <Eye size={14} className="mr-1" /> View
-                        </Button>
-                      </Link>
                     </div>
                   </div>
                 </CardFooter>
