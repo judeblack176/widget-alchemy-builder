@@ -307,7 +307,12 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
       
     default:
-      return <div>Unsupported component type: {type}</div>;
+      console.error(`Unsupported component type: ${type}`);
+      return (
+        <div className="p-3 bg-red-50 border border-red-200 rounded">
+          <p className="text-red-500">Unsupported component type: {type}</p>
+        </div>
+      );
   }
 };
 
@@ -326,4 +331,3 @@ const getNestedValue = (obj: any, path: string): any => {
   
   return current;
 };
-
