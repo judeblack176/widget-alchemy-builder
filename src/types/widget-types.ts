@@ -1,7 +1,7 @@
 
 import { LucideIcon } from 'lucide-react';
 
-export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'quiz' | 'chart' | 'form';
+export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text';
 
 export interface WidgetComponent {
   id: string;

@@ -2,7 +2,19 @@
 import React from "react";
 import { ComponentDefinition, WidgetComponent } from "@/types/widget-types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Type, Image, Video, BarChart, FileText, MousePointer, FormInput } from "lucide-react";
+import { 
+  BookOpen, 
+  Type, 
+  Image, 
+  Video, 
+  BarChart, 
+  MousePointer, 
+  FormInput, 
+  CalendarDays, 
+  ListText, 
+  Link as LinkIcon, 
+  TextInput 
+} from "lucide-react";
 
 interface ComponentLibraryProps {
   onAddComponent: (component: WidgetComponent) => void;
@@ -86,21 +98,6 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       ]
     },
     {
-      type: "quiz",
-      name: "Quiz Question",
-      icon: "FileText",
-      defaultProps: {
-        question: "What is the answer?",
-        options: ["Option 1", "Option 2", "Option 3"],
-        correctAnswer: 0
-      },
-      availableProps: [
-        { name: "question", type: "text", label: "Question" },
-        { name: "options", type: "text", label: "Options (comma separated)" },
-        { name: "correctAnswer", type: "number", label: "Correct Answer Index" }
-      ]
-    },
-    {
       type: "chart",
       name: "Chart",
       icon: "BarChart",
@@ -129,6 +126,68 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
         { name: "label", type: "text", label: "Label" },
         { name: "placeholder", type: "text", label: "Placeholder" }
       ]
+    },
+    {
+      type: "calendar",
+      name: "Calendar",
+      icon: "CalendarDays",
+      defaultProps: {
+        label: "Select Date",
+        placeholder: "Pick a date",
+        initialDate: ""
+      },
+      availableProps: [
+        { name: "label", type: "text", label: "Label" },
+        { name: "placeholder", type: "text", label: "Placeholder" },
+        { name: "initialDate", type: "text", label: "Initial Date (YYYY-MM-DD)" }
+      ]
+    },
+    {
+      type: "dropdown",
+      name: "Dropdown Menu",
+      icon: "ListText",
+      defaultProps: {
+        label: "Dropdown",
+        options: ["Option 1", "Option 2", "Option 3"],
+        placeholder: "Select an option"
+      },
+      availableProps: [
+        { name: "label", type: "text", label: "Label" },
+        { name: "options", type: "text", label: "Options (comma separated)" },
+        { name: "placeholder", type: "text", label: "Placeholder" }
+      ]
+    },
+    {
+      type: "link",
+      name: "Link",
+      icon: "LinkIcon",
+      defaultProps: {
+        text: "Click here",
+        url: "https://example.com",
+        openInNewTab: true,
+        style: "default"
+      },
+      availableProps: [
+        { name: "text", type: "text", label: "Link Text" },
+        { name: "url", type: "text", label: "URL" },
+        { name: "openInNewTab", type: "select", label: "Open in New Tab", options: ["true", "false"] },
+        { name: "style", type: "select", label: "Style", options: ["default", "button", "underlined"] }
+      ]
+    },
+    {
+      type: "multi-text",
+      name: "Multi-line Text",
+      icon: "TextInput",
+      defaultProps: {
+        label: "Multi-line Input",
+        placeholder: "Type your text here...",
+        rows: 4
+      },
+      availableProps: [
+        { name: "label", type: "text", label: "Label" },
+        { name: "placeholder", type: "text", label: "Placeholder" },
+        { name: "rows", type: "number", label: "Number of Rows" }
+      ]
     }
   ];
 
@@ -139,9 +198,12 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       case "Image": return <Image size={24} />;
       case "MousePointer": return <MousePointer size={24} />;
       case "Video": return <Video size={24} />;
-      case "FileText": return <FileText size={24} />;
       case "BarChart": return <BarChart size={24} />;
       case "FormInput": return <FormInput size={24} />;
+      case "CalendarDays": return <CalendarDays size={24} />;
+      case "ListText": return <ListText size={24} />;
+      case "LinkIcon": return <LinkIcon size={24} />;
+      case "TextInput": return <TextInput size={24} />;
       default: return <div className="w-6 h-6 bg-gray-200 rounded" />;
     }
   };

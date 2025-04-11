@@ -7,11 +7,14 @@ import {
   Image, 
   Video, 
   BarChart, 
-  FileText, 
   FormInput, 
   MousePointer,
   Edit,
-  MoreHorizontal
+  MoreHorizontal,
+  CalendarDays,
+  ListText,
+  Link as LinkIcon,
+  TextInput
 } from "lucide-react";
 
 interface WidgetPreviewProps {
@@ -31,7 +34,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
               {component.props.icon === "Type" && <Type size={18} className="mr-2" />}
               {component.props.icon === "Image" && <Image size={18} className="mr-2" />}
               {component.props.icon === "Video" && <Video size={18} className="mr-2" />}
-              {component.props.icon === "FileText" && <FileText size={18} className="mr-2" />}
               {component.props.icon === "BarChart" && <BarChart size={18} className="mr-2" />}
               {component.props.icon === "FormInput" && <FormInput size={18} className="mr-2" />}
               <span className="font-medium">{component.props.title}</span>
@@ -109,25 +111,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
           </div>
         );
       
-      case "quiz":
-        return (
-          <div className="p-3">
-            <div className="font-medium mb-2">{component.props.question}</div>
-            <div className="space-y-2">
-              {component.props.options?.map((option: string, index: number) => (
-                <div 
-                  key={index} 
-                  className={`p-2 border rounded-md cursor-pointer hover:bg-gray-50 ${
-                    index === component.props.correctAnswer ? "border-widget-blue" : ""
-                  }`}
-                >
-                  {option}
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      
       case "chart":
         return (
           <div className="p-3">
@@ -160,6 +143,76 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
                 placeholder={component.props.placeholder}
               />
             )}
+          </div>
+        );
+
+      case "calendar":
+        return (
+          <div className="p-3">
+            <label className="block text-sm font-medium mb-1">
+              {component.props.label}
+            </label>
+            <div className="relative">
+              <div className="flex items-center w-full p-2 border rounded-md bg-white">
+                <CalendarDays size={16} className="mr-2 text-gray-500" />
+                <span className="text-gray-500">{component.props.placeholder}</span>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "dropdown":
+        return (
+          <div className="p-3">
+            <label className="block text-sm font-medium mb-1">
+              {component.props.label}
+            </label>
+            <div className="relative">
+              <select className="w-full p-2 border rounded-md appearance-none bg-white">
+                <option value="" disabled selected>{component.props.placeholder}</option>
+                {component.props.options?.map((option: string, index: number) => (
+                  <option key={index} value={option}>{option}</option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                <ListText size={16} className="text-gray-500" />
+              </div>
+            </div>
+          </div>
+        );
+
+      case "link":
+        const linkStyles = {
+          default: "text-widget-blue hover:underline",
+          button: "px-4 py-2 bg-widget-blue text-white rounded hover:bg-blue-600 inline-block",
+          underlined: "text-widget-blue underline hover:no-underline"
+        };
+        
+        return (
+          <div className="p-3">
+            <a 
+              href={component.props.url}
+              target={component.props.openInNewTab ? "_blank" : "_self"}
+              rel="noopener noreferrer"
+              className={`${linkStyles[component.props.style as keyof typeof linkStyles] || linkStyles.default} flex items-center`}
+            >
+              <LinkIcon size={16} className="mr-1" />
+              {component.props.text}
+            </a>
+          </div>
+        );
+
+      case "multi-text":
+        return (
+          <div className="p-3">
+            <label className="block text-sm font-medium mb-1">
+              {component.props.label}
+            </label>
+            <textarea 
+              className="w-full p-2 border rounded-md" 
+              placeholder={component.props.placeholder}
+              rows={component.props.rows || 4}
+            />
           </div>
         );
       
