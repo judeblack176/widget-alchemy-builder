@@ -7,13 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Plus, Globe, Code, List, UploadCloud, Save, BookmarkIcon, Bookmark } from "lucide-react";
+import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ApiManagerProps {
   apis: ApiConfig[];
@@ -27,8 +29,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
   const [selectedApiForEdit, setSelectedApiForEdit] = useState<string | null>(null);
-  const [savedApiTemplates, setSavedApiTemplates] = useState<ApiConfig[]>([]);
-  const [isTemplatesDialogOpen, setIsTemplatesDialogOpen] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<{[key: string]: boolean}>({});
   
   const [newApi, setNewApi] = useState<Partial<ApiConfig>>({
     name: "",
@@ -47,72 +48,6 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
   const [paramValue, setParamValue] = useState("");
   const [mappingKey, setMappingKey] = useState("");
   const [mappingValue, setMappingValue] = useState("");
-
-  useEffect(() => {
-    const loadSavedTemplates = () => {
-      try {
-        const saved = localStorage.getItem('savedApiTemplates');
-        if (saved) {
-          setSavedApiTemplates(JSON.parse(saved));
-        }
-      } catch (error) {
-        console.error("Failed to load API templates", error);
-      }
-    };
-    
-    loadSavedTemplates();
-  }, []);
-
-  const saveApiTemplate = (api: ApiConfig) => {
-    const updatedTemplates = [...savedApiTemplates];
-    
-    const existingIndex = updatedTemplates.findIndex(template => template.id === api.id);
-    
-    if (existingIndex >= 0) {
-      updatedTemplates[existingIndex] = api;
-    } else {
-      const templateApi = {
-        ...api,
-        id: `template-${Date.now()}`
-      };
-      updatedTemplates.push(templateApi);
-    }
-    
-    setSavedApiTemplates(updatedTemplates);
-    localStorage.setItem('savedApiTemplates', JSON.stringify(updatedTemplates));
-    
-    toast({
-      title: "API Template Saved",
-      description: `"${api.name}" is now available as a template.`
-    });
-  };
-  
-  const useApiTemplate = (template: ApiConfig) => {
-    const apiFromTemplate = {
-      ...template,
-      id: `api-${Date.now()}`,
-      name: `${template.name}`
-    };
-    
-    onAddApi(apiFromTemplate);
-    setIsTemplatesDialogOpen(false);
-    
-    toast({
-      title: "Template Applied",
-      description: `Added "${template.name}" to your widget.`
-    });
-  };
-  
-  const deleteApiTemplate = (templateId: string) => {
-    const updatedTemplates = savedApiTemplates.filter(template => template.id !== templateId);
-    setSavedApiTemplates(updatedTemplates);
-    localStorage.setItem('savedApiTemplates', JSON.stringify(updatedTemplates));
-    
-    toast({
-      title: "Template Deleted",
-      description: "The API template has been removed."
-    });
-  };
 
   const resetForm = () => {
     setNewApi({
@@ -240,108 +175,40 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
     setIsOpen(false);
   };
 
-  const renderTemplatesList = () => {
-    if (savedApiTemplates.length === 0) {
-      return (
-        <div className="text-center p-6 border border-dashed rounded-lg">
-          <BookmarkIcon className="mx-auto text-gray-400 mb-2" size={32} />
-          <p className="text-gray-500">No saved API templates yet</p>
-          <p className="text-sm text-gray-400 mt-1">Save your APIs as templates to reuse them</p>
-        </div>
-      );
-    }
+  const copyApiToClipboard = (api: ApiConfig) => {
+    const apiData = {
+      name: api.name,
+      endpoint: api.endpoint,
+      method: api.method,
+      headers: api.headers,
+      parameters: api.parameters,
+      responseMapping: api.responseMapping
+    };
     
-    return (
-      <ScrollArea className="h-[350px] pr-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {savedApiTemplates.map((template) => (
-            <Card key={template.id} className="relative">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-base truncate" title={template.name}>
-                    {template.name}
-                  </CardTitle>
-                  <div className="flex space-x-1">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 w-8 p-0"
-                      onClick={() => useApiTemplate(template)}
-                      title="Use template"
-                    >
-                      <Plus size={16} />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 w-8 p-0"
-                      onClick={() => deleteApiTemplate(template.id)}
-                      title="Delete template"
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm space-y-1">
-                  <div className="flex">
-                    <span className="font-semibold w-16">Method:</span>
-                    <span className="font-mono text-widget-blue">{template.method}</span>
-                  </div>
-                  <div className="flex">
-                    <span className="font-semibold w-16">Endpoint:</span>
-                    <span className="font-mono text-xs truncate" title={template.endpoint}>
-                      {template.endpoint}
-                    </span>
-                  </div>
-                  <div className="flex">
-                    <span className="font-semibold w-16">Headers:</span>
-                    <span className="text-xs">{template.headers ? Object.keys(template.headers).length : 0} defined</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </ScrollArea>
-    );
+    navigator.clipboard.writeText(JSON.stringify(apiData, null, 2))
+      .then(() => {
+        setCopyStatus({...copyStatus, [api.id]: true});
+        setTimeout(() => {
+          setCopyStatus({...copyStatus, [api.id]: false});
+        }, 2000);
+        
+        toast({
+          title: "API Copied",
+          description: "API configuration copied to clipboard",
+        });
+      })
+      .catch(() => {
+        toast({
+          title: "Copy Failed",
+          description: "Failed to copy API configuration",
+          variant: "destructive"
+        });
+      });
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-center items-center gap-4 my-6">
-        <Dialog open={isTemplatesDialogOpen} onOpenChange={setIsTemplatesDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" variant="outline" className="flex gap-1 items-center">
-              <BookmarkIcon size={16} />
-              API Templates
-              {savedApiTemplates.length > 0 && (
-                <Badge variant="secondary" className="ml-1">{savedApiTemplates.length}</Badge>
-              )}
-            </Button>
-          </DialogTrigger>
-          
-          <DialogContent className="sm:max-w-[650px] max-h-[90vh]">
-            <DialogHeader>
-              <DialogTitle>Saved API Templates</DialogTitle>
-              <DialogDescription>
-                Reuse previously configured APIs in your widgets
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="py-4 overflow-hidden">
-              {renderTemplatesList()}
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsTemplatesDialogOpen(false)}>
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        
+      <div className="flex justify-center items-center my-6">
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="bg-widget-blue hover:bg-blue-600">
@@ -628,36 +495,6 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
             
             <DialogFooter>
               <div className="flex justify-between w-full">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    if (newApi.name && newApi.endpoint) {
-                      saveApiTemplate({
-                        ...newApi,
-                        id: selectedApiForEdit || `api-${Date.now()}`,
-                        name: newApi.name as string,
-                        endpoint: newApi.endpoint as string,
-                        method: newApi.method as 'GET' | 'POST' | 'PUT' | 'DELETE',
-                        headers: newApi.headers || {},
-                        parameters: newApi.parameters || {},
-                        responseMapping: newApi.responseMapping || {},
-                        sampleResponse: newApi.sampleResponse || "",
-                        possibleFields: newApi.possibleFields || []
-                      });
-                    } else {
-                      toast({
-                        title: "Missing Information",
-                        description: "Please provide at least a name and endpoint to save as template",
-                        variant: "destructive"
-                      });
-                    }
-                  }}
-                  disabled={!newApi.name || !newApi.endpoint}
-                  className="gap-1"
-                >
-                  <Save size={14} />
-                  Save as Template
-                </Button>
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={handleCloseDialog}>
                     Cancel
@@ -679,98 +516,137 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
           <p className="text-sm text-gray-400 mt-1">Click "Add API" to create your first API integration</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {apis.map((api) => (
-            <Card key={api.id} className="relative">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-base truncate" title={api.name}>{api.name}</CardTitle>
-                  <div className="flex space-x-1">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 w-8 p-0"
-                        >
-                          <Code size={16} />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEditApi(api.id)}>
-                          Edit API
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => saveApiTemplate(api)}>
-                          <Bookmark size={14} className="mr-2" />
-                          Save as Template
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 w-8 p-0" 
-                      onClick={() => onRemoveApi(api.id)}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm space-y-1">
-                  <div className="flex">
-                    <span className="font-semibold w-20">Method:</span>
-                    <span className="font-mono text-widget-blue">{api.method}</span>
-                  </div>
-                  <div className="flex">
-                    <span className="font-semibold w-20">Endpoint:</span>
-                    <span className="font-mono text-xs truncate" title={api.endpoint}>
-                      {api.endpoint}
-                    </span>
-                  </div>
-                  <div className="flex">
-                    <span className="font-semibold w-20">Headers:</span>
-                    <span className="text-xs">{api.headers ? Object.keys(api.headers).length : 0} defined</span>
-                  </div>
-                  <div className="flex">
-                    <span className="font-semibold w-20">Parameters:</span>
-                    <span className="text-xs">{api.parameters ? Object.keys(api.parameters).length : 0} defined</span>
-                  </div>
-                  <div className="flex">
-                    <span className="font-semibold w-20">Mapping:</span>
-                    <span className="text-xs">{api.responseMapping ? Object.keys(api.responseMapping).length : 0} defined</span>
-                  </div>
-                  <div className="flex">
-                    <span className="font-semibold w-20">Fields:</span>
-                    <span className="text-xs">{api.possibleFields ? api.possibleFields.length : 0} available</span>
-                  </div>
-                </div>
-                
-                {api.possibleFields && api.possibleFields.length > 0 && (
-                  <div className="mt-2 pt-2 border-t">
-                    <Label className="text-xs mb-1">Available Fields</Label>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {api.possibleFields.slice(0, 5).map((field, index) => (
-                        <Badge 
-                          key={index} 
-                          variant="outline" 
-                          className="font-mono text-xs"
-                        >
-                          {field}
-                        </Badge>
-                      ))}
-                      {api.possibleFields.length > 5 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{api.possibleFields.length - 5} more
-                        </Badge>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[200px]">API Name</TableHead>
+                <TableHead>Details</TableHead>
+                <TableHead className="text-right w-[100px]">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {apis.map((api) => (
+                <TableRow key={api.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      <Badge 
+                        variant="outline" 
+                        className={`
+                          ${api.method === 'GET' ? 'border-green-500 bg-green-50 text-green-700' : ''}
+                          ${api.method === 'POST' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}
+                          ${api.method === 'PUT' ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : ''}
+                          ${api.method === 'DELETE' ? 'border-red-500 bg-red-50 text-red-700' : ''}
+                        `}
+                      >
+                        {api.method}
+                      </Badge>
+                      <span>{api.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-sm space-y-1">
+                      <div className="flex items-center">
+                        <span className="font-semibold w-24">Endpoint:</span>
+                        <span className="font-mono text-xs truncate" title={api.endpoint}>
+                          {api.endpoint}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-4">
+                        <div className="flex items-center">
+                          <span className="font-semibold w-24">Headers:</span>
+                          <span className="text-xs">{api.headers ? Object.keys(api.headers).length : 0}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="font-semibold w-24">Parameters:</span>
+                          <span className="text-xs">{api.parameters ? Object.keys(api.parameters).length : 0}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="font-semibold w-24">Mappings:</span>
+                          <span className="text-xs">{api.responseMapping ? Object.keys(api.responseMapping).length : 0}</span>
+                        </div>
+                      </div>
+                      {api.possibleFields && api.possibleFields.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {api.possibleFields.slice(0, 3).map((field, index) => (
+                            <Badge 
+                              key={index} 
+                              variant="outline" 
+                              className="font-mono text-xs"
+                            >
+                              {field}
+                            </Badge>
+                          ))}
+                          {api.possibleFields.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{api.possibleFields.length - 3} more
+                            </Badge>
+                          )}
+                        </div>
                       )}
                     </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => copyApiToClipboard(api)}
+                            >
+                              {copyStatus[api.id] ? <Check size={16} /> : <Copy size={16} />}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Copy API configuration</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0"
+                              onClick={() => handleEditApi(api.id)}
+                            >
+                              <Code size={16} />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Edit API</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0" 
+                              onClick={() => onRemoveApi(api.id)}
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Remove API</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>

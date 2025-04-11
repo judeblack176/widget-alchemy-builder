@@ -12,6 +12,8 @@ interface SearchBarProps {
   borderColor?: string;
   showIcon?: boolean;
   className?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
@@ -22,13 +24,23 @@ const SearchBar: React.FC<SearchBarProps> = ({
   textColor,
   borderColor,
   showIcon = true,
-  className = "w-full"
+  className = "w-full",
+  value,
+  onChange
 }) => {
   const [query, setQuery] = useState('');
+  
+  const isControlled = value !== undefined && onChange !== undefined;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
-    setQuery(newQuery);
+    
+    if (isControlled) {
+      onChange(e);
+    } else {
+      setQuery(newQuery);
+    }
+    
     onSearch(newQuery);
   };
 
@@ -43,7 +55,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <Input
         type="text"
         placeholder={placeholder}
-        value={query}
+        value={isControlled ? value : query}
         onChange={handleChange}
         className={`${showIcon ? 'pl-10' : 'pl-4'} shadow-sm`}
         style={{
