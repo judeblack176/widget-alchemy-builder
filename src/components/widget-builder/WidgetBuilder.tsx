@@ -28,12 +28,29 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
 }) => {
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const MAX_COMPONENTS = 6;
+  
+  // Adjust MAX_COMPONENTS based on presence of alert components
+  const alertComponents = components.filter(c => c.type === 'alert');
+  const MAX_COMPONENTS = alertComponents.length > 0 ? 7 : 6;
   const atComponentLimit = components.length >= MAX_COMPONENTS;
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
     if (result.destination.index === result.source.index) return;
+
+    // Check if trying to move the header component
+    const draggedItemId = result.draggableId;
+    const draggedComponent = components.find(c => c.id === draggedItemId);
+    
+    if (draggedComponent?.type === 'header') {
+      return; // Prevent header from being moved
+    }
+    
+    // Check if trying to move another component before header
+    const headerIndex = components.findIndex(c => c.type === 'header');
+    if (headerIndex !== -1 && result.destination.index < headerIndex) {
+      return; // Prevent components from being placed before header
+    }
 
     const items = Array.from(components);
     const [reorderedItem] = items.splice(result.source.index, 1);
@@ -97,15 +114,20 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                 className="space-y-4"
               >
                 {filteredComponents.map((component, index) => (
-                  <Draggable key={component.id} draggableId={component.id} index={index}>
-                    {(provided) => (
+                  <Draggable 
+                    key={component.id} 
+                    draggableId={component.id} 
+                    index={index}
+                    isDragDisabled={component.type === 'header'} // Make header non-draggable
+                  >
+                    {(provided, snapshot) => (
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        className="relative"
+                        className={`relative ${component.type === 'header' ? 'cursor-default' : ''}`}
                       >
-                        <Card className="bg-white border shadow-sm">
+                        <Card className={`bg-white border shadow-sm ${component.type === 'header' ? 'border-blue-500' : ''}`}>
                           <ComponentEditor
                             component={component}
                             apis={apis}
@@ -116,7 +138,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                               )
                             }
                             onUpdateComponent={onUpdateComponent}
-                            onRemoveComponent={onRemoveComponent}
+                            onRemoveComponent={component.type === 'header' ? undefined : onRemoveComponent} // Prevent header removal
                             onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
                             onApplyTooltip={onApplyTooltip ? 
                               (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 

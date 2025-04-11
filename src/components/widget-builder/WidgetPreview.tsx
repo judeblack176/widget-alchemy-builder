@@ -16,8 +16,12 @@ interface WidgetPreviewProps {
 
 const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   const [apiData, setApiData] = useState<Record<string, any>>({});
+  const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
   const { toast } = useToast();
-  const MAX_COMPONENTS = 6;
+  
+  // Adjust MAX_COMPONENTS based on presence of alert components
+  const alertComponents = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
+  const MAX_COMPONENTS = alertComponents.length > 0 ? 7 : 6;
   
   // Extract header component and non-header components
   const headerComponent = components.find(c => c.type === 'header');
@@ -80,35 +84,46 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     }
   };
 
-  const renderComponentWithTooltip = (component: WidgetComponent, index: number) => (
-    <div 
-      key={component.id} 
-      className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}
-      style={{
-        borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
-      }}
-    >
-      {component.tooltipId && component.tooltipId !== "" ? (
-        <div className="relative">
-          <div className="absolute right-0 top-0 z-10">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="cursor-help">
-                  <HelpCircle size={16} className="text-gray-500" />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{getTooltipContent(component.tooltipId)}</p>
-              </TooltipContent>
-            </Tooltip>
+  const handleAlertDismiss = (alertId: string) => {
+    setDismissedAlerts(prev => [...prev, alertId]);
+  };
+
+  const renderComponentWithTooltip = (component: WidgetComponent, index: number) => {
+    // Skip rendering dismissed alerts
+    if (component.type === 'alert' && dismissedAlerts.includes(component.id)) {
+      return null;
+    }
+    
+    return (
+      <div 
+        key={component.id} 
+        className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}
+        style={{
+          borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
+        }}
+      >
+        {component.tooltipId && component.tooltipId !== "" ? (
+          <div className="relative">
+            <div className="absolute right-0 top-0 z-10">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="cursor-help">
+                    <HelpCircle size={16} className="text-gray-500" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{getTooltipContent(component.tooltipId)}</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            {renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined, component.type === 'alert' ? handleAlertDismiss : undefined)}
           </div>
-          {renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined)}
-        </div>
-      ) : (
-        renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined)
-      )}
-    </div>
-  );
+        ) : (
+          renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined, component.type === 'alert' ? handleAlertDismiss : undefined)
+        )}
+      </div>
+    );
+  };
 
   return (
     <Card 

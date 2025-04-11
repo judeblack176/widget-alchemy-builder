@@ -22,7 +22,8 @@ import {
   Phone,
   ShoppingBag,
   Star,
-  Coffee
+  Coffee,
+  X
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
@@ -52,7 +53,7 @@ const getIconByName = (iconName: string) => {
   }
 };
 
-export const renderComponent = (component: WidgetComponent, apiData?: any) => {
+export const renderComponent = (component: WidgetComponent, apiData?: any, onDismiss?: (id: string) => void) => {
   const { props, type } = component;
   
   let finalProps = { ...props };
@@ -67,11 +68,11 @@ export const renderComponent = (component: WidgetComponent, apiData?: any) => {
     });
   }
   
-  return renderComponentWithoutTooltip(component, apiData);
+  return renderComponentWithoutTooltip(component, apiData, onDismiss);
 };
 
-const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any) => {
-  const { props, type } = component;
+const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any, onDismiss?: (id: string) => void) => {
+  const { props, type, id } = component;
   
   let finalProps = { ...props };
   if (component.apiConfig && apiData) {
@@ -300,10 +301,21 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
               {alertType === 'error' && <AlertCircle className="h-4 w-4" />}
             </div>
           )}
-          <div>
+          <div className="flex-grow">
             <AlertTitle>{finalProps.title || "Alert"}</AlertTitle>
             <AlertDescription>{finalProps.message || "This is an alert message."}</AlertDescription>
           </div>
+          {onDismiss && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="p-0 h-6 w-6 rounded-full"
+              onClick={() => onDismiss(id)}
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </Button>
+          )}
         </Alert>
       );
     
