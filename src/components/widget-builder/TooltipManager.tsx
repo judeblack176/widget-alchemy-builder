@@ -255,16 +255,16 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Title</TableHead>
                 <TableHead>Content</TableHead>
+                <TableHead>Title</TableHead>
                 <TableHead className="w-[100px] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {tooltips.map((tooltip) => (
-                <TableRow key={tooltip.id}>
+                <TableRow key={tooltip.id} className="border-b">
+                  <TableCell className="max-w-[250px]">{tooltip.content}</TableCell>
                   <TableCell className="font-medium">{tooltip.title}</TableCell>
-                  <TableCell className="line-clamp-2">{tooltip.content}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button
