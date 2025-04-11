@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { WidgetComponent, AlertType, TableColumn } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
@@ -31,7 +30,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import SearchBar from '../SearchBar';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tooltip as CustomTooltip } from '../TooltipManager';
 
 // Function to get the icon component based on the icon name
@@ -62,7 +60,7 @@ export const renderComponent = (
   onDismiss?: (id: string) => void,
   tooltips?: CustomTooltip[]
 ) => {
-  const { props, type, tooltipId } = component;
+  const { props, type } = component;
   
   let finalProps = { ...props };
   if (component.apiConfig && apiData) {
@@ -74,29 +72,6 @@ export const renderComponent = (
         finalProps[propKey] = value;
       }
     });
-  }
-  
-  // Check if the tooltip exists in the available tooltips
-  const tooltipContent = tooltipId && tooltips ? 
-    getTooltipContent(tooltipId, tooltips) : 
-    null;
-  
-  // Only render with tooltip if the tooltip content exists
-  if (tooltipId && tooltipContent) {
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="inline-block">
-              {renderComponentWithoutTooltip(component, apiData, onDismiss)}
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            {tooltipContent}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
   }
   
   return renderComponentWithoutTooltip(component, apiData, onDismiss);
@@ -149,7 +124,7 @@ const getTooltipContent = (tooltipId: string, customTooltips?: CustomTooltip[]) 
 };
 
 const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any, onDismiss?: (id: string) => void) => {
-  const { props, type, id } = component;
+  const { props, type } = component;
   
   let finalProps = { ...props };
   if (component.apiConfig && apiData) {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
@@ -8,6 +7,7 @@ import { HelpCircle, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
 interface WidgetPreviewProps {
   components: WidgetComponent[];
@@ -78,13 +78,33 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   const getTooltipContent = (tooltipId: string) => {
     switch (tooltipId) {
       case "help":
-        return "Help information about this feature";
+        return (
+          <div className="flex items-start gap-2">
+            <HelpCircle size={16} className="text-blue-500 mt-0.5" />
+            <span>Help information about this feature</span>
+          </div>
+        );
       case "info":
-        return "Additional information about this component";
+        return (
+          <div className="flex items-start gap-2">
+            <HelpCircle size={16} className="text-green-500 mt-0.5" />
+            <span>Additional information about this component</span>
+          </div>
+        );
       case "warning":
-        return "Warning: Please review this information carefully";
+        return (
+          <div className="flex items-start gap-2">
+            <AlertCircle size={16} className="text-amber-500 mt-0.5" />
+            <span>Warning: Please review this information carefully</span>
+          </div>
+        );
       case "tip":
-        return "Pro Tip: This feature can help you save time";
+        return (
+          <div className="flex items-start gap-2">
+            <HelpCircle size={16} className="text-purple-500 mt-0.5" />
+            <span>Pro Tip: This feature can help you save time</span>
+          </div>
+        );
       default:
         return "Information";
     }
@@ -100,6 +120,36 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       return null;
     }
     
+    const componentContent = renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined, component.type === 'alert' ? handleAlertDismiss : undefined);
+    
+    // If component has a tooltip, render it with hover card
+    if (component.tooltipId && component.tooltipId !== "") {
+      return (
+        <div 
+          key={component.id} 
+          className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}
+          style={{
+            borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
+          }}
+        >
+          <HoverCard openDelay={200} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div className="relative cursor-help">
+                {componentContent}
+                <div className="absolute right-0 top-0 z-10">
+                  <HelpCircle size={16} className="text-gray-500" />
+                </div>
+              </div>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-80 p-3">
+              {getTooltipContent(component.tooltipId)}
+            </HoverCardContent>
+          </HoverCard>
+        </div>
+      );
+    }
+    
+    // Otherwise render the component normally
     return (
       <div 
         key={component.id} 
@@ -108,25 +158,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
           borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
         }}
       >
-        {component.tooltipId && component.tooltipId !== "" ? (
-          <div className="relative">
-            <div className="absolute right-0 top-0 z-10">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="cursor-help">
-                    <HelpCircle size={16} className="text-gray-500" />
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{getTooltipContent(component.tooltipId)}</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            {renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined, component.type === 'alert' ? handleAlertDismiss : undefined)}
-          </div>
-        ) : (
-          renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined, component.type === 'alert' ? handleAlertDismiss : undefined)
-        )}
+        {componentContent}
       </div>
     );
   };
