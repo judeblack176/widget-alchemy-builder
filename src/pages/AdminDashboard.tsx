@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Check, X, Clock, LayoutGrid, List, Eye, Filter, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import type { WidgetSubmission, WidgetApprovalStatus } from "@/types/widget-types";
 
 const AdminDashboard = () => {
@@ -134,6 +135,59 @@ const AdminDashboard = () => {
       </Card>
     );
   };
+
+  const renderWidgetTable = (widgetList: WidgetSubmission[]) => {
+    return (
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Version</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {widgetList
+              .filter(widget => 
+                searchQuery === "" || 
+                widget.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (widget.description && widget.description.toLowerCase().includes(searchQuery.toLowerCase()))
+              )
+              .map((widget) => (
+                <TableRow key={widget.id}>
+                  <TableCell className="font-medium">{widget.name}</TableCell>
+                  <TableCell>{new Date(widget.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>{getStatusBadge(widget.status)}</TableCell>
+                  <TableCell>{widget.version}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end space-x-2">
+                      {widget.status === 'pending' && (
+                        <>
+                          <Button variant="outline" size="sm" className="text-red-500 border-red-200">
+                            <X size={14} className="mr-1" /> Reject
+                          </Button>
+                          <Button variant="outline" size="sm" className="text-green-500 border-green-200">
+                            <Check size={14} className="mr-1" /> Approve
+                          </Button>
+                        </>
+                      )}
+                      <Link to={`/?widgetId=${widget.id}`}>
+                        <Button variant="default" size="sm">
+                          <Eye size={14} className="mr-1" /> View
+                        </Button>
+                      </Link>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  };
   
   return (
     <div className="container mx-auto p-6">
@@ -186,6 +240,8 @@ const AdminDashboard = () => {
                 <p className="text-gray-500 mb-4">No published widgets found</p>
                 <Button>Create a Widget</Button>
               </Card>
+            ) : viewMode === 'list' ? (
+              renderWidgetTable(approvedWidgets)
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {approvedWidgets
@@ -205,11 +261,24 @@ const AdminDashboard = () => {
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Pending Approvals</h2>
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4">
                 <Badge variant="outline" className="flex gap-1 items-center">
                   <Clock size={14} />
                   {pendingWidgets.length} Widgets Awaiting Review
                 </Badge>
+                
+                <ToggleGroup 
+                  type="single" 
+                  value={viewMode} 
+                  onValueChange={(value) => value && setViewMode(value as 'list' | 'grid')}
+                >
+                  <ToggleGroupItem value="list" aria-label="List view">
+                    <List className="h-4 w-4" />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="grid" aria-label="Grid view">
+                    <LayoutGrid className="h-4 w-4" />
+                  </ToggleGroupItem>
+                </ToggleGroup>
               </div>
             </div>
             
@@ -217,6 +286,8 @@ const AdminDashboard = () => {
               <Card className="p-8 text-center">
                 <p className="text-gray-500">No widgets awaiting approval</p>
               </Card>
+            ) : viewMode === 'list' ? (
+              renderWidgetTable(pendingWidgets)
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pendingWidgets.map(renderWidgetCard)}
