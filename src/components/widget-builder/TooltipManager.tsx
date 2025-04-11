@@ -14,6 +14,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export interface Tooltip {
   id: string;
@@ -244,34 +252,43 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
             <p className="text-sm mt-1">Create tooltips to provide additional information to users</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {tooltips.map((tooltip) => (
-              <Card key={tooltip.id} className="overflow-hidden">
-                <CardHeader className="py-3 px-4">
-                  <CardTitle className="text-base font-medium">{tooltip.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="py-2 px-4">
-                  <p className="text-sm line-clamp-2">{tooltip.content}</p>
-                </CardContent>
-                <CardFooter className="py-2 px-4 flex justify-end gap-2 border-t">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEditTooltip(tooltip)}
-                  >
-                    <Edit size={16} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveTooltip(tooltip.id, tooltip.title)}
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Content</TableHead>
+                <TableHead className="w-[100px] text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {tooltips.map((tooltip) => (
+                <TableRow key={tooltip.id}>
+                  <TableCell className="font-medium">{tooltip.title}</TableCell>
+                  <TableCell className="line-clamp-2">{tooltip.content}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditTooltip(tooltip)}
+                      >
+                        <Edit size={16} className="text-blue-500" />
+                        <span className="sr-only">Edit</span>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveTooltip(tooltip.id, tooltip.title)}
+                      >
+                        <Trash2 size={16} className="text-red-500" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </ScrollArea>
 
