@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -87,6 +88,16 @@ const Index = () => {
   }, [widgetId, toast]);
 
   const handleAddComponent = (component: WidgetComponent) => {
+    // Check if trying to add an alert when one already exists
+    if (component.type === 'alert' && widgetComponents.some(c => c.type === 'alert')) {
+      toast({
+        title: "Alert Already Exists",
+        description: "Only one alert component is allowed per widget.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const hasAlertComponent = widgetComponents.some(c => c.type === 'alert') || component.type === 'alert';
     const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
     
@@ -430,7 +441,10 @@ const Index = () => {
                       {...provided.droppableProps}
                       ref={provided.innerRef}
                     >
-                      <ComponentLibrary onAddComponent={handleAddComponent} />
+                      <ComponentLibrary 
+                        onAddComponent={handleAddComponent} 
+                        existingComponents={widgetComponents}
+                      />
                       {provided.placeholder}
                     </div>
                   )}
