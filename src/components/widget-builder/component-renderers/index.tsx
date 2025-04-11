@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { WidgetComponent, AlertType, TableColumn } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
@@ -8,13 +9,48 @@ import {
   Info, 
   AlertCircle,
   ExternalLink,
-  Search 
+  Search,
+  Library,
+  Bell,
+  Bookmark,
+  FileText,
+  User,
+  Globe,
+  Home,
+  Mail,
+  Map,
+  Phone,
+  ShoppingBag,
+  Star,
+  Coffee
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import SearchBar from '../SearchBar';
+
+// Function to get the icon component based on the icon name
+const getIconByName = (iconName: string) => {
+  switch (iconName) {
+    case 'BookOpen': return <BookOpen className="mr-4 flex-shrink-0" />;
+    case 'Library': return <Library className="mr-4 flex-shrink-0" />;
+    case 'Bell': return <Bell className="mr-4 flex-shrink-0" />;
+    case 'Bookmark': return <Bookmark className="mr-4 flex-shrink-0" />;
+    case 'FileText': return <FileText className="mr-4 flex-shrink-0" />;
+    case 'User': return <User className="mr-4 flex-shrink-0" />;
+    case 'Info': return <Info className="mr-4 flex-shrink-0" />;
+    case 'Globe': return <Globe className="mr-4 flex-shrink-0" />;
+    case 'Home': return <Home className="mr-4 flex-shrink-0" />;
+    case 'Mail': return <Mail className="mr-4 flex-shrink-0" />;
+    case 'Map': return <Map className="mr-4 flex-shrink-0" />;
+    case 'Phone': return <Phone className="mr-4 flex-shrink-0" />;
+    case 'ShoppingBag': return <ShoppingBag className="mr-4 flex-shrink-0" />;
+    case 'Star': return <Star className="mr-4 flex-shrink-0" />;
+    case 'Coffee': return <Coffee className="mr-4 flex-shrink-0" />;
+    default: return <BookOpen className="mr-4 flex-shrink-0" />;
+  }
+};
 
 export const renderComponent = (component: WidgetComponent, apiData?: any) => {
   const { props, type } = component;
@@ -64,7 +100,7 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
           }}
         >
           <div className="flex items-center text-left pl-8">
-            <BookOpen className="mr-4 flex-shrink-0" />
+            {getIconByName(finalProps.icon || 'BookOpen')}
             <h2 
               className="text-left"
               style={{
