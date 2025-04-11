@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check, Search, ArrowDownAZ, ArrowUpZA, ListFilter } from "lucide-react";
+import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check, Search, SortAsc, SortDesc, ListFilter } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -213,38 +213,39 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
   };
 
   const toggleSort = () => {
-    if (sortDirection === null) {
-      setSortDirection("asc");
-    } else if (sortDirection === "asc") {
-      setSortDirection("desc");
-    } else {
-      setSortDirection(null);
-    }
+    setSortDirection(prevDirection => prevDirection === 'asc' ? 'desc' : 'asc');
   };
 
-  const filteredApis = apis.filter(api => 
-    api.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    api.endpoint.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    api.method.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const sortedApis = [...filteredApis].sort((a, b) => {
-    if (sortDirection === null) return 0;
-    if (sortDirection === "asc") {
-      return a.name.localeCompare(b.name);
-    } else {
-      return b.name.localeCompare(a.name);
-    }
-  });
+  const filteredAndSortedApis = apis
+    .filter(api => 
+      api.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      api.endpoint.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      api.method.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortDirection === 'asc') {
+        return a.name.localeCompare(b.name);
+      } else if (sortDirection === 'desc') {
+        return b.name.localeCompare(a.name);
+      } else {
+        return 0;
+      }
+    });
 
   return (
     <div className="space-y-4">
-      <div className="my-6">
-        <div className="flex justify-between mb-4">
+      <div className="sticky top-0 bg-white z-10 pb-4 space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-medium">APIs</h3>
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" className="bg-widget-blue hover:bg-blue-600">
-                Add API
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="flex items-center gap-1"
+              >
+                <Plus size={16} className="inline-flex" />
+                <span>Add API</span>
               </Button>
             </DialogTrigger>
             
@@ -541,62 +542,46 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
           </Dialog>
         </div>
         
-        <Card className="p-4 mb-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="relative flex-1 w-full md:w-auto">
-                <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search APIs..."
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              
-              <div className="flex items-center gap-2 mt-2 md:mt-0">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center gap-1 h-10"
+        <div className="flex gap-2 mb-2">
+          <SearchBar 
+            onSearch={handleSearch} 
+            placeholder="Search APIs..." 
+            className="flex-1"
+          />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="outline"
                   onClick={toggleSort}
+                  className="flex items-center justify-center"
                 >
-                  {sortDirection === null && <ListFilter size={14} className="mr-1" />}
-                  {sortDirection === "asc" && <ArrowDownAZ size={14} className="mr-1" />}
-                  {sortDirection === "desc" && <ArrowUpZA size={14} className="mr-1" />}
-                  {sortDirection === null && "Sort"}
-                  {sortDirection === "asc" && "Sort A-Z"}
-                  {sortDirection === "desc" && "Sort Z-A"}
+                  {sortDirection === 'asc' ? <SortAsc size={16} /> : <SortDesc size={16} />}
                 </Button>
-                
-                {(searchQuery || sortDirection !== null) && (
-                  <Button variant="ghost" size="sm" onClick={() => {
-                    setSearchQuery("");
-                    setSortDirection(null);
-                  }}>
-                    Clear Filters
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        </Card>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Sort {sortDirection === 'asc' ? 'A to Z' : 'Z to A'}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
-      
-      {apis.length === 0 ? (
-        <div className="p-8 text-center border border-dashed rounded-lg">
-          <Globe className="mx-auto text-gray-400 mb-2" size={32} />
-          <p className="text-gray-500">No APIs configured yet</p>
-          <p className="text-sm text-gray-400 mt-1">Click "Add API" to create your first API integration</p>
-        </div>
-      ) : sortedApis.length === 0 ? (
-        <div className="p-8 text-center border border-dashed rounded-lg">
-          <Search className="mx-auto text-gray-400 mb-2" size={32} />
-          <p className="text-gray-500">No matching APIs found</p>
-          <p className="text-sm text-gray-400 mt-1">Try adjusting your search query</p>
-        </div>
-      ) : (
-        <div className="rounded-md border">
+
+      <ScrollArea className="h-[calc(100vh-240px)]">
+        {apis.length === 0 ? (
+          <div className="py-8 text-center text-gray-500">
+            <Globe className="mx-auto text-gray-400 mb-2" size={32} />
+            <p className="text-gray-500">No APIs configured yet</p>
+            <p className="text-sm text-gray-400 mt-1">Click "Add API" to create your first API integration</p>
+          </div>
+        ) : filteredAndSortedApis.length === 0 ? (
+          <div className="py-8 text-center text-gray-500">
+            <Search className="mx-auto text-gray-400 mb-2" size={32} />
+            <p className="text-gray-500">No matching APIs found</p>
+            <p className="text-sm text-gray-400 mt-1">Try adjusting your search query</p>
+          </div>
+        ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -606,7 +591,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedApis.map((api) => (
+              {filteredAndSortedApis.map((api) => (
                 <TableRow key={api.id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
@@ -727,8 +712,8 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
               ))}
             </TableBody>
           </Table>
-        </div>
-      )}
+        )}
+      </ScrollArea>
     </div>
   );
 };
