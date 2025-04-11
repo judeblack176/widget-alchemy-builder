@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -298,18 +299,39 @@ const WidgetLibrary = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredWidgets.map((widget) => (
-              <Card key={widget.id} className="overflow-hidden">
-                <CardHeader className="pb-2">
+              <Card key={widget.id} className="overflow-hidden flex flex-col">
+                <CardHeader className="pb-2 border-b">
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-lg">{widget.name}</CardTitle>
                     {getStatusBadge(widget.status)}
                   </div>
                 </CardHeader>
-                <CardContent>
+                
+                {/* Widget Preview Section */}
+                <div className="p-4 flex justify-center items-center bg-gray-50">
+                  <div className="w-64 h-64 border rounded-md shadow-sm bg-white flex items-center justify-center overflow-hidden">
+                    {widget.thumbnailUrl ? (
+                      <img 
+                        src={widget.thumbnailUrl} 
+                        alt={`${widget.name} preview`} 
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    ) : (
+                      <div className="text-center p-4">
+                        <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center mx-auto mb-2">
+                          <Eye className="h-8 w-8 text-gray-400" />
+                        </div>
+                        <p className="text-gray-500 text-sm">Widget Preview</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <CardContent className="py-3">
                   <p className="text-sm text-gray-500 mb-2">
                     Created: {new Date(widget.createdAt).toLocaleDateString()}
                   </p>
-                  <p className="text-sm mb-2">{widget.description || "No description"}</p>
+                  <p className="text-sm mb-2 line-clamp-2">{widget.description || "No description"}</p>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {widget.tags && widget.tags.map(tag => (
                       <Badge key={tag} variant="secondary" className="text-xs">
@@ -318,7 +340,7 @@ const WidgetLibrary = () => {
                     ))}
                   </div>
                 </CardContent>
-                <CardFooter className="bg-gray-50 pt-2">
+                <CardFooter className="bg-gray-50 pt-2 mt-auto">
                   <div className="flex justify-between w-full">
                     <Badge variant="outline">v{widget.version}</Badge>
                     <div className="flex space-x-2">
