@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import ComponentEditor from './ComponentEditor';
 import { Card } from '@/components/ui/card';
@@ -33,6 +33,25 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
 }) => {
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  
+  // Check if any component has a tooltip that doesn't exist
+  useEffect(() => {
+    if (tooltips && onApplyTooltip) {
+      // Get valid tooltip IDs (including default ones)
+      const validTooltipIds = [
+        'help', 'info', 'warning', 'tip',
+        ...tooltips.map(t => t.id)
+      ];
+      
+      // Check each component
+      components.forEach(component => {
+        if (component.tooltipId && !validTooltipIds.includes(component.tooltipId)) {
+          // Remove invalid tooltip
+          onApplyTooltip(component.id, "");
+        }
+      });
+    }
+  }, [tooltips, components, onApplyTooltip]);
   
   // Get alert components to calculate the max allowed components
   const alertComponents = components.filter(c => c.type === 'alert');

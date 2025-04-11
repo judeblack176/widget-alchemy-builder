@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { WidgetComponent, AlertType, TableColumn } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
@@ -75,8 +76,12 @@ export const renderComponent = (
     });
   }
   
-  const tooltipContent = tooltipId ? getTooltipContent(tooltipId, tooltips) : null;
+  // Check if the tooltip exists in the available tooltips
+  const tooltipContent = tooltipId && tooltips ? 
+    getTooltipContent(tooltipId, tooltips) : 
+    null;
   
+  // Only render with tooltip if the tooltip content exists
   if (tooltipId && tooltipContent) {
     return (
       <TooltipProvider>

@@ -187,10 +187,13 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     { id: "tip", label: "Pro Tip" }
   ];
 
-  // Combine default tooltips with custom tooltips
+  // Filter out any custom tooltips that don't exist in the provided customTooltips array
+  const validCustomTooltips = customTooltips.filter(tooltip => tooltip && tooltip.id);
+  
+  // Combine default tooltips with valid custom tooltips
   const tooltipOptions = [
     ...defaultTooltipOptions,
-    ...customTooltips.map(tooltip => ({
+    ...validCustomTooltips.map(tooltip => ({
       id: tooltip.id,
       label: tooltip.title,
       content: tooltip.content
@@ -285,11 +288,23 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       case "tip": return <Star size={16} className="text-purple-500" />;
       default: 
         // For custom tooltips, use a distinct icon
-        return customTooltips.some(t => t.id === tooltipId) ? 
+        return validCustomTooltips.some(t => t.id === tooltipId) ? 
           <Info size={16} className="text-indigo-500" /> : 
           null;
     }
   };
+
+  // Check if the tooltip ID is still valid (exists in tooltipOptions)
+  const isTooltipValid = component.tooltipId ? 
+    tooltipOptions.some(option => option.id === component.tooltipId) : 
+    true;
+  
+  // If tooltip is not valid, remove it from the component
+  if (component.tooltipId && !isTooltipValid && onApplyTooltip) {
+    setTimeout(() => {
+      onApplyTooltip("");
+    }, 0);
+  }
 
   return (
     <div className={`p-4 ${isExpanded ? 'border-t border-gray-200' : ''}`}>
@@ -329,50 +344,23 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                     renderPropertyEditor(prop)
                   )}
                 </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
-          {apis.length > 0 && (
-            <Accordion type="single" collapsible>
-              <AccordionItem value="api">
-                <AccordionTrigger className="text-sm font-medium">API Integration</AccordionTrigger>
-                <AccordionContent>
-                  <div className="pt-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={onRequestApiTemplate}
-                      className="w-full"
-                    >
-                      {component.apiConfig ? 'Change API Connection' : 'Connect to API'}
-                    </Button>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          )}
-
-          {onApplyTooltip && (
-            <Accordion type="single" collapsible defaultValue="tooltip">
-              <AccordionItem value="tooltip">
-                <AccordionTrigger className="text-sm font-medium">
-                  <div className="flex items-center gap-2">
-                    <HelpCircle size={16} />
-                    <span>Tooltip</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="pt-2 space-y-3">
+                
+                {/* Move tooltip selector into the main properties section */}
+                {onApplyTooltip && (
+                  <div className="pt-4 mt-4 border-t border-gray-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <HelpCircle size={16} />
+                      <span className="font-medium">Tooltip</span>
+                    </div>
                     <div className="mb-4">
-                      <Label htmlFor="tooltip-select">Tooltip</Label>
+                      <Label htmlFor="tooltip-select">Select Tooltip</Label>
                       <Select
-                        value={component.tooltipId || "none"}
+                        value={isTooltipValid ? (component.tooltipId || "none") : "none"}
                         onValueChange={(val) => onApplyTooltip(val === "none" ? "" : val)}
                       >
                         <SelectTrigger id="tooltip-select" className="w-full">
                           <SelectValue placeholder="Select tooltip type">
-                            {component.tooltipId ? (
+                            {component.tooltipId && isTooltipValid ? (
                               <div className="flex items-center gap-2">
                                 {getTooltipIcon(component.tooltipId)}
                                 <span>
@@ -399,12 +387,32 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                           ))}
                         </SelectContent>
                       </Select>
-                      {component.tooltipId && customTooltips.some(t => t.id === component.tooltipId) && (
+                      {component.tooltipId && validCustomTooltips.some(t => t.id === component.tooltipId) && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {customTooltips.find(t => t.id === component.tooltipId)?.content}
+                          {validCustomTooltips.find(t => t.id === component.tooltipId)?.content}
                         </p>
                       )}
                     </div>
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          {apis.length > 0 && (
+            <Accordion type="single" collapsible>
+              <AccordionItem value="api">
+                <AccordionTrigger className="text-sm font-medium">API Integration</AccordionTrigger>
+                <AccordionContent>
+                  <div className="pt-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={onRequestApiTemplate}
+                      className="w-full"
+                    >
+                      {component.apiConfig ? 'Change API Connection' : 'Connect to API'}
+                    </Button>
                   </div>
                 </AccordionContent>
               </AccordionItem>
