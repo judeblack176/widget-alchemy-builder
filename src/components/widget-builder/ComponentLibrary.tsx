@@ -514,9 +514,7 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent, exi
                           </p>
                         </div>
                         <div className="text-gray-400">
-                          {isDisabled ? <XCircle size={16} className="text-red-500" /> : 
-                           isUnmovable ? <XCircle size={16} className="text-blue-500" /> : 
-                           <GripVertical size={16} />}
+                          {!isDisabled && !isUnmovable && <GripVertical size={16} />}
                         </div>
                       </div>
                     </Card>
