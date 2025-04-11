@@ -195,14 +195,14 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             </Accordion>
           )}
 
-          {/* Settings and Tooltip section */}
+          {/* Tooltip section (renamed from Settings) */}
           {onApplyTooltip && (
-            <Accordion type="single" collapsible>
-              <AccordionItem value="settings">
+            <Accordion type="single" collapsible defaultValue="tooltip">
+              <AccordionItem value="tooltip">
                 <AccordionTrigger className="text-sm font-medium">
                   <div className="flex items-center gap-2">
-                    <Settings size={16} />
-                    <span>Settings</span>
+                    <HelpCircle size={16} />
+                    <span>Tooltip</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
