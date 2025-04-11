@@ -18,7 +18,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   onSearch, 
   placeholder = "Search...",
   iconColor = "#6B7280",
-  backgroundColor,
+  backgroundColor = "#FFFFFF",
   textColor,
   borderColor,
   showIcon = true,
@@ -45,7 +45,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         placeholder={placeholder}
         value={query}
         onChange={handleChange}
-        className={showIcon ? 'pl-10' : 'pl-4'}
+        className={`${showIcon ? 'pl-10' : 'pl-4'} shadow-sm`}
         style={{
           backgroundColor: backgroundColor,
           color: textColor,

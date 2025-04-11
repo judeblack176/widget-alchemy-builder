@@ -113,8 +113,8 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
 
   return (
     <div className="space-y-4 flex flex-col h-full">
-      {/* Fixed section - always visible and locked in place */}
-      <div className="sticky top-0 bg-widget-gray z-10 pb-4 space-y-4">
+      {/* Fixed section - header, alert, search, and filtered components */}
+      <div className="sticky top-0 bg-widget-gray z-10 space-y-4">
         {atComponentLimit && (
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4 mr-2" />
@@ -185,7 +185,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
       </div>
       
       {/* Scrollable section - only this part scrolls */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto pb-4">
         {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
           <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
             <p className="text-gray-500">No components match your search</p>

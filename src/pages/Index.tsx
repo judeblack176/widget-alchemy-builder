@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -401,7 +400,6 @@ const Index = () => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="flex flex-col h-screen bg-gray-100">
-        {/* Fixed header - always stays at top */}
         <header className="bg-white border-b border-gray-200 p-4 w-full sticky top-0 z-50">
           <div className="container mx-auto flex justify-between items-center">
             <h1 className="text-2xl font-bold text-widget-blue">EdTech Widget Builder</h1>
@@ -429,7 +427,7 @@ const Index = () => {
           <div className="w-1/4 border-r border-gray-200 bg-white overflow-hidden flex flex-col">
             <div className="flex flex-col h-full">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
-                <div className="sticky top-0 bg-white z-40 pb-4">
+                <div className="sticky top-0 bg-white z-40 pb-4 border-b">
                   <TabsList className="w-full">
                     <TabsTrigger value="components" className="flex-1">Components</TabsTrigger>
                     <TabsTrigger value="tooltips" className="flex-1">Tooltips</TabsTrigger>
@@ -485,7 +483,7 @@ const Index = () => {
           </div>
           
           <div className="w-2/5 bg-widget-gray overflow-hidden flex flex-col">
-            <div className="sticky top-0 z-40 bg-widget-gray p-4">
+            <div className="sticky top-0 z-40 bg-widget-gray p-4 border-b border-gray-200">
               <div className="flex justify-between mb-4">
                 <h2 className="text-xl font-semibold">Widget Builder</h2>
                 <div className="space-x-2">
@@ -527,7 +525,7 @@ const Index = () => {
           </div>
           
           <div className="w-1/3 bg-gray-200 overflow-hidden flex flex-col">
-            <div className="sticky top-0 z-40 bg-gray-200 p-4">
+            <div className="sticky top-0 z-40 bg-gray-200 p-4 border-b border-gray-300">
               <div className="flex justify-between items-center self-stretch mb-6">
                 <h2 className="text-xl font-semibold">Preview</h2>
                 <div className="space-x-2">
