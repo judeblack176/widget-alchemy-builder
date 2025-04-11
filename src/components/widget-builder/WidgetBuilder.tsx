@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import ComponentEditor from './ComponentEditor';
@@ -18,7 +17,7 @@ interface WidgetBuilderProps {
   onReorderComponents: (reorderedComponents: WidgetComponent[]) => void;
   onRequestApiTemplate: (componentId: string) => void;
   onApplyTooltip?: (componentId: string, tooltipId: string) => void;
-  tooltips?: Tooltip[]; // Add tooltips prop
+  tooltips?: Tooltip[];
 }
 
 const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
@@ -29,51 +28,43 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   onReorderComponents,
   onRequestApiTemplate,
   onApplyTooltip,
-  tooltips = [] // Default to empty array
+  tooltips = []
 }) => {
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   
-  // Check if any component has a tooltip that doesn't exist
   useEffect(() => {
     if (tooltips && onApplyTooltip) {
-      // Get valid tooltip IDs (including default ones)
       const validTooltipIds = [
         'help', 'info', 'warning', 'tip',
         ...tooltips.map(t => t.id)
       ];
       
-      // Check each component
       components.forEach(component => {
         if (component.tooltipId && !validTooltipIds.includes(component.tooltipId)) {
-          // Remove invalid tooltip
           onApplyTooltip(component.id, "");
         }
       });
     }
   }, [tooltips, components, onApplyTooltip]);
   
-  // Get alert components to calculate the max allowed components
   const alertComponents = components.filter(c => c.type === 'alert');
+  const hasAlertComponent = alertComponents.length > 0;
   
-  // Header and alerts don't count against the component limit
   const nonHeaderNonAlertComponents = components.filter(c => c.type !== 'header' && c.type !== 'alert');
-  const MAX_COMPONENTS = 6;
+  const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
   const atComponentLimit = nonHeaderNonAlertComponents.length >= MAX_COMPONENTS;
 
-  // Separate the header component from other components
   const headerComponent = components.find(c => c.type === 'header');
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
     if (result.destination.index === result.source.index) return;
 
-    // Copy only the non-header components for reordering
     const items = Array.from(components.filter(c => c.type !== 'header'));
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // Combine with header component if it exists
     const reorderedComponents = headerComponent 
       ? [headerComponent, ...items] 
       : items;
@@ -86,15 +77,12 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   };
 
   const filteredComponents = components.filter(component => {
-    // If no search query, show all components
     if (!searchQuery.trim()) return true;
     
-    // Search in component type
     if (component.type.toLowerCase().includes(searchQuery.toLowerCase())) {
       return true;
     }
     
-    // Search in component props if they're strings
     for (const key in component.props) {
       if (
         typeof component.props[key] === 'string' && 
@@ -107,7 +95,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     return false;
   });
 
-  // Separate filtered components into header and non-header for rendering
   const filteredHeaderComponent = headerComponent && filteredComponents.includes(headerComponent) 
     ? headerComponent 
     : null;
@@ -146,7 +133,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           </Card>
         ) : (
           <div className="space-y-4">
-            {/* Render header component outside of drag context if it exists and matches filter */}
             {filteredHeaderComponent && (
               <Card className="bg-white border border-blue-500 shadow-sm">
                 <ComponentEditor
@@ -170,7 +156,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
               </Card>
             )}
             
-            {/* Only make non-header components draggable */}
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="components">
                 {(provided) => (

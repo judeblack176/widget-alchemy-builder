@@ -25,8 +25,7 @@ const Index = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const widgetId = queryParams.get('widgetId');
-  const MAX_COMPONENTS = 6;
-
+  
   const [widgetComponents, setWidgetComponents] = useState<WidgetComponent[]>([
     {
       id: "header-1",
@@ -88,6 +87,9 @@ const Index = () => {
   }, [widgetId, toast]);
 
   const handleAddComponent = (component: WidgetComponent) => {
+    const hasAlertComponent = widgetComponents.some(c => c.type === 'alert') || component.type === 'alert';
+    const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
+    
     const nonHeaderNonAlertCount = widgetComponents.filter(
       c => c.type !== 'header' && c.type !== 'alert'
     ).length;
@@ -362,10 +364,10 @@ const Index = () => {
     
     if (result.source.droppableId === 'component-library' && result.destination.droppableId === 'widget-builder') {
       const componentType = result.draggableId;
-      const componentLibrary = document.querySelector('[data-component-type="' + componentType + '"]');
+      const componentLibraryItem = document.querySelector(`[data-component-type="${componentType}"]`);
       
-      if (componentLibrary) {
-        componentLibrary.click();
+      if (componentLibraryItem && componentLibraryItem instanceof HTMLElement) {
+        componentLibraryItem.click();
       }
     }
   };
