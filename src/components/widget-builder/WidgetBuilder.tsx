@@ -130,6 +130,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                   onApplyTooltip={onApplyTooltip ? 
                     (tooltipId: string) => onApplyTooltip(filteredHeaderComponent.id, tooltipId) : 
                     undefined}
+                  disableRemove={true}
                 />
               </Card>
             )}

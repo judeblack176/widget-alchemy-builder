@@ -1,3 +1,4 @@
+
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -54,6 +55,7 @@ interface ComponentEditorProps {
   onRemoveComponent: (componentId: string) => void;
   onRequestApiTemplate: () => void;
   onApplyTooltip?: (tooltipId: string) => void;
+  disableRemove?: boolean;
 }
 
 const ComponentEditor: React.FC<ComponentEditorProps> = ({
@@ -64,7 +66,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   onUpdateComponent,
   onRemoveComponent,
   onRequestApiTemplate,
-  onApplyTooltip
+  onApplyTooltip,
+  disableRemove = false
 }) => {
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
@@ -268,7 +271,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           >
             {isExpanded ? 'Collapse' : 'Edit'}
           </Button>
-          {!isHeader && (
+          {!disableRemove && (
             <Button 
               variant="outline" 
               size="sm"
