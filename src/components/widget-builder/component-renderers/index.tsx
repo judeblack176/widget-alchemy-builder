@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { WidgetComponent, AlertType, TableColumn } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
@@ -38,7 +37,6 @@ import { Tooltip as CustomTooltip } from '../TooltipManager';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
-// Function to get the icon component based on the icon name
 const getIconByName = (iconName: string) => {
   switch (iconName) {
     case 'BookOpen': return <BookOpen className="mr-4 flex-shrink-0" />;
@@ -217,7 +215,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'image':
-      // Calculate styles based on new image properties
       const heightStyles = finalProps.height === 'auto' ? {} : 
         finalProps.height === 'small' ? { height: '100px' } :
         finalProps.height === 'medium' ? { height: '200px' } :
@@ -288,7 +285,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'chart':
-      // Enhanced chart component with different chart types and options
       const chartTypeLabel = finalProps.chartType || 'bar';
       const hasData = finalProps.staticData || (finalProps.dataUrl && finalProps.dataSource !== 'static');
       
@@ -343,7 +339,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'calendar':
-      // Enhanced calendar with support for different providers
       return (
         <div className="space-y-2">
           {finalProps.label && (
@@ -403,7 +398,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'dropdown':
-      // Enhanced dropdown with multiple selection and searchable options
       return (
         <div className="space-y-2">
           <label className="block text-sm font-medium">{finalProps.label || "Dropdown"}</label>
@@ -502,6 +496,7 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       return (
         <Alert
           variant="default"
+          className="relative"
           style={{
             backgroundColor: finalProps.backgroundColor || '#EFF6FF',
             color: finalProps.textColor || '#1E3A8A',
@@ -524,7 +519,7 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
             <Button 
               variant="ghost" 
               size="sm" 
-              className="p-0 h-6 w-6 rounded-full"
+              className="p-0 h-6 w-6 rounded-full absolute top-2 right-2"
               onClick={() => onDismiss(id)}
             >
               <X className="h-4 w-4" />
@@ -535,7 +530,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'table':
-      // Enhanced table with more options
       const isPaginated = finalProps.pagination === true;
       const isSearchable = finalProps.searchable === true;
       const isSortable = finalProps.sortable === true;
@@ -684,7 +678,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
   }
 };
 
-// Missing icons definitions that need to be added
 const ChevronDown = ({ size = 24, className = "" }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
