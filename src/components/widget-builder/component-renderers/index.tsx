@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { WidgetComponent, AlertType, TableColumn } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
@@ -28,6 +27,7 @@ import {
   Download,
   Link as LinkIconComponent,
   Calendar,
+  Code,
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
@@ -38,7 +38,6 @@ import { Tooltip as CustomTooltip } from '../TooltipManager';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
-// Function to get the icon component based on the icon name
 const getIconByName = (iconName: string) => {
   switch (iconName) {
     case 'BookOpen': return <BookOpen className="mr-4 flex-shrink-0" />;
@@ -69,6 +68,22 @@ const getLinkIcon = (iconName: string) => {
     case 'Info': return <Info size={16} className="mr-1" />;
     default: return null;
   }
+};
+
+const getNestedValue = (obj: any, path: string): any => {
+  if (!obj || !path) return undefined;
+  
+  const parts = path.split(/\.|\[|\]/).filter(Boolean);
+  let current = obj;
+  
+  for (const part of parts) {
+    if (current === null || current === undefined) return undefined;
+    
+    const index = /^\d+$/.test(part) ? parseInt(part, 10) : part;
+    current = current[index];
+  }
+  
+  return current;
 };
 
 export const renderComponent = (
@@ -217,7 +232,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'image':
-      // Calculate styles based on new image properties
       const heightStyles = finalProps.height === 'auto' ? {} : 
         finalProps.height === 'small' ? { height: '100px' } :
         finalProps.height === 'medium' ? { height: '200px' } :
@@ -288,7 +302,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'chart':
-      // Enhanced chart component with different chart types and options
       const chartTypeLabel = finalProps.chartType || 'bar';
       const hasData = finalProps.staticData || (finalProps.dataUrl && finalProps.dataSource !== 'static');
       
@@ -343,7 +356,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'calendar':
-      // Enhanced calendar with support for different providers
       return (
         <div className="space-y-2">
           {finalProps.label && (
@@ -403,7 +415,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'dropdown':
-      // Enhanced dropdown with multiple selection and searchable options
       return (
         <div className="space-y-2">
           <label className="block text-sm font-medium">{finalProps.label || "Dropdown"}</label>
@@ -535,7 +546,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
       );
     
     case 'table':
-      // Enhanced table with more options
       const isPaginated = finalProps.pagination === true;
       const isSearchable = finalProps.searchable === true;
       const isSortable = finalProps.sortable === true;
@@ -674,6 +684,70 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
         />
       );
     
+    case 'code':
+      return (
+        <div className="w-full">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center">
+              <Code size={16} className="mr-2 text-blue-500" />
+              <span className="font-medium">{finalProps.title || "Custom Code"}</span>
+            </div>
+            {finalProps.language && (
+              <span className="text-xs px-2 py-1 bg-gray-100 rounded-full">{finalProps.language}</span>
+            )}
+          </div>
+          <div className="relative">
+            <pre 
+              className="p-4 rounded-md text-sm font-mono overflow-x-auto"
+              style={{
+                backgroundColor: finalProps.darkMode ? '#1e1e1e' : '#f8f8f8',
+                color: finalProps.darkMode ? '#d4d4d4' : '#333333',
+                maxHeight: finalProps.maxHeight || '300px',
+                border: `1px solid ${finalProps.darkMode ? '#2d2d2d' : '#e2e2e2'}`
+              }}
+            >
+              <code>{finalProps.content || "// Add your custom code here"}</code>
+            </pre>
+            {finalProps.executionEnabled && (
+              <div className="mt-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1"
+                  onClick={() => {
+                    try {
+                      const executeCode = new Function(`
+                        try {
+                          ${finalProps.content || ''}
+                          return { success: true, result: 'Code executed successfully' };
+                        } catch (error) {
+                          return { success: false, error: error.toString() };
+                        }
+                      `);
+                      
+                      const result = executeCode();
+                      console.log('Code execution result:', result);
+                      
+                      if (finalProps.onExecute && typeof window[finalProps.onExecute] === 'function') {
+                        window[finalProps.onExecute](result);
+                      }
+                    } catch (error) {
+                      console.error('Failed to execute code:', error);
+                    }
+                  }}
+                >
+                  <Code size={14} />
+                  Execute
+                </Button>
+              </div>
+            )}
+          </div>
+          {finalProps.description && (
+            <p className="mt-2 text-sm text-gray-500">{finalProps.description}</p>
+          )}
+        </div>
+      );
+    
     default:
       console.error(`Unsupported component type: ${type}`);
       return (
@@ -684,7 +758,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
   }
 };
 
-// Missing icons definitions that need to be added
 const ChevronDown = ({ size = 24, className = "" }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
@@ -755,19 +828,3 @@ const ArrowUpDown = ({ size = 24, className = "" }) => (
     <path d="M7 4v16"/>
   </svg>
 );
-
-const getNestedValue = (obj: any, path: string): any => {
-  if (!obj || !path) return undefined;
-  
-  const parts = path.split(/\.|\[|\]/).filter(Boolean);
-  let current = obj;
-  
-  for (const part of parts) {
-    if (current === null || current === undefined) return undefined;
-    
-    const index = /^\d+$/.test(part) ? parseInt(part, 10) : part;
-    current = current[index];
-  }
-  
-  return current;
-};
