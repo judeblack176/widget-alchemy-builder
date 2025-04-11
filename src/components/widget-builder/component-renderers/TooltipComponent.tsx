@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Tooltip,
@@ -10,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { HelpCircle } from "lucide-react";
 
 interface TooltipComponentProps {
-  triggerText: string;
+  children?: React.ReactNode;
+  triggerText?: string;
   content: string;
   placement?: "top" | "right" | "bottom" | "left";
   backgroundColor?: string;
@@ -20,6 +20,7 @@ interface TooltipComponentProps {
 }
 
 const TooltipComponent: React.FC<TooltipComponentProps> = ({
+  children,
   triggerText = "Hover me",
   content = "Tooltip content",
   placement = "top",
@@ -38,6 +39,12 @@ const TooltipComponent: React.FC<TooltipComponentProps> = ({
   };
 
   const renderTrigger = () => {
+    // If children are provided, use them as the trigger
+    if (children) {
+      return children;
+    }
+
+    // Otherwise, use the default trigger based on triggerStyle
     switch (triggerStyle) {
       case "button":
         return <Button variant="outline" size="sm">{triggerText}</Button>;
