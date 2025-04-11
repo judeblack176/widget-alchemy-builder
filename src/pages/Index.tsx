@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -9,7 +8,11 @@ import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionFo
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library, User } from "lucide-react";
+import { Library, User, Bookmark } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import type { WidgetComponent, ApiConfig, WidgetSubmission } from "@/types/widget-types";
 
 const Index = () => {
@@ -33,6 +36,9 @@ const Index = () => {
   
   const [apis, setApis] = useState<ApiConfig[]>([]);
   const [activeTab, setActiveTab] = useState<string>("components");
+  const [isApiTemplateModalOpen, setIsApiTemplateModalOpen] = useState(false);
+  const [savedApiTemplates, setSavedApiTemplates] = useState<ApiConfig[]>([]);
+  const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
 
   useEffect(() => {
     if (widgetId) {
@@ -45,7 +51,7 @@ const Index = () => {
           
           if (submission) {
             setWidgetComponents(submission.config.components);
-            setApis(submission.config.apis);
+            setApis(submission.config.apis || []);
             
             toast({
               title: `Loaded: ${submission.name}`,
@@ -56,6 +62,16 @@ const Index = () => {
       } catch (error) {
         console.error("Failed to load widget from ID", error);
       }
+    }
+    
+    // Load saved API templates
+    try {
+      const saved = localStorage.getItem('savedApiTemplates');
+      if (saved) {
+        setSavedApiTemplates(JSON.parse(saved));
+      }
+    } catch (error) {
+      console.error("Failed to load API templates", error);
     }
   }, [widgetId, toast]);
 
@@ -233,6 +249,60 @@ const Index = () => {
     });
   };
 
+  const openApiTemplateModal = (componentId: string) => {
+    setSelectedComponentId(componentId);
+    setIsApiTemplateModalOpen(true);
+  };
+
+  const applyApiTemplateToComponent = (template: ApiConfig) => {
+    if (!selectedComponentId) return;
+    
+    // Find the component to update
+    const componentToUpdate = widgetComponents.find(c => c.id === selectedComponentId);
+    if (!componentToUpdate) return;
+    
+    // Check if this API is already in the widgets APIs list
+    let apiToUse: ApiConfig;
+    const existingApi = apis.find(a => a.name === template.name);
+    
+    if (existingApi) {
+      // Use the existing API
+      apiToUse = existingApi;
+    } else {
+      // Add the template as a new API
+      const newApi = {
+        ...template,
+        id: `api-${Date.now()}`
+      };
+      
+      setApis(prev => [...prev, newApi]);
+      apiToUse = newApi;
+      
+      toast({
+        title: "API Added",
+        description: `Added API "${template.name}" to your widget.`
+      });
+    }
+    
+    // Update the component with the API configuration
+    const updatedComponent = {
+      ...componentToUpdate,
+      apiConfig: {
+        apiId: apiToUse.id,
+        fields: {}
+      }
+    };
+    
+    handleUpdateComponent(updatedComponent);
+    
+    toast({
+      title: "API Template Applied",
+      description: `Applied "${template.name}" API to the selected component.`
+    });
+    
+    setIsApiTemplateModalOpen(false);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <header className="bg-white border-b border-gray-200 p-4">
@@ -285,6 +355,14 @@ const Index = () => {
           <div className="flex justify-between mb-4">
             <h2 className="text-xl font-semibold">Widget Builder</h2>
             <div className="space-x-2">
+              <Button
+                variant="outline"
+                className="gap-1"
+                onClick={() => setIsApiTemplateModalOpen(true)}
+              >
+                <Bookmark size={16} />
+                API Templates
+              </Button>
               <button
                 onClick={handleSaveWidget}
                 className="px-3 py-1 bg-widget-blue text-white rounded hover:bg-blue-600 transition-colors"
@@ -306,6 +384,7 @@ const Index = () => {
             onUpdateComponent={handleUpdateComponent}
             onRemoveComponent={handleRemoveComponent}
             onReorderComponents={handleReorderComponents}
+            onRequestApiTemplate={openApiTemplateModal}
           />
         </div>
         
@@ -314,6 +393,76 @@ const Index = () => {
           <WidgetPreview components={widgetComponents} apis={apis} />
         </div>
       </div>
+      
+      {/* API Template Modal */}
+      <Dialog open={isApiTemplateModalOpen} onOpenChange={setIsApiTemplateModalOpen}>
+        <DialogContent className="sm:max-w-[650px]">
+          <DialogHeader>
+            <DialogTitle>Select API Template</DialogTitle>
+          </DialogHeader>
+          
+          {savedApiTemplates.length === 0 ? (
+            <div className="text-center py-8">
+              <Bookmark className="mx-auto text-gray-400 mb-2" size={32} />
+              <p className="text-gray-500">No saved API templates yet</p>
+              <p className="text-sm text-gray-400 mt-1">
+                Save your APIs as templates from the API tab to reuse them
+              </p>
+            </div>
+          ) : (
+            <ScrollArea className="h-[400px]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-1">
+                {savedApiTemplates.map((template) => (
+                  <Card 
+                    key={template.id} 
+                    className="cursor-pointer hover:border-widget-blue transition-colors"
+                    onClick={() => applyApiTemplateToComponent(template)}
+                  >
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">{template.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-sm space-y-1">
+                        <div className="flex">
+                          <span className="font-semibold w-20">Method:</span>
+                          <span className="font-mono text-widget-blue">{template.method}</span>
+                        </div>
+                        <div className="flex">
+                          <span className="font-semibold w-20">Endpoint:</span>
+                          <span className="font-mono text-xs truncate" title={template.endpoint}>
+                            {template.endpoint}
+                          </span>
+                        </div>
+                        {template.possibleFields && template.possibleFields.length > 0 && (
+                          <div className="mt-2">
+                            <span className="font-semibold text-xs block mb-1">Available Fields:</span>
+                            <div className="flex flex-wrap gap-1">
+                              {template.possibleFields.slice(0, 3).map((field, i) => (
+                                <Badge key={i} variant="outline" className="text-xs">{field}</Badge>
+                              ))}
+                              {template.possibleFields.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{template.possibleFields.length - 3} more
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsApiTemplateModalOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
