@@ -59,17 +59,63 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     table: "Table"
   };
 
-  // Mock property definitions for UI rendering
-  // In a real app, these would come from a schema or component definition
-  const mockPropertyDefinitions = [
-    { name: "title", type: "text", label: "Title" },
-    { name: "content", type: "text", label: "Content" },
-    { name: "color", type: "color", label: "Color", options: ["#FF0000", "#00FF00", "#0000FF"] }
-  ];
+  // Mock property definitions for UI rendering based on component type
+  const getPropertyDefinitions = () => {
+    switch (component.type) {
+      case 'header':
+        return [
+          { name: "title", type: "text", label: "Title" },
+          { name: "backgroundColor", type: "color", label: "Background Color" },
+          { name: "textColor", type: "color", label: "Text Color" },
+          { name: "fontFamily", type: "select", label: "Font Family", options: [
+            "system-ui", "Arial", "Helvetica", "Times New Roman", "Georgia"
+          ] },
+          { name: "bold", type: "select", label: "Bold", options: ["true", "false"] },
+          { name: "italic", type: "select", label: "Italic", options: ["true", "false"] }
+        ];
+      case 'text':
+        return [
+          { name: "content", type: "text", label: "Content" },
+          { name: "size", type: "select", label: "Size", options: ["small", "medium", "large"] },
+          { name: "color", type: "color", label: "Text Color" },
+          { name: "backgroundColor", type: "color", label: "Background Color" },
+          { name: "bold", type: "select", label: "Bold", options: ["true", "false"] },
+          { name: "italic", type: "select", label: "Italic", options: ["true", "false"] }
+        ];
+      case 'button':
+        return [
+          { name: "label", type: "text", label: "Label" },
+          { name: "backgroundColor", type: "color", label: "Background Color" },
+          { name: "textColor", type: "color", label: "Text Color" },
+          { name: "variant", type: "select", label: "Style", options: ["default", "outline", "secondary"] }
+        ];
+      case 'image':
+        return [
+          { name: "source", type: "text", label: "Image URL" },
+          { name: "altText", type: "text", label: "Alt Text" },
+          { name: "caption", type: "text", label: "Caption" }
+        ];
+      case 'alert':
+        return [
+          { name: "title", type: "text", label: "Title" },
+          { name: "message", type: "text", label: "Message" },
+          { name: "type", type: "select", label: "Alert Type", options: ["info", "success", "warning", "error"] },
+          { name: "backgroundColor", type: "color", label: "Background Color" },
+          { name: "textColor", type: "color", label: "Text Color" },
+          { name: "borderColor", type: "color", label: "Border Color" }
+        ];
+      default:
+        return [
+          { name: "title", type: "text", label: "Title" },
+          { name: "content", type: "text", label: "Content" },
+          { name: "color", type: "color", label: "Color", options: ["#FF0000", "#00FF00", "#0000FF"] }
+        ];
+    }
+  };
 
   // Mock tooltips for the UI
   const tooltipOptions = [
-    { id: "none", label: "No Tooltip" },  // Changed from empty string to "none"
+    { id: "none", label: "No Tooltip" },
     { id: "help", label: "Help Info" },
     { id: "info", label: "Additional Info" },
     { id: "warning", label: "Warning" },
@@ -112,7 +158,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
             <Select
               value={String(value)}
-              onValueChange={(val) => handlePropertyChange(property.name, val)}
+              onValueChange={(val) => handlePropertyChange(property.name, val === "true" ? true : val === "false" ? false : val)}
             >
               <SelectTrigger id={`prop-${property.name}`}>
                 <SelectValue placeholder={`Select ${property.label}`} />
@@ -166,8 +212,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
               <AccordionTrigger className="text-sm font-medium">Component Properties</AccordionTrigger>
               <AccordionContent>
                 <div className="pt-2 space-y-3">
-                  {mockPropertyDefinitions.map(prop => 
-                    component.props[prop.name] !== undefined && renderPropertyEditor(prop)
+                  {getPropertyDefinitions().map(prop => 
+                    renderPropertyEditor(prop)
                   )}
                 </div>
               </AccordionContent>
@@ -210,8 +256,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                     <div className="mb-4">
                       <Label htmlFor="tooltip-select">Tooltip</Label>
                       <Select
-                        value={component.tooltipId || "none"}  // Default to "none" instead of empty string
-                        onValueChange={(val) => onApplyTooltip(val === "none" ? "" : val)}  // Convert "none" back to empty string
+                        value={component.tooltipId || "none"}
+                        onValueChange={(val) => onApplyTooltip(val === "none" ? "" : val)}
                       >
                         <SelectTrigger id="tooltip-select" className="w-full">
                           <SelectValue placeholder="Select tooltip type" />

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import ComponentEditor from './ComponentEditor';
 import { Card } from '@/components/ui/card';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -25,8 +26,15 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
 }) => {
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
 
-  const handleReorder = (components: WidgetComponent[]) => {
-    onReorderComponents(components);
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+    if (result.destination.index === result.source.index) return;
+
+    const items = Array.from(components);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    onReorderComponents(items);
   };
 
   return (
@@ -37,28 +45,50 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         </Card>
       )}
       
-      {components.map((component, index) => (
-        <div key={component.id} className="relative">
-          <Card className="bg-white border shadow-sm">
-            <ComponentEditor
-              component={component}
-              apis={apis}
-              isExpanded={expandedComponentId === component.id}
-              onToggleExpand={() => 
-                setExpandedComponentId(
-                  expandedComponentId === component.id ? null : component.id
-                )
-              }
-              onUpdateComponent={onUpdateComponent}
-              onRemoveComponent={onRemoveComponent}
-              onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
-              onApplyTooltip={onApplyTooltip ? 
-                (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
-                undefined}
-            />
-          </Card>
-        </div>
-      ))}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="components">
+          {(provided) => (
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              className="space-y-4"
+            >
+              {components.map((component, index) => (
+                <Draggable key={component.id} draggableId={component.id} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="relative"
+                    >
+                      <Card className="bg-white border shadow-sm">
+                        <ComponentEditor
+                          component={component}
+                          apis={apis}
+                          isExpanded={expandedComponentId === component.id}
+                          onToggleExpand={() => 
+                            setExpandedComponentId(
+                              expandedComponentId === component.id ? null : component.id
+                            )
+                          }
+                          onUpdateComponent={onUpdateComponent}
+                          onRemoveComponent={onRemoveComponent}
+                          onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
+                          onApplyTooltip={onApplyTooltip ? 
+                            (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
+                            undefined}
+                        />
+                      </Card>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 };
