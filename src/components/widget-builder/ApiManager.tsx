@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ApiConfig, extractFieldPaths } from "@/types/widget-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -240,7 +239,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-center items-center my-6">
+      <div className="flex justify-between items-center my-6">
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="bg-widget-blue hover:bg-blue-600">
@@ -539,11 +538,9 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
-      
-      {apis.length > 0 && (
-        <div className="flex justify-between items-center mb-4">
-          <div className="w-full max-w-md">
+        
+        <div className="flex items-center gap-3">
+          <div className="w-64">
             <SearchBar 
               onSearch={handleSearch} 
               placeholder="Search APIs..." 
@@ -556,13 +553,14 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
             size="sm"
             onClick={toggleSort}
             className="flex items-center gap-1"
+            title={sortDirection === "asc" ? "Sort Z to A" : sortDirection === "desc" ? "Clear sort" : "Sort A to Z"}
           >
-            {sortDirection === null && "Sort"}
-            {sortDirection === "asc" && <ArrowDownAZ size={18} />}
-            {sortDirection === "desc" && <ArrowUpZA size={18} />}
+            {sortDirection === null && <ArrowDownAZ size={16} />}
+            {sortDirection === "asc" && <ArrowDownAZ size={16} />}
+            {sortDirection === "desc" && <ArrowUpZA size={16} />}
           </Button>
         </div>
-      )}
+      </div>
       
       {apis.length === 0 ? (
         <div className="p-8 text-center border border-dashed rounded-lg">
