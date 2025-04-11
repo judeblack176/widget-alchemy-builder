@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { WidgetComponent, AlertType, TableColumn } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
@@ -726,7 +725,7 @@ const ChevronRight = ({ size = 24, className = "" }) => (
     strokeLinejoin="round" 
     className={className}
   >
-    <path d="m9 18 6-6-6-6"/>
+    <path d="m9 18 6-6-6 6"/>
   </svg>
 );
 
