@@ -238,6 +238,11 @@ const Index = () => {
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-widget-blue">EdTech Widget Builder</h1>
           <div className="flex space-x-2">
+            <Link to="/admin/login">
+              <Button variant="outline">
+                Admin
+              </Button>
+            </Link>
             <Link to="/library">
               <Button variant="outline">
                 <Library size={16} className="mr-2" /> Widget Library

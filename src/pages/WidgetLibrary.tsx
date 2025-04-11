@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -147,7 +148,7 @@ const WidgetLibrary = () => {
               </Button>
             </Link>
             <Link to="/">
-              <Button variant="outline" className="mr-2">Create New Widget</Button>
+              <Button variant="outline">Create New Widget</Button>
             </Link>
           </div>
         </div>
