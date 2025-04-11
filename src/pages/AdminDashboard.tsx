@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { WidgetSubmission, WidgetApprovalStatus, ApiConfig } from "@/types/widget-types";
 import WidgetPreview from "@/components/widget-builder/WidgetPreview";
+import AdminLayout from "@/components/layouts/AdminLayout";
 
 const AdminDashboard = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid' | 'card'>('card');
@@ -64,9 +64,7 @@ const AdminDashboard = () => {
     }
   };
   
-  // Helper function to verify if an API or link is verified
   const getVerificationStatus = (item: string) => {
-    // This is a mock implementation - in a real app, you would check against a whitelist or database
     const mockVerifiedDomains = [
       'api.example.com', 
       'data.mycompany.com', 
@@ -76,7 +74,6 @@ const AdminDashboard = () => {
       'trusted-source.org'
     ];
     
-    // Check if the URL is in our verified list
     const isVerified = mockVerifiedDomains.some(domain => item.includes(domain));
     
     return isVerified;
@@ -124,7 +121,6 @@ const AdminDashboard = () => {
   const pendingWidgets = widgets.filter(widget => widget.status === 'pending');
   
   const renderWidgetCard = (widget: WidgetSubmission) => {
-    // Extract APIs and links from the widget for demonstration
     const apis = widget.config.components
       ?.filter(comp => comp.apiConfig?.apiId)
       .map(comp => comp.apiConfig?.apiId ? 
@@ -157,7 +153,6 @@ const AdminDashboard = () => {
           </p>
           <p className="text-sm mb-2 line-clamp-2">{widget.description || "No description"}</p>
           
-          {/* Display APIs used in the widget */}
           {apis && apis.length > 0 && (
             <div className="mt-2">
               <p className="text-xs font-medium text-gray-500 mb-1">APIs:</p>
@@ -175,7 +170,6 @@ const AdminDashboard = () => {
             </div>
           )}
           
-          {/* Display links used in the widget */}
           {links && links.length > 0 && (
             <div className="mt-2">
               <p className="text-xs font-medium text-gray-500 mb-1">Links:</p>
@@ -247,7 +241,6 @@ const AdminDashboard = () => {
                 (widget.description && widget.description.toLowerCase().includes(searchQuery.toLowerCase()))
               )
               .map((widget) => {
-                // Extract APIs and links for this widget
                 const apis = widget.config.components
                   ?.filter(comp => comp.apiConfig?.apiId)
                   .map(comp => comp.apiConfig?.apiId ? 
@@ -321,133 +314,130 @@ const AdminDashboard = () => {
   };
   
   return (
-    <div className="container mx-auto p-6">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Manage widgets and approvals</p>
-      </header>
-      
-      <Tabs defaultValue="published" className="mb-8">
-        <TabsList>
-          <TabsTrigger value="published">Published Widgets</TabsTrigger>
-          <TabsTrigger value="pending">Pending Approvals</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="published">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Published Widgets</h2>
-              
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
-                    <Input 
-                      placeholder="Search widgets..." 
-                      className="pl-8 w-[250px]"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)} 
-                    />
+    <AdminLayout title="Widget Management">
+      <div className="container mx-auto">
+        <Tabs defaultValue="published" className="mb-8">
+          <TabsList>
+            <TabsTrigger value="published">Published Widgets</TabsTrigger>
+            <TabsTrigger value="pending">Pending Approvals</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="published">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Published Widgets</h2>
+                
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-3 h-4 w-4 text-gray-400" />
+                      <Input 
+                        placeholder="Search widgets..." 
+                        className="pl-8 w-[250px]"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)} 
+                      />
+                    </div>
                   </div>
+                  
+                  <ToggleGroup 
+                    type="single" 
+                    value={viewMode} 
+                    onValueChange={(value) => value && setViewMode(value as 'list' | 'grid' | 'card')}
+                  >
+                    <ToggleGroupItem value="list" aria-label="List view">
+                      <List className="h-4 w-4" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="grid" aria-label="Grid view">
+                      <LayoutGrid className="h-4 w-4" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="card" aria-label="Card view">
+                      <Card className="h-4 w-4" />
+                    </ToggleGroupItem>
+                  </ToggleGroup>
                 </div>
-                
-                <ToggleGroup 
-                  type="single" 
-                  value={viewMode} 
-                  onValueChange={(value) => value && setViewMode(value as 'list' | 'grid' | 'card')}
-                >
-                  <ToggleGroupItem value="list" aria-label="List view">
-                    <List className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="grid" aria-label="Grid view">
-                    <LayoutGrid className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="card" aria-label="Card view">
-                    <Card className="h-4 w-4" />
-                  </ToggleGroupItem>
-                </ToggleGroup>
               </div>
-            </div>
-            
-            {approvedWidgets.length === 0 ? (
-              <Card className="p-8 text-center">
-                <p className="text-gray-500 mb-4">No published widgets found</p>
-                <Button>Create a Widget</Button>
-              </Card>
-            ) : viewMode === 'list' ? (
-              renderWidgetTable(approvedWidgets)
-            ) : viewMode === 'card' ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {approvedWidgets
-                  .filter(widget => 
-                    searchQuery === "" || 
-                    widget.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    (widget.description && widget.description.toLowerCase().includes(searchQuery.toLowerCase()))
-                  )
-                  .map(renderWidgetCard)}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {approvedWidgets
-                  .filter(widget => 
-                    searchQuery === "" || 
-                    widget.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    (widget.description && widget.description.toLowerCase().includes(searchQuery.toLowerCase()))
-                  )
-                  .map(renderWidgetCard)}
-              </div>
-            )}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="pending">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Pending Approvals</h2>
               
-              <div className="flex items-center gap-4">
-                <Badge variant="outline" className="flex gap-1 items-center">
-                  <Clock size={14} />
-                  {pendingWidgets.length} Widgets Awaiting Review
-                </Badge>
-                
-                <ToggleGroup 
-                  type="single" 
-                  value={viewMode} 
-                  onValueChange={(value) => value && setViewMode(value as 'list' | 'grid' | 'card')}
-                >
-                  <ToggleGroupItem value="list" aria-label="List view">
-                    <List className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="grid" aria-label="Grid view">
-                    <LayoutGrid className="h-4 w-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="card" aria-label="Card view">
-                    <Card className="h-4 w-4" />
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </div>
+              {approvedWidgets.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-gray-500 mb-4">No published widgets found</p>
+                  <Button>Create a Widget</Button>
+                </Card>
+              ) : viewMode === 'list' ? (
+                renderWidgetTable(approvedWidgets)
+              ) : viewMode === 'card' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {approvedWidgets
+                    .filter(widget => 
+                      searchQuery === "" || 
+                      widget.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      (widget.description && widget.description.toLowerCase().includes(searchQuery.toLowerCase()))
+                    )
+                    .map(renderWidgetCard)}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {approvedWidgets
+                    .filter(widget => 
+                      searchQuery === "" || 
+                      widget.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      (widget.description && widget.description.toLowerCase().includes(searchQuery.toLowerCase()))
+                    )
+                    .map(renderWidgetCard)}
+                </div>
+              )}
             </div>
-            
-            {pendingWidgets.length === 0 ? (
-              <Card className="p-8 text-center">
-                <p className="text-gray-500">No widgets awaiting approval</p>
-              </Card>
-            ) : viewMode === 'list' ? (
-              renderWidgetTable(pendingWidgets)
-            ) : viewMode === 'card' ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {pendingWidgets.map(renderWidgetCard)}
+          </TabsContent>
+          
+          <TabsContent value="pending">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Pending Approvals</h2>
+                
+                <div className="flex items-center gap-4">
+                  <Badge variant="outline" className="flex gap-1 items-center">
+                    <Clock size={14} />
+                    {pendingWidgets.length} Widgets Awaiting Review
+                  </Badge>
+                  
+                  <ToggleGroup 
+                    type="single" 
+                    value={viewMode} 
+                    onValueChange={(value) => value && setViewMode(value as 'list' | 'grid' | 'card')}
+                  >
+                    <ToggleGroupItem value="list" aria-label="List view">
+                      <List className="h-4 w-4" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="grid" aria-label="Grid view">
+                      <LayoutGrid className="h-4 w-4" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="card" aria-label="Card view">
+                      <Card className="h-4 w-4" />
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {pendingWidgets.map(renderWidgetCard)}
-              </div>
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
+              
+              {pendingWidgets.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-gray-500">No widgets awaiting approval</p>
+                </Card>
+              ) : viewMode === 'list' ? (
+                renderWidgetTable(pendingWidgets)
+              ) : viewMode === 'card' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {pendingWidgets.map(renderWidgetCard)}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {pendingWidgets.map(renderWidgetCard)}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </AdminLayout>
   );
 };
 
