@@ -33,10 +33,10 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   // Get alert components to calculate the max allowed components
   const alertComponents = components.filter(c => c.type === 'alert');
   
-  // Header doesn't count against the component limit
-  const nonHeaderComponents = components.filter(c => c.type !== 'header');
-  const MAX_COMPONENTS = alertComponents.length > 0 ? 7 : 6;
-  const atComponentLimit = nonHeaderComponents.length >= MAX_COMPONENTS;
+  // Header doesn't count against the component limit, and now neither do alerts
+  const nonHeaderNonAlertComponents = components.filter(c => c.type !== 'header' && c.type !== 'alert');
+  const MAX_COMPONENTS = 6;
+  const atComponentLimit = nonHeaderNonAlertComponents.length >= MAX_COMPONENTS;
 
   // Separate the header component from other components
   const headerComponent = components.find(c => c.type === 'header');
@@ -46,7 +46,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     if (result.destination.index === result.source.index) return;
 
     // Copy only the non-header components for reordering
-    const items = Array.from(nonHeaderComponents);
+    const items = Array.from(components.filter(c => c.type !== 'header'));
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
@@ -97,7 +97,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4 mr-2" />
             <AlertDescription>
-              Maximum of {MAX_COMPONENTS} components reached (excluding header). Please remove a component before adding a new one.
+              Maximum of {MAX_COMPONENTS} components reached (excluding header and alerts). Please remove a component before adding a new one.
             </AlertDescription>
           </Alert>
         )}
