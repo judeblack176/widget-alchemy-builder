@@ -40,20 +40,8 @@ const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
 >(({ className, ...props }, ref) => {
-  // Create a context consumer to check if we're inside a Tabs component
-  // This doesn't actually fix the underlying issue but provides a more helpful error message
-  const context = React.useContext(TabsPrimitive.TabsContext);
-  
-  // If we're not in a Tabs context and we're in development, warn about it
-  React.useEffect(() => {
-    if (process.env.NODE_ENV !== 'production' && context === null) {
-      console.warn(
-        'TabsContent must be used within a Tabs component. ' +
-        'Check your component structure to ensure TabsContent is nested within Tabs.'
-      );
-    }
-  }, [context]);
-
+  // Instead of explicitly trying to access TabsContext, we'll simply use the component
+  // The context check is handled internally by the Radix TabsContent component
   return (
     <TabsPrimitive.Content
       ref={ref}
