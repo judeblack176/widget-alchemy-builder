@@ -1,7 +1,5 @@
-
 import React from 'react';
 import { WidgetComponent } from '@/types/widget-types';
-import TooltipComponent from './TooltipComponent';
 import { Button } from '@/components/ui/button';
 
 export const renderComponent = (component: WidgetComponent, apiData?: any) => {
@@ -17,27 +15,6 @@ export const renderComponent = (component: WidgetComponent, apiData?: any) => {
         finalProps[propKey] = value;
       }
     });
-  }
-  
-  if (finalProps.tooltip && type !== 'tooltip') {
-    const tooltipProps = finalProps.tooltip;
-    const componentWithoutTooltip = {
-      ...component,
-      props: { ...finalProps, tooltip: undefined }
-    };
-    
-    return (
-      <TooltipComponent
-        content={tooltipProps.content || "Tooltip content"}
-        placement={tooltipProps.placement}
-        backgroundColor={tooltipProps.backgroundColor}
-        textColor={tooltipProps.textColor}
-        showArrow={tooltipProps.showArrow}
-        triggerStyle="custom"
-      >
-        {renderComponentWithoutTooltip(componentWithoutTooltip, apiData)}
-      </TooltipComponent>
-    );
   }
   
   return renderComponentWithoutTooltip(component, apiData);
@@ -69,24 +46,6 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
         >
           {finalProps.label || "Button"}
         </Button>
-      );
-      
-    case 'tooltip':
-      const tooltipChildren = finalProps.children ? 
-        renderComponent(finalProps.children, apiData) : null;
-      
-      return (
-        <TooltipComponent
-          triggerText={finalProps.triggerText || "Hover me"}
-          content={finalProps.content || "Tooltip content"}
-          placement={finalProps.placement}
-          backgroundColor={finalProps.backgroundColor}
-          textColor={finalProps.textColor}
-          showArrow={finalProps.showArrow}
-          triggerStyle={finalProps.triggerStyle}
-        >
-          {tooltipChildren}
-        </TooltipComponent>
       );
       
     default:

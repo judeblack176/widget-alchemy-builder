@@ -5,15 +5,14 @@ import ComponentLibrary from "@/components/widget-builder/ComponentLibrary";
 import WidgetPreview from "@/components/widget-builder/WidgetPreview";
 import ApiManager from "@/components/widget-builder/ApiManager";
 import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionForm";
-import TooltipManager, { TooltipTemplate } from "@/components/widget-builder/TooltipManager";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library, User, Bookmark, HelpCircle } from "lucide-react";
+import { Library, User, Bookmark } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +40,6 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<string>("components");
   const [isApiTemplateModalOpen, setIsApiTemplateModalOpen] = useState(false);
   const [savedApiTemplates, setSavedApiTemplates] = useState<ApiConfig[]>([]);
-  const [savedTooltipTemplates, setSavedTooltipTemplates] = useState<TooltipTemplate[]>([]);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -76,15 +74,6 @@ const Index = () => {
       }
     } catch (error) {
       console.error("Failed to load API templates", error);
-    }
-    
-    try {
-      const savedTooltips = localStorage.getItem('savedTooltipTemplates');
-      if (savedTooltips) {
-        setSavedTooltipTemplates(JSON.parse(savedTooltips));
-      }
-    } catch (error) {
-      console.error("Failed to load tooltip templates", error);
     }
   }, [widgetId, toast]);
 
@@ -299,99 +288,6 @@ const Index = () => {
     setIsApiTemplateModalOpen(false);
   };
 
-  const handleAddTooltipTemplate = (template: Partial<TooltipTemplate>) => {
-    if (!template.name || !template.content) {
-      toast({
-        title: "Missing Information",
-        description: "Please provide a name and content for your tooltip template",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    const newTemplate: TooltipTemplate = {
-      id: `tooltip-template-${Date.now()}`,
-      name: template.name,
-      content: template.content,
-      placement: template.placement || 'top',
-      backgroundColor: template.backgroundColor || '#1E293B',
-      textColor: template.textColor || '#FFFFFF',
-      showArrow: template.showArrow !== undefined ? template.showArrow : true,
-      triggerStyle: template.triggerStyle || 'button'
-    };
-    
-    const updatedTemplates = [...savedTooltipTemplates, newTemplate];
-    setSavedTooltipTemplates(updatedTemplates);
-    localStorage.setItem('savedTooltipTemplates', JSON.stringify(updatedTemplates));
-    
-    toast({
-      title: "Tooltip Template Saved",
-      description: `Saved tooltip template: ${template.name}`
-    });
-  };
-  
-  const handleDeleteTooltipTemplate = (templateId: string) => {
-    const updatedTemplates = savedTooltipTemplates.filter(template => template.id !== templateId);
-    setSavedTooltipTemplates(updatedTemplates);
-    localStorage.setItem('savedTooltipTemplates', JSON.stringify(updatedTemplates));
-    
-    toast({
-      title: "Tooltip Template Deleted",
-      description: "The tooltip template has been deleted"
-    });
-  };
-  
-  const applyTooltipTemplateToComponent = (template: TooltipTemplate) => {
-    if (!selectedComponentId) return;
-    
-    const componentToUpdate = widgetComponents.find(c => c.id === selectedComponentId);
-    if (!componentToUpdate) return;
-    
-    if (componentToUpdate.type === 'tooltip') {
-      const updatedComponent = {
-        ...componentToUpdate,
-        props: {
-          ...componentToUpdate.props,
-          content: template.content,
-          placement: template.placement,
-          backgroundColor: template.backgroundColor,
-          textColor: template.textColor,
-          showArrow: template.showArrow,
-          triggerStyle: template.triggerStyle
-        }
-      };
-      
-      handleUpdateComponent(updatedComponent);
-    } else {
-      const tooltipProps = {
-        content: template.content,
-        placement: template.placement,
-        backgroundColor: template.backgroundColor,
-        textColor: template.textColor,
-        showArrow: template.showArrow
-      };
-      
-      const updatedComponent = {
-        ...componentToUpdate,
-        props: {
-          ...componentToUpdate.props,
-          tooltip: tooltipProps
-        }
-      };
-      
-      handleUpdateComponent(updatedComponent);
-    }
-    
-    toast({
-      title: "Tooltip Template Applied",
-      description: `Applied "${template.name}" tooltip to the selected component`
-    });
-  };
-
-  const openTooltipTemplateModal = (componentId: string) => {
-    setSelectedComponentId(componentId);
-  };
-
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <header className="bg-white border-b border-gray-200 p-4">
@@ -423,7 +319,6 @@ const Index = () => {
             <TabsList className="w-full">
               <TabsTrigger value="components" className="flex-1">Components</TabsTrigger>
               <TabsTrigger value="apis" className="flex-1">APIs</TabsTrigger>
-              <TabsTrigger value="tooltips" className="flex-1">Tooltips</TabsTrigger>
             </TabsList>
             
             <TabsContent value="components" className="mt-4">
@@ -436,16 +331,6 @@ const Index = () => {
                 onAddApi={handleAddApi} 
                 onRemoveApi={handleRemoveApi} 
                 onUpdateApi={handleUpdateApi}
-              />
-            </TabsContent>
-
-            <TabsContent value="tooltips" className="mt-4">
-              <TooltipManager
-                tooltipTemplates={savedTooltipTemplates}
-                selectedComponentId={selectedComponentId}
-                onAddTooltip={handleAddTooltipTemplate}
-                onApplyTooltip={applyTooltipTemplateToComponent}
-                onDeleteTooltip={handleDeleteTooltipTemplate}
               />
             </TabsContent>
           </Tabs>
@@ -486,7 +371,6 @@ const Index = () => {
             onRemoveComponent={handleRemoveComponent}
             onReorderComponents={handleReorderComponents}
             onRequestApiTemplate={openApiTemplateModal}
-            onRequestTooltipTemplate={openTooltipTemplateModal}
           />
         </div>
         
