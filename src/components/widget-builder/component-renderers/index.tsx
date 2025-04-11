@@ -27,7 +27,16 @@ export const renderComponent = (component: WidgetComponent, apiData?: any) => {
     // ... Add other component type cases here
     
     case 'tooltip':
-      return <TooltipComponent {...finalProps} />;
+      // Ensure required props are provided with defaults if not in finalProps
+      return <TooltipComponent
+        triggerText={finalProps.triggerText || "Hover me"}
+        content={finalProps.content || "Tooltip content"}
+        placement={finalProps.placement}
+        backgroundColor={finalProps.backgroundColor}
+        textColor={finalProps.textColor}
+        showArrow={finalProps.showArrow}
+        triggerStyle={finalProps.triggerStyle}
+      />;
       
     default:
       return <div>Unsupported component type: {type}</div>;
