@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { WidgetComponent, ApiConfig, CalendarServiceType, AlertType, TableColumn } from "@/types/widget-types";
+import { WidgetComponent, ApiConfig, CalendarServiceType, AlertType, TableColumn, DEFAULT_DATA_MAPPINGS } from "@/types/widget-types";
 import { 
   BookOpen, 
   Type, 
@@ -99,29 +99,134 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    let mockData;
+    let mockData: Record<string, any> = {};
     
     // Generate different mock data based on component type
-    if (component.type === 'alert') {
-      mockData = {
-        title: `${api.name} Alert`,
-        message: `This is a sample alert message from ${api.name} API. It would normally contain real-time data.`,
-        type: ['info', 'warning', 'success', 'error'][Math.floor(Math.random() * 4)] as AlertType,
-      };
-    } else if (component.type === 'table') {
-      mockData = {
-        rows: [
-          { id: 1, name: 'Product A', price: 29.99, stock: 42 },
-          { id: 2, name: 'Product B', price: 49.99, stock: 13 },
-          { id: 3, name: 'Product C', price: 19.99, stock: 89 }
-        ]
-      };
-    } else {
-      mockData = {
-        content: `Sample content from ${api.name} API`,
-        title: `Data from ${api.name}`,
-        values: [10, 45, 25, 60, 30]
-      };
+    switch (component.type) {
+      case 'header':
+        mockData = {
+          title: `${api.name} Header`,
+          subtitle: `Subtitle from ${api.name}`,
+          icon: "BookOpen"
+        };
+        break;
+        
+      case 'text':
+        mockData = {
+          content: `This is sample text content from the ${api.name} API. This would normally contain real content fetched from your data source.`
+        };
+        break;
+        
+      case 'image':
+        mockData = {
+          imageUrl: "https://placehold.co/600x400/3B82F6/FFFFFF?text=API+Image",
+          altText: "Sample API Image",
+          caption: `Image from ${api.name} API`
+        };
+        break;
+        
+      case 'button':
+        mockData = {
+          label: `${api.name} Action`,
+          url: "https://example.com/action"
+        };
+        break;
+        
+      case 'video':
+        mockData = {
+          videoUrl: "https://example.com/video.mp4",
+          title: `${api.name} Video`,
+          description: "This is a sample video from the API"
+        };
+        break;
+        
+      case 'chart':
+        mockData = {
+          data: [65, 59, 80, 81, 56, 55, 40],
+          labels: ["January", "February", "March", "April", "May", "June", "July"],
+          title: `${api.name} Chart Data`
+        };
+        break;
+        
+      case 'form':
+        mockData = {
+          label: `${api.name} Form Field`,
+          placeholder: "Enter data...",
+          options: ["Option 1", "Option 2", "Option 3"]
+        };
+        break;
+        
+      case 'calendar':
+        mockData = {
+          events: [
+            { id: 1, title: "Meeting", date: new Date().toISOString() },
+            { id: 2, title: "Appointment", date: new Date(Date.now() + 86400000).toISOString() }
+          ],
+          title: `${api.name} Calendar`
+        };
+        break;
+        
+      case 'dropdown':
+        mockData = {
+          options: ["Item A", "Item B", "Item C", "Item D"],
+          label: `${api.name} Dropdown`,
+          placeholder: "Select an option"
+        };
+        break;
+        
+      case 'link':
+        mockData = {
+          text: `${api.name} Link`,
+          url: "https://example.com"
+        };
+        break;
+        
+      case 'multi-text':
+        mockData = {
+          content: `This is a longer text content from ${api.name} API.\nIt can span multiple lines and paragraphs.\n\nThis would typically contain actual content from your data source.`,
+          label: "API Content",
+          placeholder: "Content will appear here..."
+        };
+        break;
+        
+      case 'filter':
+        mockData = {
+          options: ["Category 1", "Category 2", "Category 3", "Category 4"],
+          label: `${api.name} Filter`,
+          placeholder: "Filter items..."
+        };
+        break;
+        
+      case 'alert':
+        mockData = {
+          title: `${api.name} Alert`,
+          message: `This is a sample alert message from ${api.name} API. It would normally contain real-time data.`,
+          type: ['info', 'warning', 'success', 'error'][Math.floor(Math.random() * 4)] as AlertType,
+        };
+        break;
+        
+      case 'table':
+        mockData = {
+          rows: [
+            { id: 1, name: 'Product A', price: 29.99, stock: 42 },
+            { id: 2, name: 'Product B', price: 49.99, stock: 13 },
+            { id: 3, name: 'Product C', price: 19.99, stock: 89 }
+          ],
+          columns: [
+            { header: "ID", accessor: "id" },
+            { header: "Name", accessor: "name" },
+            { header: "Price", accessor: "price" },
+            { header: "Stock", accessor: "stock" }
+          ]
+        };
+        break;
+        
+      default:
+        mockData = {
+          content: `Sample content from ${api.name} API`,
+          title: `Data from ${api.name}`,
+          values: [10, 45, 25, 60, 30]
+        };
     }
     
     setApiData(prev => ({ ...prev, [apiId]: mockData }));
@@ -134,7 +239,30 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
 
   const getApiDataForComponent = (component: WidgetComponent) => {
     if (!component.apiConfig?.apiId) return null;
-    return apiData[component.apiConfig.apiId];
+    
+    const apiId = component.apiConfig.apiId;
+    const rawData = apiData[apiId];
+    if (!rawData) return null;
+    
+    // If there's no data mapping, return the raw data
+    if (!component.apiConfig.dataMapping || Object.keys(component.apiConfig.dataMapping).length === 0) {
+      return rawData;
+    }
+    
+    // Apply data mapping
+    const mappedData: Record<string, any> = {};
+    Object.entries(component.apiConfig.dataMapping).forEach(([propKey, dataPath]) => {
+      // Handle nested paths like 'data.user.name'
+      const pathParts = dataPath.split('.');
+      let value = rawData;
+      for (const part of pathParts) {
+        if (value === undefined || value === null) break;
+        value = value[part];
+      }
+      mappedData[propKey] = value;
+    });
+    
+    return mappedData;
   };
 
   const renderComponent = (component: WidgetComponent) => {
@@ -215,7 +343,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
               fontFamily: component.props.fontFamily || "system-ui"
             }}
           >
-            {component.props.content}
+            {componentApiData?.content || component.props.content}
           </div>
         );
       
@@ -223,12 +351,14 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         return (
           <div className="p-3">
             <img 
-              src={component.props.source} 
-              alt={component.props.altText || "Widget image"} 
+              src={componentApiData?.imageUrl || component.props.source} 
+              alt={componentApiData?.altText || component.props.altText || "Widget image"} 
               className="w-full h-auto rounded-md"
             />
-            {component.props.caption && (
-              <p className="mt-1 text-sm text-gray-500 text-center">{component.props.caption}</p>
+            {(componentApiData?.caption || component.props.caption) && (
+              <p className="mt-1 text-sm text-gray-500 text-center">
+                {componentApiData?.caption || component.props.caption}
+              </p>
             )}
           </div>
         );
@@ -246,7 +376,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
               }}
             >
               <MousePointer size={16} className="mr-2" />
-              {component.props.label}
+              {componentApiData?.label || component.props.label}
             </button>
           </div>
         );
@@ -256,8 +386,15 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
           <div className="p-3">
             <div className="bg-black aspect-video rounded-md flex items-center justify-center">
               <Video size={32} className="text-white" />
-              <span className="ml-2 text-white">Video Player</span>
+              <span className="ml-2 text-white">
+                {componentApiData?.title || "Video Player"}
+              </span>
             </div>
+            {(componentApiData?.description || component.props.description) && (
+              <p className="mt-1 text-sm text-gray-500">
+                {componentApiData?.description || component.props.description}
+              </p>
+            )}
           </div>
         );
       
@@ -274,7 +411,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
             >
               <BarChart size={24} className="mr-2" style={{ color: component.props.colors?.[0] || "#3B82F6" }} />
               <span style={{ color: component.props.textColor || "#1E293B" }}>
-                {component.props.type.charAt(0).toUpperCase() + component.props.type.slice(1)} Chart
+                {componentApiData?.title || (component.props.type.charAt(0).toUpperCase() + component.props.type.slice(1) + " Chart")}
               </span>
             </div>
           </div>
@@ -284,22 +421,27 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         return (
           <div className="p-3">
             <label className="block text-sm font-medium mb-1">
-              {component.props.label}
+              {componentApiData?.label || component.props.label}
             </label>
             {component.props.fieldType === "textarea" ? (
               <textarea 
                 className="w-full p-2 border rounded-md" 
-                placeholder={component.props.placeholder}
+                placeholder={componentApiData?.placeholder || component.props.placeholder}
               />
             ) : component.props.fieldType === "select" ? (
               <select className="w-full p-2 border rounded-md">
-                <option>Select an option...</option>
+                <option>
+                  {componentApiData?.placeholder || component.props.placeholder || "Select an option..."}
+                </option>
+                {(componentApiData?.options || component.props.options || []).map((option: string, index: number) => (
+                  <option key={index} value={option}>{option}</option>
+                ))}
               </select>
             ) : (
               <input 
                 type={component.props.fieldType} 
                 className="w-full p-2 border rounded-md" 
-                placeholder={component.props.placeholder}
+                placeholder={componentApiData?.placeholder || component.props.placeholder}
               />
             )}
           </div>
@@ -328,7 +470,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         return (
           <div className="p-3">
             <label className="block text-sm font-medium mb-1">
-              {component.props.label}
+              {componentApiData?.title || component.props.label}
               {serviceType !== 'none' && (
                 <span className="ml-2 text-xs inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 rounded">
                   {getCalendarServiceIcon(serviceType)}
@@ -420,12 +562,14 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         return (
           <div className="p-3">
             <label className="block text-sm font-medium mb-1">
-              {component.props.label}
+              {componentApiData?.label || component.props.label}
             </label>
             <div className="relative">
               <select className="w-full p-2 border rounded-md appearance-none bg-white">
-                <option value="" disabled selected>{component.props.placeholder}</option>
-                {component.props.options?.map((option: string, index: number) => (
+                <option value="" disabled selected>
+                  {componentApiData?.placeholder || component.props.placeholder}
+                </option>
+                {(componentApiData?.options || component.props.options || [])?.map((option: string, index: number) => (
                   <option key={index} value={option}>{option}</option>
                 ))}
               </select>
@@ -446,13 +590,13 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         return (
           <div className="p-3">
             <a 
-              href={component.props.url}
+              href={componentApiData?.url || component.props.url}
               target={component.props.openInNewTab ? "_blank" : "_self"}
               rel="noopener noreferrer"
               className={`${linkStyles[component.props.style as keyof typeof linkStyles] || linkStyles.default} flex items-center`}
             >
               <LinkIcon size={16} className="mr-1" />
-              {component.props.text}
+              {componentApiData?.text || component.props.text}
             </a>
           </div>
         );
@@ -461,12 +605,13 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         return (
           <div className="p-3">
             <label className="block text-sm font-medium mb-1">
-              {component.props.label}
+              {componentApiData?.label || component.props.label}
             </label>
             <textarea 
               className="w-full p-2 border rounded-md" 
-              placeholder={component.props.placeholder}
+              placeholder={componentApiData?.placeholder || component.props.placeholder}
               rows={component.props.rows || 4}
+              defaultValue={componentApiData?.content || ""}
             />
           </div>
         );
@@ -475,7 +620,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         return (
           <div className="p-3">
             <label className="block text-sm font-medium mb-1" style={{ color: component.props.textColor }}>
-              {component.props.label}
+              {componentApiData?.label || component.props.label}
             </label>
             <div className="relative">
               <div 
@@ -487,7 +632,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
                 }}
               >
                 <Filter size={16} className="mr-2" style={{ color: component.props.accentColor }} />
-                <span>{component.props.placeholder}</span>
+                <span>{componentApiData?.placeholder || component.props.placeholder}</span>
                 {component.props.searchable && (
                   <div className="ml-auto">
                     <Search size={16} style={{ color: component.props.accentColor }} />
@@ -501,7 +646,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
                   border: `1px solid ${component.props.borderColor}`
                 }}
               >
-                {component.props.options?.map((option: string, index: number) => (
+                {(componentApiData?.options || component.props.options || [])?.map((option: string, index: number) => (
                   <div 
                     key={index} 
                     className="p-2 rounded hover:bg-opacity-10 cursor-pointer flex items-center"
@@ -600,6 +745,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       case "table":
         // Use API data if available, otherwise use component props
         const tableData = componentApiData?.rows || component.props.data || [];
+        const tableColumns = componentApiData?.columns || component.props.columns || [];
         
         return (
           <div className="p-3">
@@ -614,7 +760,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
                   <TableRow style={{ 
                     backgroundColor: component.props.headerBackgroundColor 
                   }}>
-                    {component.props.columns?.map((column: TableColumn, index: number) => (
+                    {tableColumns.map((column: TableColumn, index: number) => (
                       <TableHead 
                         key={index}
                         style={{ 
@@ -642,7 +788,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
                       } as React.CSSProperties}
                       className={`${component.props.hoverable ? 'hover:bg-[--hover-bg]' : ''}`}
                     >
-                      {component.props.columns?.map((column: TableColumn, colIndex: number) => (
+                      {tableColumns.map((column: TableColumn, colIndex: number) => (
                         <TableCell 
                           key={colIndex}
                           style={{ 
@@ -688,3 +834,4 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
 };
 
 export default WidgetPreview;
+

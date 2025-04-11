@@ -7,28 +7,55 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Plus, Globe } from "lucide-react";
+import { Trash2, Plus, Globe, Code } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ApiManagerProps {
   apis: ApiConfig[];
   onAddApi: (api: ApiConfig) => void;
   onRemoveApi: (apiId: string) => void;
+  onUpdateApi?: (apiId: string, updatedApi: ApiConfig) => void;
 }
 
-const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi }) => {
+const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, onUpdateApi }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("general");
+  const [selectedApiForEdit, setSelectedApiForEdit] = useState<string | null>(null);
+  
   const [newApi, setNewApi] = useState<Partial<ApiConfig>>({
     name: "",
     endpoint: "",
     method: "GET",
     headers: {},
-    parameters: {}
+    parameters: {},
+    responseMapping: {}
   });
   
   const [headerKey, setHeaderKey] = useState("");
   const [headerValue, setHeaderValue] = useState("");
   const [paramKey, setParamKey] = useState("");
   const [paramValue, setParamValue] = useState("");
+  const [mappingKey, setMappingKey] = useState("");
+  const [mappingValue, setMappingValue] = useState("");
+
+  const resetForm = () => {
+    setNewApi({
+      name: "",
+      endpoint: "",
+      method: "GET",
+      headers: {},
+      parameters: {},
+      responseMapping: {}
+    });
+    setHeaderKey("");
+    setHeaderValue("");
+    setParamKey("");
+    setParamValue("");
+    setMappingKey("");
+    setMappingValue("");
+    setActiveTab("general");
+    setSelectedApiForEdit(null);
+  };
 
   const handleAddHeader = () => {
     if (headerKey && headerValue) {
@@ -51,28 +78,61 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi }) 
       setParamValue("");
     }
   };
+  
+  const handleAddMapping = () => {
+    if (mappingKey && mappingValue) {
+      setNewApi({
+        ...newApi,
+        responseMapping: { ...(newApi.responseMapping || {}), [mappingKey]: mappingValue }
+      });
+      setMappingKey("");
+      setMappingValue("");
+    }
+  };
+
+  const handleEditApi = (apiId: string) => {
+    const apiToEdit = apis.find(api => api.id === apiId);
+    if (apiToEdit) {
+      setNewApi(apiToEdit);
+      setSelectedApiForEdit(apiId);
+      setIsOpen(true);
+    }
+  };
 
   const handleSubmit = () => {
     if (newApi.name && newApi.endpoint && newApi.method) {
-      onAddApi({
-        id: `api-${Date.now()}`,
-        name: newApi.name,
-        endpoint: newApi.endpoint,
-        method: newApi.method as 'GET' | 'POST' | 'PUT' | 'DELETE',
-        headers: newApi.headers,
-        parameters: newApi.parameters
-      });
+      if (selectedApiForEdit) {
+        // Update existing API
+        onUpdateApi && onUpdateApi(selectedApiForEdit, {
+          id: selectedApiForEdit,
+          name: newApi.name as string,
+          endpoint: newApi.endpoint as string,
+          method: newApi.method as 'GET' | 'POST' | 'PUT' | 'DELETE',
+          headers: newApi.headers,
+          parameters: newApi.parameters,
+          responseMapping: newApi.responseMapping
+        });
+      } else {
+        // Add new API
+        onAddApi({
+          id: `api-${Date.now()}`,
+          name: newApi.name as string,
+          endpoint: newApi.endpoint as string,
+          method: newApi.method as 'GET' | 'POST' | 'PUT' | 'DELETE',
+          headers: newApi.headers,
+          parameters: newApi.parameters,
+          responseMapping: newApi.responseMapping
+        });
+      }
       
-      setNewApi({
-        name: "",
-        endpoint: "",
-        method: "GET",
-        headers: {},
-        parameters: {}
-      });
-      
+      resetForm();
       setIsOpen(false);
     }
+  };
+
+  const handleCloseDialog = () => {
+    resetForm();
+    setIsOpen(false);
   };
 
   return (
@@ -87,154 +147,219 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi }) 
             </Button>
           </DialogTrigger>
           
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>Add New API Integration</DialogTitle>
+              <DialogTitle>{selectedApiForEdit ? "Edit API Integration" : "Add New API Integration"}</DialogTitle>
               <DialogDescription>
                 Configure an API endpoint to use with your widget components.
               </DialogDescription>
             </DialogHeader>
             
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="api-name">API Name</Label>
-                <Input
-                  id="api-name"
-                  value={newApi.name}
-                  onChange={(e) => setNewApi({ ...newApi, name: e.target.value })}
-                  placeholder="Enter a descriptive name"
-                />
-              </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="w-full">
+                <TabsTrigger value="general">General</TabsTrigger>
+                <TabsTrigger value="headers">Headers</TabsTrigger>
+                <TabsTrigger value="params">Parameters</TabsTrigger>
+                <TabsTrigger value="mapping">Response Mapping</TabsTrigger>
+              </TabsList>
               
-              <div className="grid gap-2">
-                <Label htmlFor="api-endpoint">Endpoint URL</Label>
-                <Input
-                  id="api-endpoint"
-                  value={newApi.endpoint}
-                  onChange={(e) => setNewApi({ ...newApi, endpoint: e.target.value })}
-                  placeholder="https://api.example.com/data"
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="api-method">HTTP Method</Label>
-                <Select
-                  value={newApi.method}
-                  onValueChange={(value) => setNewApi({ ...newApi, method: value as any })}
-                >
-                  <SelectTrigger id="api-method">
-                    <SelectValue placeholder="Select method" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="GET">GET</SelectItem>
-                    <SelectItem value="POST">POST</SelectItem>
-                    <SelectItem value="PUT">PUT</SelectItem>
-                    <SelectItem value="DELETE">DELETE</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Headers</Label>
-                <div className="flex space-x-2">
+              <TabsContent value="general" className="space-y-4 pt-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="api-name">API Name</Label>
                   <Input
-                    placeholder="Key"
-                    value={headerKey}
-                    onChange={(e) => setHeaderKey(e.target.value)}
-                    className="flex-1"
+                    id="api-name"
+                    value={newApi.name}
+                    onChange={(e) => setNewApi({ ...newApi, name: e.target.value })}
+                    placeholder="Enter a descriptive name"
                   />
-                  <Input
-                    placeholder="Value"
-                    value={headerValue}
-                    onChange={(e) => setHeaderValue(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button 
-                    type="button" 
-                    size="sm"
-                    onClick={handleAddHeader} 
-                    disabled={!headerKey || !headerValue}
-                  >
-                    Add
-                  </Button>
                 </div>
                 
-                {newApi.headers && Object.keys(newApi.headers).length > 0 && (
-                  <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
-                    {Object.entries(newApi.headers).map(([key, value]) => (
-                      <div key={key} className="flex justify-between items-center py-1">
-                        <span className="font-mono">{key}: {value}</span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            const newHeaders = { ...newApi.headers };
-                            delete newHeaders[key];
-                            setNewApi({ ...newApi, headers: newHeaders });
-                          }}
-                        >
-                          <Trash2 size={14} />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Parameters</Label>
-                <div className="flex space-x-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="api-endpoint">Endpoint URL</Label>
                   <Input
-                    placeholder="Key"
-                    value={paramKey}
-                    onChange={(e) => setParamKey(e.target.value)}
-                    className="flex-1"
+                    id="api-endpoint"
+                    value={newApi.endpoint}
+                    onChange={(e) => setNewApi({ ...newApi, endpoint: e.target.value })}
+                    placeholder="https://api.example.com/data"
                   />
-                  <Input
-                    placeholder="Value"
-                    value={paramValue}
-                    onChange={(e) => setParamValue(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button 
-                    type="button" 
-                    size="sm"
-                    onClick={handleAddParam} 
-                    disabled={!paramKey || !paramValue}
-                  >
-                    Add
-                  </Button>
                 </div>
                 
-                {newApi.parameters && Object.keys(newApi.parameters).length > 0 && (
-                  <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
-                    {Object.entries(newApi.parameters).map(([key, value]) => (
-                      <div key={key} className="flex justify-between items-center py-1">
-                        <span className="font-mono">{key}: {value}</span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            const newParams = { ...newApi.parameters };
-                            delete newParams[key];
-                            setNewApi({ ...newApi, parameters: newParams });
-                          }}
-                        >
-                          <Trash2 size={14} />
-                        </Button>
-                      </div>
-                    ))}
+                <div className="grid gap-2">
+                  <Label htmlFor="api-method">HTTP Method</Label>
+                  <Select
+                    value={newApi.method}
+                    onValueChange={(value) => setNewApi({ ...newApi, method: value as any })}
+                  >
+                    <SelectTrigger id="api-method">
+                      <SelectValue placeholder="Select method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="GET">GET</SelectItem>
+                      <SelectItem value="POST">POST</SelectItem>
+                      <SelectItem value="PUT">PUT</SelectItem>
+                      <SelectItem value="DELETE">DELETE</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="headers" className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label>Headers</Label>
+                  <div className="flex space-x-2">
+                    <Input
+                      placeholder="Key"
+                      value={headerKey}
+                      onChange={(e) => setHeaderKey(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Input
+                      placeholder="Value"
+                      value={headerValue}
+                      onChange={(e) => setHeaderValue(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button 
+                      type="button" 
+                      size="sm"
+                      onClick={handleAddHeader} 
+                      disabled={!headerKey || !headerValue}
+                    >
+                      Add
+                    </Button>
                   </div>
-                )}
-              </div>
-            </div>
+                  
+                  {newApi.headers && Object.keys(newApi.headers).length > 0 && (
+                    <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
+                      {Object.entries(newApi.headers).map(([key, value]) => (
+                        <div key={key} className="flex justify-between items-center py-1">
+                          <span className="font-mono">{key}: {value}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              const newHeaders = { ...newApi.headers };
+                              delete newHeaders[key];
+                              setNewApi({ ...newApi, headers: newHeaders });
+                            }}
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="params" className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label>Parameters</Label>
+                  <div className="flex space-x-2">
+                    <Input
+                      placeholder="Key"
+                      value={paramKey}
+                      onChange={(e) => setParamKey(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Input
+                      placeholder="Value"
+                      value={paramValue}
+                      onChange={(e) => setParamValue(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button 
+                      type="button" 
+                      size="sm"
+                      onClick={handleAddParam} 
+                      disabled={!paramKey || !paramValue}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  
+                  {newApi.parameters && Object.keys(newApi.parameters).length > 0 && (
+                    <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
+                      {Object.entries(newApi.parameters).map(([key, value]) => (
+                        <div key={key} className="flex justify-between items-center py-1">
+                          <span className="font-mono">{key}: {value}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              const newParams = { ...newApi.parameters };
+                              delete newParams[key];
+                              setNewApi({ ...newApi, parameters: newParams });
+                            }}
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="mapping" className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label>Response Data Mapping</Label>
+                    <span className="text-xs text-gray-500">Map API response fields to component properties</span>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Input
+                      placeholder="Component Property"
+                      value={mappingKey}
+                      onChange={(e) => setMappingKey(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Input
+                      placeholder="API Response Field"
+                      value={mappingValue}
+                      onChange={(e) => setMappingValue(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button 
+                      type="button" 
+                      size="sm"
+                      onClick={handleAddMapping} 
+                      disabled={!mappingKey || !mappingValue}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  
+                  {newApi.responseMapping && Object.keys(newApi.responseMapping).length > 0 && (
+                    <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
+                      {Object.entries(newApi.responseMapping).map(([key, value]) => (
+                        <div key={key} className="flex justify-between items-center py-1">
+                          <span className="font-mono">{key} → {value}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              const newMapping = { ...newApi.responseMapping };
+                              delete newMapping[key];
+                              setNewApi({ ...newApi, responseMapping: newMapping });
+                            }}
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
             
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsOpen(false)}>
+              <Button variant="outline" onClick={handleCloseDialog}>
                 Cancel
               </Button>
               <Button className="bg-widget-blue" onClick={handleSubmit}>
-                Add API
+                {selectedApiForEdit ? "Update API" : "Add API"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -254,14 +379,24 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi }) 
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-base">{api.name}</CardTitle>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-8 w-8 p-0" 
-                    onClick={() => onRemoveApi(api.id)}
-                  >
-                    <Trash2 size={16} />
-                  </Button>
+                  <div className="flex space-x-1">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0" 
+                      onClick={() => handleEditApi(api.id)}
+                    >
+                      <Code size={16} />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0" 
+                      onClick={() => onRemoveApi(api.id)}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -282,6 +417,10 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi }) 
                     <span className="font-semibold w-20">Parameters:</span>
                     <span className="text-xs">{api.parameters ? Object.keys(api.parameters).length : 0} defined</span>
                   </div>
+                  <div className="flex">
+                    <span className="font-semibold w-20">Mapping:</span>
+                    <span className="text-xs">{api.responseMapping ? Object.keys(api.responseMapping).length : 0} defined</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -293,3 +432,4 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi }) 
 };
 
 export default ApiManager;
+

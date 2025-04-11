@@ -60,7 +60,27 @@ const Index = () => {
     });
   };
 
+  const handleUpdateApi = (apiId: string, updatedApi: ApiConfig) => {
+    setApis(apis.map(api => api.id === apiId ? updatedApi : api));
+    toast({
+      title: "API Updated",
+      description: `Updated API: ${updatedApi.name}`
+    });
+  };
+
   const handleRemoveApi = (apiId: string) => {
+    // Check if any components use this API
+    const componentsUsingApi = widgetComponents.filter(comp => comp.apiConfig?.apiId === apiId);
+    
+    if (componentsUsingApi.length > 0) {
+      toast({
+        title: "Cannot Remove API",
+        description: `This API is being used by ${componentsUsingApi.length} component(s). Please remove the API integration from these components first.`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setApis(apis.filter(api => api.id !== apiId));
     toast({
       title: "API Removed",
@@ -128,6 +148,7 @@ const Index = () => {
                 apis={apis} 
                 onAddApi={handleAddApi} 
                 onRemoveApi={handleRemoveApi} 
+                onUpdateApi={handleUpdateApi}
               />
             </TabsContent>
           </Tabs>
@@ -171,3 +192,4 @@ const Index = () => {
 };
 
 export default Index;
+

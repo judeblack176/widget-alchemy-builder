@@ -24,6 +24,8 @@ export interface ComponentDefinition {
     label: string;
     options?: string[];
   }>;
+  supportsApiIntegration?: boolean;
+  defaultDataMapping?: Record<string, string>;
 }
 
 export interface ApiConfig {
@@ -204,3 +206,71 @@ export const COLOR_PALETTE = {
     "#831843"  // Deep Pink
   ]
 };
+
+// Default data mapping configurations for each component type
+export const DEFAULT_DATA_MAPPINGS: Record<ComponentType, Record<string, string>> = {
+  header: {
+    title: "title",
+    subtitle: "subtitle"
+  },
+  text: {
+    content: "content"
+  },
+  image: {
+    source: "imageUrl",
+    altText: "altText",
+    caption: "caption"
+  },
+  button: {
+    label: "label",
+    url: "url"
+  },
+  video: {
+    source: "videoUrl",
+    title: "title",
+    description: "description"
+  },
+  chart: {
+    data: "data",
+    labels: "labels",
+    title: "title"
+  },
+  form: {
+    label: "label",
+    placeholder: "placeholder",
+    options: "options"
+  },
+  calendar: {
+    events: "events",
+    title: "title"
+  },
+  dropdown: {
+    options: "options",
+    label: "label",
+    placeholder: "placeholder"
+  },
+  link: {
+    text: "text",
+    url: "url"
+  },
+  "multi-text": {
+    content: "content",
+    label: "label",
+    placeholder: "placeholder"
+  },
+  filter: {
+    options: "options",
+    label: "label",
+    placeholder: "placeholder"
+  },
+  alert: {
+    title: "title",
+    message: "message",
+    type: "type"
+  },
+  table: {
+    data: "rows",
+    columns: "columns"
+  }
+};
+
