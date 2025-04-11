@@ -147,6 +147,8 @@ const AdminDashboard = () => {
   
   const approvedWidgets = widgets.filter(widget => widget.status === 'approved');
   const pendingWidgets = widgets.filter(widget => widget.status === 'pending');
+  const draftWidgets = widgets.filter(widget => widget.status === 'draft');
+  const rejectedWidgets = widgets.filter(widget => widget.status === 'rejected');
   
   const renderWidgetCard = (widget: WidgetSubmission) => {
     const apis = widget.config.components
@@ -371,6 +373,99 @@ const AdminDashboard = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center text-lg font-medium">
+                <Check className="h-4 w-4 mr-2 text-green-500" />
+                Approved Widgets
+              </CardTitle>
+              <CardDescription>Breakdown of published widgets</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="text-3xl font-bold text-green-500">{approvedWidgets.length}</div>
+                <div className="flex flex-col text-right">
+                  <span className="text-sm text-muted-foreground">
+                    {Math.round((approvedWidgets.length / (widgets.length || 1)) * 100)}% of Total
+                  </span>
+                  <span className="text-sm text-green-500 font-medium">
+                    <TrendingUp className="h-3 w-3 inline mr-1" />
+                    Active
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center text-lg font-medium">
+                <Clock className="h-4 w-4 mr-2 text-yellow-500" />
+                Pending Approval
+              </CardTitle>
+              <CardDescription>Widgets awaiting review</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="text-3xl font-bold text-yellow-500">{pendingWidgets.length}</div>
+                <div className="flex flex-col text-right">
+                  <span className="text-sm text-muted-foreground">
+                    {Math.round((pendingWidgets.length / (widgets.length || 1)) * 100)}% of Total
+                  </span>
+                  {pendingWidgets.length > 0 && (
+                    <span className="text-sm text-yellow-500 font-medium">
+                      Needs Attention
+                    </span>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center text-lg font-medium">
+                <AlertTriangle className="h-4 w-4 mr-2 text-red-500" />
+                Widget Status Overview
+              </CardTitle>
+              <CardDescription>Breakdown by approval status</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="border rounded-lg p-3">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-medium text-sm">Draft</span>
+                    <Badge variant="outline" className="bg-gray-100">
+                      {draftWidgets.length}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-medium text-sm">Pending</span>
+                    <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+                      {pendingWidgets.length}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="border rounded-lg p-3">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-medium text-sm">Approved</span>
+                    <Badge variant="outline" className="bg-green-100 text-green-800">
+                      {approvedWidgets.length}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-medium text-sm">Rejected</span>
+                    <Badge variant="outline" className="bg-red-100 text-red-800">
+                      {rejectedWidgets.length}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center text-lg font-medium">
                 <Users className="h-4 w-4 mr-2 text-primary" />
                 API Usage
               </CardTitle>
@@ -390,29 +485,6 @@ const AdminDashboard = () => {
                 <div className="flex flex-col text-right">
                   <span className="text-sm text-muted-foreground">
                     Across {widgets.length} Widgets
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center text-lg font-medium">
-                <AlertTriangle className="h-4 w-4 mr-2 text-primary" />
-                Security Status
-              </CardTitle>
-              <CardDescription>API and link verification</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-3xl font-bold text-green-500">Good</div>
-                <div className="flex flex-col text-right">
-                  <span className="text-sm text-muted-foreground">
-                    65% Verified Sources
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    35% Need Review
                   </span>
                 </div>
               </div>
