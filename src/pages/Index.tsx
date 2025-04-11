@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -10,7 +9,7 @@ import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionFo
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library, User, Bookmark, HelpCircle } from "lucide-react";
+import { Library, User, Bookmark } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -327,7 +326,6 @@ const Index = () => {
   };
 
   const handleRemoveTooltip = (tooltipId: string) => {
-    // Check if any component is using this tooltip
     const componentsUsingTooltip = widgetComponents.filter(comp => comp.tooltipId === tooltipId);
     
     if (componentsUsingTooltip.length > 0) {
@@ -409,14 +407,6 @@ const Index = () => {
               <Button
                 variant="outline"
                 className="gap-1"
-                onClick={() => setIsTooltipListModalOpen(true)}
-              >
-                <HelpCircle size={16} />
-                Tooltips
-              </Button>
-              <Button
-                variant="outline"
-                className="gap-1"
                 onClick={() => setIsApiTemplateModalOpen(true)}
               >
                 <Bookmark size={16} />
@@ -443,7 +433,7 @@ const Index = () => {
               <Button
                 onClick={handleSaveWidget}
                 variant="default"
-                size="sm"
+                size="default"
                 className="bg-widget-blue hover:bg-blue-600 transition-colors"
               >
                 Save
@@ -451,7 +441,7 @@ const Index = () => {
               <Button
                 onClick={handleLoadWidget}
                 variant="outline"
-                size="sm"
+                size="default"
                 className="bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
               >
                 Load
