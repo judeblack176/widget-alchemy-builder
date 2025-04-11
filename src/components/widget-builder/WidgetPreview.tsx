@@ -15,7 +15,10 @@ import {
   Link as LinkIcon,
   Text,
   Calendar as CalendarIcon,
-  UploadCloud
+  UploadCloud,
+  Upload,
+  Download,
+  RefreshCw
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -27,7 +30,6 @@ interface WidgetPreviewProps {
 }
 
 const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
-  // Helper function to render the component based on its type
   const renderComponent = (component: WidgetComponent) => {
     switch (component.type) {
       case "header":
@@ -153,6 +155,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       case "calendar": {
         const allowExternalSync = component.props.allowExternalSync === true;
         const serviceType = component.props.calendarIntegration?.serviceType || 'none';
+        const icsConfig = component.props.icsConfig || { enabled: false };
         
         const getCalendarServiceIcon = (type: string) => {
           switch (type) {
@@ -179,6 +182,11 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
                   <span className="ml-1 capitalize">{serviceType}</span>
                 </span>
               )}
+              {icsConfig.enabled && (
+                <span className="ml-2 text-xs inline-flex items-center px-2 py-1 bg-green-50 text-green-700 rounded">
+                  ICS
+                </span>
+              )}
             </label>
             
             <Popover>
@@ -190,30 +198,58 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
                   </div>
                 </div>
               </PopoverTrigger>
-              {allowExternalSync && (
-                <PopoverContent className="w-auto p-0">
-                  <div className="p-2">
-                    <Calendar />
-                    {serviceType === 'none' && (
-                      <div className="mt-2 border-t pt-2">
-                        <p className="text-xs text-gray-500 mb-2">Connect to external calendar</p>
-                        <div className="flex flex-wrap gap-1">
-                          <Button size="sm" variant="outline" className="text-xs h-7">
-                            <div className="mr-1 text-red-500 font-bold">G</div> Google
-                          </Button>
-                          <Button size="sm" variant="outline" className="text-xs h-7">
-                            <div className="mr-1 text-blue-500 font-bold">O</div> Outlook
-                          </Button>
-                          <Button size="sm" variant="outline" className="text-xs h-7">
-                            <div className="mr-1 text-gray-500 font-bold">A</div> Apple
-                          </Button>
-                        </div>
+              <PopoverContent className="w-auto p-0">
+                <div className="p-2">
+                  <Calendar 
+                    calendarService={serviceType as any}
+                    icsConfig={icsConfig}
+                    onImportICS={(file) => console.log('Import ICS file:', file.name)}
+                    onExportICS={() => console.log('Export calendar as ICS')}
+                    onSubscribeICS={(url) => console.log('Subscribe to ICS URL:', url)}
+                  />
+                  
+                  {serviceType === 'none' && allowExternalSync && (
+                    <div className="mt-2 border-t pt-2">
+                      <p className="text-xs text-gray-500 mb-2">Connect to external calendar</p>
+                      <div className="flex flex-wrap gap-1">
+                        <Button size="sm" variant="outline" className="text-xs h-7">
+                          <div className="mr-1 text-red-500 font-bold">G</div> Google
+                        </Button>
+                        <Button size="sm" variant="outline" className="text-xs h-7">
+                          <div className="mr-1 text-blue-500 font-bold">O</div> Outlook
+                        </Button>
+                        <Button size="sm" variant="outline" className="text-xs h-7">
+                          <div className="mr-1 text-gray-500 font-bold">A</div> Apple
+                        </Button>
                       </div>
-                    )}
-                  </div>
-                </PopoverContent>
-              )}
+                    </div>
+                  )}
+                </div>
+              </PopoverContent>
             </Popover>
+            
+            {icsConfig.enabled && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {icsConfig.importEnabled && (
+                  <Button variant="outline" size="sm" className="text-xs">
+                    <Upload size={14} className="mr-1" />
+                    Import
+                  </Button>
+                )}
+                {icsConfig.exportEnabled && (
+                  <Button variant="outline" size="sm" className="text-xs">
+                    <Download size={14} className="mr-1" />
+                    Export
+                  </Button>
+                )}
+                {icsConfig.allowSubscribe && (
+                  <Button variant="outline" size="sm" className="text-xs">
+                    <RefreshCw size={14} className="mr-1" />
+                    Subscribe
+                  </Button>
+                )}
+              </div>
+            )}
             
             {allowExternalSync && serviceType === 'none' && (
               <div className="mt-2">

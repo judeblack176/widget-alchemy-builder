@@ -139,7 +139,15 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
           serviceType: "none",
           syncEnabled: false
         },
-        allowExternalSync: false
+        allowExternalSync: false,
+        icsConfig: {
+          enabled: false,
+          importEnabled: false,
+          exportEnabled: false,
+          allowSubscribe: false,
+          icsUrl: "",
+          syncInterval: "daily"
+        }
       },
       availableProps: [
         { name: "label", type: "text", label: "Label" },

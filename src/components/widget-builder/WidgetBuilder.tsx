@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { WidgetComponent, ApiConfig, CalendarServiceType } from "@/types/widget-types";
+import { WidgetComponent, ApiConfig, CalendarServiceType, ICSConfig } from "@/types/widget-types";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar } from "lucide-react";
+import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar, Download, Upload, RefreshCw } from "lucide-react";
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -28,9 +28,18 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isApiConfigOpen, setIsApiConfigOpen] = useState(false);
   const [isCalendarConfigOpen, setIsCalendarConfigOpen] = useState(false);
+  const [isIcsConfigOpen, setIsIcsConfigOpen] = useState(false); 
   const [selectedApiId, setSelectedApiId] = useState<string>("");
   const [apiDataMapping, setApiDataMapping] = useState<Record<string, string>>({});
   const [calendarServiceType, setCalendarServiceType] = useState<CalendarServiceType | 'none'>('none');
+  const [icsConfig, setIcsConfig] = useState<ICSConfig>({
+    enabled: false,
+    importEnabled: false,
+    exportEnabled: false,
+    allowSubscribe: false,
+    icsUrl: '',
+    syncInterval: 'daily'
+  });
 
   const handleMoveUp = (index: number) => {
     if (index > 0) {
@@ -65,6 +74,21 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
       setEditingComponent(component);
       setCalendarServiceType(component.props.calendarIntegration?.serviceType || 'none');
       setIsCalendarConfigOpen(true);
+    }
+  };
+
+  const handleOpenIcsConfig = (component: WidgetComponent) => {
+    if (component.type === 'calendar') {
+      setEditingComponent(component);
+      setIcsConfig(component.props.icsConfig || {
+        enabled: false,
+        importEnabled: false,
+        exportEnabled: false,
+        allowSubscribe: false,
+        icsUrl: '',
+        syncInterval: 'daily'
+      });
+      setIsIcsConfigOpen(true);
     }
   };
 
@@ -107,6 +131,22 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
       
       onUpdateComponent(updatedComponent);
       setIsCalendarConfigOpen(false);
+      setEditingComponent(null);
+    }
+  };
+
+  const handleSaveIcsConfig = () => {
+    if (editingComponent && editingComponent.type === 'calendar') {
+      const updatedComponent = {
+        ...editingComponent,
+        props: {
+          ...editingComponent.props,
+          icsConfig: icsConfig
+        }
+      };
+      
+      onUpdateComponent(updatedComponent);
+      setIsIcsConfigOpen(false);
       setEditingComponent(null);
     }
   };
@@ -312,14 +352,24 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                   <Settings size={16} />
                 </Button>
                 {component.type === 'calendar' && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className={`h-8 w-8 p-0 ${component.props.calendarIntegration?.serviceType !== 'none' ? 'text-green-500' : ''}`}
-                    onClick={() => handleOpenCalendarConfig(component)}
-                  >
-                    <Calendar size={16} />
-                  </Button>
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`h-8 w-8 p-0 ${component.props.calendarIntegration?.serviceType !== 'none' ? 'text-green-500' : ''}`}
+                      onClick={() => handleOpenCalendarConfig(component)}
+                    >
+                      <Calendar size={16} />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`h-8 w-8 p-0 ${component.props.icsConfig?.enabled ? 'text-orange-500' : ''}`}
+                      onClick={() => handleOpenIcsConfig(component)}
+                    >
+                      <RefreshCw size={16} />
+                    </Button>
+                  </>
                 )}
                 <Button 
                   variant="ghost" 
@@ -353,6 +403,11 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                   {component.props.calendarIntegration?.serviceType && component.props.calendarIntegration?.serviceType !== 'none' && (
                     <span className="ml-2 text-xs bg-green-50 text-green-800 p-1 rounded inline-block capitalize">
                       {component.props.calendarIntegration.serviceType}
+                    </span>
+                  )}
+                  {component.props.icsConfig?.enabled && (
+                    <span className="ml-2 text-xs bg-orange-50 text-orange-800 p-1 rounded inline-block">
+                      ICS
                     </span>
                   )}
                 </>
@@ -570,6 +625,151 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
             </Button>
             <Button onClick={handleSaveCalendarConfig}>
               Save Integration
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isIcsConfigOpen} onOpenChange={setIsIcsConfigOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Configure ICS Integration</DialogTitle>
+          </DialogHeader>
+          
+          {editingComponent && editingComponent.type === 'calendar' && (
+            <div className="py-4">
+              <div className="space-y-4">
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="ics-enabled">Enable ICS Integration</Label>
+                    <Select
+                      value={icsConfig.enabled ? "true" : "false"}
+                      onValueChange={(value) => setIcsConfig({
+                        ...icsConfig,
+                        enabled: value === "true"
+                      })}
+                    >
+                      <SelectTrigger id="ics-enabled" className="w-24">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="true">Yes</SelectItem>
+                        <SelectItem value="false">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                {icsConfig.enabled && (
+                  <div className="border rounded p-3 space-y-3">
+                    <h4 className="font-medium">ICS Options</h4>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="import-enabled">Import ICS Files</Label>
+                        <Select
+                          value={icsConfig.importEnabled ? "true" : "false"}
+                          onValueChange={(value) => setIcsConfig({
+                            ...icsConfig,
+                            importEnabled: value === "true"
+                          })}
+                        >
+                          <SelectTrigger id="import-enabled">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">Yes</SelectItem>
+                            <SelectItem value="false">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="export-enabled">Export as ICS</Label>
+                        <Select
+                          value={icsConfig.exportEnabled ? "true" : "false"}
+                          onValueChange={(value) => setIcsConfig({
+                            ...icsConfig,
+                            exportEnabled: value === "true"
+                          })}
+                        >
+                          <SelectTrigger id="export-enabled">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">Yes</SelectItem>
+                            <SelectItem value="false">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="allow-subscribe">Allow Subscribe to ICS URL</Label>
+                      <Select
+                        value={icsConfig.allowSubscribe ? "true" : "false"}
+                        onValueChange={(value) => setIcsConfig({
+                          ...icsConfig,
+                          allowSubscribe: value === "true"
+                        })}
+                      >
+                        <SelectTrigger id="allow-subscribe">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="true">Yes</SelectItem>
+                          <SelectItem value="false">No</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    {icsConfig.allowSubscribe && (
+                      <div className="space-y-2">
+                        <Label htmlFor="ics-url">ICS Feed URL</Label>
+                        <Input
+                          id="ics-url"
+                          placeholder="https://example.com/calendar.ics"
+                          value={icsConfig.icsUrl || ''}
+                          onChange={(e) => setIcsConfig({
+                            ...icsConfig,
+                            icsUrl: e.target.value
+                          })}
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="sync-interval">Sync Interval</Label>
+                      <Select
+                        value={icsConfig.syncInterval || 'daily'}
+                        onValueChange={(value: 'hourly' | 'daily' | 'weekly' | 'never') => setIcsConfig({
+                          ...icsConfig,
+                          syncInterval: value
+                        })}
+                      >
+                        <SelectTrigger id="sync-interval">
+                          <SelectValue placeholder="Select interval" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hourly">Hourly</SelectItem>
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="weekly">Weekly</SelectItem>
+                          <SelectItem value="never">Never</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsIcsConfigOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveIcsConfig}>
+              Save Configuration
             </Button>
           </DialogFooter>
         </DialogContent>

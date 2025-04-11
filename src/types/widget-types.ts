@@ -49,3 +49,12 @@ export interface CalendarIntegrationConfig {
   calendarId?: string;
   syncEnabled: boolean;
 }
+
+export interface ICSConfig {
+  enabled: boolean;
+  importEnabled?: boolean;
+  exportEnabled?: boolean;
+  allowSubscribe?: boolean;
+  icsUrl?: string;
+  syncInterval?: 'hourly' | 'daily' | 'weekly' | 'never';
+}
