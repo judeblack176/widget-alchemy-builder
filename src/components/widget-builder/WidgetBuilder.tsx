@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig, CalendarServiceType, ICSConfig, PREDEFINED_COLORS, FontFamily } from "@/types/widget-types";
 import { Card } from "@/components/ui/card";
@@ -605,6 +606,19 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                       <SelectItem value="system-ui">System Default</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+              )}
+              
+              {editingComponent.type === "header" && (
+                <div className="mb-4 space-y-3">
+                  <div className="grid gap-2">
+                    <Label htmlFor="header-background">Background Color</Label>
+                    {renderPropertyEditor("backgroundColor", editingComponent.props.backgroundColor, editingComponent)}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="header-text-color">Text Color</Label>
+                    {renderPropertyEditor("textColor", editingComponent.props.textColor, editingComponent)}
+                  </div>
                 </div>
               )}
               
