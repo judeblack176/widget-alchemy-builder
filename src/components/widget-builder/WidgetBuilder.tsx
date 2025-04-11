@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig, CalendarServiceType, ICSConfig, PREDEFINED_COLORS, FontFamily, COLOR_PALETTE } from "@/types/widget-types";
 import { Card } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar, RefreshCw, Palette, Bold, Italic } from "lucide-react";
+import { ArrowUp, ArrowDown, Settings, Trash2, Link, Calendar, RefreshCw, Palette, Bold, Italic, HelpCircle } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -651,6 +652,14 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                 <Button 
                   variant="ghost" 
                   size="sm" 
+                  className="h-8 w-8 p-0" 
+                  onClick={() => handleOpenTooltipConfig(component)}
+                >
+                  <HelpCircle size={16} />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
                   className="h-8 w-8 p-0 text-red-500" 
                   onClick={() => onRemoveComponent(component.id)}
                 >
@@ -859,3 +868,363 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                             <div className="grid grid-cols-2 gap-2 items-center">
                               <div>
                                 <Label className="text-sm">Title:</Label>
+                              </div>
+                              <div>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full"
+                                  onClick={() => setSelectedProperty('title')}
+                                >
+                                  {apiDataMapping['title'] || 'Select API Field'}
+                                </Button>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 items-center">
+                              <div>
+                                <Label className="text-sm">Description:</Label>
+                              </div>
+                              <div>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full"
+                                  onClick={() => setSelectedProperty('description')}
+                                >
+                                  {apiDataMapping['description'] || 'Select API Field'}
+                                </Button>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        
+                        {editingComponent.type === 'text' && (
+                          <div className="grid grid-cols-2 gap-2 items-center">
+                            <div>
+                              <Label className="text-sm">Content:</Label>
+                            </div>
+                            <div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                onClick={() => setSelectedProperty('content')}
+                              >
+                                {apiDataMapping['content'] || 'Select API Field'}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {editingComponent.type === 'header' && (
+                          <div className="grid grid-cols-2 gap-2 items-center">
+                            <div>
+                              <Label className="text-sm">Title:</Label>
+                            </div>
+                            <div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                onClick={() => setSelectedProperty('title')}
+                              >
+                                {apiDataMapping['title'] || 'Select API Field'}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {editingComponent.type === 'button' && (
+                          <div className="grid grid-cols-2 gap-2 items-center">
+                            <div>
+                              <Label className="text-sm">Label:</Label>
+                            </div>
+                            <div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                onClick={() => setSelectedProperty('label')}
+                              >
+                                {apiDataMapping['label'] || 'Select API Field'}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {editingComponent.type === 'chart' && (
+                          <>
+                            <div className="grid grid-cols-2 gap-2 items-center">
+                              <div>
+                                <Label className="text-sm">Data:</Label>
+                              </div>
+                              <div>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full"
+                                  onClick={() => setSelectedProperty('data')}
+                                >
+                                  {apiDataMapping['data'] || 'Select API Field'}
+                                </Button>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 items-center">
+                              <div>
+                                <Label className="text-sm">Labels:</Label>
+                              </div>
+                              <div>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full"
+                                  onClick={() => setSelectedProperty('labels')}
+                                >
+                                  {apiDataMapping['labels'] || 'Select API Field'}
+                                </Button>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        
+                        {editingComponent.type === 'table' && (
+                          <div className="grid grid-cols-2 gap-2 items-center">
+                            <div>
+                              <Label className="text-sm">Data:</Label>
+                            </div>
+                            <div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                onClick={() => setSelectedProperty('data')}
+                              >
+                                {apiDataMapping['data'] || 'Select API Field'}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h5 className="text-sm font-medium">API Fields</h5>
+                        <ScrollArea className="h-48 border rounded">
+                          <div className="p-2 space-y-1">
+                            {getSelectedApiFields().map(field => (
+                              <Button
+                                key={field}
+                                variant="ghost"
+                                size="sm"
+                                className="w-full justify-start"
+                                onClick={() => handleSelectField(field)}
+                              >
+                                {field}
+                              </Button>
+                            ))}
+                            {getSelectedApiFields().length === 0 && (
+                              <p className="text-xs text-gray-500 p-2">No fields available</p>
+                            )}
+                          </div>
+                        </ScrollArea>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsApiConfigOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveApiConfig}>
+              Save Integration
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isCalendarConfigOpen} onOpenChange={setIsCalendarConfigOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Calendar Integration</DialogTitle>
+            <DialogDescription>
+              Connect this calendar to external calendar services
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4 space-y-4">
+            <div className="grid gap-2">
+              <Label htmlFor="calendar-service">Calendar Service</Label>
+              <Select
+                value={calendarServiceType}
+                onValueChange={(value: CalendarServiceType | 'none') => setCalendarServiceType(value)}
+              >
+                <SelectTrigger id="calendar-service">
+                  <SelectValue placeholder="Select a calendar service" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="google">Google Calendar</SelectItem>
+                  <SelectItem value="outlook">Outlook Calendar</SelectItem>
+                  <SelectItem value="apple">Apple Calendar</SelectItem>
+                  <SelectItem value="custom">Custom Calendar</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {calendarServiceType !== 'none' && (
+              <div className="space-y-2">
+                <div className="text-sm">
+                  <p>This will allow users to sync events with {calendarServiceType === 'google' ? 'Google Calendar' : 
+                                                                 calendarServiceType === 'outlook' ? 'Outlook Calendar' :
+                                                                 calendarServiceType === 'apple' ? 'Apple Calendar' : 'a custom calendar service'}.</p>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCalendarConfigOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveCalendarConfig}>
+              Save Integration
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isIcsConfigOpen} onOpenChange={setIsIcsConfigOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>ICS Integration</DialogTitle>
+            <DialogDescription>
+              Configure ICS calendar import/export options
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4 space-y-4">
+            <div className="grid gap-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="ics-enabled">Enable ICS Integration</Label>
+                <Select
+                  value={icsConfig.enabled.toString()}
+                  onValueChange={(value) => setIcsConfig({...icsConfig, enabled: value === "true"})}
+                >
+                  <SelectTrigger id="ics-enabled" className="w-24">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Yes</SelectItem>
+                    <SelectItem value="false">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            {icsConfig.enabled && (
+              <>
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="import-enabled">Allow ICS Import</Label>
+                    <Select
+                      value={icsConfig.importEnabled.toString()}
+                      onValueChange={(value) => setIcsConfig({...icsConfig, importEnabled: value === "true"})}
+                    >
+                      <SelectTrigger id="import-enabled" className="w-24">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="true">Yes</SelectItem>
+                        <SelectItem value="false">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="export-enabled">Allow ICS Export</Label>
+                    <Select
+                      value={icsConfig.exportEnabled.toString()}
+                      onValueChange={(value) => setIcsConfig({...icsConfig, exportEnabled: value === "true"})}
+                    >
+                      <SelectTrigger id="export-enabled" className="w-24">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="true">Yes</SelectItem>
+                        <SelectItem value="false">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="subscribe-enabled">Allow ICS Subscription</Label>
+                    <Select
+                      value={icsConfig.allowSubscribe.toString()}
+                      onValueChange={(value) => setIcsConfig({...icsConfig, allowSubscribe: value === "true"})}
+                    >
+                      <SelectTrigger id="subscribe-enabled" className="w-24">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="true">Yes</SelectItem>
+                        <SelectItem value="false">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                {icsConfig.allowSubscribe && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="ics-url">ICS Feed URL</Label>
+                    <Input
+                      id="ics-url"
+                      value={icsConfig.icsUrl}
+                      onChange={(e) => setIcsConfig({...icsConfig, icsUrl: e.target.value})}
+                      placeholder="https://example.com/calendar.ics"
+                    />
+                  </div>
+                )}
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="sync-interval">Sync Interval</Label>
+                  <Select
+                    value={icsConfig.syncInterval}
+                    onValueChange={(value: string) => setIcsConfig({...icsConfig, syncInterval: value})}
+                  >
+                    <SelectTrigger id="sync-interval">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hourly">Hourly</SelectItem>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="manual">Manual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsIcsConfigOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveIcsConfig}>
+              Save Configuration
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default WidgetBuilder;
