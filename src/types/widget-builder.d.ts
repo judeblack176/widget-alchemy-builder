@@ -12,11 +12,3 @@ declare module "@/components/widget-builder/WidgetBuilder" {
     onApplyTooltip: (componentId: string, tooltipId: string) => void;
   }
 }
-
-export interface Tooltip {
-  id: string;
-  title: string;
-  content: string;
-  type?: "info" | "warning" | "success" | "error";
-  createdAt: string;
-}

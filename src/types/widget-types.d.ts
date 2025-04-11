@@ -60,7 +60,6 @@ export interface WidgetSubmission {
   submittedAt: string;
 }
 
-// Update the WidgetComponent interface to include tooltipId
 export interface WidgetComponent {
   id: string;
   type: ComponentType;
@@ -69,5 +68,4 @@ export interface WidgetComponent {
     apiId: string;
     dataMapping: Record<string, string>;
   };
-  tooltipId?: string;
 }
