@@ -8,15 +8,12 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Check, X, Clock, LayoutGrid, List, Eye, Filter, Search } from "lucide-react";
-import ColorPalettePicker from "@/components/widget-builder/ColorPalettePicker";
-import { PREDEFINED_COLORS } from "@/types/widget-types";
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import type { WidgetSubmission, WidgetApprovalStatus } from "@/types/widget-types";
 
 const AdminDashboard = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
-  const [themeColor, setThemeColor] = useState<string>("#6E59A5");
   const [widgets, setWidgets] = useState<WidgetSubmission[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
@@ -149,7 +146,6 @@ const AdminDashboard = () => {
         <TabsList>
           <TabsTrigger value="published">Published Widgets</TabsTrigger>
           <TabsTrigger value="pending">Pending Approvals</TabsTrigger>
-          <TabsTrigger value="settings">Theme Settings</TabsTrigger>
         </TabsList>
         
         <TabsContent value="published">
@@ -227,36 +223,6 @@ const AdminDashboard = () => {
               </div>
             )}
           </div>
-        </TabsContent>
-        
-        <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>Theme Settings</CardTitle>
-              <CardDescription>Customize the widget appearance</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <ColorPalettePicker
-                  label="Primary Color"
-                  value={themeColor}
-                  onChange={setThemeColor}
-                  colors={PREDEFINED_COLORS}
-                />
-                
-                <div>
-                  <Label htmlFor="widget-scale">Widget Scale</Label>
-                  <div className="flex items-center gap-4 mt-2">
-                    <Input id="widget-scale" type="range" min="50" max="150" defaultValue="100" />
-                    <span className="text-sm font-medium">100%</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button>Save Settings</Button>
-            </CardFooter>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
