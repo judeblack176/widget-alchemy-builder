@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { WidgetComponent, AlertType, TableColumn } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
@@ -64,8 +63,8 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
             width: 'calc(100% + 32px)',
           }}
         >
-          <div className="flex items-center text-left">
-            <BookOpen className="mr-2 flex-shrink-0" />
+          <div className="flex items-center text-left pl-4">
+            <BookOpen className="mr-3 flex-shrink-0" />
             <h2 
               className="text-left"
               style={{
