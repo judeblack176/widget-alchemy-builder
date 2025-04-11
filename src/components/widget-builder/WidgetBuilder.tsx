@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -88,100 +89,102 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   const filteredNonHeaderComponents = filteredComponents.filter(c => c.type !== 'header');
 
   return (
-    <div className="space-y-4">
-      {atComponentLimit && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertCircle className="h-4 w-4 mr-2" />
-          <AlertDescription>
-            Maximum of {MAX_COMPONENTS} components reached. Please remove a component before adding a new one.
-          </AlertDescription>
-        </Alert>
-      )}
-      
-      {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
-        <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
-          <p className="text-gray-500">No components match your search</p>
-        </Card>
-      ) : filteredComponents.length === 0 ? (
-        <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
-          <p className="text-gray-500">Add components to your widget from the left panel</p>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {/* Render header component outside of drag context if it exists and matches filter */}
-          {filteredHeaderComponent && (
-            <Card className="bg-white border border-blue-500 shadow-sm">
-              <ComponentEditor
-                component={filteredHeaderComponent}
-                apis={apis}
-                isExpanded={expandedComponentId === filteredHeaderComponent.id}
-                onToggleExpand={() => 
-                  setExpandedComponentId(
-                    expandedComponentId === filteredHeaderComponent.id ? null : filteredHeaderComponent.id
-                  )
-                }
-                onUpdateComponent={onUpdateComponent}
-                onRemoveComponent={undefined} // Prevent header removal
-                onRequestApiTemplate={() => onRequestApiTemplate(filteredHeaderComponent.id)}
-                onApplyTooltip={onApplyTooltip ? 
-                  (tooltipId: string) => onApplyTooltip(filteredHeaderComponent.id, tooltipId) : 
-                  undefined}
-              />
-            </Card>
-          )}
-          
-          {/* Only make non-header components draggable */}
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="components">
-              {(provided) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className="space-y-4"
-                >
-                  {filteredNonHeaderComponents.map((component, index) => (
-                    <Draggable 
-                      key={component.id} 
-                      draggableId={component.id} 
-                      index={index}
-                    >
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className="relative"
-                        >
-                          <Card className="bg-white border shadow-sm">
-                            <ComponentEditor
-                              component={component}
-                              apis={apis}
-                              isExpanded={expandedComponentId === component.id}
-                              onToggleExpand={() => 
-                                setExpandedComponentId(
-                                  expandedComponentId === component.id ? null : component.id
-                                )
-                              }
-                              onUpdateComponent={onUpdateComponent}
-                              onRemoveComponent={onRemoveComponent}
-                              onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
-                              onApplyTooltip={onApplyTooltip ? 
-                                (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
-                                undefined}
-                            />
-                          </Card>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </div>
-      )}
-    </div>
+    <ScrollArea className="h-[calc(100vh-16rem)] pr-4">
+      <div className="space-y-4">
+        {atComponentLimit && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4 mr-2" />
+            <AlertDescription>
+              Maximum of {MAX_COMPONENTS} components reached. Please remove a component before adding a new one.
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
+          <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
+            <p className="text-gray-500">No components match your search</p>
+          </Card>
+        ) : filteredComponents.length === 0 ? (
+          <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
+            <p className="text-gray-500">Add components to your widget from the left panel</p>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {/* Render header component outside of drag context if it exists and matches filter */}
+            {filteredHeaderComponent && (
+              <Card className="bg-white border border-blue-500 shadow-sm">
+                <ComponentEditor
+                  component={filteredHeaderComponent}
+                  apis={apis}
+                  isExpanded={expandedComponentId === filteredHeaderComponent.id}
+                  onToggleExpand={() => 
+                    setExpandedComponentId(
+                      expandedComponentId === filteredHeaderComponent.id ? null : filteredHeaderComponent.id
+                    )
+                  }
+                  onUpdateComponent={onUpdateComponent}
+                  onRemoveComponent={undefined} // Prevent header removal
+                  onRequestApiTemplate={() => onRequestApiTemplate(filteredHeaderComponent.id)}
+                  onApplyTooltip={onApplyTooltip ? 
+                    (tooltipId: string) => onApplyTooltip(filteredHeaderComponent.id, tooltipId) : 
+                    undefined}
+                />
+              </Card>
+            )}
+            
+            {/* Only make non-header components draggable */}
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="components">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="space-y-4"
+                  >
+                    {filteredNonHeaderComponents.map((component, index) => (
+                      <Draggable 
+                        key={component.id} 
+                        draggableId={component.id} 
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="relative"
+                          >
+                            <Card className="bg-white border shadow-sm">
+                              <ComponentEditor
+                                component={component}
+                                apis={apis}
+                                isExpanded={expandedComponentId === component.id}
+                                onToggleExpand={() => 
+                                  setExpandedComponentId(
+                                    expandedComponentId === component.id ? null : component.id
+                                  )
+                                }
+                                onUpdateComponent={onUpdateComponent}
+                                onRemoveComponent={onRemoveComponent}
+                                onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
+                                onApplyTooltip={onApplyTooltip ? 
+                                  (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
+                                  undefined}
+                              />
+                            </Card>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div>
+        )}
+      </div>
+    </ScrollArea>
   );
 };
 
