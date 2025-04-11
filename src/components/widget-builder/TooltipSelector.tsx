@@ -10,7 +10,15 @@ import { Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
-import { Tooltip } from './TooltipManager';
+
+// Define the Tooltip interface if it's not already defined elsewhere
+interface Tooltip {
+  id: string;
+  title: string;
+  content: string;
+  type?: "info" | "warning" | "success" | "error";
+  createdAt: string;
+}
 
 interface TooltipSelectorProps {
   onSelectTooltip: (tooltipId: string) => void;
