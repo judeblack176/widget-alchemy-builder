@@ -322,25 +322,27 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
                   <TableCell className="max-w-[250px] align-top">{tooltip.content}</TableCell>
                   <TableCell className="font-medium align-top">{tooltip.title}</TableCell>
                   <TableCell className="text-right align-top">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEditTooltip(tooltip)}
-                        className="flex items-center justify-center h-8 w-8"
-                      >
-                        <Edit size={16} className="text-blue-500" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveTooltip(tooltip.id, tooltip.title)}
-                        className="flex items-center justify-center h-8 w-8"
-                      >
-                        <Trash2 size={16} className="text-red-500" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
+                    <div className="flex justify-end">
+                      <div className="flex space-x-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditTooltip(tooltip)}
+                          className="h-8 w-8 flex items-center justify-center"
+                        >
+                          <Edit size={16} className="text-blue-500" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveTooltip(tooltip.id, tooltip.title)}
+                          className="h-8 w-8 flex items-center justify-center"
+                        >
+                          <Trash2 size={16} className="text-red-500" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>
