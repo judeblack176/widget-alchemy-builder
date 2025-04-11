@@ -1,4 +1,3 @@
-
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { 
@@ -12,9 +11,9 @@ import {
   Edit,
   MoreHorizontal,
   CalendarDays,
-  ListText,
+  List,
   Link as LinkIcon,
-  TextInput
+  Text
 } from "lucide-react";
 
 interface WidgetPreviewProps {
@@ -175,7 +174,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
                 ))}
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                <ListText size={16} className="text-gray-500" />
+                <List size={16} className="text-gray-500" />
               </div>
             </div>
           </div>

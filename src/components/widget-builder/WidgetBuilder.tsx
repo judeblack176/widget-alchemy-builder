@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Card } from "@/components/ui/card";
@@ -96,7 +95,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   };
 
   const renderPropertyEditor = (propName: string, propValue: any, component: WidgetComponent) => {
-    // Based on property type, render appropriate editor
     if (propName === "actions" && Array.isArray(propValue)) {
       return (
         <Select 
@@ -268,9 +266,12 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
               {component.type === "button" && `Button: ${component.props.label}`}
               {component.type === "image" && "Image"}
               {component.type === "video" && "Video"}
-              {component.type === "quiz" && `Quiz: ${component.props.question?.substring(0, 30)}...`}
               {component.type === "chart" && `Chart: ${component.props.type}`}
               {component.type === "form" && `Form: ${component.props.label}`}
+              {component.type === "calendar" && `Calendar: ${component.props.label}`}
+              {component.type === "dropdown" && `Dropdown: ${component.props.label}`}
+              {component.type === "link" && `Link: ${component.props.text}`}
+              {component.type === "multi-text" && `Multi-text: ${component.props.label}`}
             </div>
             {component.apiConfig && (
               <div className="mt-1 text-xs bg-blue-50 text-blue-800 p-1 rounded inline-block">
@@ -281,7 +282,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         ))
       )}
       
-      {/* Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -314,7 +314,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         </DialogContent>
       </Dialog>
       
-      {/* API Configuration Dialog */}
       <Dialog open={isApiConfigOpen} onOpenChange={setIsApiConfigOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>

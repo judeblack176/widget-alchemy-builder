@@ -11,9 +11,9 @@ import {
   MousePointer, 
   FormInput, 
   CalendarDays, 
-  ListText, 
+  List, 
   Link as LinkIcon, 
-  TextInput 
+  Text 
 } from "lucide-react";
 
 interface ComponentLibraryProps {
@@ -145,7 +145,7 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
     {
       type: "dropdown",
       name: "Dropdown Menu",
-      icon: "ListText",
+      icon: "List",
       defaultProps: {
         label: "Dropdown",
         options: ["Option 1", "Option 2", "Option 3"],
@@ -177,7 +177,7 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
     {
       type: "multi-text",
       name: "Multi-line Text",
-      icon: "TextInput",
+      icon: "Text",
       defaultProps: {
         label: "Multi-line Input",
         placeholder: "Type your text here...",
@@ -201,9 +201,9 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent }) =
       case "BarChart": return <BarChart size={24} />;
       case "FormInput": return <FormInput size={24} />;
       case "CalendarDays": return <CalendarDays size={24} />;
-      case "ListText": return <ListText size={24} />;
+      case "List": return <List size={24} />;
       case "LinkIcon": return <LinkIcon size={24} />;
-      case "TextInput": return <TextInput size={24} />;
+      case "Text": return <Text size={24} />;
       default: return <div className="w-6 h-6 bg-gray-200 rounded" />;
     }
   };
