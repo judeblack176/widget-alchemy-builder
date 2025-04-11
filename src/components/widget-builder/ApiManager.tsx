@@ -239,21 +239,53 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between my-6 gap-3">
-        <TooltipProvider>
-          <Tooltip>
-            <DialogTrigger asChild>
+      <div className="my-6">
+        <div className="flex justify-between">
+          <TooltipProvider>
+            <Tooltip>
+              <DialogTrigger asChild>
+                <TooltipTrigger asChild>
+                  <Button size="icon" className="bg-widget-blue hover:bg-blue-600 h-9 w-9">
+                    <Plus size={16} />
+                  </Button>
+                </TooltipTrigger>
+              </DialogTrigger>
+              <TooltipContent>
+                <p>Add new API</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        
+        <div className="flex items-center gap-3 mt-3">
+          <div className="w-64">
+            <SearchBar 
+              onSearch={handleSearch} 
+              placeholder="Search APIs..." 
+              showIcon={true}
+              backgroundColor="#f9fafb"
+            />
+          </div>
+          <TooltipProvider>
+            <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="icon" className="bg-widget-blue hover:bg-blue-600 h-9 w-9">
-                  <Plus size={16} />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleSort}
+                  className="flex items-center gap-1 h-9 w-9 p-0"
+                >
+                  {sortDirection === null && <ArrowDownAZ size={16} />}
+                  {sortDirection === "asc" && <ArrowDownAZ size={16} />}
+                  {sortDirection === "desc" && <ArrowUpZA size={16} />}
                 </Button>
               </TooltipTrigger>
-            </DialogTrigger>
-            <TooltipContent>
-              <p>Add new API</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+              <TooltipContent>
+                <p>{sortDirection === "asc" ? "Sort Z to A" : sortDirection === "desc" ? "Clear sort" : "Sort A to Z"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -547,36 +579,6 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        
-        <div className="flex items-center gap-3 ml-auto">
-          <div className="w-64">
-            <SearchBar 
-              onSearch={handleSearch} 
-              placeholder="Search APIs..." 
-              showIcon={true}
-              backgroundColor="#f9fafb"
-            />
-          </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggleSort}
-                  className="flex items-center gap-1 h-9 w-9 p-0"
-                >
-                  {sortDirection === null && <ArrowDownAZ size={16} />}
-                  {sortDirection === "asc" && <ArrowDownAZ size={16} />}
-                  {sortDirection === "desc" && <ArrowUpZA size={16} />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{sortDirection === "asc" ? "Sort Z to A" : sortDirection === "desc" ? "Clear sort" : "Sort A to Z"}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
       </div>
       
       {apis.length === 0 ? (
