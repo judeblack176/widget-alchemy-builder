@@ -432,45 +432,51 @@ const Index = () => {
                   <TabsTrigger value="tooltips" className="flex-1">Tooltips</TabsTrigger>
                   <TabsTrigger value="apis" className="flex-1">APIs</TabsTrigger>
                 </TabsList>
-              </Tabs>
-            </div>
-            
-            <div className="flex-1 overflow-hidden">
-              <TabsContent value="components" className="mt-4 h-full overflow-hidden">
-                <Droppable droppableId="component-library" isDropDisabled={true}>
-                  {(provided) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="h-full overflow-hidden"
-                    >
-                      <ComponentLibrary 
-                        onAddComponent={handleAddComponent} 
-                        existingComponents={widgetComponents}
-                      />
-                      {provided.placeholder}
-                    </div>
+              
+                <div className="flex-1 overflow-hidden">
+                  {activeTab === "components" && (
+                    <TabsContent value="components" className="mt-4 h-full overflow-hidden">
+                      <Droppable droppableId="component-library" isDropDisabled={true}>
+                        {(provided) => (
+                          <div
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                            className="h-full overflow-hidden"
+                          >
+                            <ComponentLibrary 
+                              onAddComponent={handleAddComponent} 
+                              existingComponents={widgetComponents}
+                            />
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </TabsContent>
                   )}
-                </Droppable>
-              </TabsContent>
-              
-              <TabsContent value="tooltips" className="mt-4 h-full overflow-hidden">
-                <TooltipManager
-                  tooltips={tooltips}
-                  onAddTooltip={handleAddTooltip}
-                  onUpdateTooltip={handleUpdateTooltip}
-                  onRemoveTooltip={handleRemoveTooltip}
-                />
-              </TabsContent>
-              
-              <TabsContent value="apis" className="mt-4 h-full overflow-hidden">
-                <ApiManager 
-                  apis={apis} 
-                  onAddApi={handleAddApi} 
-                  onRemoveApi={handleRemoveApi} 
-                  onUpdateApi={handleUpdateApi}
-                />
-              </TabsContent>
+                  
+                  {activeTab === "tooltips" && (
+                    <TabsContent value="tooltips" className="mt-4 h-full overflow-hidden">
+                      <TooltipManager
+                        tooltips={tooltips}
+                        onAddTooltip={handleAddTooltip}
+                        onUpdateTooltip={handleUpdateTooltip}
+                        onRemoveTooltip={handleRemoveTooltip}
+                      />
+                    </TabsContent>
+                  )}
+                  
+                  {activeTab === "apis" && (
+                    <TabsContent value="apis" className="mt-4 h-full overflow-hidden">
+                      <ApiManager 
+                        apis={apis} 
+                        onAddApi={handleAddApi} 
+                        onRemoveApi={handleRemoveApi} 
+                        onUpdateApi={handleUpdateApi}
+                      />
+                    </TabsContent>
+                  )}
+                </div>
+              </Tabs>
             </div>
           </div>
           
