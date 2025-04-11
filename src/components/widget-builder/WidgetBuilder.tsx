@@ -139,58 +139,60 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         </Card>
       ) : (
         <div className="space-y-4">
-          {/* Fixed header section - always visible */}
-          {filteredHeaderComponent && (
-            <Card className="bg-white border border-blue-500 shadow-sm">
-              <ComponentEditor
-                component={filteredHeaderComponent}
-                apis={apis}
-                isExpanded={expandedComponentId === filteredHeaderComponent.id}
-                onToggleExpand={() => 
-                  setExpandedComponentId(
-                    expandedComponentId === filteredHeaderComponent.id ? null : filteredHeaderComponent.id
-                  )
-                }
-                onUpdateComponent={onUpdateComponent}
-                onRemoveComponent={onRemoveComponent}
-                onRequestApiTemplate={() => onRequestApiTemplate(filteredHeaderComponent.id)}
-                onApplyTooltip={onApplyTooltip ? 
-                  (tooltipId: string) => onApplyTooltip(filteredHeaderComponent.id, tooltipId) : 
-                  undefined}
-                disableRemove={true}
-                customTooltips={tooltips}
-              />
-            </Card>
-          )}
+          {/* Fixed header section - always visible and locked in place */}
+          <div className="sticky top-0 bg-widget-gray z-10 pb-4 space-y-4">
+            {filteredHeaderComponent && (
+              <Card className="bg-white border border-blue-500 shadow-sm">
+                <ComponentEditor
+                  component={filteredHeaderComponent}
+                  apis={apis}
+                  isExpanded={expandedComponentId === filteredHeaderComponent.id}
+                  onToggleExpand={() => 
+                    setExpandedComponentId(
+                      expandedComponentId === filteredHeaderComponent.id ? null : filteredHeaderComponent.id
+                    )
+                  }
+                  onUpdateComponent={onUpdateComponent}
+                  onRemoveComponent={onRemoveComponent}
+                  onRequestApiTemplate={() => onRequestApiTemplate(filteredHeaderComponent.id)}
+                  onApplyTooltip={onApplyTooltip ? 
+                    (tooltipId: string) => onApplyTooltip(filteredHeaderComponent.id, tooltipId) : 
+                    undefined}
+                  disableRemove={true}
+                  customTooltips={tooltips}
+                />
+              </Card>
+            )}
+            
+            {/* Fixed alert section - always visible and locked in place */}
+            {filteredAlertComponents.length > 0 && (
+              <div className="space-y-4">
+                {filteredAlertComponents.map((alertComponent) => (
+                  <Card key={alertComponent.id} className="bg-white border border-amber-500 shadow-sm">
+                    <ComponentEditor
+                      component={alertComponent}
+                      apis={apis}
+                      isExpanded={expandedComponentId === alertComponent.id}
+                      onToggleExpand={() => 
+                        setExpandedComponentId(
+                          expandedComponentId === alertComponent.id ? null : alertComponent.id
+                        )
+                      }
+                      onUpdateComponent={onUpdateComponent}
+                      onRemoveComponent={onRemoveComponent}
+                      onRequestApiTemplate={() => onRequestApiTemplate(alertComponent.id)}
+                      onApplyTooltip={onApplyTooltip ? 
+                        (tooltipId: string) => onApplyTooltip(alertComponent.id, tooltipId) : 
+                        undefined}
+                      customTooltips={tooltips}
+                    />
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
           
-          {/* Fixed alert section - always visible */}
-          {filteredAlertComponents.length > 0 && (
-            <div className="space-y-4 mb-4">
-              {filteredAlertComponents.map((alertComponent) => (
-                <Card key={alertComponent.id} className="bg-white border border-amber-500 shadow-sm">
-                  <ComponentEditor
-                    component={alertComponent}
-                    apis={apis}
-                    isExpanded={expandedComponentId === alertComponent.id}
-                    onToggleExpand={() => 
-                      setExpandedComponentId(
-                        expandedComponentId === alertComponent.id ? null : alertComponent.id
-                      )
-                    }
-                    onUpdateComponent={onUpdateComponent}
-                    onRemoveComponent={onRemoveComponent}
-                    onRequestApiTemplate={() => onRequestApiTemplate(alertComponent.id)}
-                    onApplyTooltip={onApplyTooltip ? 
-                      (tooltipId: string) => onApplyTooltip(alertComponent.id, tooltipId) : 
-                      undefined}
-                    customTooltips={tooltips}
-                  />
-                </Card>
-              ))}
-            </div>
-          )}
-          
-          {/* Scrollable section - only this part scrolls */}
+          {/* Scrollable section - only this part scrolls, starting right at the first filterable component */}
           {filteredRegularComponents.length > 0 && (
             <ScrollArea className="h-[calc(100vh-28rem)]">
               <DragDropContext onDragEnd={handleDragEnd}>
