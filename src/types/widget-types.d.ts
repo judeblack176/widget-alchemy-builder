@@ -1,35 +1,19 @@
+import { LucideIcon } from 'lucide-react';
 
-import { WidgetComponent, ApiConfig } from "./widget-types";
+export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table';
 
-declare module "@/components/widget-builder/WidgetBuilder" {
-  export interface WidgetBuilderProps {
-    components: WidgetComponent[];
-    apis: ApiConfig[];
-    onUpdateComponent: (updatedComponent: WidgetComponent) => void;
-    onRemoveComponent: (componentId: string) => void;
-    onReorderComponents: (reorderedComponents: WidgetComponent[]) => void;
-    onRequestApiTemplate: (componentId: string) => void;
-    onApplyTooltip: (componentId: string, tooltipId: string) => void;
-  }
+export interface WidgetComponent {
+  id: string;
+  type: ComponentType;
+  props: Record<string, any>;
+  apiConfig?: {
+    apiId: string;
+    dataMapping: Record<string, string>;
+  };
+  tooltipId?: string;
 }
 
-export type ComponentType =
-  | "header"
-  | "text"
-  | "image"
-  | "button"
-  | "video"
-  | "chart"
-  | "form"
-  | "calendar"
-  | "dropdown"
-  | "link"
-  | "multi-text"
-  | "filter"
-  | "alert"
-  | "table";
-
-export type AlertType = "info" | "success" | "warning" | "error";
+export type AlertType = 'info' | 'success' | 'warning' | 'error';
 
 export interface TableColumn {
   header: string;
@@ -60,12 +44,14 @@ export interface WidgetSubmission {
   submittedAt: string;
 }
 
-export interface WidgetComponent {
-  id: string;
-  type: ComponentType;
-  props: Record<string, any>;
-  apiConfig?: {
-    apiId: string;
-    dataMapping: Record<string, string>;
-  };
+declare module "@/components/widget-builder/WidgetBuilder" {
+  export interface WidgetBuilderProps {
+    components: WidgetComponent[];
+    apis: ApiConfig[];
+    onUpdateComponent: (updatedComponent: WidgetComponent) => void;
+    onRemoveComponent: (componentId: string) => void;
+    onReorderComponents: (reorderedComponents: WidgetComponent[]) => void;
+    onRequestApiTemplate: (componentId: string) => void;
+    onApplyTooltip: (componentId: string, tooltipId: string) => void;
+  }
 }

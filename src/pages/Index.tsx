@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -289,6 +288,19 @@ const Index = () => {
     setIsApiTemplateModalOpen(false);
   };
 
+  const handleApplyTooltip = (componentId: string, tooltipId: string) => {
+    setWidgetComponents(widgetComponents.map(comp => 
+      comp.id === componentId ? { ...comp, tooltipId } : comp
+    ));
+    
+    toast({
+      title: tooltipId ? "Tooltip Applied" : "Tooltip Removed",
+      description: tooltipId ? 
+        "Tooltip has been applied to the component." : 
+        "Tooltip has been removed from the component."
+    });
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <header className="bg-white border-b border-gray-200 p-4">
@@ -372,6 +384,7 @@ const Index = () => {
             onRemoveComponent={handleRemoveComponent}
             onReorderComponents={handleReorderComponents}
             onRequestApiTemplate={openApiTemplateModal}
+            onApplyTooltip={handleApplyTooltip}
           />
         </div>
         

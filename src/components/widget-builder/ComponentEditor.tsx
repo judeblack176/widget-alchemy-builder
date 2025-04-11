@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import ColorPalettePicker from "./ColorPalettePicker";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Settings, HelpCircle } from "lucide-react";
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -16,6 +17,7 @@ interface ComponentEditorProps {
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
   onRemoveComponent: (componentId: string) => void;
   onRequestApiTemplate: () => void;
+  onApplyTooltip?: (tooltipId: string) => void;
 }
 
 const ComponentEditor: React.FC<ComponentEditorProps> = ({
@@ -25,7 +27,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   onToggleExpand,
   onUpdateComponent,
   onRemoveComponent,
-  onRequestApiTemplate
+  onRequestApiTemplate,
+  onApplyTooltip
 }) => {
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
@@ -62,6 +65,15 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     { name: "title", type: "text", label: "Title" },
     { name: "content", type: "text", label: "Content" },
     { name: "color", type: "color", label: "Color", options: ["#FF0000", "#00FF00", "#0000FF"] }
+  ];
+
+  // Mock tooltips for the UI
+  const tooltipOptions = [
+    { id: "", label: "No Tooltip" },
+    { id: "help", label: "Help Info" },
+    { id: "info", label: "Additional Info" },
+    { id: "warning", label: "Warning" },
+    { id: "tip", label: "Pro Tip" }
   ];
 
   const renderPropertyEditor = (property: {
@@ -177,6 +189,49 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                     >
                       {component.apiConfig ? 'Change API Connection' : 'Connect to API'}
                     </Button>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          )}
+
+          {/* Settings and Tooltip section */}
+          {onApplyTooltip && (
+            <Accordion type="single" collapsible>
+              <AccordionItem value="settings">
+                <AccordionTrigger className="text-sm font-medium">
+                  <div className="flex items-center gap-2">
+                    <Settings size={16} />
+                    <span>Settings</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="pt-2 space-y-3">
+                    <div className="mb-4">
+                      <Label htmlFor="tooltip-select">Tooltip</Label>
+                      <Select
+                        value={component.tooltipId || ""}
+                        onValueChange={(val) => onApplyTooltip(val)}
+                      >
+                        <SelectTrigger id="tooltip-select" className="w-full">
+                          <SelectValue placeholder="Select tooltip type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {tooltipOptions.map((option) => (
+                            <SelectItem key={option.id} value={option.id}>
+                              {option.id ? (
+                                <div className="flex items-center gap-2">
+                                  <HelpCircle size={16} />
+                                  <span>{option.label}</span>
+                                </div>
+                              ) : (
+                                option.label
+                              )}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>

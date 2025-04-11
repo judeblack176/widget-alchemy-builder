@@ -11,6 +11,7 @@ interface WidgetBuilderProps {
   onRemoveComponent: (componentId: string) => void;
   onReorderComponents: (reorderedComponents: WidgetComponent[]) => void;
   onRequestApiTemplate: (componentId: string) => void;
+  onApplyTooltip?: (componentId: string, tooltipId: string) => void;
 }
 
 const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
@@ -19,7 +20,8 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   onUpdateComponent,
   onRemoveComponent,
   onReorderComponents,
-  onRequestApiTemplate
+  onRequestApiTemplate,
+  onApplyTooltip
 }) => {
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
 
@@ -50,6 +52,9 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
               onUpdateComponent={onUpdateComponent}
               onRemoveComponent={onRemoveComponent}
               onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
+              onApplyTooltip={onApplyTooltip ? 
+                (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
+                undefined}
             />
           </Card>
         </div>
