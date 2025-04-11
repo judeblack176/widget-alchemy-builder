@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig, CalendarServiceType, ICSConfig, PREDEFINED_COLORS, FontFamily, COLOR_PALETTE } from "@/types/widget-types";
 import { Card } from "@/components/ui/card";
@@ -858,4 +859,415 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                                     ...apiDataMapping,
                                     'title': e.target.value
                                   })}
-                                  className="flex-1
+                                  className="flex-1"
+                                />
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => setSelectedProperty('title')}
+                                  className="whitespace-nowrap"
+                                >
+                                  Select Field
+                                </Button>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2 items-center">
+                              <div>
+                                <Label className="text-sm">Message:</Label>
+                              </div>
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="response.message"
+                                  value={apiDataMapping['message'] || ""}
+                                  onChange={(e) => setApiDataMapping({
+                                    ...apiDataMapping,
+                                    'message': e.target.value
+                                  })}
+                                  className="flex-1"
+                                />
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => setSelectedProperty('message')}
+                                  className="whitespace-nowrap"
+                                >
+                                  Select Field
+                                </Button>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        
+                        {editingComponent.type === 'text' && (
+                          <div className="grid grid-cols-2 gap-2 items-center">
+                            <div>
+                              <Label className="text-sm">Content:</Label>
+                            </div>
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="response.text"
+                                value={apiDataMapping['content'] || ""}
+                                onChange={(e) => setApiDataMapping({
+                                  ...apiDataMapping,
+                                  'content': e.target.value
+                                })}
+                                className="flex-1"
+                              />
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => setSelectedProperty('content')}
+                                className="whitespace-nowrap"
+                              >
+                                Select Field
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {editingComponent.type === 'header' && (
+                          <div className="grid grid-cols-2 gap-2 items-center">
+                            <div>
+                              <Label className="text-sm">Title:</Label>
+                            </div>
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="response.title"
+                                value={apiDataMapping['title'] || ""}
+                                onChange={(e) => setApiDataMapping({
+                                  ...apiDataMapping,
+                                  'title': e.target.value
+                                })}
+                                className="flex-1"
+                              />
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => setSelectedProperty('title')}
+                                className="whitespace-nowrap"
+                              >
+                                Select Field
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {editingComponent.type === 'chart' && (
+                          <>
+                            <div className="grid grid-cols-2 gap-2 items-center">
+                              <div>
+                                <Label className="text-sm">Data:</Label>
+                              </div>
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="response.data"
+                                  value={apiDataMapping['data'] || ""}
+                                  onChange={(e) => setApiDataMapping({
+                                    ...apiDataMapping,
+                                    'data': e.target.value
+                                  })}
+                                  className="flex-1"
+                                />
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => setSelectedProperty('data')}
+                                  className="whitespace-nowrap"
+                                >
+                                  Select Field
+                                </Button>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2 items-center">
+                              <div>
+                                <Label className="text-sm">Labels:</Label>
+                              </div>
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="response.labels"
+                                  value={apiDataMapping['labels'] || ""}
+                                  onChange={(e) => setApiDataMapping({
+                                    ...apiDataMapping,
+                                    'labels': e.target.value
+                                  })}
+                                  className="flex-1"
+                                />
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => setSelectedProperty('labels')}
+                                  className="whitespace-nowrap"
+                                >
+                                  Select Field
+                                </Button>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        
+                        {editingComponent.type === 'table' && (
+                          <div className="grid grid-cols-2 gap-2 items-center">
+                            <div>
+                              <Label className="text-sm">Data:</Label>
+                            </div>
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="response.data"
+                                value={apiDataMapping['data'] || ""}
+                                onChange={(e) => setApiDataMapping({
+                                  ...apiDataMapping,
+                                  'data': e.target.value
+                                })}
+                                className="flex-1"
+                              />
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => setSelectedProperty('data')}
+                                className="whitespace-nowrap"
+                              >
+                                Select Field
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <h5 className="text-sm font-medium">API Fields</h5>
+                        <ScrollArea className="border rounded h-48 p-2">
+                          {getSelectedApiFields().length > 0 ? (
+                            <div className="space-y-2">
+                              {getSelectedApiFields().map((field) => (
+                                <div key={field} className="flex items-center justify-between">
+                                  <HoverCard>
+                                    <HoverCardTrigger asChild>
+                                      <span className="text-xs cursor-help text-blue-600 hover:text-blue-800 truncate max-w-[150px] inline-block">
+                                        {field}
+                                      </span>
+                                    </HoverCardTrigger>
+                                    <HoverCardContent className="w-auto">
+                                      <code className="text-xs">{field}</code>
+                                    </HoverCardContent>
+                                  </HoverCard>
+                                  
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost" 
+                                    className="h-6 text-xs"
+                                    onClick={() => handleSelectField(field)}
+                                    disabled={!selectedProperty}
+                                  >
+                                    Use
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center h-full">
+                              <p className="text-gray-500 text-xs">No fields available</p>
+                            </div>
+                          )}
+                        </ScrollArea>
+                        <div className="text-xs text-gray-500">
+                          {selectedProperty ? (
+                            <span className="font-medium text-blue-600">
+                              Select a field for: <code>{selectedProperty}</code>
+                            </span>
+                          ) : (
+                            "Click 'Select Field' next to a property first"
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsApiConfigOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveApiConfig}>
+              Save API Configuration
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isCalendarConfigOpen} onOpenChange={setIsCalendarConfigOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Configure Calendar Integration</DialogTitle>
+            <DialogDescription>
+              Connect this calendar to external calendar services
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editingComponent && editingComponent.type === 'calendar' && (
+            <div className="py-4">
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="calendar-service">Calendar Service</Label>
+                  <Select
+                    value={calendarServiceType}
+                    onValueChange={(value: CalendarServiceType | 'none') => setCalendarServiceType(value)}
+                  >
+                    <SelectTrigger id="calendar-service">
+                      <SelectValue placeholder="Select calendar service" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="google">Google Calendar</SelectItem>
+                      <SelectItem value="outlook">Outlook Calendar</SelectItem>
+                      <SelectItem value="apple">Apple Calendar</SelectItem>
+                      <SelectItem value="custom">Custom Calendar</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {calendarServiceType !== 'none' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                      <span className="text-sm text-gray-600">Calendar sync will be enabled</span>
+                    </div>
+                    
+                    <div className="border rounded p-3 text-sm text-gray-500">
+                      <p>
+                        {calendarServiceType === 'google' && "Google Calendar integration will allow users to sync events with their Google Calendar."}
+                        {calendarServiceType === 'outlook' && "Outlook Calendar integration will allow users to sync events with their Outlook Calendar."}
+                        {calendarServiceType === 'apple' && "Apple Calendar integration will allow users to sync events with their Apple Calendar."}
+                        {calendarServiceType === 'custom' && "Custom Calendar integration will allow users to sync events with a custom calendar service."}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCalendarConfigOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveCalendarConfig}>
+              Save Calendar Configuration
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isIcsConfigOpen} onOpenChange={setIsIcsConfigOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Configure ICS Integration</DialogTitle>
+            <DialogDescription>
+              Set up ICS file imports and exports for calendar events
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editingComponent && editingComponent.type === 'calendar' && (
+            <div className="py-4">
+              <div className="grid gap-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="enable-ics"
+                    checked={icsConfig.enabled}
+                    onChange={(e) => setIcsConfig({...icsConfig, enabled: e.target.checked})}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <Label htmlFor="enable-ics">Enable ICS Integration</Label>
+                </div>
+                
+                {icsConfig.enabled && (
+                  <>
+                    <div className="grid gap-2">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="enable-import-ics"
+                          checked={icsConfig.importEnabled}
+                          onChange={(e) => setIcsConfig({...icsConfig, importEnabled: e.target.checked})}
+                          className="h-4 w-4 rounded border-gray-300"
+                        />
+                        <Label htmlFor="enable-import-ics">Allow ICS Import</Label>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="enable-export-ics"
+                          checked={icsConfig.exportEnabled}
+                          onChange={(e) => setIcsConfig({...icsConfig, exportEnabled: e.target.checked})}
+                          className="h-4 w-4 rounded border-gray-300"
+                        />
+                        <Label htmlFor="enable-export-ics">Allow ICS Export</Label>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="allow-subscribe"
+                          checked={icsConfig.allowSubscribe}
+                          onChange={(e) => setIcsConfig({...icsConfig, allowSubscribe: e.target.checked})}
+                          className="h-4 w-4 rounded border-gray-300"
+                        />
+                        <Label htmlFor="allow-subscribe">Allow Calendar Subscription</Label>
+                      </div>
+                    </div>
+                    
+                    {icsConfig.allowSubscribe && (
+                      <div className="grid gap-2">
+                        <Label htmlFor="ics-url">ICS URL</Label>
+                        <Input
+                          id="ics-url"
+                          placeholder="https://example.com/calendar.ics"
+                          value={icsConfig.icsUrl}
+                          onChange={(e) => setIcsConfig({...icsConfig, icsUrl: e.target.value})}
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="grid gap-2">
+                      <Label htmlFor="sync-interval">Sync Interval</Label>
+                      <Select
+                        value={icsConfig.syncInterval}
+                        onValueChange={(value) => setIcsConfig({...icsConfig, syncInterval: value as 'hourly' | 'daily' | 'weekly'})}
+                      >
+                        <SelectTrigger id="sync-interval">
+                          <SelectValue placeholder="Select sync interval" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hourly">Hourly</SelectItem>
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="weekly">Weekly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsIcsConfigOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveIcsConfig}>
+              Save ICS Configuration
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default WidgetBuilder;
