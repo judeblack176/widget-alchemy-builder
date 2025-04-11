@@ -361,19 +361,6 @@ const Index = () => {
                 <Bookmark size={16} />
                 API Templates
               </Button>
-              
-              <button
-                onClick={handleSaveWidget}
-                className="px-3 py-1 bg-widget-blue text-white rounded hover:bg-blue-600 transition-colors"
-              >
-                Save
-              </button>
-              <button
-                onClick={handleLoadWidget}
-                className="px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
-              >
-                Load
-              </button>
             </div>
           </div>
           
@@ -389,7 +376,27 @@ const Index = () => {
         </div>
         
         <div className="w-1/3 p-4 bg-gray-200 overflow-y-auto flex flex-col items-center">
-          <h2 className="text-xl font-semibold self-start mb-6">Preview</h2>
+          <div className="flex justify-between items-center self-stretch mb-6">
+            <h2 className="text-xl font-semibold">Preview</h2>
+            <div className="space-x-2">
+              <Button
+                onClick={handleSaveWidget}
+                variant="default"
+                size="sm"
+                className="bg-widget-blue hover:bg-blue-600 transition-colors"
+              >
+                Save
+              </Button>
+              <Button
+                onClick={handleLoadWidget}
+                variant="outline"
+                size="sm"
+                className="bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
+              >
+                Load
+              </Button>
+            </div>
+          </div>
           <WidgetPreview components={widgetComponents} apis={apis} />
         </div>
       </div>
