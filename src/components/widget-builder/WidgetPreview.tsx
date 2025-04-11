@@ -89,7 +89,13 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       <ScrollArea className="h-full overflow-x-hidden">
         <TooltipProvider>
           {displayComponents.map((component, index) => (
-            <div key={component.id} className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}>
+            <div 
+              key={component.id} 
+              className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}
+              style={{
+                borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
+              }}
+            >
               {component.tooltipId && component.tooltipId !== "" ? (
                 <div className="relative">
                   <div className="absolute right-0 top-0 z-10">
