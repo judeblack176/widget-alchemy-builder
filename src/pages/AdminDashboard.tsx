@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Check, X, Clock, LayoutGrid, List, Filter, Search, Link as LinkIcon, Database, ExternalLink, Shield, ShieldCheck, ShieldX, BarChart3, LineChart, PieChart, Users, AlertTriangle, Activity, TrendingUp } from "lucide-react";
+import { Check, X, Clock, LayoutGrid, List, Filter, Search, Link as LinkIcon, Database, ExternalLink, Shield, ShieldCheck, ShieldX, BarChart3, LineChart as LucideLineChart, PieChart as LucidePieChart, Users, AlertTriangle, Activity, TrendingUp } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -424,7 +424,7 @@ const AdminDashboard = () => {
           <Card className="col-span-1">
             <CardHeader>
               <CardTitle className="flex items-center text-lg font-medium">
-                <LineChart className="h-4 w-4 mr-2 text-primary" />
+                <LucideLineChart className="h-4 w-4 mr-2 text-primary" />
                 Widget Activity
               </CardTitle>
               <CardDescription>
@@ -474,7 +474,7 @@ const AdminDashboard = () => {
           <Card className="col-span-1">
             <CardHeader>
               <CardTitle className="flex items-center text-lg font-medium">
-                <PieChart className="h-4 w-4 mr-2 text-primary" />
+                <LucidePieChart className="h-4 w-4 mr-2 text-primary" />
                 Widget Categories
               </CardTitle>
               <CardDescription>
