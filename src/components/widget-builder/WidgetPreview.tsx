@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { HelpCircle, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useToast } from '@/hooks/use-toast';
 
 interface WidgetPreviewProps {
   components: WidgetComponent[];
@@ -15,11 +16,21 @@ interface WidgetPreviewProps {
 
 const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   const [apiData, setApiData] = useState<Record<string, any>>({});
+  const { toast } = useToast();
   const MAX_COMPONENTS = 6;
   const displayComponents = components.slice(0, MAX_COMPONENTS);
   const hasExcessComponents = components.length > MAX_COMPONENTS;
 
   useEffect(() => {
+    // Show error toast when component limit is exceeded
+    if (components.length > MAX_COMPONENTS && !hasExcessComponents) {
+      toast({
+        title: "Maximum Components Exceeded",
+        description: `Widgets can only have ${MAX_COMPONENTS} components. Additional components won't be displayed.`,
+        variant: "destructive",
+      });
+    }
+    
     const fetchData = async () => {
       const apiDataResults: Record<string, any> = {};
 
@@ -48,7 +59,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     if (apis.length > 0) {
       fetchData();
     }
-  }, [apis]);
+  }, [apis, components.length, toast, hasExcessComponents]);
   
   const getTooltipContent = (tooltipId: string) => {
     switch (tooltipId) {
