@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ComponentDefinition, WidgetComponent, FontFamily, PREDEFINED_COLORS } from "@/types/widget-types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -21,10 +21,16 @@ import {
   Table2,
   Search,
   GripVertical,
-  XCircle
+  XCircle,
+  SortAsc,
+  ChevronDown
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Draggable } from 'react-beautiful-dnd';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import SearchBar from "./SearchBar";
 
 interface ComponentLibraryProps {
   onAddComponent: (component: WidgetComponent) => void;
@@ -33,6 +39,8 @@ interface ComponentLibraryProps {
 
 const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent, existingComponents = [] }) => {
   const hasAlertComponent = existingComponents.some(c => c.type === 'alert');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<"default" | "a-z">("default");
   
   const componentDefinitions: ComponentDefinition[] = [
     {
@@ -412,58 +420,112 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent, exi
     onAddComponent(newComponent);
   };
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder(sortOrder === "default" ? "a-z" : "default");
+  };
+
+  const filteredDefinitions = componentDefinitions.filter(def => {
+    if (!searchQuery) return true;
+    return def.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           def.type.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
+  let sortedDefinitions = [...filteredDefinitions];
+  
+  if (sortOrder === "a-z") {
+    const headerDef = sortedDefinitions.find(d => d.type === "header");
+    const alertDef = sortedDefinitions.find(d => d.type === "alert");
+    const otherDefs = sortedDefinitions.filter(d => d.type !== "header" && d.type !== "alert");
+    
+    otherDefs.sort((a, b) => a.name.localeCompare(b.name));
+    
+    sortedDefinitions = [];
+    if (headerDef) sortedDefinitions.push(headerDef);
+    if (alertDef) sortedDefinitions.push(alertDef);
+    sortedDefinitions = [...sortedDefinitions, ...otherDefs];
+  }
+
   return (
     <div className="space-y-4">
       <h3 className="font-medium text-gray-700">Drag & drop components to build your widget</h3>
       
-      <div className="grid grid-cols-1 gap-3">
-        {componentDefinitions.map((definition, index) => {
-          const isDisabled = definition.type === 'alert' && hasAlertComponent;
-          
-          return (
-            <Draggable
-              key={definition.type}
-              draggableId={definition.type}
-              index={index}
-              isDragDisabled={isDisabled}
-            >
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.draggableProps}
-                  {...provided.dragHandleProps}
-                  className="relative"
-                >
-                  <Card 
-                    data-component-type={definition.type}
-                    className={`cursor-pointer transition-colors ${
-                      isDisabled ? 'opacity-50 border-gray-300 cursor-not-allowed' : 'hover:border-widget-blue'
-                    } ${snapshot.isDragging ? 'shadow-lg' : ''}`}
-                    onClick={() => !isDisabled && handleAddComponent(definition)}
+      <div className="flex flex-col space-y-3">
+        <div className="flex justify-between items-center">
+          <SearchBar 
+            onSearch={handleSearch} 
+            placeholder="Search components..."
+            className="w-full"
+          />
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={toggleSortOrder} 
+            className="ml-2"
+            title={sortOrder === "default" ? "Sort A-Z" : "Default order"}
+          >
+            <SortAsc size={18} className={sortOrder === "a-z" ? "text-widget-blue" : ""} />
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-3">
+          {sortedDefinitions.map((definition, index) => {
+            const isDisabled = definition.type === 'alert' && hasAlertComponent;
+            const isUnmovable = definition.type === 'header' || definition.type === 'alert';
+            
+            return (
+              <Draggable
+                key={definition.type}
+                draggableId={definition.type}
+                index={index}
+                isDragDisabled={isDisabled || isUnmovable}
+              >
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...(isUnmovable ? {} : provided.dragHandleProps)}
+                    className="relative"
                   >
-                    <div className="flex p-3 items-center">
-                      <div className={`mr-3 ${isDisabled ? 'text-gray-400' : 'text-widget-blue'}`}>
-                        {getIconComponent(definition.icon)}
+                    <Card 
+                      data-component-type={definition.type}
+                      className={`cursor-pointer transition-colors ${
+                        isDisabled ? 'opacity-50 border-gray-300 cursor-not-allowed' : 
+                        isUnmovable ? 'border-blue-500' : 'hover:border-widget-blue'
+                      } ${snapshot.isDragging ? 'shadow-lg' : ''}`}
+                      onClick={() => !isDisabled && handleAddComponent(definition)}
+                    >
+                      <div className="flex p-3 items-center">
+                        <div className={`mr-3 ${isDisabled ? 'text-gray-400' : isUnmovable ? 'text-blue-500' : 'text-widget-blue'}`}>
+                          {getIconComponent(definition.icon)}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className={`font-medium ${isDisabled ? 'text-gray-400' : ''}`}>
+                            {definition.name}
+                            {isDisabled && <span className="ml-2 text-xs text-red-500">(Already added)</span>}
+                            {isUnmovable && <span className="ml-2 text-xs text-blue-500">(Fixed position)</span>}
+                          </h4>
+                          <p className="text-xs text-gray-500">
+                            {isDisabled ? 'Only one alert allowed' : 
+                             isUnmovable ? 'Fixed position component' : 'Click or drag to add'}
+                          </p>
+                        </div>
+                        <div className="text-gray-400">
+                          {isDisabled ? <XCircle size={16} className="text-red-500" /> : 
+                           isUnmovable ? <XCircle size={16} className="text-blue-500" /> : 
+                           <GripVertical size={16} />}
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h4 className={`font-medium ${isDisabled ? 'text-gray-400' : ''}`}>
-                          {definition.name}
-                          {isDisabled && <span className="ml-2 text-xs text-red-500">(Already added)</span>}
-                        </h4>
-                        <p className="text-xs text-gray-500">
-                          {isDisabled ? 'Only one alert allowed' : 'Click or drag to add'}
-                        </p>
-                      </div>
-                      <div className="text-gray-400">
-                        {isDisabled ? <XCircle size={16} className="text-red-500" /> : <GripVertical size={16} />}
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              )}
-            </Draggable>
-          );
-        })}
+                    </Card>
+                  </div>
+                )}
+              </Draggable>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

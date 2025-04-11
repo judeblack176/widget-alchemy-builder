@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import ComponentEditor from './ComponentEditor';
@@ -7,7 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip } from './TooltipManager';
-import { Input } from '@/components/ui/input';
+import SearchBar from './SearchBar';
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -121,16 +122,15 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           </Alert>
         )}
 
-        {searchQuery.trim() !== '' && (
-          <div className="mb-4">
-            <Input
-              placeholder="Search components..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full"
-            />
-          </div>
-        )}
+        <div className="mb-4">
+          <SearchBar
+            placeholder="Search components..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full"
+            onSearch={handleSearch}
+          />
+        </div>
         
         {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
           <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
