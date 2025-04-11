@@ -275,6 +275,25 @@ export const DEFAULT_DATA_MAPPINGS: Record<ComponentType, Record<string, string>
   }
 };
 
+// Widget approval status types
+export type WidgetApprovalStatus = 'draft' | 'pending' | 'approved' | 'rejected';
+
+export interface WidgetSubmission {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  status: WidgetApprovalStatus;
+  feedback?: string;
+  config: WidgetConfig;
+  thumbnail?: string;
+  author: string;
+  category?: string;
+  tags?: string[];
+  version: string;
+}
+
 // Helper function to extract possible fields from a JSON object
 export const extractFieldPaths = (obj: any, prefix = ''): string[] => {
   if (!obj || typeof obj !== 'object') return [];

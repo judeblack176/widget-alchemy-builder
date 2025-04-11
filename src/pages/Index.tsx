@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
 import ComponentLibrary from "@/components/widget-builder/ComponentLibrary";
 import WidgetPreview from "@/components/widget-builder/WidgetPreview";
 import ApiManager from "@/components/widget-builder/ApiManager";
+import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionForm";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { WidgetComponent, ApiConfig, extractFieldPaths } from "@/types/widget-types";
+import { Button } from "@/components/ui/button";
+import { Library } from "lucide-react";
+import type { WidgetComponent, ApiConfig, WidgetSubmission } from "@/types/widget-types";
 
 const Index = () => {
   const { toast } = useToast();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const widgetId = queryParams.get('widgetId');
+
   const [widgetComponents, setWidgetComponents] = useState<WidgetComponent[]>([
     // Default template with header
     {
@@ -24,6 +32,31 @@ const Index = () => {
   
   const [apis, setApis] = useState<ApiConfig[]>([]);
   const [activeTab, setActiveTab] = useState<string>("components");
+
+  useEffect(() => {
+    if (widgetId) {
+      // If a widget ID is provided in the URL, try to load that widget
+      try {
+        const savedSubmissions = localStorage.getItem('widgetSubmissions');
+        if (savedSubmissions) {
+          const submissions: WidgetSubmission[] = JSON.parse(savedSubmissions);
+          const submission = submissions.find(s => s.id === widgetId);
+          
+          if (submission) {
+            setWidgetComponents(submission.config.components);
+            setApis(submission.config.apis);
+            
+            toast({
+              title: `Loaded: ${submission.name}`,
+              description: `Status: ${submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}`
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load widget from ID", error);
+      }
+    }
+  }, [widgetId, toast]);
 
   const handleAddComponent = (component: WidgetComponent) => {
     setWidgetComponents([...widgetComponents, {...component, id: `${component.type}-${Date.now()}`}]);
@@ -57,6 +90,27 @@ const Index = () => {
     if (api.sampleResponse) {
       try {
         const jsonData = JSON.parse(api.sampleResponse);
+        const extractFieldPaths = (obj: any, prefix = ''): string[] => {
+          if (!obj || typeof obj !== 'object') return [];
+          
+          let paths: string[] = [];
+          
+          Object.entries(obj).forEach(([key, value]) => {
+            const newPath = prefix ? `${prefix}.${key}` : key;
+            paths.push(newPath);
+            
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+              // For nested objects, recurse deeper
+              paths = [...paths, ...extractFieldPaths(value, newPath)];
+            } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object') {
+              // For arrays of objects, show array notation and recurse into the first item
+              paths.push(`${newPath}[0]`);
+              paths = [...paths, ...extractFieldPaths(value[0], `${newPath}[0]`)];
+            }
+          });
+          
+          return paths;
+        };
         processedApi.possibleFields = extractFieldPaths(jsonData);
       } catch (error) {
         // If JSON parsing fails, just keep the API as is
@@ -77,6 +131,27 @@ const Index = () => {
     if (updatedApi.sampleResponse) {
       try {
         const jsonData = JSON.parse(updatedApi.sampleResponse);
+        const extractFieldPaths = (obj: any, prefix = ''): string[] => {
+          if (!obj || typeof obj !== 'object') return [];
+          
+          let paths: string[] = [];
+          
+          Object.entries(obj).forEach(([key, value]) => {
+            const newPath = prefix ? `${prefix}.${key}` : key;
+            paths.push(newPath);
+            
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+              // For nested objects, recurse deeper
+              paths = [...paths, ...extractFieldPaths(value, newPath)];
+            } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object') {
+              // For arrays of objects, show array notation and recurse into the first item
+              paths.push(`${newPath}[0]`);
+              paths = [...paths, ...extractFieldPaths(value[0], `${newPath}[0]`)];
+            }
+          });
+          
+          return paths;
+        };
         processedApi.possibleFields = extractFieldPaths(jsonData);
       } catch (error) {
         // If JSON parsing fails, just keep the API as is
@@ -149,10 +224,32 @@ const Index = () => {
     }
   };
 
+  const handleSubmitSuccess = () => {
+    // Handle successful widget submission
+    toast({
+      title: "Widget Submitted",
+      description: "Your widget has been submitted to the library for approval",
+    });
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <header className="bg-white border-b border-gray-200 p-4">
-        <h1 className="text-2xl font-bold text-widget-blue">EdTech Widget Builder</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-widget-blue">EdTech Widget Builder</h1>
+          <div className="flex space-x-2">
+            <Link to="/library">
+              <Button variant="outline">
+                <Library size={16} className="mr-2" /> Widget Library
+              </Button>
+            </Link>
+            <WidgetSubmissionForm
+              widgetComponents={widgetComponents}
+              apis={apis}
+              onSubmitSuccess={handleSubmitSuccess}
+            />
+          </div>
+        </div>
       </header>
       
       <div className="flex flex-1 overflow-hidden">
