@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { WidgetComponent, AlertType, TableColumn } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
@@ -728,8 +729,12 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
                       const result = executeCode();
                       console.log('Code execution result:', result);
                       
-                      if (finalProps.onExecute && typeof window[finalProps.onExecute] === 'function') {
-                        window[finalProps.onExecute](result);
+                      if (finalProps.onExecute && typeof finalProps.onExecute === 'string') {
+                        // Safe way to check for global function without direct window access
+                        const globalFn = Function('return ' + finalProps.onExecute)();
+                        if (typeof globalFn === 'function') {
+                          globalFn(result);
+                        }
                       }
                     } catch (error) {
                       console.error('Failed to execute code:', error);
