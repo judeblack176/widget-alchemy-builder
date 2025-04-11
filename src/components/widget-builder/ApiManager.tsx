@@ -239,6 +239,74 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
     setIsOpen(false);
   };
 
+  const renderTemplatesList = () => {
+    if (savedApiTemplates.length === 0) {
+      return (
+        <div className="text-center p-6 border border-dashed rounded-lg">
+          <BookmarkIcon className="mx-auto text-gray-400 mb-2" size={32} />
+          <p className="text-gray-500">No saved API templates yet</p>
+          <p className="text-sm text-gray-400 mt-1">Save your APIs as templates to reuse them</p>
+        </div>
+      );
+    }
+    
+    return (
+      <ScrollArea className="h-[350px] pr-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {savedApiTemplates.map((template) => (
+            <Card key={template.id} className="relative">
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-base truncate" title={template.name}>
+                    {template.name}
+                  </CardTitle>
+                  <div className="flex space-x-1">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
+                      onClick={() => useApiTemplate(template)}
+                      title="Use template"
+                    >
+                      <Plus size={16} />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
+                      onClick={() => deleteApiTemplate(template.id)}
+                      title="Delete template"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm space-y-1">
+                  <div className="flex">
+                    <span className="font-semibold w-16">Method:</span>
+                    <span className="font-mono text-widget-blue">{template.method}</span>
+                  </div>
+                  <div className="flex">
+                    <span className="font-semibold w-16">Endpoint:</span>
+                    <span className="font-mono text-xs truncate" title={template.endpoint}>
+                      {template.endpoint}
+                    </span>
+                  </div>
+                  <div className="flex">
+                    <span className="font-semibold w-16">Headers:</span>
+                    <span className="text-xs">{template.headers ? Object.keys(template.headers).length : 0} defined</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </ScrollArea>
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -247,7 +315,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
         <div className="flex gap-2">
           <Dialog open={isTemplatesDialogOpen} onOpenChange={setIsTemplatesDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" variant="outline" className="flex gap-1">
+              <Button size="sm" variant="outline" className="flex gap-1 items-center">
                 <BookmarkIcon size={16} />
                 API Templates
                 {savedApiTemplates.length > 0 && (
@@ -256,7 +324,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
               </Button>
             </DialogTrigger>
             
-            <DialogContent className="sm:max-w-[550px]">
+            <DialogContent className="sm:max-w-[650px] max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>Saved API Templates</DialogTitle>
                 <DialogDescription>
@@ -264,62 +332,8 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                 </DialogDescription>
               </DialogHeader>
               
-              <div className="py-4">
-                {savedApiTemplates.length === 0 ? (
-                  <div className="text-center p-6 border border-dashed rounded-lg">
-                    <BookmarkIcon className="mx-auto text-gray-400 mb-2" size={32} />
-                    <p className="text-gray-500">No saved API templates yet</p>
-                    <p className="text-sm text-gray-400 mt-1">Save your APIs as templates to reuse them</p>
-                  </div>
-                ) : (
-                  <ScrollArea className="h-[350px] pr-4">
-                    <div className="space-y-3">
-                      {savedApiTemplates.map((template) => (
-                        <Card key={template.id} className="relative">
-                          <CardHeader className="pb-2">
-                            <div className="flex justify-between items-center">
-                              <CardTitle className="text-base">{template.name}</CardTitle>
-                              <div className="flex space-x-1">
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="h-8 w-8 p-0"
-                                  onClick={() => useApiTemplate(template)}
-                                >
-                                  <Plus size={16} />
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="h-8 w-8 p-0"
-                                  onClick={() => deleteApiTemplate(template.id)}
-                                >
-                                  <Trash2 size={16} />
-                                </Button>
-                              </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="text-sm space-y-1">
-                              <div className="flex">
-                                <span className="font-semibold w-20">Method:</span>
-                                <span className="font-mono text-widget-blue">{template.method}</span>
-                              </div>
-                              <div className="flex">
-                                <span className="font-semibold w-20">Endpoint:</span>
-                                <span className="font-mono text-xs truncate">{template.endpoint}</span>
-                              </div>
-                              <div className="flex">
-                                <span className="font-semibold w-20">Headers:</span>
-                                <span className="text-xs">{template.headers ? Object.keys(template.headers).length : 0} defined</span>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                )}
+              <div className="py-4 overflow-hidden">
+                {renderTemplatesList()}
               </div>
               
               <DialogFooter>
@@ -337,7 +351,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
               </Button>
             </DialogTrigger>
             
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{selectedApiForEdit ? "Edit API Integration" : "Add New API Integration"}</DialogTitle>
                 <DialogDescription>
@@ -668,12 +682,12 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
           <p className="text-sm text-gray-400 mt-1">Click "Add API" to create your first API integration</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {apis.map((api) => (
             <Card key={api.id} className="relative">
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-center">
-                  <CardTitle className="text-base">{api.name}</CardTitle>
+                  <CardTitle className="text-base truncate" title={api.name}>{api.name}</CardTitle>
                   <div className="flex space-x-1">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -685,7 +699,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                           <Code size={16} />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent>
+                      <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleEditApi(api.id)}>
                           Edit API
                         </DropdownMenuItem>
@@ -714,7 +728,9 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                   </div>
                   <div className="flex">
                     <span className="font-semibold w-20">Endpoint:</span>
-                    <span className="font-mono text-xs truncate">{api.endpoint}</span>
+                    <span className="font-mono text-xs truncate" title={api.endpoint}>
+                      {api.endpoint}
+                    </span>
                   </div>
                   <div className="flex">
                     <span className="font-semibold w-20">Headers:</span>
