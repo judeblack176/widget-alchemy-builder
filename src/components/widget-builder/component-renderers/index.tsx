@@ -54,10 +54,11 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
     case 'header':
       return (
         <div 
-          className="flex justify-between items-center p-3 rounded"
+          className="flex justify-between items-center p-3 rounded w-full"
           style={{
             backgroundColor: finalProps.backgroundColor || '#3B82F6',
             color: finalProps.textColor || '#FFFFFF',
+            marginTop: 0,
           }}
         >
           <div className="flex items-center">
