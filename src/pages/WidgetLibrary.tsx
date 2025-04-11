@@ -105,7 +105,7 @@ const WidgetLibrary = () => {
             <Link to="/">
               <Button variant="outline" className="mr-2">Create New Widget</Button>
             </Link>
-            <Link to="/admin">
+            <Link to="/admin/login">
               <Button variant="secondary">
                 <ShieldCheck size={16} className="mr-2" /> Admin
               </Button>
