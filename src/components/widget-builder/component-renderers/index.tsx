@@ -1,21 +1,16 @@
-
 import React from 'react';
 import { WidgetComponent } from '@/types/widget-types';
 import TooltipComponent from './TooltipComponent';
-
-// Import other component renderers as needed
+import { Button } from '@/components/ui/button';
 
 export const renderComponent = (component: WidgetComponent, apiData?: any) => {
   const { props, type } = component;
   
-  // Map API data to component props if apiConfig is present
   let finalProps = { ...props };
   if (component.apiConfig && apiData) {
     const { dataMapping } = component.apiConfig;
     
-    // Map each API field to component prop
     Object.entries(dataMapping).forEach(([propKey, apiField]) => {
-      // Use lodash-style dot notation to access nested properties
       const value = getNestedValue(apiData, apiField);
       if (value !== undefined) {
         finalProps[propKey] = value;
@@ -23,7 +18,6 @@ export const renderComponent = (component: WidgetComponent, apiData?: any) => {
     });
   }
   
-  // Check if we need to wrap this component in a tooltip
   if (finalProps.tooltip && type !== 'tooltip') {
     const tooltipProps = finalProps.tooltip;
     const componentWithoutTooltip = {
@@ -48,18 +42,14 @@ export const renderComponent = (component: WidgetComponent, apiData?: any) => {
   return renderComponentWithoutTooltip(component, apiData);
 };
 
-// Helper function to render component without tooltip wrapping logic
 const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any) => {
   const { props, type } = component;
   
-  // Map API data to component props if apiConfig is present
   let finalProps = { ...props };
   if (component.apiConfig && apiData) {
     const { dataMapping } = component.apiConfig;
     
-    // Map each API field to component prop
     Object.entries(dataMapping).forEach(([propKey, apiField]) => {
-      // Use lodash-style dot notation to access nested properties
       const value = getNestedValue(apiData, apiField);
       if (value !== undefined) {
         finalProps[propKey] = value;
@@ -68,10 +58,19 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
   }
   
   switch (type) {
-    // ... Add other component type cases here
-    
+    case 'button':
+      return (
+        <Button
+          variant={finalProps.variant || "default"}
+          size={finalProps.size || "default"}
+          className={finalProps.className}
+          onClick={() => console.log('Button clicked', finalProps.label)}
+        >
+          {finalProps.label || "Button"}
+        </Button>
+      );
+      
     case 'tooltip':
-      // Pass any children component if specified in the tooltip configuration
       const tooltipChildren = finalProps.children ? 
         renderComponent(finalProps.children, apiData) : null;
       
@@ -94,18 +93,15 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
   }
 };
 
-// Helper function to get nested values using dot notation
 const getNestedValue = (obj: any, path: string): any => {
   if (!obj || !path) return undefined;
   
-  // Handle array notation like items[0].name
   const parts = path.split(/\.|\[|\]/).filter(Boolean);
   let current = obj;
   
   for (const part of parts) {
     if (current === null || current === undefined) return undefined;
     
-    // If part is a number (from array notation), parse it
     const index = /^\d+$/.test(part) ? parseInt(part, 10) : part;
     current = current[index];
   }
