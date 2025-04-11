@@ -1,3 +1,4 @@
+
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -42,7 +43,7 @@ import {
   ShoppingBag,
   Star,
   X
-} from "lucide-react";
+} from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
@@ -78,8 +79,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   disableRemove = false,
   customTooltips = []
 }) => {
-  console.log("Custom tooltips in ComponentEditor:", customTooltips);
-
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
       ...component,
@@ -188,6 +187,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     { id: "tip", label: "Pro Tip" }
   ];
 
+  // Combine default tooltips with custom tooltips
   const tooltipOptions = [
     ...defaultTooltipOptions,
     ...customTooltips.map(tooltip => ({
@@ -284,6 +284,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       case "warning": return <AlertTriangle size={16} className="text-amber-500" />;
       case "tip": return <Star size={16} className="text-purple-500" />;
       default: 
+        // For custom tooltips, use a distinct icon
         return customTooltips.some(t => t.id === tooltipId) ? 
           <Info size={16} className="text-indigo-500" /> : 
           null;
