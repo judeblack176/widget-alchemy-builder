@@ -270,6 +270,15 @@ const Index = () => {
     setIsEditing(false);
   };
 
+  const handleCancelEditing = () => {
+    setIsEditing(false);
+    navigate('/');
+    toast({
+      title: "Editing Cancelled",
+      description: "Changes to the widget have been discarded."
+    });
+  };
+
   const handleSubmitSuccess = () => {
     setIsEditing(false);
     toast({
