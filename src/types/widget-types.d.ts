@@ -11,18 +11,9 @@ export interface WidgetComponent {
     apiId: string;
     dataMapping: Record<string, string>;
     multiMapping?: Record<string, string[]>;
-    contentConfig?: Record<string, ContentFieldConfig>;
   };
   tooltipId?: string;
   selected?: boolean;
-}
-
-export interface ContentFieldConfig {
-  field?: string;
-  customText?: string;
-  fontFamily?: string;
-  fontSize?: string;
-  alignment?: "left" | "center" | "right";
 }
 
 export type AlertType = 'info' | 'success' | 'warning' | 'error';

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -19,7 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { WidgetComponent, ApiConfig, WidgetSubmission, ComponentType } from "@/types/widget-types";
+import { WidgetComponent, ApiConfig, WidgetSubmission } from "@/types/widget-types";
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -92,8 +91,8 @@ const Index = () => {
     }
   }, [widgetId, toast]);
 
-  const handleAddComponent = (componentType: string) => {
-    if (componentType === 'alert' && widgetComponents.some(c => c.type === 'alert')) {
+  const handleAddComponent = (component: WidgetComponent) => {
+    if (component.type === 'alert' && widgetComponents.some(c => c.type === 'alert')) {
       toast({
         title: "Alert Already Exists",
         description: "Only one alert component is allowed per widget.",
@@ -102,14 +101,14 @@ const Index = () => {
       return;
     }
     
-    const hasAlertComponent = widgetComponents.some(c => c.type === 'alert') || componentType === 'alert';
+    const hasAlertComponent = widgetComponents.some(c => c.type === 'alert') || component.type === 'alert';
     const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
     
     const nonHeaderNonAlertCount = widgetComponents.filter(
       c => c.type !== 'header' && c.type !== 'alert'
     ).length;
     
-    if (nonHeaderNonAlertCount >= MAX_COMPONENTS && componentType !== 'header' && componentType !== 'alert') {
+    if (nonHeaderNonAlertCount >= MAX_COMPONENTS && component.type !== 'header' && component.type !== 'alert') {
       toast({
         title: "Component Limit Reached",
         description: `Widgets are limited to ${MAX_COMPONENTS} components (excluding header and alerts). Please remove a component first.`,
@@ -118,16 +117,10 @@ const Index = () => {
       return;
     }
     
-    const newComponent: WidgetComponent = {
-      id: `${componentType}-${Date.now()}`,
-      type: componentType as ComponentType,
-      props: {}
-    };
-    
-    setWidgetComponents([...widgetComponents, newComponent]);
+    setWidgetComponents([...widgetComponents, {...component, id: `${component.type}-${Date.now()}`}]);
     toast({
       title: "Component Added",
-      description: `Added ${componentType} component to your widget.`
+      description: `Added ${component.type} component to your widget.`
     });
   };
 

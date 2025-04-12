@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
-import { WidgetComponent, ApiConfig, ContentFieldConfig } from '@/types/widget-types';
+import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
 import { renderComponent } from './component-renderers';
-import { HelpCircle, AlertCircle, Check, Ruler, Palette, Database } from 'lucide-react';
+import { HelpCircle, AlertCircle, Check, Ruler, Palette } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -21,7 +22,6 @@ interface WidgetPreviewProps {
 }
 
 const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
-  
   const [apiData, setApiData] = useState<Record<string, any>>({});
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
   const [contentDetails, setContentDetails] = useState<ContentDetails>({
@@ -43,12 +43,12 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   const regularComponentsToDisplay = nonHeaderNonAlertComponents.slice(0, MAX_COMPONENTS);
   
   const displayComponents = components.filter(component => {
-    if (component.type === 'header') {
-      return false;
-    }
-    
     if (component.type === 'alert') {
       return !dismissedAlerts.includes(component.id);
+    }
+    
+    if (component.type === 'header') {
+      return false;
     }
     
     return regularComponentsToDisplay.includes(component);
@@ -62,56 +62,25 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     const apiId = component.apiConfig.apiId;
     const apiResult = apiData[apiId];
     
-    if (!apiResult) {
-      return undefined;
+    if (!apiResult || !component.apiConfig.multiMapping) {
+      return apiResult;
     }
     
-    if (component.apiConfig.contentConfig) {
-      const processedData = { ...apiResult };
-      
-      Object.entries(component.apiConfig.contentConfig).forEach(([contentKey, config]) => {
-        const typedConfig = config as ContentFieldConfig;
-        if (typedConfig.field && apiResult[typedConfig.field] !== undefined) {
-          processedData[`formatted_${contentKey}`] = {
-            value: apiResult[typedConfig.field],
-            customText: typedConfig.customText || '',
-            fontFamily: typedConfig.fontFamily || 'system-ui',
-            fontSize: typedConfig.fontSize || '16px',
-            alignment: typedConfig.alignment || 'left'
-          };
-        } else if (typedConfig.customText) {
-          processedData[`formatted_${contentKey}`] = {
-            value: '',
-            customText: typedConfig.customText,
-            fontFamily: typedConfig.fontFamily || 'system-ui',
-            fontSize: typedConfig.fontSize || '16px',
-            alignment: typedConfig.alignment || 'left'
-          };
+    const processedData = { ...apiResult };
+    
+    Object.entries(component.apiConfig.multiMapping).forEach(([propKey, fields]) => {
+      if (fields && fields.length > 0) {
+        const fieldValues = fields.map(field => {
+          return apiResult[field];
+        }).filter(val => val !== undefined);
+        
+        if (fieldValues.length > 0) {
+          processedData[`multi_${propKey}`] = fieldValues;
         }
-      });
-      
-      return processedData;
-    }
+      }
+    });
     
-    if (component.apiConfig.multiMapping) {
-      const processedData = { ...apiResult };
-      
-      Object.entries(component.apiConfig.multiMapping).forEach(([propKey, fields]) => {
-        if (fields && fields.length > 0) {
-          const fieldValues = fields.map(field => {
-            return apiResult[field];
-          }).filter(val => val !== undefined);
-          
-          if (fieldValues.length > 0) {
-            processedData[`multi_${propKey}`] = fieldValues;
-          }
-        }
-      });
-      
-      return processedData;
-    }
-    
-    return apiResult;
+    return processedData;
   };
 
   useEffect(() => {
@@ -280,10 +249,10 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         </div>
       )}
       
-      <ScrollArea className="h-full w-full">
+      <ScrollArea className="h-full w-full overflow-x-hidden">
         <div className={headerComponent ? "pt-2" : ""}>
           {displayComponents.map((component, index) => 
-            renderComponentWithTooltip(component, index)
+            renderComponentWithTooltip(component, index + (headerComponent ? 1 : 0))
           )}
           
           {hasExcessComponents && (
