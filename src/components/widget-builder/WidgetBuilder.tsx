@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import ComponentEditor from './ComponentEditor';
@@ -6,10 +7,10 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, ArrowDownAZ, ArrowUpAZ, SortAsc, SortDesc } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tooltip } from './TooltipManager';
+import { Tooltip as TooltipType } from './TooltipManager';
 import SearchBar from './SearchBar';
 import { Button } from '@/components/ui/button';
-import { TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { TooltipProvider, TooltipContent, TooltipTrigger, Tooltip } from '@/components/ui/tooltip';
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -19,7 +20,7 @@ interface WidgetBuilderProps {
   onReorderComponents: (reorderedComponents: WidgetComponent[]) => void;
   onRequestApiTemplate: (componentId: string) => void;
   onApplyTooltip?: (componentId: string, tooltipId: string) => void;
-  tooltips?: Tooltip[];
+  tooltips?: TooltipType[];
 }
 
 const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
