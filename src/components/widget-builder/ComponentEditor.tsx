@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,7 +44,11 @@ import {
   ShoppingBag,
   Star,
   X,
-  Tag
+  Tag,
+  ChevronDown,
+  ChevronUp,
+  Code,
+  Database
 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -54,6 +59,12 @@ import {
   TooltipTrigger 
 } from "@/components/ui/tooltip";
 import { Tooltip as CustomTooltip } from "./TooltipManager";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger 
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -80,6 +91,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   disableRemove = false,
   customTooltips = []
 }) => {
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
       ...component,
@@ -87,6 +100,31 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
         ...component.props,
         [propertyName]: value,
       },
+    };
+    onUpdateComponent(updatedComponent);
+  };
+
+  const handleApiSelection = (apiId: string) => {
+    const updatedComponent = {
+      ...component,
+      apiConfig: {
+        apiId,
+        dataMapping: component.apiConfig?.dataMapping || {}
+      }
+    };
+    onUpdateComponent(updatedComponent);
+  };
+
+  const handleDataMappingChange = (propKey: string, apiField: string) => {
+    const updatedComponent = {
+      ...component,
+      apiConfig: {
+        ...component.apiConfig!,
+        dataMapping: {
+          ...component.apiConfig?.dataMapping,
+          [propKey]: apiField
+        }
+      }
     };
     onUpdateComponent(updatedComponent);
   };
@@ -405,6 +443,130 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     return dataIntegrationComponents.includes(component.type);
   };
 
+  const selectedApi = component.apiConfig ? apis.find(api => api.id === component.apiConfig?.apiId) : undefined;
+
+  const renderApiDetails = () => {
+    if (!selectedApi) return null;
+
+    return (
+      <div className="space-y-4 mt-4 border rounded-md p-3 bg-gray-50">
+        <div className="flex justify-between items-center">
+          <h4 className="font-medium text-sm">Connected to: {selectedApi.name}</h4>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => {
+              const updatedComponent = { ...component };
+              delete updatedComponent.apiConfig;
+              onUpdateComponent(updatedComponent);
+            }}
+            className="h-6 text-red-500 hover:text-red-700"
+          >
+            <X size={14} className="mr-1" /> Disconnect
+          </Button>
+        </div>
+
+        {/* Display API details */}
+        <div className="space-y-3 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="font-medium w-20">Endpoint:</span>
+            <span className="text-xs overflow-hidden overflow-ellipsis">{selectedApi.endpoint}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-medium w-20">Method:</span>
+            <Badge variant="outline" className="text-xs font-mono">
+              {selectedApi.method}
+            </Badge>
+          </div>
+        </div>
+
+        {/* Headers */}
+        {selectedApi.headers && Object.keys(selectedApi.headers).length > 0 && (
+          <div className="mt-3">
+            <Accordion type="single" collapsible>
+              <AccordionItem value="headers">
+                <AccordionTrigger className="text-xs font-medium py-1">
+                  Headers
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-1 text-xs">
+                    {Object.entries(selectedApi.headers).map(([key, value], idx) => (
+                      <div key={`header-${idx}`} className="flex items-center gap-2">
+                        <span className="font-medium">{key}:</span>
+                        <span className="text-gray-600">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        )}
+
+        {/* Parameters */}
+        {selectedApi.parameters && Object.keys(selectedApi.parameters).length > 0 && (
+          <div className="mt-1">
+            <Accordion type="single" collapsible>
+              <AccordionItem value="parameters">
+                <AccordionTrigger className="text-xs font-medium py-1">
+                  Parameters
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-1 text-xs">
+                    {Object.entries(selectedApi.parameters).map(([key, value], idx) => (
+                      <div key={`param-${idx}`} className="flex items-center gap-2">
+                        <span className="font-medium">{key}:</span>
+                        <span className="text-gray-600">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        )}
+
+        {/* Data Mapping */}
+        <div className="mt-1">
+          <Accordion type="single" collapsible defaultValue="data-mapping">
+            <AccordionItem value="data-mapping">
+              <AccordionTrigger className="text-xs font-medium py-1">
+                Data Mapping
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3">
+                  <p className="text-xs text-gray-500">Map component properties to API data fields:</p>
+                  
+                  {getPropertyDefinitions().map((prop) => (
+                    <div key={`map-${prop.name}`} className="grid grid-cols-2 gap-2 items-center">
+                      <div className="text-xs font-medium">{prop.label}:</div>
+                      <Select
+                        value={component.apiConfig?.dataMapping?.[prop.name] || ""}
+                        onValueChange={(value) => handleDataMappingChange(prop.name, value)}
+                      >
+                        <SelectTrigger className="h-7 text-xs">
+                          <SelectValue placeholder="Select field" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          {selectedApi.possibleFields?.map((field, idx) => (
+                            <SelectItem key={`field-${idx}`} value={field} className="text-xs">
+                              {field}
+                            </SelectItem>
+                          )) || []}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={`p-4 ${isExpanded ? 'border-t border-gray-200' : ''}`}>
       <div className="flex justify-between items-center mb-2">
@@ -509,40 +671,72 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             </AccordionItem>
           </Accordion>
 
-          {(apis.length > 0 || shouldShowDataIntegration()) && (
-            <Accordion type="single" collapsible>
-              <AccordionItem value="api">
-                <AccordionTrigger className="text-sm font-medium">Data & API Integration</AccordionTrigger>
-                <AccordionContent>
-                  <div className="pt-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={onRequestApiTemplate}
-                      className="w-full"
-                    >
-                      {component.apiConfig ? 'Change API Connection' : 'Connect to API'}
-                    </Button>
-                    
-                    {shouldShowDataIntegration() && !component.apiConfig && (
-                      <div className="mt-3 text-sm text-gray-500">
-                        <p>This component can be connected to external data sources. Click the button above to set up an API connection.</p>
-                        {component.type === 'calendar' && (
-                          <p className="mt-2">Calendar components can sync with Google, Microsoft, or custom calendar services.</p>
-                        )}
-                        {component.type === 'chart' && (
-                          <p className="mt-2">Charts can visualize data from API endpoints or static sources.</p>
-                        )}
-                        {component.type === 'table' && (
-                          <p className="mt-2">Tables can display dynamic data from API endpoints with sorting, filtering, and pagination.</p>
+          <Accordion type="single" collapsible defaultValue={component.apiConfig ? "api" : undefined}>
+            <AccordionItem value="api">
+              <AccordionTrigger className="text-sm font-medium">
+                <div className="flex items-center">
+                  <Database size={16} className="mr-2" />
+                  API Integration
+                  {component.apiConfig && (
+                    <Badge variant="outline" className="ml-2 text-xs">
+                      Connected
+                    </Badge>
+                  )}
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="pt-2">
+                  {component.apiConfig ? (
+                    <div>
+                      {renderApiDetails()}
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="mb-4">
+                        <Label htmlFor="api-select" className="mb-1 block">Select API</Label>
+                        <Select onValueChange={handleApiSelection}>
+                          <SelectTrigger id="api-select">
+                            <SelectValue placeholder="Select an API to connect" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {apis.length > 0 ? (
+                              apis.map((api) => (
+                                <SelectItem key={api.id} value={api.id}>
+                                  {api.name}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="no-apis" disabled>
+                                No APIs available
+                              </SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="flex flex-col gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={onRequestApiTemplate}
+                          className="w-full"
+                        >
+                          <Code size={16} className="mr-2" />
+                          Use API Template
+                        </Button>
+
+                        {shouldShowDataIntegration() && (
+                          <div className="mt-3 text-sm text-gray-500">
+                            <p>This component can be connected to external data sources.</p>
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          )}
+                    </div>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       )}
     </div>
