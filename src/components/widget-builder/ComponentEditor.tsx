@@ -481,7 +481,10 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     return (
       <div className="space-y-4 mt-4 border rounded-md p-3 bg-gray-50">
         <div className="flex justify-between items-center">
-          <h4 className="font-medium text-sm">Connected to: {selectedApi.name}</h4>
+          <h4 className="font-medium text-sm flex items-center">
+            <Database size={14} className="mr-2 text-blue-500" />
+            Connected to: {selectedApi.name}
+          </h4>
           <Button 
             variant="ghost" 
             size="sm" 
@@ -496,76 +499,41 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </Button>
         </div>
 
-        {/* Display API details */}
-        <div className="space-y-3 text-sm">
-          <div className="flex items-center gap-2">
+        <div className="text-xs space-y-2 border-b pb-3">
+          <div className="flex items-start">
             <span className="font-medium w-20">Endpoint:</span>
-            <span className="text-xs overflow-hidden overflow-ellipsis">{selectedApi.endpoint}</span>
+            <span className="text-xs break-all">{selectedApi.endpoint}</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
             <span className="font-medium w-20">Method:</span>
             <Badge variant="outline" className="text-xs font-mono">
               {selectedApi.method}
             </Badge>
           </div>
+          
+          {selectedApi.parameters && Object.keys(selectedApi.parameters).length > 0 && (
+            <div className="flex items-start">
+              <span className="font-medium w-20">Parameters:</span>
+              <div className="flex flex-wrap gap-1">
+                {Object.keys(selectedApi.parameters).map(key => (
+                  <Badge key={key} variant="outline" className="text-xs">
+                    {key}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Headers */}
-        {selectedApi.headers && Object.keys(selectedApi.headers).length > 0 && (
-          <div className="mt-3">
-            <Accordion type="single" collapsible>
-              <AccordionItem value="headers">
-                <AccordionTrigger className="text-xs font-medium py-1">
-                  Headers
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-1 text-xs">
-                    {Object.entries(selectedApi.headers).map(([key, value], idx) => (
-                      <div key={`header-${idx}`} className="flex items-center gap-2">
-                        <span className="font-medium">{key}:</span>
-                        <span className="text-gray-600">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        )}
-
-        {/* Parameters */}
-        {selectedApi.parameters && Object.keys(selectedApi.parameters).length > 0 && (
-          <div className="mt-1">
-            <Accordion type="single" collapsible>
-              <AccordionItem value="parameters">
-                <AccordionTrigger className="text-xs font-medium py-1">
-                  Parameters
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-1 text-xs">
-                    {Object.entries(selectedApi.parameters).map(([key, value], idx) => (
-                      <div key={`param-${idx}`} className="flex items-center gap-2">
-                        <span className="font-medium">{key}:</span>
-                        <span className="text-gray-600">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        )}
-
-        {/* Data Mapping */}
-        <div className="mt-1">
-          <Accordion type="single" collapsible defaultValue="data-mapping">
-            <AccordionItem value="data-mapping">
-              <AccordionTrigger className="text-xs font-medium py-1">
-                Single Data Mapping
+        <div className="space-y-2 mt-3">
+          <Accordion type="single" collapsible defaultValue="data-mapping" className="border-0">
+            <AccordionItem value="data-mapping" className="border-0">
+              <AccordionTrigger className="text-xs font-medium py-1 px-0">
+                Property Mapping
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-3">
-                  <p className="text-xs text-gray-500">Map one API field to each component property:</p>
+                  <p className="text-xs text-gray-500">Map API data to component properties:</p>
                   
                   {getPropertyDefinitions().map((prop) => (
                     <div key={`map-${prop.name}`} className="grid grid-cols-2 gap-2 items-center">
@@ -578,7 +546,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                           <SelectValue placeholder="Select field" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
+                          <SelectItem value="">None</SelectItem>
                           {selectedApi.possibleFields?.map((field, idx) => (
                             <SelectItem key={`field-${idx}`} value={field} className="text-xs">
                               {field}
@@ -592,49 +560,49 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
               </AccordionContent>
             </AccordionItem>
           </Accordion>
-        </div>
-
-        {/* Multiple Data Mapping */}
-        <div className="mt-1">
-          <Accordion type="single" collapsible defaultValue="multi-mapping">
-            <AccordionItem value="multi-mapping">
-              <AccordionTrigger className="text-xs font-medium py-1">
-                Multiple Data Mapping
+          
+          <Accordion type="single" collapsible className="border-0">
+            <AccordionItem value="multi-mapping" className="border-0">
+              <AccordionTrigger className="text-xs font-medium py-1 px-0">
+                Multiple Field Mapping
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-3">
-                  <p className="text-xs text-gray-500">Select multiple API fields for each component property:</p>
+                  <p className="text-xs text-gray-500">Select multiple API fields for each property:</p>
                   
                   {getPropertyDefinitions().map((prop) => (
                     <div key={`multimap-${prop.name}`} className="border rounded-md p-2 mb-3">
                       <div className="text-xs font-medium mb-2">{prop.label}:</div>
-                      <div className="space-y-1 ml-1">
-                        {selectedApi.possibleFields && selectedApi.possibleFields.length > 0 ? (
-                          selectedApi.possibleFields.map((field, idx) => (
-                            <div key={`multifield-${prop.name}-${idx}`} className="flex items-center space-x-2">
-                              <Checkbox 
-                                id={`check-${prop.name}-${idx}`}
-                                checked={isFieldSelected(prop.name, field)}
-                                onCheckedChange={(checked) => {
-                                  handleMultiMappingChange(prop.name, field, checked === true);
-                                }}
-                              />
-                              <label 
-                                htmlFor={`check-${prop.name}-${idx}`}
-                                className="text-xs leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                {field}
-                              </label>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-xs text-gray-500">No fields available</div>
-                        )}
-                      </div>
                       
-                      {/* Show selected fields */}
+                      {selectedApi.possibleFields && selectedApi.possibleFields.length > 0 ? (
+                        <div className="max-h-32 overflow-y-auto pr-1">
+                          <div className="grid grid-cols-2 gap-1">
+                            {selectedApi.possibleFields.map((field, idx) => (
+                              <div key={`multifield-${prop.name}-${idx}`} className="flex items-center space-x-2">
+                                <Checkbox 
+                                  id={`check-${prop.name}-${idx}`}
+                                  checked={isFieldSelected(prop.name, field)}
+                                  onCheckedChange={(checked) => {
+                                    handleMultiMappingChange(prop.name, field, checked === true);
+                                  }}
+                                />
+                                <label 
+                                  htmlFor={`check-${prop.name}-${idx}`}
+                                  className="text-xs leading-none cursor-pointer"
+                                >
+                                  {field}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-xs text-gray-500">No fields available</div>
+                      )}
+                      
                       {component.apiConfig?.multiMapping?.[prop.name]?.length > 0 && (
                         <div className="mt-2 pt-2 border-t border-gray-200">
+                          <div className="text-xs font-medium mb-1">Selected fields:</div>
                           <div className="flex flex-wrap gap-1">
                             {component.apiConfig.multiMapping[prop.name].map((field, idx) => (
                               <Badge 
@@ -688,45 +656,50 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             renderApiDetails()
           ) : (
             <div>
-              <div className="mb-4">
-                <Label htmlFor="api-select" className="mb-1 block">Select API</Label>
-                <Select onValueChange={handleApiSelection}>
-                  <SelectTrigger id="api-select">
-                    <SelectValue placeholder="Select an API to connect" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {apis.length > 0 ? (
-                      apis.map((api) => (
-                        <SelectItem key={api.id} value={api.id}>
-                          {api.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-apis-available" disabled>
-                        No APIs available
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="flex flex-col gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={onRequestApiTemplate}
-                  className="w-full"
-                >
-                  <Code size={16} className="mr-2" />
-                  Use API Template
-                </Button>
-
-                {shouldShowDataIntegration() && (
-                  <div className="mt-3 text-sm text-gray-500">
-                    <p>This component can be connected to external data sources.</p>
+              {apis.length > 0 ? (
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="api-select" className="mb-1 block">Select API</Label>
+                    <Select onValueChange={handleApiSelection}>
+                      <SelectTrigger id="api-select">
+                        <SelectValue placeholder="Select an API to connect" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {apis.map((api) => (
+                          <SelectItem key={api.id} value={api.id}>
+                            {api.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                )}
-              </div>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={onRequestApiTemplate}
+                    className="w-full"
+                  >
+                    <Bookmark size={16} className="mr-2" />
+                    Use API Template
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-3">
+                  <Database size={20} className="mx-auto text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-500 mb-2">No APIs available</p>
+                  <p className="text-xs text-gray-400">Add an API in the APIs tab to connect to this component</p>
+                </div>
+              )}
+              
+              {shouldShowDataIntegration() && (
+                <div className="mt-4 pt-3 border-t border-gray-100">
+                  <div className="flex items-start text-sm text-gray-500">
+                    <Info size={14} className="mr-2 mt-0.5 text-blue-400 flex-shrink-0" />
+                    <p>This component supports data integration from external APIs.</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -763,7 +736,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
       {isExpanded && (
         <div className="space-y-4 mt-4">
-          {/* API Integration section moved to the top */}
           {renderApiSection()}
           
           <Accordion type="single" collapsible defaultValue="properties">
