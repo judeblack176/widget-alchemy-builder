@@ -1,536 +1,441 @@
 import React, { useState } from "react";
-import { ComponentDefinition, WidgetComponent, FontFamily, PREDEFINED_COLORS } from "@/types/widget-types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ComponentType, ComponentDefinition } from "@/types/widget-types";
+import { Button } from "@/components/ui/button";
 import { 
   BookOpen, 
   Type, 
   Image, 
+  MousePointer, 
   Video, 
   BarChart, 
-  MousePointer, 
   FormInput, 
   CalendarDays, 
   List, 
   LinkIcon, 
   Text,
-  Palette,
-  Bold,
-  Italic,
   Filter,
   AlertTriangle,
   Table2,
   Search,
-  GripVertical,
-  XCircle,
-  SortAsc,
-  ChevronDown,
-  Library
-} from "lucide-react";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Draggable } from 'react-beautiful-dnd';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import SearchBar from "./SearchBar";
-import { Link } from "react-router-dom";
+  Plus
+} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { v4 as uuidv4 } from "uuid";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ComponentLibraryProps {
-  onAddComponent: (component: WidgetComponent) => void;
-  existingComponents?: WidgetComponent[];
+  onAddComponent: (component: ComponentType) => void;
+  onAddMultipleComponents: (components: ComponentType[]) => void;
 }
 
-const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent, existingComponents = [] }) => {
-  const hasAlertComponent = existingComponents.some(c => c.type === 'alert');
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<"default" | "a-z">("default");
+const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ 
+  onAddComponent,
+  onAddMultipleComponents
+}) => {
+  const [selectedComponents, setSelectedComponents] = useState<ComponentType[]>([]);
   
-  const componentDefinitions: ComponentDefinition[] = [
-    {
+  const componentDefinitions: Record<ComponentType, ComponentDefinition> = {
+    header: {
       type: "header",
-      name: "Header Bar",
+      name: "Header",
       icon: "BookOpen",
       defaultProps: {
+        title: "Widget Header",
         icon: "BookOpen",
-        title: "Widget Title",
-        actions: ["Edit", "More"],
         backgroundColor: "#3B82F6",
-        textColor: "#FFFFFF",
-        fontFamily: "system-ui",
-        bold: false,
-        italic: false
+        textColor: "#FFFFFF"
       },
       availableProps: [
-        { name: "icon", type: "icon", label: "Icon" },
         { name: "title", type: "text", label: "Title" },
-        { name: "actions", type: "select", label: "Actions", options: ["None", "Edit", "More", "Both"] },
+        { name: "icon", type: "icon", label: "Icon" },
         { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "textColor", type: "color", label: "Text Color" },
-        { name: "fontFamily", type: "font", label: "Font Family", options: [
-          "Arial", "Helvetica", "Times New Roman", "Georgia", "Courier New",
-          "Verdana", "Tahoma", "Trebuchet MS", "Impact", "Comic Sans MS",
-          "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", 
-          "Playfair Display", "Merriweather", "system-ui"
-        ]},
-        { name: "bold", type: "select", label: "Bold", options: ["true", "false"] },
-        { name: "italic", type: "select", label: "Italic", options: ["true", "false"] }
+        { name: "textColor", type: "color", label: "Text Color" }
       ]
     },
-    {
+    text: {
       type: "text",
-      name: "Text Block",
+      name: "Text",
       icon: "Type",
       defaultProps: {
-        content: "Your text content here",
+        content: "Add your text content here",
         size: "medium",
         color: "#333333",
-        backgroundColor: "transparent",
-        fontWeight: "normal",
-        fontFamily: "system-ui",
-        bold: false,
-        italic: false
+        fontStyle: ""
       },
       availableProps: [
         { name: "content", type: "text", label: "Content" },
-        { name: "size", type: "select", label: "Size", options: ["small", "medium", "large"] },
+        { name: "size", type: "select", label: "Size" },
         { name: "color", type: "color", label: "Text Color" },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "fontWeight", type: "select", label: "Font Weight", options: ["normal", "bold", "light"] },
-        { name: "fontFamily", type: "font", label: "Font Family", options: [
-          "Arial", "Helvetica", "Times New Roman", "Georgia", "Courier New",
-          "Verdana", "Tahoma", "Trebuchet MS", "Impact", "Comic Sans MS",
-          "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", 
-          "Playfair Display", "Merriweather", "system-ui"
-        ]},
-        { name: "bold", type: "select", label: "Bold", options: ["true", "false"] },
-        { name: "italic", type: "select", label: "Italic", options: ["true", "false"] }
+        { name: "fontStyle", type: "fontStyle", label: "Font Style" }
       ]
     },
-    {
-      type: "image",
-      name: "Image",
-      icon: "Image",
-      defaultProps: {
-        source: "https://via.placeholder.com/150",
-        altText: "Image description",
-        caption: ""
-      },
-      availableProps: [
-        { name: "source", type: "text", label: "Image URL" },
-        { name: "altText", type: "text", label: "Alt Text" },
-        { name: "caption", type: "text", label: "Caption" }
-      ]
-    },
-    {
+    button: {
       type: "button",
       name: "Button",
       icon: "MousePointer",
       defaultProps: {
-        label: "Click me",
-        style: "primary",
-        action: "none",
+        label: "Click Me",
+        variant: "default",
         backgroundColor: "#3B82F6",
         textColor: "#FFFFFF"
       },
       availableProps: [
         { name: "label", type: "text", label: "Label" },
-        { name: "style", type: "select", label: "Style", options: ["primary", "secondary", "outline"] },
-        { name: "action", type: "text", label: "Action" },
+        { name: "variant", type: "select", label: "Style" },
         { name: "backgroundColor", type: "color", label: "Background Color" },
         { name: "textColor", type: "color", label: "Text Color" }
       ]
     },
-    {
+    image: {
+      type: "image",
+      name: "Image",
+      icon: "Image",
+      defaultProps: {
+        source: "https://via.placeholder.com/300",
+        altText: "Image description",
+        width: "100%",
+        height: "auto"
+      },
+      availableProps: [
+        { name: "source", type: "text", label: "Image URL" },
+        { name: "altText", type: "text", label: "Alt Text" },
+        { name: "width", type: "select", label: "Width" },
+        { name: "height", type: "select", label: "Height" }
+      ]
+    },
+    video: {
       type: "video",
-      name: "Video Player",
+      name: "Video",
       icon: "Video",
       defaultProps: {
         source: "https://example.com/video.mp4",
-        autoplay: false,
-        controls: true
+        controls: true,
+        autoplay: false
       },
       availableProps: [
         { name: "source", type: "text", label: "Video URL" },
-        { name: "autoplay", type: "select", label: "Autoplay", options: ["true", "false"] },
-        { name: "controls", type: "select", label: "Show Controls", options: ["true", "false"] }
+        { name: "controls", type: "select", label: "Show Controls" },
+        { name: "autoplay", type: "select", label: "Autoplay" }
       ]
     },
-    {
+    chart: {
       type: "chart",
       name: "Chart",
       icon: "BarChart",
       defaultProps: {
-        type: "bar",
+        chartType: "bar",
+        title: "Chart Title",
         data: [10, 20, 30, 40],
-        labels: ["A", "B", "C", "D"],
-        colors: ["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6"],
-        backgroundColor: "#FFFFFF",
-        borderColor: "#E5E7EB",
-        legendPosition: "top"
+        labels: ["Q1", "Q2", "Q3", "Q4"]
       },
       availableProps: [
-        { name: "type", type: "select", label: "Chart Type", options: ["bar", "line", "pie", "doughnut", "radar"] },
-        { name: "data", type: "text", label: "Data Values (comma separated)" },
-        { name: "labels", type: "text", label: "Labels (comma separated)" },
-        { name: "colors", type: "text", label: "Chart Colors (comma separated hex)" },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "borderColor", type: "color", label: "Border Color" },
-        { name: "legendPosition", type: "select", label: "Legend Position", options: ["top", "right", "bottom", "left", "none"] }
-      ]
+        { name: "chartType", type: "select", label: "Chart Type" },
+        { name: "title", type: "text", label: "Title" },
+        { name: "data", type: "text", label: "Data" },
+        { name: "labels", type: "text", label: "Labels" }
+      ],
+      supportsApiIntegration: true
     },
-    {
+    form: {
       type: "form",
       name: "Form Input",
       icon: "FormInput",
       defaultProps: {
-        fieldType: "text",
-        label: "Input field",
-        placeholder: "Enter value..."
-      },
-      availableProps: [
-        { name: "fieldType", type: "select", label: "Field Type", options: ["text", "number", "select", "textarea"] },
-        { name: "label", type: "text", label: "Label" },
-        { name: "placeholder", type: "text", label: "Placeholder" }
-      ]
-    },
-    {
-      type: "calendar",
-      name: "Calendar",
-      icon: "CalendarDays",
-      defaultProps: {
-        label: "Select Date",
-        placeholder: "Pick a date",
-        initialDate: "",
-        calendarIntegration: {
-          serviceType: "none",
-          syncEnabled: false
-        },
-        allowExternalSync: false,
-        icsConfig: {
-          enabled: false,
-          importEnabled: false,
-          exportEnabled: false,
-          allowSubscribe: false,
-          icsUrl: "",
-          syncInterval: "daily"
-        }
+        label: "Input Label",
+        placeholder: "Enter value...",
+        fieldType: "text"
       },
       availableProps: [
         { name: "label", type: "text", label: "Label" },
         { name: "placeholder", type: "text", label: "Placeholder" },
-        { name: "initialDate", type: "text", label: "Initial Date (YYYY-MM-DD)" },
-        { name: "allowExternalSync", type: "select", label: "Allow External Calendar Sync", options: ["true", "false"] },
-        { name: "calendarIntegration.serviceType", type: "select", label: "Calendar Service", 
-          options: ["none", "google", "outlook", "apple", "custom"] }
+        { name: "fieldType", type: "select", label: "Field Type" }
       ]
     },
-    {
+    calendar: {
+      type: "calendar",
+      name: "Calendar",
+      icon: "CalendarDays",
+      defaultProps: {
+        calendarType: "date-picker",
+        label: "Select Date"
+      },
+      availableProps: [
+        { name: "calendarType", type: "select", label: "Calendar Type" },
+        { name: "label", type: "text", label: "Label" }
+      ],
+      supportsApiIntegration: true
+    },
+    dropdown: {
       type: "dropdown",
-      name: "Dropdown Menu",
+      name: "Dropdown",
       icon: "List",
       defaultProps: {
-        label: "Dropdown",
-        options: ["Option 1", "Option 2", "Option 3"],
-        placeholder: "Select an option"
+        label: "Select an option",
+        options: "Option 1,Option 2,Option 3",
+        placeholder: "Choose..."
       },
       availableProps: [
         { name: "label", type: "text", label: "Label" },
-        { name: "options", type: "text", label: "Options (comma separated)" },
+        { name: "options", type: "text", label: "Options" },
         { name: "placeholder", type: "text", label: "Placeholder" }
-      ]
+      ],
+      supportsApiIntegration: true
     },
-    {
+    link: {
       type: "link",
       name: "Link",
       icon: "LinkIcon",
       defaultProps: {
         text: "Click here",
         url: "https://example.com",
-        openInNewTab: true,
-        style: "default"
+        openInNewTab: true
       },
       availableProps: [
-        { name: "text", type: "text", label: "Link Text" },
+        { name: "text", type: "text", label: "Text" },
         { name: "url", type: "text", label: "URL" },
-        { name: "openInNewTab", type: "select", label: "Open in New Tab", options: ["true", "false"] },
-        { name: "style", type: "select", label: "Style", options: ["default", "button", "underlined"] }
+        { name: "openInNewTab", type: "select", label: "Open in New Tab" }
       ]
     },
-    {
+    "multi-text": {
       type: "multi-text",
       name: "Multi-line Text",
       icon: "Text",
       defaultProps: {
-        label: "Multi-line Input",
-        placeholder: "Type your text here...",
+        label: "Text Area",
+        placeholder: "Enter text here...",
         rows: 4
       },
       availableProps: [
         { name: "label", type: "text", label: "Label" },
         { name: "placeholder", type: "text", label: "Placeholder" },
-        { name: "rows", type: "number", label: "Number of Rows" }
+        { name: "rows", type: "number", label: "Rows" }
       ]
     },
-    {
+    filter: {
       type: "filter",
-      name: "Filter Component",
+      name: "Filter",
       icon: "Filter",
       defaultProps: {
         label: "Filter",
-        placeholder: "Filter items...",
-        options: ["All", "Option 1", "Option 2", "Option 3"],
-        multiple: false,
-        searchable: true,
-        backgroundColor: "#FFFFFF",
-        textColor: "#333333",
-        accentColor: "#3B82F6",
-        borderColor: "#E2E8F0"
+        placeholder: "Filter items..."
       },
       availableProps: [
         { name: "label", type: "text", label: "Label" },
-        { name: "placeholder", type: "text", label: "Placeholder" },
-        { name: "options", type: "text", label: "Options (comma separated)" },
-        { name: "multiple", type: "select", label: "Allow Multiple Selection", options: ["true", "false"] },
-        { name: "searchable", type: "select", label: "Allow Search", options: ["true", "false"] },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "textColor", type: "color", label: "Text Color" },
-        { name: "accentColor", type: "color", label: "Accent Color" },
-        { name: "borderColor", type: "color", label: "Border Color" }
+        { name: "placeholder", type: "text", label: "Placeholder" }
       ]
     },
-    {
+    alert: {
       type: "alert",
-      name: "Alert Bar",
+      name: "Alert",
       icon: "AlertTriangle",
       defaultProps: {
         title: "Alert Title",
         message: "This is an alert message.",
         type: "info",
-        icon: true,
-        dismissible: true,
-        backgroundColor: "#EFF6FF",
-        textColor: "#1E3A8A",
-        borderColor: "#BFDBFE"
+        dismissible: true
       },
       availableProps: [
         { name: "title", type: "text", label: "Title" },
         { name: "message", type: "text", label: "Message" },
-        { name: "type", type: "select", label: "Alert Type", options: ["info", "success", "warning", "error"] },
-        { name: "icon", type: "select", label: "Show Icon", options: ["true", "false"] },
-        { name: "dismissible", type: "select", label: "Dismissible", options: ["true", "false"] },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "textColor", type: "color", label: "Text Color" },
-        { name: "borderColor", type: "color", label: "Border Color" }
-      ]
+        { name: "type", type: "select", label: "Alert Type" },
+        { name: "dismissible", type: "select", label: "Dismissible" }
+      ],
+      supportsApiIntegration: true
     },
-    {
+    table: {
       type: "table",
       name: "Table",
       icon: "Table2",
       defaultProps: {
         columns: [
-          { header: "Name", accessor: "name", type: "text" },
-          { header: "Age", accessor: "age", type: "number" },
-          { header: "Status", accessor: "status", type: "text" }
+          { header: "Name", accessor: "name" },
+          { header: "Age", accessor: "age" },
+          { header: "Status", accessor: "status" }
         ],
         data: [
           { name: "John Doe", age: 28, status: "Active" },
-          { name: "Jane Smith", age: 32, status: "Inactive" },
-          { name: "Bob Johnson", age: 45, status: "Active" }
-        ],
-        striped: true,
-        hoverable: true,
-        bordered: false,
-        compact: false,
-        headerBackgroundColor: "#F8FAFC",
-        headerTextColor: "#334155",
-        rowBackgroundColor: "#FFFFFF",
-        rowTextColor: "#1E293B",
-        borderColor: "#E2E8F0",
-        altRowBackgroundColor: "#F1F5F9"
+          { name: "Jane Smith", age: 32, status: "Inactive" }
+        ]
       },
       availableProps: [
-        { name: "columns", type: "text", label: "Columns (JSON)" },
-        { name: "data", type: "text", label: "Data (JSON)" },
-        { name: "striped", type: "select", label: "Striped Rows", options: ["true", "false"] },
-        { name: "hoverable", type: "select", label: "Hoverable Rows", options: ["true", "false"] },
-        { name: "bordered", type: "select", label: "Bordered Cells", options: ["true", "false"] },
-        { name: "compact", type: "select", label: "Compact Layout", options: ["true", "false"] },
-        { name: "headerBackgroundColor", type: "color", label: "Header Background Color" },
-        { name: "headerTextColor", type: "color", label: "Header Text Color" },
-        { name: "rowBackgroundColor", type: "color", label: "Row Background Color" },
-        { name: "rowTextColor", type: "color", label: "Row Text Color" },
-        { name: "borderColor", type: "color", label: "Border Color" },
-        { name: "altRowBackgroundColor", type: "color", label: "Alt Row Background Color" }
-      ]
+        { name: "columns", type: "text", label: "Columns" },
+        { name: "data", type: "text", label: "Data" },
+        { name: "striped", type: "select", label: "Striped Rows" },
+        { name: "bordered", type: "select", label: "Bordered" }
+      ],
+      supportsApiIntegration: true
     },
-    {
+    searchbar: {
       type: "searchbar",
       name: "Search Bar",
       icon: "Search",
       defaultProps: {
         placeholder: "Search...",
-        backgroundColor: "#FFFFFF",
-        textColor: "#333333",
-        borderColor: "#E2E8F0",
-        width: "full",
-        iconColor: "#6B7280",
         showIcon: true
       },
       availableProps: [
         { name: "placeholder", type: "text", label: "Placeholder" },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "textColor", type: "color", label: "Text Color" },
-        { name: "borderColor", type: "color", label: "Border Color" },
-        { name: "width", type: "select", label: "Width", options: ["full", "medium", "small"] },
-        { name: "iconColor", type: "color", label: "Icon Color" },
-        { name: "showIcon", type: "select", label: "Show Icon", options: ["true", "false"] }
-      ]
-    }
-  ];
-
-  const getIconComponent = (iconName: string) => {
-    switch (iconName) {
-      case "BookOpen": return <BookOpen size={24} />;
-      case "Type": return <Type size={24} />;
-      case "Image": return <Image size={24} />;
-      case "MousePointer": return <MousePointer size={24} />;
-      case "Video": return <Video size={24} />;
-      case "BarChart": return <BarChart size={24} />;
-      case "FormInput": return <FormInput size={24} />;
-      case "CalendarDays": return <CalendarDays size={24} />;
-      case "List": return <List size={24} />;
-      case "LinkIcon": return <LinkIcon size={24} />;
-      case "Text": return <Text size={24} />;
-      case "Palette": return <Palette size={24} />;
-      case "Bold": return <Bold size={24} />;
-      case "Italic": return <Italic size={24} />;
-      case "Filter": return <Filter size={24} />;
-      case "AlertTriangle": return <AlertTriangle size={24} />;
-      case "Table2": return <Table2 size={24} />;
-      case "Search": return <Search size={24} />;
-      default: return <div className="w-6 h-6 bg-gray-200 rounded" />;
+        { name: "showIcon", type: "select", label: "Show Icon" }
+      ],
+      supportsApiIntegration: true
     }
   };
 
-  const handleAddComponent = (definition: ComponentDefinition) => {
-    const newComponent: WidgetComponent = {
-      id: `${definition.type}-${Date.now()}`,
-      type: definition.type,
-      props: { ...definition.defaultProps }
-    };
-    
-    onAddComponent(newComponent);
+  const toggleComponentSelection = (componentType: ComponentType) => {
+    setSelectedComponents(prev => {
+      if (prev.includes(componentType)) {
+        return prev.filter(type => type !== componentType);
+      } else {
+        return [...prev, componentType];
+      }
+    });
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
+  const handleAddSelectedComponents = () => {
+    if (selectedComponents.length > 0) {
+      onAddMultipleComponents(selectedComponents);
+      setSelectedComponents([]);
+    }
   };
-
-  const toggleSortOrder = () => {
-    setSortOrder(sortOrder === "default" ? "a-z" : "default");
-  };
-
-  const filteredDefinitions = componentDefinitions.filter(def => {
-    if (!searchQuery) return true;
-    return def.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           def.type.toLowerCase().includes(searchQuery.toLowerCase());
-  });
-
-  let sortedDefinitions = [...filteredDefinitions];
-  
-  const headerDef = sortedDefinitions.find(d => d.type === "header");
-  const alertDef = sortedDefinitions.find(d => d.type === "alert");
-  const otherDefs = sortedDefinitions.filter(d => d.type !== "header" && d.type !== "alert");
-  
-  if (sortOrder === "a-z") {
-    otherDefs.sort((a, b) => a.name.localeCompare(b.name));
-  }
-  
-  sortedDefinitions = [];
-  if (headerDef) sortedDefinitions.push(headerDef);
-  if (alertDef) sortedDefinitions.push(alertDef);
-  sortedDefinitions = [...sortedDefinitions, ...otherDefs];
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="font-medium text-gray-700">Components</h3>
+    <div className="border rounded-md overflow-hidden">
+      <div className="p-3 bg-gray-50 border-b flex justify-between items-center">
+        <h3 className="font-medium">Components</h3>
+        {selectedComponents.length > 0 && (
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="font-normal">
+              {selectedComponents.length} selected
+            </Badge>
+            <Button 
+              size="sm" 
+              onClick={handleAddSelectedComponents}
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-3 w-3" />
+              Add Selected
+            </Button>
+          </div>
+        )}
       </div>
       
-      <div className="flex flex-col space-y-3">
-        <div className="flex justify-between items-center">
-          <SearchBar 
-            onSearch={handleSearch} 
-            placeholder="Search components..."
-            className="w-full"
-          />
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={toggleSortOrder} 
-            className="ml-2"
-            title={sortOrder === "default" ? "Sort A-Z" : "Default order"}
-          >
-            <SortAsc size={18} className={sortOrder === "a-z" ? "text-widget-blue" : ""} />
-          </Button>
-        </div>
+      <Tabs defaultValue="all">
+        <TabsList className="w-full rounded-none border-b grid grid-cols-3">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="text">Text</TabsTrigger>
+          <TabsTrigger value="media">Media</TabsTrigger>
+        </TabsList>
         
-        <div className="grid grid-cols-1 gap-3">
-          {sortedDefinitions.map((definition, index) => {
-            const isDisabled = definition.type === 'alert' && hasAlertComponent;
-            const isUnmovable = definition.type === 'header' || definition.type === 'alert';
-            
-            return (
-              <Draggable
-                key={definition.type}
-                draggableId={definition.type}
-                index={index}
-                isDragDisabled={isDisabled || isUnmovable}
-              >
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...(isUnmovable ? {} : provided.dragHandleProps)}
-                    className="relative"
+        <TabsContent value="all" className="m-0">
+          <ScrollArea className="h-[400px]">
+            <div className="grid grid-cols-2 gap-2 p-3">
+              {Object.entries(componentDefinitions).map(([type, definition]) => (
+                <div 
+                  key={type}
+                  className="relative border rounded-md p-2 hover:bg-gray-50 cursor-pointer flex flex-col items-center transition-colors"
+                >
+                  <Checkbox
+                    checked={selectedComponents.includes(type as ComponentType)}
+                    onCheckedChange={() => toggleComponentSelection(type as ComponentType)}
+                    className="absolute top-2 right-2"
+                  />
+                  
+                  <div 
+                    className="w-full flex flex-col items-center pt-3 pb-1"
+                    onClick={() => onAddComponent(type as ComponentType)}
                   >
-                    <Card 
-                      data-component-type={definition.type}
-                      className={`cursor-pointer transition-colors ${
-                        isDisabled ? 'opacity-50 border-gray-300 cursor-not-allowed' : 
-                        isUnmovable ? 'border-blue-500' : 'hover:border-widget-blue'
-                      } ${snapshot.isDragging ? 'shadow-lg' : ''}`}
-                      onClick={() => !isDisabled && handleAddComponent(definition)}
-                    >
-                      <div className="flex p-3 items-center">
-                        <div className={`mr-3 ${isDisabled ? 'text-gray-400' : isUnmovable ? 'text-blue-500' : 'text-widget-blue'}`}>
-                          {getIconComponent(definition.icon)}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className={`font-medium ${isDisabled ? 'text-gray-400' : ''}`}>
-                            {definition.name}
-                            {isDisabled && <span className="ml-2 text-xs text-red-500">(Already added)</span>}
-                            {isUnmovable && <span className="ml-2 text-xs text-blue-500">(Fixed position)</span>}
-                          </h4>
-                          <p className="text-xs text-gray-500">
-                            {isDisabled ? 'Only one alert allowed' : 
-                             isUnmovable ? 'Fixed position component' : 'Click or drag to add'}
-                          </p>
-                        </div>
-                        <div className="text-gray-400">
-                          {!isDisabled && !isUnmovable && <GripVertical size={16} />}
-                        </div>
-                      </div>
-                    </Card>
+                    {getComponentIcon(definition.icon)}
+                    <span className="mt-1 text-sm font-medium">{definition.name}</span>
                   </div>
-                )}
-              </Draggable>
-            );
-          })}
-        </div>
-      </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+        
+        <TabsContent value="text" className="m-0">
+          <ScrollArea className="h-[400px]">
+            <div className="grid grid-cols-2 gap-2 p-3">
+              {Object.entries(componentDefinitions)
+                .filter(([type]) => ["text", "header"].includes(type))
+                .map(([type, definition]) => (
+                  <div 
+                    key={type}
+                    className="relative border rounded-md p-2 hover:bg-gray-50 cursor-pointer flex flex-col items-center transition-colors"
+                  >
+                    <Checkbox
+                      checked={selectedComponents.includes(type as ComponentType)}
+                      onCheckedChange={() => toggleComponentSelection(type as ComponentType)}
+                      className="absolute top-2 right-2"
+                    />
+                    
+                    <div 
+                      className="w-full flex flex-col items-center pt-3 pb-1"
+                      onClick={() => onAddComponent(type as ComponentType)}
+                    >
+                      {getComponentIcon(definition.icon)}
+                      <span className="mt-1 text-sm font-medium">{definition.name}</span>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+        
+        <TabsContent value="media" className="m-0">
+          <ScrollArea className="h-[400px]">
+            <div className="grid grid-cols-2 gap-2 p-3">
+              {Object.entries(componentDefinitions)
+                .filter(([type]) => ["image", "video"].includes(type))
+                .map(([type, definition]) => (
+                  <div 
+                    key={type}
+                    className="relative border rounded-md p-2 hover:bg-gray-50 cursor-pointer flex flex-col items-center transition-colors"
+                  >
+                    <Checkbox
+                      checked={selectedComponents.includes(type as ComponentType)}
+                      onCheckedChange={() => toggleComponentSelection(type as ComponentType)}
+                      className="absolute top-2 right-2"
+                    />
+                    
+                    <div 
+                      className="w-full flex flex-col items-center pt-3 pb-1"
+                      onClick={() => onAddComponent(type as ComponentType)}
+                    >
+                      {getComponentIcon(definition.icon)}
+                      <span className="mt-1 text-sm font-medium">{definition.name}</span>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
     </div>
   );
+};
+
+const getComponentIcon = (iconName: string) => {
+  switch (iconName) {
+    case "BookOpen": return <BookOpen className="h-5 w-5 text-gray-500" />;
+    case "Type": return <Type className="h-5 w-5 text-gray-500" />;
+    case "Image": return <Image className="h-5 w-5 text-gray-500" />;
+    case "MousePointer": return <MousePointer className="h-5 w-5 text-gray-500" />;
+    case "Video": return <Video className="h-5 w-5 text-gray-500" />;
+    case "BarChart": return <BarChart className="h-5 w-5 text-gray-500" />;
+    case "FormInput": return <FormInput className="h-5 w-5 text-gray-500" />;
+    case "CalendarDays": return <CalendarDays className="h-5 w-5 text-gray-500" />;
+    case "List": return <List className="h-5 w-5 text-gray-500" />;
+    case "LinkIcon": return <LinkIcon className="h-5 w-5 text-gray-500" />;
+    case "Text": return <Text className="h-5 w-5 text-gray-500" />;
+    case "Filter": return <Filter className="h-5 w-5 text-gray-500" />;
+    case "AlertTriangle": return <AlertTriangle className="h-5 w-5 text-gray-500" />;
+    case "Table2": return <Table2 className="h-5 w-5 text-gray-500" />;
+    case "Search": return <Search className="h-5 w-5 text-gray-500" />;
+    default: return <BookOpen className="h-5 w-5 text-gray-500" />;
+  }
 };
 
 export default ComponentLibrary;

@@ -222,9 +222,10 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           { name: "content", type: "text", label: "Content" },
           { name: "size", type: "select", label: "Size", options: ["small", "medium", "large"] },
           { name: "color", type: "color", label: "Text Color" },
-          { name: "backgroundColor", type: "color", label: "Background Color" },
-          { name: "bold", type: "select", label: "Bold", options: ["true", "false"] },
-          { name: "italic", type: "select", label: "Italic", options: ["true", "false"] }
+          { name: "fontStyle", type: "fontStyle", label: "Font Style" },
+          { name: "fontFamily", type: "select", label: "Font Family", options: [
+            "system-ui", "Arial", "Helvetica", "Times New Roman", "Georgia", "Roboto", "Open Sans", "Montserrat", "Playfair Display"
+          ] }
         ];
       case 'button':
         return [
@@ -404,10 +405,53 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           <ColorPalettePicker
             key={property.name}
             label={property.label}
-            value={value || "#FFFFFF"}
+            value={value || "#333333"}
             onChange={(newValue) => handlePropertyChange(property.name, newValue)}
             className="mb-4"
           />
+        );
+      case "fontStyle":
+        return (
+          <div key={property.name} className="mb-4">
+            <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <Button
+                type="button"
+                variant={value?.includes('bold') ? "default" : "outline"}
+                size="sm"
+                className={`flex items-center ${value?.includes('bold') ? "bg-blue-500 text-white" : ""}`}
+                onClick={() => {
+                  const currentStyles = value ? value.split(' ') : [];
+                  const hasBold = currentStyles.includes('bold');
+                  const newStyles = hasBold 
+                    ? currentStyles.filter(s => s !== 'bold') 
+                    : [...currentStyles, 'bold'];
+                  handlePropertyChange(property.name, newStyles.join(' '));
+                }}
+              >
+                <Bold className="h-4 w-4 mr-1" />
+                Bold
+              </Button>
+              
+              <Button
+                type="button"
+                variant={value?.includes('italic') ? "default" : "outline"}
+                size="sm"
+                className={`flex items-center ${value?.includes('italic') ? "bg-blue-500 text-white" : ""}`}
+                onClick={() => {
+                  const currentStyles = value ? value.split(' ') : [];
+                  const hasItalic = currentStyles.includes('italic');
+                  const newStyles = hasItalic 
+                    ? currentStyles.filter(s => s !== 'italic') 
+                    : [...currentStyles, 'italic'];
+                  handlePropertyChange(property.name, newStyles.join(' '));
+                }}
+              >
+                <Italic className="h-4 w-4 mr-1" />
+                Italic
+              </Button>
+            </div>
+          </div>
         );
       case "text":
         return (
