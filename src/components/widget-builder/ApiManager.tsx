@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ApiConfig, extractFieldPaths } from "@/types/widget-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -799,18 +800,20 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                       
                       <div className="flex items-start">
                         <span className="font-semibold w-24 pt-1">Endpoint:</span>
-                        <div className="flex items-center">
-                          <span className="font-mono text-xs max-w-[400px] break-all" title={api.endpoint}>
-                            {api.endpoint}
-                          </span>
-                          <a 
-                            href={api.endpoint} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="ml-1 text-blue-600 hover:text-blue-800"
-                          >
-                            <ExternalLink size={12} />
-                          </a>
+                        <div className="flex flex-col">
+                          <div className="flex items-center">
+                            <span className="font-mono text-xs max-w-[400px] break-all" title={api.endpoint}>
+                              {api.endpoint}
+                            </span>
+                            <a 
+                              href={api.endpoint} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="ml-1 text-blue-600 hover:text-blue-800"
+                            >
+                              <ExternalLink size={12} />
+                            </a>
+                          </div>
                         </div>
                       </div>
                       
