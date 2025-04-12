@@ -2,7 +2,7 @@
 import React from 'react';
 import { useWidget } from '@/contexts/WidgetContext';
 import WidgetPreview from '@/components/widget-builder/WidgetPreview';
-import WidgetSubmissionForm from '@/components/widget-builder/WidgetSubmissionForm';
+import { WidgetSubmissionForm } from '@/components/widget-builder/submission';
 import PreviewToolbar from './PreviewToolbar';
 import { useLocation } from 'react-router-dom';
 
