@@ -57,11 +57,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
         placeholder={placeholder}
         value={isControlled ? value : query}
         onChange={handleChange}
-        className={`${showIcon ? 'pl-10' : 'pl-4'} shadow-sm`}
+        className={`${showIcon ? 'pl-10' : 'pl-4'} shadow-sm text-left`}
         style={{
           backgroundColor: backgroundColor,
           color: textColor,
-          borderColor: borderColor
+          borderColor: borderColor,
+          textAlign: 'left'
         }}
       />
     </div>
