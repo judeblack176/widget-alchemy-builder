@@ -6,14 +6,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { WidgetComponent } from '@/types/widget-types';
-import { ComponentType } from '@/types/widget-types';
+import { WidgetComponent, ComponentType } from '@/types/widget-types';
 import { Search, ArrowDownAZ } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface ComponentLibraryProps {
-  onAddComponent: (component: WidgetComponent | string) => void;
-  onAddMultipleComponents?: (componentTypes: string[]) => void;
+  onAddComponent: (component: WidgetComponent | ComponentType) => void;
+  onAddMultipleComponents?: (componentTypes: ComponentType[]) => void;
   existingComponents?: WidgetComponent[];
 }
 
@@ -22,7 +21,7 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
   onAddMultipleComponents,
   existingComponents = []
 }) => {
-  const [selectedComponents, setSelectedComponents] = useState<string[]>([]);
+  const [selectedComponents, setSelectedComponents] = useState<ComponentType[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortAZ, setSortAZ] = useState<boolean>(false);
@@ -50,18 +49,22 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
   // All components (with priority ones first)
   const components: ComponentType[] = [...priorityComponents, ...regularComponents];
 
-  const componentCategories = {
+  type CategoryMap = {
+    [key: string]: ComponentType[];
+  };
+
+  const componentCategories: CategoryMap = {
     all: components,
     layout: ['header', 'text', 'image', 'alert'],
     input: ['form', 'dropdown', 'multi-text', 'filter', 'searchbar'],
     interactive: ['button', 'link', 'calendar', 'chart', 'table', 'video']
   };
 
-  const getComponentTitle = (componentType: string): string => {
+  const getComponentTitle = (componentType: ComponentType): string => {
     return componentType.charAt(0).toUpperCase() + componentType.slice(1).replace(/-/g, ' ');
   };
 
-  const getComponentDescription = (componentType: string): string => {
+  const getComponentDescription = (componentType: ComponentType): string => {
     switch(componentType) {
       case 'header':
         return 'A widget title with customizable icon and actions';
@@ -98,7 +101,7 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
     }
   };
 
-  const toggleSelectComponent = (componentType: string) => {
+  const toggleSelectComponent = (componentType: ComponentType) => {
     setSelectedComponents(prevSelected => 
       prevSelected.includes(componentType)
         ? prevSelected.filter(c => c !== componentType)
