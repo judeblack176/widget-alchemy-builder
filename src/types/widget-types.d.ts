@@ -16,6 +16,12 @@ export interface WidgetComponent {
   selected?: boolean;
 }
 
+export interface ContentDetails {
+  size?: string;
+  color?: string;
+  variant?: string;
+}
+
 export type AlertType = 'info' | 'success' | 'warning' | 'error';
 
 export interface TableColumn {
@@ -58,12 +64,6 @@ export interface Tag {
   id: string;
   name: string;
   color: string;
-}
-
-export interface ContentDetails {
-  size?: string;
-  color?: string;
-  variant?: string;
 }
 
 declare module "@/components/widget-builder/WidgetBuilder" {
