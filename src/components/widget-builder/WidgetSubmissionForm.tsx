@@ -7,8 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Send, CheckCircle, Clock, XCircle, RefreshCw } from "lucide-react";
-import { useWidget } from "@/contexts/WidgetContext";
-import type { WidgetComponent, ApiConfig, WidgetSubmission } from "@/types";
+import type { WidgetComponent, ApiConfig, WidgetConfig, WidgetSubmission } from "@/types/widget-types";
 
 interface WidgetSubmissionFormProps {
   widgetComponents: WidgetComponent[];
@@ -28,7 +27,6 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
   onCancelEditing
 }) => {
   const { toast } = useToast();
-  const { setIsEditing } = useWidget();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -136,7 +134,6 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
       setOpen(false);
       setSubmissionStatus('pending');
       setHasChanges(false);
-      setIsEditing(false);
       
       onSubmitSuccess();
     } catch (error) {
@@ -146,15 +143,6 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
         description: "There was an error submitting your widget",
         variant: "destructive"
       });
-    }
-  };
-
-  const handleCancelEditingClick = () => {
-    setOpen(false);
-    if (onCancelEditing) {
-      onCancelEditing();
-    } else {
-      setIsEditing(false);
     }
   };
 
@@ -265,8 +253,11 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
           </div>
           
           <DialogFooter>
-            {isEditing && (
-              <Button type="button" variant="outline" onClick={handleCancelEditingClick}>
+            {onCancelEditing && isEditing && (
+              <Button type="button" variant="outline" onClick={() => {
+                setOpen(false);
+                onCancelEditing();
+              }}>
                 Cancel Editing
               </Button>
             )}
