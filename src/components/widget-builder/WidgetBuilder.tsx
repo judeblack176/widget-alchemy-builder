@@ -5,12 +5,10 @@ import ComponentEditor from './ComponentEditor';
 import { Card } from '@/components/ui/card';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, ArrowDownAZ, ArrowUpAZ, SortAsc, SortDesc } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tooltip as TooltipType } from './TooltipManager';
+import { Tooltip } from './TooltipManager';
 import SearchBar from './SearchBar';
-import { Button } from '@/components/ui/button';
-import { TooltipProvider, TooltipContent, TooltipTrigger, Tooltip } from '@/components/ui/tooltip';
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -20,7 +18,7 @@ interface WidgetBuilderProps {
   onReorderComponents: (reorderedComponents: WidgetComponent[]) => void;
   onRequestApiTemplate: (componentId: string) => void;
   onApplyTooltip?: (componentId: string, tooltipId: string) => void;
-  tooltips?: TooltipType[];
+  tooltips?: Tooltip[];
 }
 
 const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
@@ -36,7 +34,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null);
   
   useEffect(() => {
     if (tooltips && onApplyTooltip) {
@@ -89,53 +86,25 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     setSearchQuery(query);
   };
 
-  const toggleSort = () => {
-    setSortDirection(prev => {
-      if (prev === null) return 'asc';
-      if (prev === 'asc') return 'desc';
-      return null;
-    });
-  };
-
-  const getFilteredComponents = () => {
-    let filtered = components.filter(component => {
-      if (!searchQuery.trim()) return true;
-      
-      if (component.type.toLowerCase().includes(searchQuery.toLowerCase())) {
-        return true;
-      }
-      
-      for (const key in component.props) {
-        if (
-          typeof component.props[key] === 'string' && 
-          component.props[key].toLowerCase().includes(searchQuery.toLowerCase())
-        ) {
-          return true;
-        }
-      }
-      
-      return false;
-    });
-
-    if (sortDirection) {
-      const headerAndAlerts = filtered.filter(c => c.type === 'header' || c.type === 'alert');
-      const otherComponents = filtered.filter(c => c.type !== 'header' && c.type !== 'alert');
-      
-      otherComponents.sort((a, b) => {
-        const aType = a.type.toLowerCase();
-        const bType = b.type.toLowerCase();
-        return sortDirection === 'asc' 
-          ? aType.localeCompare(bType) 
-          : bType.localeCompare(aType);
-      });
-      
-      filtered = [...headerAndAlerts, ...otherComponents];
+  const filteredComponents = components.filter(component => {
+    if (!searchQuery.trim()) return true;
+    
+    if (component.type.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return true;
     }
     
-    return filtered;
-  };
+    for (const key in component.props) {
+      if (
+        typeof component.props[key] === 'string' && 
+        component.props[key].toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
+        return true;
+      }
+    }
+    
+    return false;
+  });
 
-  const filteredComponents = getFilteredComponents();
   const filteredHeaderComponent = headerComponent && filteredComponents.includes(headerComponent) 
     ? headerComponent 
     : null;
@@ -155,35 +124,12 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           </Alert>
         )}
 
-        <div className="flex items-center gap-2 mb-4">
+        <div className="mb-4">
           <SearchBar
             placeholder="Search components..."
             onSearch={handleSearch}
-            className="flex-grow"
+            className="w-full"
           />
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={toggleSort}
-                  className={`h-8 w-8 p-0 flex items-center justify-center ${sortDirection ? 'bg-blue-50' : ''}`}
-                >
-                  {sortDirection === 'asc' ? (
-                    <SortAsc size={16} />
-                  ) : sortDirection === 'desc' ? (
-                    <SortDesc size={16} />
-                  ) : (
-                    <SortAsc size={16} className="text-gray-400" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{sortDirection === 'asc' ? 'Sort Z-A' : sortDirection === 'desc' ? 'Clear sorting' : 'Sort A-Z'}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
         
         {/* Fixed header component section */}

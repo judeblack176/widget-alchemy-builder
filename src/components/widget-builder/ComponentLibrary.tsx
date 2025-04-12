@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WidgetComponent, ComponentType } from '@/types/widget-types';
-import { Search, ArrowDownAZ, ArrowUpAZ } from 'lucide-react';
+import { Search, ArrowDownAZ } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface ComponentLibraryProps {
@@ -25,7 +26,10 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortAZ, setSortAZ] = useState<boolean>(false);
 
+  // Priority components that should always be at the top
   const priorityComponents: ComponentType[] = ['header', 'alert'];
+  
+  // Regular components
   const regularComponents: ComponentType[] = [
     'text',
     'button',
@@ -42,6 +46,7 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
     'searchbar'
   ];
 
+  // All components (with priority ones first)
   const components: ComponentType[] = [...priorityComponents, ...regularComponents];
 
   type CategoryMap = {
@@ -119,12 +124,16 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
     setSortAZ(!sortAZ);
   };
 
+  // Get the components to display based on active category, search, and sort
   const getDisplayedComponents = () => {
+    // Get the base components for the current category
     let categoryComponents = componentCategories[activeCategory as keyof typeof componentCategories] || components;
     
+    // Split into priority and regular components
     const priorityComponentsInCategory = categoryComponents.filter(c => priorityComponents.includes(c));
     let regularComponentsInCategory = categoryComponents.filter(c => !priorityComponents.includes(c));
     
+    // Filter by search query if set
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       priorityComponentsInCategory.filter(c => 
@@ -137,15 +146,18 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
       );
     }
     
+    // Sort regular components if sort is enabled
     if (sortAZ) {
       regularComponentsInCategory.sort((a, b) => getComponentTitle(a).localeCompare(getComponentTitle(b)));
     }
     
+    // Combine with priority components always at the top
     return [...priorityComponentsInCategory, ...regularComponentsInCategory];
   };
 
   const displayedComponents = getDisplayedComponents();
   
+  // Check if an alert component already exists
   const alertExists = existingComponents.some(c => c.type === 'alert');
 
   return (
@@ -176,9 +188,9 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
             size="sm" 
             className={`h-8 px-2 ${sortAZ ? 'bg-blue-50' : ''}`} 
             onClick={toggleSort}
-            title={sortAZ ? "Sort Z-A" : "Sort A-Z"}
+            title="Sort A-Z"
           >
-            {sortAZ ? <ArrowUpAZ className="h-4 w-4" /> : <ArrowDownAZ className="h-4 w-4" />}
+            <ArrowDownAZ className="h-4 w-4" />
           </Button>
         </div>
         
