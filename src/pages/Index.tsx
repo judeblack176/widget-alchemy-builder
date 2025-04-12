@@ -119,6 +119,12 @@ const Index = () => {
     });
   };
 
+  const handleAddMultipleComponents = (componentTypes: ComponentType[]) => {
+    componentTypes.forEach(componentType => {
+      handleAddComponent(componentType);
+    });
+  };
+
   const handleUpdateComponent = (updatedComponent: WidgetComponent) => {
     setWidgetComponents(widgetComponents.map(comp => 
       comp.id === updatedComponent.id ? updatedComponent : comp
@@ -456,7 +462,8 @@ const Index = () => {
                             className="h-full px-4"
                           >
                             <ComponentLibrary 
-                              onAddComponent={handleAddComponent} 
+                              onAddComponent={handleAddComponent}
+                              onAddMultipleComponents={handleAddMultipleComponents}
                               existingComponents={widgetComponents}
                             />
                             {provided.placeholder}

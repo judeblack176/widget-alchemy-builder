@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ComponentType, ComponentDefinition } from "@/types/widget-types";
+import { ComponentType, ComponentDefinition, WidgetComponent } from "@/types/widget-types";
 import { Button } from "@/components/ui/button";
 import { 
   BookOpen, 
@@ -28,14 +28,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 interface ComponentLibraryProps {
   onAddComponent: (component: ComponentType) => void;
   onAddMultipleComponents: (components: ComponentType[]) => void;
+  existingComponents?: WidgetComponent[];
 }
 
 const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ 
   onAddComponent,
-  onAddMultipleComponents
+  onAddMultipleComponents,
+  existingComponents = []
 }) => {
-  const [selectedComponents, setSelectedComponents] = useState<ComponentType[]>([]);
-  
+  const [selectedComponents, setSelectedComponents] = useState<ComponentType[]>(existingComponents || []);
+
   const componentDefinitions: Record<ComponentType, ComponentDefinition> = {
     header: {
       type: "header",
