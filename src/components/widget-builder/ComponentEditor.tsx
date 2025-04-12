@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { X, HelpCircle } from 'lucide-react';
 import { WidgetComponent, ApiConfig, Tooltip } from '@/types/widget-types';

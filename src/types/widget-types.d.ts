@@ -1,5 +1,4 @@
 
-
 import { LucideIcon } from 'lucide-react';
 
 export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table' | 'searchbar';
@@ -85,6 +84,6 @@ declare module "@/components/widget-builder/WidgetBuilder" {
     onReorderComponents: (reorderedComponents: WidgetComponent[]) => void;
     onRequestApiTemplate: (componentId: string) => void;
     onApplyTooltip: (componentId: string, tooltipId: string) => void;
+    tooltips?: Tooltip[];
   }
 }
-
