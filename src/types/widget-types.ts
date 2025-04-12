@@ -33,12 +33,14 @@ export interface ApiConfig {
   id: string;
   name: string;
   endpoint: string;
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  headers?: Record<string, string>;
+  method: string;
+  headers: Record<string, string>;
   parameters?: Record<string, string>;
   responseMapping?: Record<string, string>;
   sampleResponse?: string;
   possibleFields?: string[];
+  bodyType?: 'JSON' | 'Raw';
+  rawBody?: string;
 }
 
 export interface WidgetConfig {
@@ -107,6 +109,12 @@ export interface TableColumn {
   header: string;
   accessor: string;
   type?: 'text' | 'number' | 'date' | 'boolean' | 'icon';
+}
+
+export interface ContentDetails {
+  size?: string;
+  color?: string;
+  variant?: string;
 }
 
 export const COLOR_PALETTE = {
@@ -210,7 +218,6 @@ export const COLOR_PALETTE = {
   ]
 };
 
-// Default data mapping configurations for each component type
 export const DEFAULT_DATA_MAPPINGS: Record<ComponentType, Record<string, string>> = {
   header: {
     title: "title",
@@ -315,10 +322,8 @@ export const extractFieldPaths = (obj: any, prefix = ''): string[] => {
     paths.push(newPath);
     
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-      // For nested objects, recurse deeper
       paths = [...paths, ...extractFieldPaths(value, newPath)];
     } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object') {
-      // For arrays of objects, show array notation and recurse into the first item
       paths.push(`${newPath}[0]`);
       paths = [...paths, ...extractFieldPaths(value[0], `${newPath}[0]`)];
     }
@@ -327,7 +332,6 @@ export const extractFieldPaths = (obj: any, prefix = ''): string[] => {
   return paths;
 };
 
-// Common predefined tooltip tags
 export const COMMON_TOOLTIP_TAGS = [
   "Getting Started",
   "Advanced",

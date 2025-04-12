@@ -39,6 +39,8 @@ export interface ApiConfig {
   rawBody?: string;
   sampleResponse?: string;
   possibleFields?: string[];
+  parameters?: Record<string, string>;
+  responseMapping?: Record<string, string>;
 }
 
 export interface WidgetSubmission {
@@ -51,6 +53,14 @@ export interface WidgetSubmission {
   };
   status: 'pending' | 'approved' | 'rejected';
   submittedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  feedback?: string;
+  thumbnail?: string;
+  author: string;
+  category?: string;
+  tags?: string[];
+  version: string;
 }
 
 export interface Tooltip {
