@@ -61,12 +61,13 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
         }
       }}
     >
-      <SelectTrigger className="h-8 px-2 text-xs w-32">
-        <SelectValue placeholder="Add Tooltip" />
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder="Select a tooltip" />
       </SelectTrigger>
       <SelectContent>
         {tooltipOptions.map((option) => (
-          <SelectItem key={option.id} value={option.id} className="text-xs">
+          <SelectItem key={option.id} value={option.id} className="flex items-center gap-2">
+            {option.id !== "none" && getTooltipIcon(option.id)}
             {option.label}
           </SelectItem>
         ))}

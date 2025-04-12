@@ -5,6 +5,7 @@ import { Tooltip as CustomTooltip } from "./TooltipManager";
 import PropertyEditor from "./editor/PropertyEditor";
 import ApiIntegration from "./editor/ApiIntegration";
 import ComponentHeader from "./editor/ComponentHeader";
+import TooltipSelector from "./editor/TooltipSelector";
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -99,6 +100,18 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           className="space-y-4"
           onClick={(e) => e.stopPropagation()} // Prevent clicks inside from triggering the container's click
         >
+          {/* Tooltip selector at the top when expanded */}
+          {onApplyTooltip && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Component Tooltip</label>
+              <TooltipSelector 
+                tooltipId={component.tooltipId} 
+                onApplyTooltip={onApplyTooltip} 
+                customTooltips={customTooltips}
+              />
+            </div>
+          )}
+          
           <PropertyEditor 
             component={component} 
             onUpdateComponent={onUpdateComponent} 
