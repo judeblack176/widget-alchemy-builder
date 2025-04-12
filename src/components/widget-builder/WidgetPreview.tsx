@@ -179,7 +179,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     const componentData = processComponentData(component);
     
     const componentContent = (
-      <div className="relative">
+      <div className="relative w-full">
         {renderComponent(
           component, 
           componentData, 
@@ -192,16 +192,13 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       return (
         <div 
           key={component.id} 
-          className={`widget-component relative ${component.type !== 'header' ? 'px-3 pt-3 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-3' : ''}`}
-          style={{
-            borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
-          }}
+          className={`widget-component relative w-full ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-3' : ''}`}
         >
           <HoverCard openDelay={200} closeDelay={100}>
             <HoverCardTrigger asChild>
-              <div className="relative cursor-help">
+              <div className="relative cursor-help w-full">
                 {componentContent}
-                <div className="absolute right-0 top-0 z-10">
+                <div className="absolute right-2 top-2 z-10">
                   <HelpCircle size={16} className="text-gray-500" />
                 </div>
               </div>
@@ -217,10 +214,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     return (
       <div 
         key={component.id} 
-        className={`widget-component relative ${component.type !== 'header' ? 'px-3 pt-3 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-3' : ''}`}
-        style={{
-          borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
-        }}
+        className={`widget-component relative w-full ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-3' : ''}`}
       >
         {componentContent}
       </div>
@@ -229,7 +223,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
 
   return (
     <Card 
-      className="bg-white shadow-md rounded overflow-hidden relative mx-auto"
+      className="bg-white shadow-md rounded-lg overflow-hidden relative mx-auto flex flex-col"
       style={{ 
         width: '316px', 
         height: '384px',
@@ -238,13 +232,13 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       }}
     >
       {headerComponent && (
-        <div className="sticky top-0 z-20">
+        <div className="sticky top-0 z-20 w-full">
           {renderComponentWithTooltip(headerComponent, 0)}
         </div>
       )}
       
-      <ScrollArea className="h-full w-full">
-        <div className={headerComponent ? "pt-2" : ""}>
+      <ScrollArea className="flex-1 w-full">
+        <div className={`w-full ${headerComponent ? "pt-2" : ""}`}>
           {displayComponents
             .filter(component => component.id !== headerComponent?.id)
             .map((component, index) => 
@@ -252,7 +246,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
             )}
           
           {hasExcessComponents && (
-            <Alert variant="destructive" className="mt-2 mx-3 mb-3 py-2">
+            <Alert variant="destructive" className="mt-2 mx-4 mb-4 py-2">
               <AlertCircle className="h-4 w-4 mr-2" />
               <AlertDescription>
                 Only showing {MAX_COMPONENTS} of {nonHeaderNonAlertComponents.length} components. 
