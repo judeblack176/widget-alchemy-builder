@@ -30,7 +30,15 @@ export const renderComponent = (
       
       if (componentApiData) {
         component.apiFieldMappings.forEach(mapping => {
-          if (mapping && mapping.field && mapping.targetProperty && componentApiData[mapping.field] !== undefined) {
+          // Skip mappings with placeholder values or empty strings
+          if (
+            mapping && 
+            mapping.field && 
+            mapping.targetProperty && 
+            mapping.field !== 'select_field' && 
+            mapping.targetProperty !== 'select_property' && 
+            componentApiData[mapping.field] !== undefined
+          ) {
             processedProps[mapping.targetProperty] = componentApiData[mapping.field];
           }
         });
@@ -66,13 +74,13 @@ export const renderComponent = (
       case 'calendar':
         return <Calendar {...processedProps} events={apiData?.events} />;
       case 'dropdown':
-        return <Dropdown {...processedProps} options={apiData?.options || processedProps.options} />;
+        return <Dropdown {...processedProps} options={apiData?.options || processedProps.options || []} />;
       case 'link':
         return <Link {...processedProps} />;
       case 'multi-text':
         return <MultiText {...processedProps} />;
       case 'filter':
-        return <Filter {...processedProps} options={apiData?.options || processedProps.options} />;
+        return <Filter {...processedProps} options={apiData?.options || processedProps.options || []} />;
       case 'alert':
         return (
           <Alert 

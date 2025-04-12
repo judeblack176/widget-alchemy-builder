@@ -61,7 +61,7 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
           <div className="space-y-1">
             <Label htmlFor={`field-${mapping.id}`} className="text-xs">API Field</Label>
             <Select
-              value={mapping.field || ""}
+              value={mapping.field || "select_field"} // Use a default non-empty value
               onValueChange={(value) => onUpdateMapping(mapping.id, 'field', value)}
             >
               <SelectTrigger id={`field-${mapping.id}`} className="h-8">
@@ -73,6 +73,8 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
                     {field}
                   </SelectItem>
                 ))}
+                {/* Add a placeholder option with a non-empty value */}
+                <SelectItem value="select_field">Select a field</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -80,7 +82,7 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
           <div className="space-y-1">
             <Label htmlFor={`property-${mapping.id}`} className="text-xs">Component Property</Label>
             <Select
-              value={mapping.targetProperty || ""}
+              value={mapping.targetProperty || "select_property"} // Use a default non-empty value
               onValueChange={(value) => onUpdateMapping(mapping.id, 'targetProperty', value)}
             >
               <SelectTrigger id={`property-${mapping.id}`} className="h-8">
@@ -92,6 +94,8 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
                     {prop}
                   </SelectItem>
                 ))}
+                {/* Add a placeholder option with a non-empty value */}
+                <SelectItem value="select_property">Select a property</SelectItem>
               </SelectContent>
             </Select>
           </div>
