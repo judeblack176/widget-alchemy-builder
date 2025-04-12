@@ -49,7 +49,10 @@ import {
   Code,
   Database,
   Plus,
-  Trash2
+  Trash2,
+  AlignLeft,
+  AlignCenter,
+  AlignRight
 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -128,7 +131,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   customTooltips = []
 }) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const [selectedFields, setSelectedFields] = useState<Record<string, string[]>>({});
   const [showDisconnectAlert, setShowDisconnectAlert] = useState(false);
 
   const handlePropertyChange = (propertyName: string, value: any) => {
@@ -148,7 +150,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       apiConfig: {
         apiId,
         dataMapping: component.apiConfig?.dataMapping || {},
-        multiMapping: component.apiConfig?.multiMapping || {}
+        contentConfig: component.apiConfig?.contentConfig || {}
       }
     };
     onUpdateComponent(updatedComponent);
@@ -168,26 +170,26 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     onUpdateComponent(updatedComponent);
   };
 
-  const handleMultiMappingChange = (propKey: string, apiField: string, isChecked: boolean) => {
-    const currentFields = component.apiConfig?.multiMapping?.[propKey] || [];
+  const handleContentConfigChange = (contentIndex: number, property: string, value: string) => {
+    const currentContentConfig = component.apiConfig?.contentConfig || {};
+    const contentKey = `content${contentIndex + 1}`;
     
-    let updatedFields;
-    if (isChecked) {
-      updatedFields = [...currentFields, apiField];
-    } else {
-      updatedFields = currentFields.filter(field => field !== apiField);
-    }
+    const updatedContentConfig = {
+      ...currentContentConfig,
+      [contentKey]: {
+        ...(currentContentConfig[contentKey] || {}),
+        [property]: value
+      }
+    };
     
     const updatedComponent = {
       ...component,
       apiConfig: {
         ...component.apiConfig!,
-        multiMapping: {
-          ...component.apiConfig?.multiMapping,
-          [propKey]: updatedFields
-        }
+        contentConfig: updatedContentConfig
       }
     };
+    
     onUpdateComponent(updatedComponent);
   };
 
@@ -196,10 +198,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     delete updatedComponent.apiConfig;
     onUpdateComponent(updatedComponent);
     setShowDisconnectAlert(false);
-  };
-
-  const isFieldSelected = (propKey: string, apiField: string) => {
-    return component.apiConfig?.multiMapping?.[propKey]?.includes(apiField) || false;
   };
 
   const componentTypeLabels: Record<string, string> = {
@@ -236,6 +234,15 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     { name: "ShoppingBag", component: <ShoppingBag size={18} /> },
     { name: "Star", component: <Star size={18} /> },
     { name: "Coffee", component: <Coffee size={18} /> }
+  ];
+
+  const availableFonts = [
+    "system-ui", "Arial", "Helvetica", "Times New Roman", "Georgia", 
+    "Verdana", "Courier New", "Tahoma", "Trebuchet MS", "Palatino"
+  ];
+
+  const fontSizes = [
+    "12px", "14px", "16px", "18px", "20px", "24px", "28px", "32px", "36px", "42px", "48px"
   ];
 
   const getPropertyDefinitions = () => {
@@ -518,66 +525,119 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const selectedApi = component.apiConfig ? apis.find(api => api.id === component.apiConfig?.apiId) : undefined;
 
-  const renderMultiSelectDropdown = (propKey: string, label: string, apiFields: string[]) => {
-    const selectedFields = component.apiConfig?.multiMapping?.[propKey] || [];
+  const renderContentField = (index: number) => {
+    if (!selectedApi) return null;
+    
+    const contentKey = `content${index + 1}`;
+    const contentConfig = component.apiConfig?.contentConfig?.[contentKey] || {};
     
     return (
-      <div className="space-y-2 mb-4">
-        <div className="flex justify-between items-center">
-          <Label>{label}</Label>
-          <Badge variant="outline" className="ml-2">
-            {selectedFields.length} selected
-          </Badge>
+      <div className="border rounded-md p-3 bg-white mb-4">
+        <div className="flex justify-between items-center mb-3">
+          <h4 className="font-medium text-sm">Content Field {index + 1}</h4>
+          {contentConfig.field && (
+            <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
+              Configured
+            </Badge>
+          )}
         </div>
         
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full justify-between">
-              Select Fields
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 bg-white border border-gray-200 shadow-lg" align="start">
-            <DropdownMenuLabel>API Fields</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <ScrollArea className="h-[200px]">
-              {apiFields.map(field => (
-                <DropdownMenuCheckboxItem
-                  key={`${propKey}-${field}`}
-                  checked={isFieldSelected(propKey, field)}
-                  onCheckedChange={(checked) => {
-                    handleMultiMappingChange(propKey, field, checked);
-                  }}
-                >
-                  {field}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </ScrollArea>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        
-        {selectedFields.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2 p-2 border border-gray-100 rounded-md">
-            {selectedFields.map((field, idx) => (
-              <Badge 
-                key={`selected-${propKey}-${idx}`} 
-                variant="secondary"
-                className="text-xs flex items-center gap-1 mb-1"
-              >
-                {field}
-                <button 
-                  className="ml-1 hover:text-red-500"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleMultiMappingChange(propKey, field, false);
-                  }}
-                >
-                  <X size={10} />
-                </button>
-              </Badge>
-            ))}
+        <div className="space-y-3">
+          {/* Field Selection */}
+          <div className="mb-3">
+            <Label className="mb-1 block text-xs">Select API Field</Label>
+            <Select
+              value={contentConfig.field || ""}
+              onValueChange={(value) => handleContentConfigChange(index, "field", value)}
+            >
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Select field" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-gray-200 shadow-md">
+                <SelectItem value="none">None</SelectItem>
+                {selectedApi.possibleFields?.map((field, idx) => (
+                  <SelectItem key={`field-${idx}`} value={field} className="text-xs">
+                    {field}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        )}
+          
+          {/* Custom Text (can be used as a prefix/suffix or standalone label) */}
+          <div className="mb-3">
+            <Label className="mb-1 block text-xs">Custom Text</Label>
+            <Input 
+              value={contentConfig.customText || ""} 
+              onChange={(e) => handleContentConfigChange(index, "customText", e.target.value)} 
+              placeholder="Enter custom text or label"
+              className="h-8 text-xs"
+            />
+          </div>
+          
+          {/* Font Family */}
+          <div className="mb-3">
+            <Label className="mb-1 block text-xs">Font Family</Label>
+            <Select
+              value={contentConfig.fontFamily || "system-ui"}
+              onValueChange={(value) => handleContentConfigChange(index, "fontFamily", value)}
+            >
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Select font" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-gray-200 shadow-md">
+                {availableFonts.map((font) => (
+                  <SelectItem key={font} value={font} style={{ fontFamily: font }} className="text-xs">
+                    {font}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Font Size */}
+          <div className="mb-3">
+            <Label className="mb-1 block text-xs">Font Size</Label>
+            <Select
+              value={contentConfig.fontSize || "16px"}
+              onValueChange={(value) => handleContentConfigChange(index, "fontSize", value)}
+            >
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Select size" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-gray-200 shadow-md">
+                {fontSizes.map((size) => (
+                  <SelectItem key={size} value={size} className="text-xs">
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Text Alignment */}
+          <div className="mb-3">
+            <Label className="mb-1 block text-xs">Text Alignment</Label>
+            <ToggleGroup 
+              type="single" 
+              value={contentConfig.alignment || "left"}
+              onValueChange={(value) => {
+                if (value) handleContentConfigChange(index, "alignment", value);
+              }}
+              className="justify-start border rounded-md"
+            >
+              <ToggleGroupItem value="left" className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600">
+                <AlignLeft size={16} />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="center" className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600">
+                <AlignCenter size={16} />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="right" className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600">
+                <AlignRight size={16} />
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+        </div>
       </div>
     );
   };
@@ -659,12 +719,40 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         )}
 
-        {/* Data Mapping - Updated Section */}
+        {/* Content Fields Configuration */}
         <div className="mt-1">
-          <Accordion type="single" collapsible defaultValue="data-mapping">
+          <Accordion type="single" collapsible defaultValue="content-fields">
+            <AccordionItem value="content-fields">
+              <AccordionTrigger className="text-xs font-medium py-1">
+                Content Fields
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3">
+                  <p className="text-xs text-gray-500 mb-3">Configure up to 3 content fields from your API data:</p>
+                  
+                  {[0, 1, 2].map(index => renderContentField(index))}
+                  
+                  <div className="text-xs mt-2 p-2 bg-blue-50 border border-blue-100 rounded-md">
+                    <p className="flex items-start">
+                      <Info className="h-4 w-4 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
+                      <span>
+                        These content fields will be displayed in both the widget and preview.
+                        You can customize the font, size, and alignment for each field.
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+
+        {/* Legacy Data Mapping - Keep for backward compatibility */}
+        <div className="mt-1">
+          <Accordion type="single" collapsible>
             <AccordionItem value="data-mapping">
               <AccordionTrigger className="text-xs font-medium py-1">
-                Single Data Mapping
+                Single Data Mapping (Legacy)
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-3">
@@ -697,47 +785,9 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                   </div>
                   
                   <div className="text-xs mt-2">
-                    <p className="text-blue-600 font-medium">
-                      <InfoIcon className="inline-block mr-1 h-3 w-3" />
-                      Selected fields will be displayed in both widget and preview
-                    </p>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-
-        {/* Multiple Data Mapping - Updated Section */}
-        <div className="mt-1">
-          <Accordion type="single" collapsible defaultValue="multi-mapping">
-            <AccordionItem value="multi-mapping">
-              <AccordionTrigger className="text-xs font-medium py-1">
-                Multiple Data Mapping
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-3">
-                  <p className="text-xs text-gray-500">Select multiple API fields for each component property:</p>
-                  
-                  <div className="border rounded-md p-3 bg-white">
-                    {getPropertyDefinitions().map((prop) => (
-                      <div key={`multimap-${prop.name}`} className="border-b border-gray-100 py-2 last:border-0 last:pb-0 first:pt-0">
-                        {renderMultiSelectDropdown(
-                          prop.name, 
-                          prop.label, 
-                          selectedApi.possibleFields || []
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="text-xs mt-2 p-2 bg-blue-50 border border-blue-100 rounded-md">
-                    <p className="flex items-start">
-                      <Info className="h-4 w-4 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span>
-                        Selected fields will be available in both widget and preview. 
-                        Use this for components that display multiple items like tables, lists, or charts.
-                      </span>
+                    <p className="text-amber-600 font-medium">
+                      <AlertTriangle className="inline-block mr-1 h-3 w-3" />
+                      Legacy mapping - please use Content Fields instead
                     </p>
                   </div>
                 </div>
