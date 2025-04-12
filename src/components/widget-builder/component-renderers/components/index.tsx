@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Alert as UIAlert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -16,8 +15,19 @@ export const Header = ({ title, icon }: any) => {
   );
 };
 
-export const Text = ({ content }: any) => {
-  return <div className="text-foreground">{content}</div>;
+export const Text = ({ content, fontSize, fontFamily, textAlign, isBold, isItalic, textColor }: any) => {
+  const textStyle = {
+    fontFamily: fontFamily === 'default' ? 'inherit' : fontFamily,
+    fontSize: fontSize === 'small' ? '0.875rem' : 
+             fontSize === 'large' ? '1.25rem' : 
+             fontSize === 'xlarge' ? '1.5rem' : '1rem',
+    fontWeight: isBold ? 'bold' : 'normal',
+    fontStyle: isItalic ? 'italic' : 'normal',
+    color: textColor || 'inherit',
+    textAlign: textAlign || 'left'
+  };
+
+  return <div className="text-foreground" style={textStyle}>{content}</div>;
 };
 
 export const Image = ({ source, altText, caption, width, height, borderRadius, objectFit }: any) => {
@@ -230,7 +240,6 @@ export const Filter = ({ options, onFilter }: any) => {
   );
 };
 
-// Custom Alert component
 export const Alert = ({ title, children, variant, onDismiss }: any) => {
   return (
     <div className={`relative w-full rounded-lg border p-4 ${variant === 'destructive' ? 'border-destructive/50 text-destructive' : 'bg-background text-foreground'}`}>

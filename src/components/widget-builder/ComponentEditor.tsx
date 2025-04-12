@@ -46,7 +46,15 @@ import {
   Code,
   Database,
   Plus,
-  Trash2
+  Trash2,
+  Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Baseline
 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -101,6 +109,15 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   const [selectedFields, setSelectedFields] = useState<Record<string, string[]>>({});
   const [newFieldLabel, setNewFieldLabel] = useState<string>("");
   const [newFieldApiField, setNewFieldApiField] = useState<string>("");
+
+  const [textFormatting, setTextFormatting] = useState({
+    fontSize: component.props?.fontSize || "normal",
+    fontFamily: component.props?.fontFamily || "default",
+    textAlign: component.props?.textAlign || "left",
+    isBold: component.props?.isBold || false,
+    isItalic: component.props?.isItalic || false,
+    textColor: component.props?.textColor || "#000000"
+  });
 
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
@@ -457,7 +474,137 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
         if (property.name === "content" && (component.contentFields?.length || component.formattedContent !== undefined)) {
           return (
             <div key={property.name} className="mb-4">
-              <div className="mt-2 border rounded-md p-3 bg-gray-50">
+              <div className="mb-3 border rounded-md p-2 bg-white shadow-sm">
+                <div className="flex flex-wrap items-center gap-2 border-b pb-2 mb-2">
+                  <Select
+                    value={textFormatting.fontFamily}
+                    onValueChange={(val) => handleTextFormattingChange("fontFamily", val)}
+                  >
+                    <SelectTrigger className="h-8 w-28">
+                      <SelectValue placeholder="Font" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="default">Default</SelectItem>
+                      <SelectItem value="serif">Serif</SelectItem>
+                      <SelectItem value="sans-serif">Sans-serif</SelectItem>
+                      <SelectItem value="monospace">Monospace</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={textFormatting.fontSize}
+                    onValueChange={(val) => handleTextFormattingChange("fontSize", val)}
+                  >
+                    <SelectTrigger className="h-8 w-24">
+                      <SelectValue placeholder="Size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="small">Small</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="large">Large</SelectItem>
+                      <SelectItem value="xlarge">X-Large</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8 px-2 border-dashed">
+                        <div 
+                          className="w-4 h-4 rounded-sm mr-1" 
+                          style={{ backgroundColor: textFormatting.textColor }}
+                        />
+                        <span className="sr-only">Color</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64">
+                      <div className="grid gap-4">
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-sm">Text Color</h4>
+                          <div className="grid grid-cols-6 gap-2">
+                            {["#000000", "#5c5c5c", "#737373", "#a3a3a3", "#d4d4d4", "#ffffff", 
+                              "#ff0000", "#ff8000", "#ffff00", "#00ff00", "#00ffff", "#0000ff", 
+                              "#8000ff", "#ff00ff", "#581c87", "#166534", "#0e7490", "#1e40af"].map(color => (
+                              <Button 
+                                key={color} 
+                                variant="outline"
+                                className="w-8 h-8 p-0 rounded-md"
+                                style={{ backgroundColor: color }}
+                                onClick={() => handleTextFormattingChange("textColor", color)}
+                              />
+                            ))}
+                          </div>
+                          <Input 
+                            type="text" 
+                            value={textFormatting.textColor} 
+                            onChange={(e) => handleTextFormattingChange("textColor", e.target.value)}
+                            className="h-8 mt-2"
+                          />
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
+                  <div className="flex items-center border rounded-md">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`px-2 h-8 rounded-none ${textFormatting.isBold ? 'bg-gray-200' : ''}`}
+                      onClick={() => handleTextFormattingChange("isBold", !textFormatting.isBold)}
+                    >
+                      <Bold size={16} />
+                      <span className="sr-only">Bold</span>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`px-2 h-8 rounded-none ${textFormatting.isItalic ? 'bg-gray-200' : ''}`}
+                      onClick={() => handleTextFormattingChange("isItalic", !textFormatting.isItalic)}
+                    >
+                      <Italic size={16} />
+                      <span className="sr-only">Italic</span>
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center border rounded-md">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`px-2 h-8 rounded-none ${textFormatting.textAlign === 'left' ? 'bg-gray-200' : ''}`}
+                      onClick={() => handleTextFormattingChange("textAlign", "left")}
+                    >
+                      <AlignLeft size={16} />
+                      <span className="sr-only">Align Left</span>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`px-2 h-8 rounded-none ${textFormatting.textAlign === 'center' ? 'bg-gray-200' : ''}`}
+                      onClick={() => handleTextFormattingChange("textAlign", "center")}
+                    >
+                      <AlignCenter size={16} />
+                      <span className="sr-only">Align Center</span>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`px-2 h-8 rounded-none ${textFormatting.textAlign === 'right' ? 'bg-gray-200' : ''}`}
+                      onClick={() => handleTextFormattingChange("textAlign", "right")}
+                    >
+                      <AlignRight size={16} />
+                      <span className="sr-only">Align Right</span>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`px-2 h-8 rounded-none ${textFormatting.textAlign === 'justify' ? 'bg-gray-200' : ''}`}
+                      onClick={() => handleTextFormattingChange("textAlign", "justify")}
+                    >
+                      <AlignJustify size={16} />
+                      <span className="sr-only">Justify</span>
+                    </Button>
+                  </div>
+                </div>
+
                 <div className="mb-2">
                   <textarea
                     id={`prop-${property.name}`}
@@ -465,6 +612,16 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                     value={component.formattedContent || ""}
                     onChange={(e) => handleFormattedContentChange(e.target.value)}
                     placeholder="Enter formatted content or use API fields..."
+                    style={{
+                      fontFamily: textFormatting.fontFamily === 'default' ? 'inherit' : textFormatting.fontFamily,
+                      fontSize: textFormatting.fontSize === 'small' ? '0.875rem' : 
+                               textFormatting.fontSize === 'large' ? '1.25rem' : 
+                               textFormatting.fontSize === 'xlarge' ? '1.5rem' : '1rem',
+                      fontWeight: textFormatting.isBold ? 'bold' : 'normal',
+                      fontStyle: textFormatting.isItalic ? 'italic' : 'normal',
+                      color: textFormatting.textColor,
+                      textAlign: textFormatting.textAlign as any
+                    }}
                   />
                 </div>
                 
