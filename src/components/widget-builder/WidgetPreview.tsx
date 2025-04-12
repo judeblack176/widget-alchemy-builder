@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { WidgetComponent, ApiConfig, ContentDetails } from '@/types/widget-types';
+import { WidgetComponent, ApiConfig, ContentDetails } from '@/types/widget-types.d';
 import { Card } from '@/components/ui/card';
 import { renderComponent } from './component-renderers';
 import { HelpCircle, AlertCircle, Check, Ruler, Palette } from 'lucide-react';
