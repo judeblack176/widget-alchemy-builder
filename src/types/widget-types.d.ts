@@ -23,6 +23,12 @@ export interface TableColumn {
   accessor: string;
 }
 
+export interface ContentDetails {
+  size?: string;
+  color?: string;
+  variant?: string;
+}
+
 export interface ApiConfig {
   id: string;
   name: string;
@@ -34,12 +40,6 @@ export interface ApiConfig {
   sampleResponse?: string;
   possibleFields?: string[];
   parameters?: Record<string, string>;
-}
-
-export interface ContentDetails {
-  size?: string;
-  color?: string;
-  variant?: string;
 }
 
 export interface WidgetSubmission {
