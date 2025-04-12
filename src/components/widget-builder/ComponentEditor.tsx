@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig, ComponentType, Tooltip, ApiFieldMapping, ComponentDefinition, PREDEFINED_COLORS } from '@/types/widget-types';
 import { Input } from '@/components/ui/input';
@@ -784,7 +783,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                       className="min-h-[100px]"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Use {{fieldName}} syntax to include dynamic content from API mappings
+                      Use {'{{fieldName}}'} syntax to include dynamic content from API mappings
                     </p>
                   </div>
 
