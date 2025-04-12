@@ -1,15 +1,6 @@
-
 import { LucideIcon } from 'lucide-react';
 
 export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table' | 'searchbar';
-
-export interface ContentFieldConfig {
-  field?: string;
-  customText?: string;
-  fontFamily?: string;
-  fontSize?: string;
-  alignment?: "left" | "center" | "right";
-}
 
 export interface WidgetComponent {
   id: string;
@@ -19,7 +10,6 @@ export interface WidgetComponent {
     apiId: string;
     dataMapping: Record<string, string>;
     multiMapping?: Record<string, string[]>;
-    contentConfig?: Record<string, ContentFieldConfig>;
   };
   tooltipId?: string;
 }

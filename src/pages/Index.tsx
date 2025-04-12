@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -92,7 +91,7 @@ const Index = () => {
     }
   }, [widgetId, toast]);
 
-  const handleAddComponent = (componentType: string) => {
+  const handleAddComponent = (componentType: ComponentType) => {
     if (componentType === 'alert' && widgetComponents.some(c => c.type === 'alert')) {
       toast({
         title: "Alert Already Exists",
@@ -102,29 +101,18 @@ const Index = () => {
       return;
     }
     
-    const hasAlertComponent = widgetComponents.some(c => c.type === 'alert') || componentType === 'alert';
-    const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
-    
-    const nonHeaderNonAlertCount = widgetComponents.filter(
-      c => c.type !== 'header' && c.type !== 'alert'
-    ).length;
-    
-    if (nonHeaderNonAlertCount >= MAX_COMPONENTS && componentType !== 'header' && componentType !== 'alert') {
-      toast({
-        title: "Component Limit Reached",
-        description: `Widgets are limited to ${MAX_COMPONENTS} components (excluding header and alerts). Please remove a component first.`,
-        variant: "destructive"
-      });
-      return;
-    }
+    const getDefaultProps = (type: ComponentType) => {
+      return {};
+    };
     
     const newComponent: WidgetComponent = {
       id: `${componentType}-${Date.now()}`,
-      type: componentType as ComponentType,
-      props: {}
+      type: componentType,
+      props: getDefaultProps(componentType)
     };
     
     setWidgetComponents([...widgetComponents, newComponent]);
+    
     toast({
       title: "Component Added",
       description: `Added ${componentType} component to your widget.`
@@ -551,14 +539,8 @@ const Index = () => {
                     className="h-full"
                   >
                     <WidgetBuilder
-                      components={widgetComponents}
-                      apis={apis}
-                      onUpdateComponent={handleUpdateComponent}
-                      onRemoveComponent={handleRemoveComponent}
-                      onReorderComponents={handleReorderComponents}
-                      onRequestApiTemplate={openApiTemplateModal}
-                      onApplyTooltip={handleApplyTooltip}
-                      tooltips={tooltips}
+                      initialComponents={widgetComponents}
+                      initialApis={apis}
                     />
                     {provided.placeholder}
                   </div>
