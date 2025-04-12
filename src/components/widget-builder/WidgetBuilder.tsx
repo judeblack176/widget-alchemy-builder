@@ -263,6 +263,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                         key={component.id} 
                         draggableId={component.id} 
                         index={index}
+                        isDragDisabled={expandedComponentId !== null}
                       >
                         {(provided, snapshot) => (
                           <div

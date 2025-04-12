@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { WidgetComponent } from '@/types/widget-types';
 import { 
@@ -20,6 +19,7 @@ export const renderComponent = (
   
   // Handle API field mappings
   if (component.apiFieldMappings && component.apiFieldMappings.length > 0 && apiData) {
+    // Get the API data for this component based on the apiId
     const componentApiData = component.apiConfig?.apiId ? apiData[component.apiConfig.apiId] : undefined;
     
     if (componentApiData) {
@@ -41,7 +41,7 @@ export const renderComponent = (
     return <Text {...textProps} />;
   }
   
-  // Handle other component types...
+  // Handle other component types
   switch (type) {
     case 'header':
       return <Header {...processedProps} />;
@@ -84,4 +84,3 @@ export const renderComponent = (
       return <div>Unknown component type: {type}</div>;
   }
 };
-
