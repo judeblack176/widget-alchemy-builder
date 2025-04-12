@@ -14,11 +14,27 @@ export const renderComponent = (
 ) => {
   const { type, props } = component;
   
+  // Process API field mappings for the component
+  let processedProps = { ...props };
+  
+  // Handle API field mappings
+  if (component.apiFieldMappings && apiData) {
+    const componentApiData = component.apiConfig?.apiId ? apiData[component.apiConfig.apiId] : undefined;
+    
+    if (componentApiData) {
+      component.apiFieldMappings.forEach(mapping => {
+        if (mapping.field && mapping.targetProperty && componentApiData[mapping.field]) {
+          processedProps[mapping.targetProperty] = componentApiData[mapping.field];
+        }
+      });
+    }
+  }
+  
   // For text components, process content with dynamic fields
   if (type === 'text' && component.formattedContent) {
     const textProps = {
-      ...props,
-      content: props.content || component.formattedContent
+      ...processedProps,
+      content: processedProps.content || component.formattedContent
     };
     
     return <Text {...textProps} />;
@@ -27,42 +43,42 @@ export const renderComponent = (
   // Handle other component types...
   switch (type) {
     case 'header':
-      return <Header {...props} />;
+      return <Header {...processedProps} />;
     case 'text':
-      return <Text {...props} />;
+      return <Text {...processedProps} />;
     case 'image':
-      return <Image {...props} />;
+      return <Image {...processedProps} />;
     case 'button':
-      return <Button {...props} />;
+      return <Button {...processedProps} />;
     case 'video':
-      return <Video {...props} />;
+      return <Video {...processedProps} />;
     case 'chart':
-      return <Chart {...props} data={apiData} />;
+      return <Chart {...processedProps} data={apiData} />;
     case 'form':
-      return <Form {...props} />;
+      return <Form {...processedProps} />;
     case 'calendar':
-      return <Calendar {...props} events={apiData?.events} />;
+      return <Calendar {...processedProps} events={apiData?.events} />;
     case 'dropdown':
-      return <Dropdown {...props} options={apiData?.options || props.options} />;
+      return <Dropdown {...processedProps} options={apiData?.options || processedProps.options} />;
     case 'link':
-      return <Link {...props} />;
+      return <Link {...processedProps} />;
     case 'multi-text':
-      return <MultiText {...props} />;
+      return <MultiText {...processedProps} />;
     case 'filter':
-      return <Filter {...props} options={apiData?.options || props.options} />;
+      return <Filter {...processedProps} options={apiData?.options || processedProps.options} />;
     case 'alert':
       return (
         <Alert 
-          {...props} 
+          {...processedProps} 
           onDismiss={onAlertDismiss ? () => onAlertDismiss(component.id) : undefined}
         >
-          {props.content}
+          {processedProps.content}
         </Alert>
       );
     case 'table':
-      return <Table {...props} data={apiData?.rows || []} columns={apiData?.columns || props.columns} />;
+      return <Table {...processedProps} data={apiData?.rows || []} columns={apiData?.columns || processedProps.columns} />;
     case 'searchbar':
-      return <SearchBar {...props} />;
+      return <SearchBar {...processedProps} />;
     default:
       return <div>Unknown component type: {type}</div>;
   }

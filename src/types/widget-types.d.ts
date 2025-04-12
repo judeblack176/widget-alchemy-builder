@@ -1,4 +1,3 @@
-
 import { LucideIcon } from 'lucide-react';
 
 export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table' | 'searchbar';
@@ -7,18 +6,21 @@ export interface WidgetComponent {
   id: string;
   type: ComponentType;
   props: Record<string, any>;
+  tooltipId?: string;
   apiConfig?: {
     apiId: string;
-    dataMapping: Record<string, string>;
-    multiMapping?: Record<string, string[]>;
+    dataMapping?: Record<string, string>;
   };
-  tooltipId?: string;
-  selected?: boolean;
+  apiFieldMappings?: Array<{
+    id: string;
+    field: string;
+    targetProperty: string;
+  }>;
+  formattedContent?: string;
   contentFields?: Array<{
     label: string;
     apiField: string;
   }>;
-  formattedContent?: string;
 }
 
 export type AlertType = 'info' | 'success' | 'warning' | 'error';
