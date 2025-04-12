@@ -72,24 +72,46 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   const shouldDisableRemove = disableRemove || isHeader;
 
   return (
-    <div className="p-4 border rounded-lg mb-3 bg-white relative">
-      <ComponentHeader 
-        title={componentTypeLabels[component.type] || component.type}
-        tooltipId={component.tooltipId}
-        isExpanded={isExpanded}
-        onToggleExpand={onToggleExpand}
-        onApplyTooltip={onApplyTooltip}
-        onRemoveComponent={() => onRemoveComponent(component.id)}
-        customTooltips={customTooltips}
-        disableRemove={shouldDisableRemove}
-      />
+    <div 
+      className="p-4 border rounded-lg mb-3 bg-white relative cursor-pointer"
+      onClick={(e) => {
+        // Only trigger if the clicked element is the container itself
+        if (e.currentTarget === e.target) {
+          onToggleExpand();
+        }
+      }}
+    >
+      <div onClick={onToggleExpand}>
+        <ComponentHeader 
+          title={componentTypeLabels[component.type] || component.type}
+          tooltipId={component.tooltipId}
+          isExpanded={isExpanded}
+          onToggleExpand={onToggleExpand}
+          onApplyTooltip={onApplyTooltip}
+          onRemoveComponent={() => onRemoveComponent(component.id)}
+          customTooltips={customTooltips}
+          disableRemove={shouldDisableRemove}
+        />
+      </div>
       
       {isExpanded && (
-        <div className="space-y-4">
+        <div 
+          className="space-y-4"
+          onClick={(e) => e.stopPropagation()} // Prevent clicks inside from triggering the container's click
+        >
           <PropertyEditor 
             component={component} 
             onUpdateComponent={onUpdateComponent} 
           />
+          
+          {component.tooltipId && component.tooltipId !== "none" && validCustomTooltips.some(t => t.id === component.tooltipId) && (
+            <div className="mt-4 p-3 bg-gray-50 border rounded-md">
+              <h3 className="text-sm font-medium mb-1">Tooltip Preview:</h3>
+              <div className="text-sm">
+                {validCustomTooltips.find(t => t.id === component.tooltipId)?.content || ""}
+              </div>
+            </div>
+          )}
           
           {shouldShowDataIntegration() && (
             <ApiIntegration 

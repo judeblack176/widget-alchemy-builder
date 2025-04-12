@@ -67,13 +67,9 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
           variant="ghost" 
           size="sm" 
           onClick={onToggleExpand}
-          className="text-gray-500"
+          className="text-gray-500 p-0 h-8 w-8"
         >
-          {isExpanded ? (
-            <><ChevronUp size={16} /> Collapse</>
-          ) : (
-            <><ChevronDown size={16} /> Expand</>
-          )}
+          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </Button>
         
         {onRemoveComponent && !disableRemove && (
@@ -81,7 +77,7 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
             variant="ghost" 
             size="sm" 
             onClick={onRemoveComponent} 
-            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-0 h-8 w-8"
           >
             <Trash2 size={16} />
           </Button>
