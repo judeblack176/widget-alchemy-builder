@@ -9,6 +9,7 @@ import WidgetLibrary from "./pages/WidgetLibrary";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
+import TagsPage from "./pages/TagsPage";
 import { AdminAuthProvider } from "./components/layouts/AdminLayout";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/library" element={<WidgetLibrary />} />
+          <Route path="/tags" element={<TagsPage />} />
           <Route 
             path="/admin/*" 
             element={
