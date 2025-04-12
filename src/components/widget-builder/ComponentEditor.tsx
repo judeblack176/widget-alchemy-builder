@@ -795,9 +795,9 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                           {contentFields.length > 0 ? (
                             formattedContent.replace(
                               /{{([^{}]+)}}/g,
-                              (_, placeholder) => {
+                              (match, placeholder) => {
                                 const field = contentFields.find(f => f.label === placeholder);
-                                return field ? `<${field.apiField}>` : `{{${placeholder}}}`;
+                                return field ? `<${field.apiField}>` : match;
                               }
                             )
                           ) : (
