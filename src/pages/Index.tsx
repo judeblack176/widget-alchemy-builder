@@ -9,7 +9,7 @@ import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionFo
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library, User, HelpCircle, BookmarkIcon } from "lucide-react";
+import { Library, User, HelpCircle, BookmarkIcon, Bookmark } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -390,11 +390,6 @@ const Index = () => {
               <Link to="/admin/login">
                 <Button variant="outline">
                   <User size={16} className="mr-2" /> Admin
-                </Button>
-              </Link>
-              <Link to="/library">
-                <Button variant="outline">
-                  <Library size={16} className="mr-2" /> Widget Library
                 </Button>
               </Link>
               <WidgetSubmissionForm

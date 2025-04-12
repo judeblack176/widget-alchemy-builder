@@ -23,7 +23,8 @@ import {
   GripVertical,
   XCircle,
   SortAsc,
-  ChevronDown
+  ChevronDown,
+  Library
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Draggable } from 'react-beautiful-dnd';
@@ -31,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import SearchBar from "./SearchBar";
+import { Link } from "react-router-dom";
 
 interface ComponentLibraryProps {
   onAddComponent: (component: WidgetComponent) => void;
@@ -451,7 +453,14 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent, exi
 
   return (
     <div className="space-y-4">
-      <h3 className="font-medium text-gray-700">Drag & drop components to build your widget</h3>
+      <div className="flex justify-between items-center">
+        <h3 className="font-medium text-gray-700">Components</h3>
+        <Link to="/library">
+          <Button variant="outline" size="sm">
+            <Library size={16} className="mr-2" /> Widget Library
+          </Button>
+        </Link>
+      </div>
       
       <div className="flex flex-col space-y-3">
         <div className="flex justify-between items-center">
