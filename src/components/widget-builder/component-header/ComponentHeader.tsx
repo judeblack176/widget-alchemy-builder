@@ -76,22 +76,24 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
 
   return (
     <div className="p-4 border-b flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <div className="bg-gray-100 p-1.5 rounded">
-          {getComponentIcon()}
+      <div className="flex items-center gap-3">
+        <div className="flex flex-col items-center">
+          <div className="bg-gray-100 p-1.5 rounded mb-1">
+            {getComponentIcon()}
+          </div>
+          <Badge variant="outline" className="text-xxs px-1.5 py-0 font-normal">
+            {componentTypeLabels[component.type] || component.type}
+          </Badge>
         </div>
-        <div>
-          <span className="font-medium">{getComponentTitle()}</span>
-          <div className="flex items-center mt-1">
-            <Badge variant="outline" className="text-xs font-normal">
-              {componentTypeLabels[component.type] || component.type}
-            </Badge>
-            {component.apiConfig && (
-              <Badge variant="outline" className="ml-2 text-xs bg-blue-50 text-blue-600 border-blue-200">
+        <div className="ml-1">
+          <span className="font-medium text-sm">{getComponentTitle()}</span>
+          {component.apiConfig && (
+            <div className="mt-1">
+              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-600 border-blue-200">
                 API Connected
               </Badge>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
       <div className="flex items-center">
