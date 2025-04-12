@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -374,7 +375,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     label: string;
     options?: string[];
   }) => {
-    const value = component.props[property.name];
+    const value = component.props && component.props[property.name];
 
     switch (property.type) {
       case "icon":
