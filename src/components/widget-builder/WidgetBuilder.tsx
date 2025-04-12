@@ -1,14 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import ComponentEditor from './ComponentEditor';
 import { Card } from '@/components/ui/card';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, ArrowDownAZ, ArrowUpAZ } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip } from './TooltipManager';
 import SearchBar from './SearchBar';
+import { Button } from '@/components/ui/button';
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -34,6 +34,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null);
   
   useEffect(() => {
     if (tooltips && onApplyTooltip) {
@@ -86,25 +87,53 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     setSearchQuery(query);
   };
 
-  const filteredComponents = components.filter(component => {
-    if (!searchQuery.trim()) return true;
-    
-    if (component.type.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return true;
-    }
-    
-    for (const key in component.props) {
-      if (
-        typeof component.props[key] === 'string' && 
-        component.props[key].toLowerCase().includes(searchQuery.toLowerCase())
-      ) {
+  const toggleSort = () => {
+    setSortDirection(prev => {
+      if (prev === null) return 'asc';
+      if (prev === 'asc') return 'desc';
+      return null;
+    });
+  };
+
+  const getFilteredComponents = () => {
+    let filtered = components.filter(component => {
+      if (!searchQuery.trim()) return true;
+      
+      if (component.type.toLowerCase().includes(searchQuery.toLowerCase())) {
         return true;
       }
+      
+      for (const key in component.props) {
+        if (
+          typeof component.props[key] === 'string' && 
+          component.props[key].toLowerCase().includes(searchQuery.toLowerCase())
+        ) {
+          return true;
+        }
+      }
+      
+      return false;
+    });
+
+    if (sortDirection) {
+      const headerAndAlerts = filtered.filter(c => c.type === 'header' || c.type === 'alert');
+      const otherComponents = filtered.filter(c => c.type !== 'header' && c.type !== 'alert');
+      
+      otherComponents.sort((a, b) => {
+        const aType = a.type.toLowerCase();
+        const bType = b.type.toLowerCase();
+        return sortDirection === 'asc' 
+          ? aType.localeCompare(bType) 
+          : bType.localeCompare(aType);
+      });
+      
+      filtered = [...headerAndAlerts, ...otherComponents];
     }
     
-    return false;
-  });
+    return filtered;
+  };
 
+  const filteredComponents = getFilteredComponents();
   const filteredHeaderComponent = headerComponent && filteredComponents.includes(headerComponent) 
     ? headerComponent 
     : null;
@@ -124,12 +153,27 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           </Alert>
         )}
 
-        <div className="mb-4">
+        <div className="flex items-center gap-2 mb-4">
           <SearchBar
             placeholder="Search components..."
             onSearch={handleSearch}
-            className="w-full"
+            className="flex-grow"
           />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleSort}
+            className={`h-8 w-8 p-0 flex items-center justify-center ${sortDirection ? 'bg-blue-50' : ''}`}
+            title={sortDirection === 'asc' ? 'Sort Z-A' : sortDirection === 'desc' ? 'Clear sorting' : 'Sort A-Z'}
+          >
+            {sortDirection === 'asc' ? (
+              <ArrowDownAZ className="h-4 w-4" />
+            ) : sortDirection === 'desc' ? (
+              <ArrowUpAZ className="h-4 w-4" />
+            ) : (
+              <ArrowDownAZ className="h-4 w-4 text-gray-400" />
+            )}
+          </Button>
         </div>
         
         {/* Fixed header component section */}
