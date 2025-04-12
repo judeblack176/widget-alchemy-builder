@@ -157,7 +157,7 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
 
     if (hasChanges) {
       return (
-        <Button className="bg-widget-blue">
+        <Button className="bg-orange-500 text-white hover:bg-orange-600">
           <RefreshCw size={16} className="mr-2" /> Resubmit for Approval
         </Button>
       );
@@ -253,6 +253,14 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
           </div>
           
           <DialogFooter>
+            {onCancelEditing && isEditing && (
+              <Button type="button" variant="outline" onClick={() => {
+                setOpen(false);
+                onCancelEditing();
+              }}>
+                Cancel Editing
+              </Button>
+            )}
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
