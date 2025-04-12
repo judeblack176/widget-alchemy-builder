@@ -180,7 +180,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       }
     ];
 
-    // Update the component with the new content field
     const updatedComponent = {
       ...component,
       contentFields: newContentFields
@@ -188,7 +187,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
     onUpdateComponent(updatedComponent);
 
-    // Reset the inputs
     setNewFieldLabel("");
     setNewFieldApiField("");
   };
@@ -456,7 +454,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           />
         );
       case "text":
-        // For content property, show the formatted content with API fields
         if (property.name === "content" && (component.contentFields?.length || component.formattedContent)) {
           return (
             <div key={property.name} className="mb-4">
@@ -567,16 +564,13 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   const getAvailableApiFields = () => {
     if (!selectedApi) return [];
     
-    // Use possibleFields if available, otherwise extract from sampleResponse
     if (selectedApi.possibleFields && selectedApi.possibleFields.length > 0) {
       return selectedApi.possibleFields;
     }
     
-    // Try to parse sampleResponse if available
     if (selectedApi.sampleResponse) {
       try {
         const sampleData = JSON.parse(selectedApi.sampleResponse);
-        // Get all top-level keys
         return Object.keys(sampleData);
       } catch (e) {
         return [];
@@ -608,7 +602,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </Button>
         </div>
 
-        {/* Display API details */}
         <div className="space-y-3 text-sm">
           <div className="flex items-center gap-2">
             <span className="font-medium w-20">Endpoint:</span>
@@ -622,7 +615,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         </div>
 
-        {/* Parameters */}
         {selectedApi.parameters && Object.keys(selectedApi.parameters).length > 0 && (
           <div className="mt-1">
             <Accordion type="single" collapsible>
@@ -645,7 +637,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         )}
 
-        {/* Content Field Mapping */}
         <div className="mt-3 border-t pt-3">
           <h5 className="text-sm font-medium mb-2">Add Content Fields</h5>
           <div className="flex items-end gap-2 mb-3">
@@ -685,7 +676,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             </Button>
           </div>
 
-          {/* List of mapped content fields */}
           {component.contentFields && component.contentFields.length > 0 && (
             <div className="mt-2 space-y-2">
               <h6 className="text-xs font-medium">Mapped Fields:</h6>
@@ -744,3 +734,46 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                   </SelectTrigger>
                   <SelectContent>
                     {apis.length > 0 ? (
+                      apis.map((api) => (
+                        <SelectItem key={api.id} value={api.id}>
+                          {api.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="p-2 text-center text-sm text-gray-500">
+                        No APIs available. Create an API first.
+                      </div>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-center">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    if (onRequestApiTemplate) {
+                      onRequestApiTemplate();
+                    }
+                  }}
+                  className="text-blue-500"
+                >
+                  <Bookmark size={14} className="mr-1" /> 
+                  Choose from API Templates
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      {/* Rest of your component */}
+    </div>
+  );
+};
+
+export default ComponentEditor;
