@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig, ComponentType, Tooltip, ApiFieldMapping, ComponentDefinition, PREDEFINED_COLORS } from '@/types/widget-types';
 import { Input } from '@/components/ui/input';
@@ -29,7 +28,6 @@ interface ComponentEditorProps {
   customTooltips?: Tooltip[];
 }
 
-// Component definitions for the editor
 const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
   {
     type: 'header',
@@ -395,13 +393,11 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   const [mappings, setMappings] = useState<Record<string, string>>(component.apiConfig?.dataMapping || {});
   const [currentTab, setCurrentTab] = useState<'properties' | 'api' | 'content'>('properties');
   
-  // Get the component definition from our predefined list
   const componentDefinition = COMPONENT_DEFINITIONS.find(def => def.type === component.type);
   const api = apis.find(api => api.id === selectedApi);
   const availableFields = api?.possibleFields || [];
   const hasApiIntegration = componentDefinition?.supportsApiIntegration && apis.length > 0;
   
-  // State for content fields
   const [contentFields, setContentFields] = useState<ApiFieldMapping[]>(
     component.contentFields || []
   );
@@ -409,7 +405,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     component.formattedContent || ''
   );
 
-  // Initialize component props with defaults if not set
   useEffect(() => {
     if (componentDefinition) {
       const updatedProps = { ...componentDefinition.defaultProps, ...component.props };
@@ -422,11 +417,9 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     }
   }, [component.type]);
 
-  // Update formatted content when content fields change
   useEffect(() => {
     let content = formattedContent;
     
-    // If no formatted content but we have content fields, create a default template
     if ((!content || content === '') && contentFields.length > 0) {
       content = contentFields.map(field => `{{${field.label}}}`).join(' ');
     }

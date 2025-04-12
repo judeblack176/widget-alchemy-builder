@@ -78,7 +78,7 @@ const ApiFieldMappingEditor: React.FC<ApiFieldMappingProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {availableFields.map((field) => (
-                  <SelectItem key={field} value={field || "default-field"}>
+                  <SelectItem key={field} value={field}>
                     {field}
                   </SelectItem>
                 ))}

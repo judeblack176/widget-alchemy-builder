@@ -332,6 +332,19 @@ export const extractFieldPaths = (obj: any, prefix = ''): string[] => {
   return paths;
 };
 
+// Added missing interfaces
+export interface ApiFieldMapping {
+  label: string;
+  apiField: string;
+}
+
+export interface Tooltip {
+  id: string;
+  title: string;
+  content: string;
+  type?: 'info' | 'warning' | 'success' | 'error';
+}
+
 // Common predefined tooltip tags
 export const COMMON_TOOLTIP_TAGS = [
   "Getting Started",
