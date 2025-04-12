@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -508,7 +507,16 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
             <Select
               value={String(value)}
-              onValueChange={(val) => handlePropertyChange(property.name, val === "true" ? true : val === "false" ? false : val)}
+              onValueChange={(val) => {
+                // Convert string values to appropriate types
+                let finalValue: string | boolean | number = val;
+                if (val === "true") finalValue = true;
+                else if (val === "false") finalValue = false;
+                else if (property.name === "autoClose" && val !== "false") {
+                  finalValue = parseInt(val, 10);
+                }
+                handlePropertyChange(property.name, finalValue);
+              }}
             >
               <SelectTrigger id={`prop-${property.name}`}>
                 <SelectValue placeholder={`Select ${property.label}`} />
