@@ -137,7 +137,10 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         
         {/* Fixed header component section */}
         {filteredHeaderComponent && (
-          <Card className="bg-white border border-blue-500 shadow-sm mb-4">
+          <Card 
+            className="bg-white border border-blue-500 shadow-sm mb-4 cursor-pointer"
+            onClick={() => toggleExpand(filteredHeaderComponent.id)}
+          >
             <ComponentEditor
               component={filteredHeaderComponent}
               apis={apis}
@@ -159,7 +162,11 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         {filteredAlertComponents.length > 0 && (
           <div className="space-y-4 mb-4">
             {filteredAlertComponents.map((alertComponent) => (
-              <Card key={alertComponent.id} className="bg-white border border-amber-500 shadow-sm">
+              <Card 
+                key={alertComponent.id} 
+                className="bg-white border border-amber-500 shadow-sm cursor-pointer"
+                onClick={() => toggleExpand(alertComponent.id)}
+              >
                 <ComponentEditor
                   component={alertComponent}
                   apis={apis}
@@ -179,7 +186,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         )}
       </div>
       
-      {/* Scrollable section - fixed to use ScrollArea properly */}
+      {/* Scrollable section */}
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full">
           <div className="pr-4 pb-4">
@@ -213,7 +220,10 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                               {...provided.dragHandleProps}
                               className="relative"
                             >
-                              <Card className="bg-white border shadow-sm">
+                              <Card 
+                                className="bg-white border shadow-sm cursor-pointer"
+                                onClick={() => toggleExpand(component.id)}
+                              >
                                 <ComponentEditor
                                   component={component}
                                   apis={apis}
