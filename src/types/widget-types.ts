@@ -9,6 +9,7 @@ export interface WidgetComponent {
   apiConfig?: {
     apiId: string;
     dataMapping: Record<string, string>;
+    multiMapping?: Record<string, string[]>;
   };
   tooltipId?: string;
 }
