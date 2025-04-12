@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ApiConfig } from "@/types/widget-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import SearchBar from "./SearchBar";
+
+// Helper function to extract all possible field paths from a JSON object
+const extractFieldPaths = (obj: any, prefix = ''): string[] => {
+  let result: string[] = [];
+  
+  for (const key in obj) {
+    const newPrefix = prefix ? `${prefix}.${key}` : key;
+    
+    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+      // If it's an object, recursively extract fields
+      result = result.concat(extractFieldPaths(obj[key], newPrefix));
+    } else if (Array.isArray(obj[key]) && obj[key].length > 0 && typeof obj[key][0] === 'object') {
+      // If it's an array of objects, extract fields from the first item with array notation
+      result = result.concat(extractFieldPaths(obj[key][0], `${newPrefix}[0]`));
+    } else {
+      // It's a primitive value
+      result.push(newPrefix);
+    }
+  }
+  
+  return result;
+};
 
 interface ApiManagerProps {
   apis: ApiConfig[];
