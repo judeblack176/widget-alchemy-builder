@@ -12,6 +12,11 @@ export interface WidgetComponent {
     multiMapping?: Record<string, string[]>;
   };
   tooltipId?: string;
+  contentFields?: Array<{
+    label: string;
+    apiField: string;
+  }>;
+  formattedContent?: string;
 }
 
 export interface ComponentDefinition {
