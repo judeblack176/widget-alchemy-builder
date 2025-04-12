@@ -743,4 +743,178 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                     <SelectValue placeholder="Select an API to connect" />
                   </SelectTrigger>
                   <SelectContent>
-                    {apis.length > 0
+                    {apis.length > 0 ? (
+                      apis.map((api) => (
+                        <SelectItem key={api.id} value={api.id}>
+                          {api.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="none" disabled>
+                        No APIs available
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex flex-col items-center justify-center py-4 text-center text-sm text-gray-500">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={onRequestApiTemplate}
+                  className="mb-2"
+                >
+                  <Bookmark size={14} className="mr-1" /> Choose from API Templates
+                </Button>
+                <p className="text-xs">
+                  Or create a new API from the APIs tab
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="relative rounded-lg overflow-hidden border bg-white">
+      <div 
+        className={`flex items-center justify-between px-4 py-3 border-b cursor-pointer ${isExpanded ? 'bg-gray-50' : 'hover:bg-gray-50'}`}
+        onClick={onToggleExpand}
+      >
+        <div className="flex items-center">
+          <div className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 mr-3">
+            {component.type === 'header' && <BookOpen size={18} className="text-blue-600" />}
+            {component.type === 'text' && <Text size={18} />}
+            {component.type === 'image' && <Image size={18} />}
+            {component.type === 'button' && <MousePointer size={18} />}
+            {component.type === 'video' && <Video size={18} />}
+            {component.type === 'chart' && <BarChart size={18} />}
+            {component.type === 'form' && <FormInput size={18} />}
+            {component.type === 'calendar' && <CalendarDays size={18} />}
+            {component.type === 'dropdown' && <ChevronDown size={18} />}
+            {component.type === 'link' && <LinkIcon size={18} />}
+            {component.type === 'multi-text' && <List size={18} />}
+            {component.type === 'filter' && <Filter size={18} />}
+            {component.type === 'alert' && <AlertTriangle size={18} />}
+            {component.type === 'table' && <Table2 size={18} />}
+            {component.type === 'searchbar' && <Search size={18} />}
+          </div>
+          <div>
+            <h3 className="font-medium text-sm">
+              {componentTypeLabels[component.type] || component.type}
+              {component.props?.title && <span className="ml-2 opacity-70">({component.props.title})</span>}
+              {component.props?.label && <span className="ml-2 opacity-70">({component.props.label})</span>}
+              {component.tooltipId && (
+                <span className="ml-2">
+                  {getTooltipIcon(component.tooltipId)}
+                </span>
+              )}
+            </h3>
+            {component.apiConfig && (
+              <Badge variant="outline" className="mt-1 text-xs bg-blue-50 text-blue-600 border-blue-200">
+                API: {apis.find(api => api.id === component.apiConfig?.apiId)?.name || "Connected"}
+              </Badge>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center">
+          {shouldDisableRemove ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="opacity-50 cursor-not-allowed">
+                    <Trash2 size={14} className="text-gray-400" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">This component cannot be removed</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <button
+              className="text-red-500 hover:text-red-700 transition-colors p-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemoveComponent(component.id);
+              }}
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
+          <div className="ml-2 w-5 flex justify-center">
+            {isExpanded ? (
+              <ChevronUp size={16} className="text-gray-500" />
+            ) : (
+              <ChevronDown size={16} className="text-gray-500" />
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {isExpanded && (
+        <div className="p-4">
+          {component.type === 'alert' && (
+            <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded p-3 text-sm">
+              <h4 className="font-medium flex items-center text-yellow-800">
+                <AlertTriangle size={16} className="mr-2" />
+                Alert Component
+              </h4>
+              <p className="mt-1 text-yellow-700">
+                This component will be displayed at the top of your widget, regardless of its position in the component list.
+              </p>
+            </div>
+          )}
+          
+          <div className="space-y-4">
+            {/* Tooltip selector */}
+            {onApplyTooltip && (
+              <div className="mb-4">
+                <Label htmlFor="tooltip-select" className="mb-1 block">Tooltip</Label>
+                <Select 
+                  value={component.tooltipId || "none"} 
+                  onValueChange={(value) => onApplyTooltip(value === "none" ? "" : value)}
+                >
+                  <SelectTrigger id="tooltip-select">
+                    <SelectValue placeholder="Select tooltip" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tooltipOptions.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedTooltip && (
+                  <div className="mt-2 text-sm">
+                    <div className="border rounded-md p-3 bg-gray-50">
+                      <span className="block font-medium text-xs">{selectedTooltip.title}</span>
+                      <p className="mt-1 text-xs text-gray-600">{selectedTooltip.content}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Component specific properties */}
+            <div>
+              <h3 className="font-medium mb-3">Component Properties</h3>
+              <div className="space-y-1">
+                {getPropertyDefinitions().map(renderPropertyEditor)}
+              </div>
+            </div>
+            
+            {/* API Integration section */}
+            {shouldShowDataIntegration() && renderApiSection()}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ComponentEditor;
