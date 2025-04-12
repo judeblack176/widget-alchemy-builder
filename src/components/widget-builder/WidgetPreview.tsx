@@ -43,12 +43,12 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   const regularComponentsToDisplay = nonHeaderNonAlertComponents.slice(0, MAX_COMPONENTS);
   
   const displayComponents = components.filter(component => {
-    if (component.type === 'alert') {
-      return !dismissedAlerts.includes(component.id);
+    if (component.type === 'header') {
+      return false;
     }
     
-    if (component.type === 'header') {
-      return true;
+    if (component.type === 'alert') {
+      return !dismissedAlerts.includes(component.id);
     }
     
     return regularComponentsToDisplay.includes(component);
@@ -252,7 +252,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       <ScrollArea className="h-full w-full">
         <div className={headerComponent ? "pt-2" : ""}>
           {displayComponents.map((component, index) => 
-            renderComponentWithTooltip(component, index + (headerComponent ? 1 : 0))
+            renderComponentWithTooltip(component, index)
           )}
           
           {hasExcessComponents && (
