@@ -1,15 +1,52 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
 import { Button } from "@/components/ui/button";
 import { LibraryBig, ShieldCheck, Tag } from "lucide-react";
+import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 
 interface IndexProps {
   onTagManagerOpen: () => void;
 }
 
 const Index: React.FC<IndexProps> = ({ onTagManagerOpen }) => {
+  // Initialize empty arrays for components and APIs
+  const [components, setComponents] = useState<WidgetComponent[]>([]);
+  const [apis, setApis] = useState<ApiConfig[]>([]);
+
+  // Handler functions for WidgetBuilder
+  const handleUpdateComponent = (updatedComponent: WidgetComponent) => {
+    setComponents(prevComponents =>
+      prevComponents.map(comp => 
+        comp.id === updatedComponent.id ? updatedComponent : comp
+      )
+    );
+  };
+
+  const handleRemoveComponent = (componentId: string) => {
+    setComponents(prevComponents => 
+      prevComponents.filter(comp => comp.id !== componentId)
+    );
+  };
+
+  const handleReorderComponents = (reorderedComponents: WidgetComponent[]) => {
+    setComponents(reorderedComponents);
+  };
+
+  const handleRequestApiTemplate = (componentId: string) => {
+    console.log("API template requested for component:", componentId);
+    // Implement API template request logic here
+  };
+
+  const handleApplyTooltip = (componentId: string, tooltipId: string) => {
+    setComponents(prevComponents =>
+      prevComponents.map(comp => 
+        comp.id === componentId ? { ...comp, tooltipId } : comp
+      )
+    );
+  };
+
   return (
     <div className="h-screen flex flex-col">
       <header className="border-b border-gray-200 py-4 px-6 bg-white flex items-center justify-between">
@@ -40,7 +77,15 @@ const Index: React.FC<IndexProps> = ({ onTagManagerOpen }) => {
         </div>
       </header>
       <div className="flex-1 overflow-auto">
-        <WidgetBuilder />
+        <WidgetBuilder 
+          components={components}
+          apis={apis}
+          onUpdateComponent={handleUpdateComponent}
+          onRemoveComponent={handleRemoveComponent}
+          onReorderComponents={handleReorderComponents}
+          onRequestApiTemplate={handleRequestApiTemplate}
+          onApplyTooltip={handleApplyTooltip}
+        />
       </div>
     </div>
   );
