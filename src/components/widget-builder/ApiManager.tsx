@@ -34,6 +34,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
   const [searchQuery, setSearchQuery] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(null);
   const [expandedRows, setExpandedRows] = useState<{[key: string]: boolean}>({});
+  const [openPopovers, setOpenPopovers] = useState<{[key: string]: boolean}>({});
   
   const [newApi, setNewApi] = useState<Partial<ApiConfig>>({
     name: "",
@@ -292,6 +293,13 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
     setExpandedRows(prev => ({
       ...prev,
       [apiId]: !prev[apiId]
+    }));
+  };
+
+  const handlePopoverOpenChange = (key: string, open: boolean) => {
+    setOpenPopovers(prev => ({
+      ...prev,
+      [key]: open
     }));
   };
 
@@ -774,7 +782,10 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                           <div className="flex items-center">
                             <span className="text-xs mr-2">{Object.keys(api.headers).length}</span>
                             {Object.keys(api.headers).length > 0 && (
-                              <Popover>
+                              <Popover
+                                open={openPopovers[`headers-${api.id}`]}
+                                onOpenChange={(open) => handlePopoverOpenChange(`headers-${api.id}`, open)}
+                              >
                                 <PopoverTrigger asChild>
                                   <Button 
                                     variant="ghost" 
@@ -811,7 +822,10 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                           <div className="flex items-center">
                             <span className="text-xs mr-2">{Object.keys(api.parameters).length}</span>
                             {Object.keys(api.parameters).length > 0 && (
-                              <Popover>
+                              <Popover
+                                open={openPopovers[`params-${api.id}`]}
+                                onOpenChange={(open) => handlePopoverOpenChange(`params-${api.id}`, open)}
+                              >
                                 <PopoverTrigger asChild>
                                   <Button 
                                     variant="ghost" 
@@ -848,7 +862,10 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                           <div className="flex items-center">
                             <span className="text-xs mr-2">{Object.keys(api.responseMapping).length}</span>
                             {Object.keys(api.responseMapping).length > 0 && (
-                              <Popover>
+                              <Popover
+                                open={openPopovers[`mappings-${api.id}`]}
+                                onOpenChange={(open) => handlePopoverOpenChange(`mappings-${api.id}`, open)}
+                              >
                                 <PopoverTrigger asChild>
                                   <Button 
                                     variant="ghost" 
@@ -894,7 +911,10 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                                 </Badge>
                               ))}
                               {api.possibleFields.length > 3 && (
-                                <Popover>
+                                <Popover
+                                  open={openPopovers[`fields-${api.id}`]}
+                                  onOpenChange={(open) => handlePopoverOpenChange(`fields-${api.id}`, open)}
+                                >
                                   <PopoverTrigger asChild>
                                     <Badge 
                                       variant="outline" 
