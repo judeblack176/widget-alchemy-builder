@@ -180,7 +180,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       }
     ];
 
-    // Update the component with the new content field
     const updatedComponent = {
       ...component,
       contentFields: newContentFields
@@ -188,7 +187,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
     onUpdateComponent(updatedComponent);
 
-    // Reset the inputs
     setNewFieldLabel("");
     setNewFieldApiField("");
   };
@@ -456,7 +454,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           />
         );
       case "text":
-        // For content property, show the formatted content with API fields
         if (property.name === "content" && (component.contentFields?.length || component.formattedContent)) {
           return (
             <div key={property.name} className="mb-4">
@@ -508,7 +505,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             <Select
               value={String(value)}
               onValueChange={(val) => {
-                // Convert string values to appropriate types
                 let finalValue: string | boolean | number = val;
                 if (val === "true") finalValue = true;
                 else if (val === "false") finalValue = false;
@@ -576,16 +572,13 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   const getAvailableApiFields = () => {
     if (!selectedApi) return [];
     
-    // Use possibleFields if available, otherwise extract from sampleResponse
     if (selectedApi.possibleFields && selectedApi.possibleFields.length > 0) {
       return selectedApi.possibleFields;
     }
     
-    // Try to parse sampleResponse if available
     if (selectedApi.sampleResponse) {
       try {
         const sampleData = JSON.parse(selectedApi.sampleResponse);
-        // Get all top-level keys
         return Object.keys(sampleData);
       } catch (e) {
         return [];
@@ -617,7 +610,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </Button>
         </div>
 
-        {/* Display API details */}
         <div className="space-y-3 text-sm">
           <div className="flex items-center gap-2">
             <span className="font-medium w-20">Endpoint:</span>
@@ -631,7 +623,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         </div>
 
-        {/* Parameters */}
         {selectedApi.parameters && Object.keys(selectedApi.parameters).length > 0 && (
           <div className="mt-1">
             <Accordion type="single" collapsible>
@@ -654,7 +645,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         )}
 
-        {/* Content Field Mapping */}
         <div className="mt-3 border-t pt-3">
           <h5 className="text-sm font-medium mb-2">Add Content Fields</h5>
           <div className="flex items-end gap-2 mb-3">
@@ -695,7 +685,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             </Button>
           </div>
 
-          {/* List of mapped content fields */}
           {component.contentFields && component.contentFields.length > 0 && (
             <div className="mt-2 space-y-2">
               <h6 className="text-xs font-medium">Mapped Fields:</h6>
@@ -746,4 +735,120 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             renderApiDetails()
           ) : (
             <div>
-              <div className="mb-
+              <div className="mb-4">
+                <Label htmlFor="api-select" className="text-sm">Select API</Label>
+                <Select onValueChange={handleApiSelection}>
+                  <SelectTrigger id="api-select">
+                    <SelectValue placeholder="Choose an API to connect" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {apis.map((api) => (
+                      <SelectItem key={api.id} value={api.id}>
+                        {api.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-xs text-gray-500">No API connected</span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={onRequestApiTemplate}
+                  className="text-xs"
+                >
+                  <Plus size={14} className="mr-1" /> Create API Template
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="p-4 border rounded-lg mb-3 bg-white relative">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center">
+          <span className="mr-2 text-lg font-semibold">
+            {componentTypeLabels[component.type] || component.type}
+          </span>
+          
+          {component.tooltipId && component.tooltipId !== "none" && (
+            <div className="ml-1">
+              {getTooltipIcon(component.tooltipId)}
+            </div>
+          )}
+        </div>
+        
+        <div className="flex space-x-2">
+          {onApplyTooltip && (
+            <div>
+              <Select 
+                value={component.tooltipId || "none"} 
+                onValueChange={(value) => {
+                  if (value === "none") {
+                    onApplyTooltip("");
+                  } else {
+                    onApplyTooltip(value);
+                  }
+                }}
+              >
+                <SelectTrigger className="h-8 px-2 text-xs w-32">
+                  <SelectValue placeholder="Add Tooltip" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tooltipOptions.map((option) => (
+                    <SelectItem key={option.id} value={option.id} className="text-xs">
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onToggleExpand}
+            className="text-gray-500"
+          >
+            {isExpanded ? (
+              <><ChevronUp size={16} /> Collapse</>
+            ) : (
+              <><ChevronDown size={16} /> Expand</>
+            )}
+          </Button>
+          
+          {!shouldDisableRemove && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => onRemoveComponent(component.id)} 
+              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 size={16} />
+            </Button>
+          )}
+        </div>
+      </div>
+      
+      {isExpanded && (
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-sm font-medium mb-3">Component Properties</h3>
+            {getPropertyDefinitions().map(renderPropertyEditor)}
+          </div>
+          
+          {shouldShowDataIntegration() && renderApiSection()}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ComponentEditor;
