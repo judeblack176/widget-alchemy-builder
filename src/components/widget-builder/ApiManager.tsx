@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ApiConfig, extractFieldPaths } from "@/types/widget-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import SearchBar from "./SearchBar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface ApiManagerProps {
   apis: ApiConfig[];
@@ -36,7 +36,8 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
   const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(null);
   const [expandedRows, setExpandedRows] = useState<{[key: string]: boolean}>({});
   const [openPopovers, setOpenPopovers] = useState<{[key: string]: boolean}>({});
-  
+  const [openFieldsPopovers, setOpenFieldsPopovers] = useState<{[key: string]: boolean}>({});
+
   const [newApi, setNewApi] = useState<Partial<ApiConfig>>({
     name: "",
     endpoint: "",
@@ -299,6 +300,13 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
 
   const handlePopoverOpenChange = (key: string, open: boolean) => {
     setOpenPopovers(prev => ({
+      ...prev,
+      [key]: open
+    }));
+  };
+
+  const handleFieldsPopoverOpenChange = (key: string, open: boolean) => {
+    setOpenFieldsPopovers(prev => ({
       ...prev,
       [key]: open
     }));
@@ -900,49 +908,40 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                       {api.possibleFields && api.possibleFields.length > 0 && (
                         <div className="flex items-start">
                           <span className="font-semibold w-24 pt-1">Fields:</span>
-                          <div className="flex-1">
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {api.possibleFields.slice(0, 3).map((field, index) => (
-                                <Badge 
-                                  key={index} 
-                                  variant="outline" 
-                                  className="font-mono text-xs"
-                                >
-                                  {field}
-                                </Badge>
-                              ))}
-                              {api.possibleFields.length > 3 && (
-                                <Popover
-                                  open={openPopovers[`fields-${api.id}`]}
-                                  onOpenChange={(open) => handlePopoverOpenChange(`fields-${api.id}`, open)}
-                                >
-                                  <PopoverTrigger asChild>
-                                    <Badge 
-                                      variant="outline" 
-                                      className="text-xs cursor-pointer text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                                    >
-                                      +{api.possibleFields.length - 3} more
-                                    </Badge>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-80 max-h-[300px] overflow-y-auto p-2">
-                                    <div className="space-y-1">
-                                      <h4 className="font-semibold mb-2 text-sm">Available Fields</h4>
-                                      <div className="flex flex-wrap gap-1">
-                                        {api.possibleFields.map((field, index) => (
-                                          <Badge 
-                                            key={index} 
-                                            variant="outline" 
-                                            className="font-mono text-xs mb-1"
-                                          >
-                                            {field}
-                                          </Badge>
-                                        ))}
-                                      </div>
+                          <div className="flex items-center">
+                            <span className="text-xs mr-2">{api.possibleFields.length}</span>
+                            {api.possibleFields.length > 0 && (
+                              <Popover
+                                open={openFieldsPopovers[`fields-${api.id}`]}
+                                onOpenChange={(open) => handleFieldsPopoverOpenChange(`fields-${api.id}`, open)}
+                              >
+                                <PopoverTrigger asChild>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
+                                  >
+                                    + details
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80 max-h-[300px] overflow-y-auto p-2">
+                                  <div className="space-y-1">
+                                    <h4 className="font-semibold mb-2 text-sm">Available Fields</h4>
+                                    <div className="flex flex-wrap gap-1">
+                                      {api.possibleFields.map((field, index) => (
+                                        <Badge 
+                                          key={index} 
+                                          variant="outline" 
+                                          className="font-mono text-xs mb-1"
+                                        >
+                                          {field}
+                                        </Badge>
+                                      ))}
                                     </div>
-                                  </PopoverContent>
-                                </Popover>
-                              )}
-                            </div>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                            )}
                           </div>
                         </div>
                       )}
