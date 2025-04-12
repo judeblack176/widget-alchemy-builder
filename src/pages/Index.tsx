@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -416,18 +415,22 @@ const Index = () => {
     // Skip processing if there's no destination
     if (!result.destination) return;
     
-    // Handle component library to widget builder drag and drop
-    if (result.source.droppableId === 'component-library' && result.destination.droppableId === 'widget-builder') {
-      try {
-        const componentType = result.draggableId;
-        const componentLibraryItem = document.querySelector(`[data-component-type="${componentType}"]`);
-        
-        if (componentLibraryItem && componentLibraryItem instanceof HTMLElement) {
-          componentLibraryItem.click();
+    try {
+      // Handle component library to widget builder drag and drop
+      if (result.source.droppableId === 'component-library' && result.destination.droppableId === 'widget-builder') {
+        try {
+          const componentType = result.draggableId;
+          const componentLibraryItem = document.querySelector(`[data-component-type="${componentType}"]`);
+          
+          if (componentLibraryItem && componentLibraryItem instanceof HTMLElement) {
+            componentLibraryItem.click();
+          }
+        } catch (error) {
+          console.error("Failed to process drag and drop:", error);
         }
-      } catch (error) {
-        console.error("Failed to process drag and drop:", error);
       }
+    } catch (error) {
+      console.error("Error in drag end handler:", error);
     }
   };
 

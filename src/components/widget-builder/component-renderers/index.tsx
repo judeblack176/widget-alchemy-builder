@@ -12,6 +12,11 @@ export const renderComponent = (
   apiData?: Record<string, any>,
   onAlertDismiss?: (alertId: string) => void
 ) => {
+  if (!component) {
+    console.error("Attempted to render undefined component");
+    return null;
+  }
+
   const { type, props } = component;
   
   // Process API field mappings for the component

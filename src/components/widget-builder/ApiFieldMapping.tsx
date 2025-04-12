@@ -61,7 +61,7 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
           <div className="space-y-1">
             <Label htmlFor={`field-${mapping.id}`} className="text-xs">API Field</Label>
             <Select
-              value={mapping.field || undefined}
+              value={mapping.field || ""}
               onValueChange={(value) => onUpdateMapping(mapping.id, 'field', value)}
             >
               <SelectTrigger id={`field-${mapping.id}`} className="h-8">
@@ -69,7 +69,7 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {availableFields.map((field) => (
-                  <SelectItem key={field} value={field}>
+                  <SelectItem key={field} value={field || "dummy-value"}>
                     {field}
                   </SelectItem>
                 ))}
@@ -80,7 +80,7 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
           <div className="space-y-1">
             <Label htmlFor={`property-${mapping.id}`} className="text-xs">Component Property</Label>
             <Select
-              value={mapping.targetProperty || undefined}
+              value={mapping.targetProperty || ""}
               onValueChange={(value) => onUpdateMapping(mapping.id, 'targetProperty', value)}
             >
               <SelectTrigger id={`property-${mapping.id}`} className="h-8">
@@ -88,7 +88,7 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {componentProperties.map((prop) => (
-                  <SelectItem key={prop} value={prop}>
+                  <SelectItem key={prop} value={prop || "dummy-value"}>
                     {prop}
                   </SelectItem>
                 ))}
