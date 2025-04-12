@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { WidgetComponent, ApiConfig, ComponentDefinition, ComponentType, PREDEFINED_COLORS, Tooltip, ApiFieldMapping } from '@/types/widget-types';
+import { WidgetComponent, ApiConfig, ComponentType, Tooltip, ApiFieldMapping } from '@/types/widget-types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -634,7 +635,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                 <SelectValue placeholder={`Select field for ${propDef.label.toLowerCase()}`} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {availableFields.map((field) => (
                   <SelectItem key={field} value={field}>
                     {field}
@@ -702,147 +703,149 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
         </div>
       </div>
 
-      <CollapsibleContent className={isExpanded ? "block" : "hidden"}>
-        <Tabs value={currentTab} onValueChange={(v) => setCurrentTab(v as any)}>
-          <TabsList className="grid grid-cols-3 mb-4">
-            <TabsTrigger value="properties">Properties</TabsTrigger>
-            {hasApiIntegration && <TabsTrigger value="api">API Integration</TabsTrigger>}
-            {component.type === 'text' && <TabsTrigger value="content">Content</TabsTrigger>}
-          </TabsList>
+      <Collapsible open={isExpanded}>
+        <CollapsibleContent>
+          <Tabs value={currentTab} onValueChange={(v) => setCurrentTab(v as any)}>
+            <TabsList className="grid grid-cols-3 mb-4">
+              <TabsTrigger value="properties">Properties</TabsTrigger>
+              {hasApiIntegration && <TabsTrigger value="api">API Integration</TabsTrigger>}
+              {component.type === 'text' && <TabsTrigger value="content">Content</TabsTrigger>}
+            </TabsList>
 
-          <TabsContent value="properties" className="space-y-4">
-            {componentDefinition?.availableProps.map(renderPropEditor)}
-            {renderPreview()}
-          </TabsContent>
-
-          {hasApiIntegration && (
-            <TabsContent value="api" className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="api-select">Select API</Label>
-                <Select
-                  value={selectedApi}
-                  onValueChange={handleApiSelection}
-                >
-                  <SelectTrigger id="api-select">
-                    <SelectValue placeholder="Select an API" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">None</SelectItem>
-                    {apis.map((api) => (
-                      <SelectItem key={api.id} value={api.id}>
-                        {api.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {selectedApi && (
-                <>
-                  {renderApiMappingFields()}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => setIsApiDialogOpen(true)}
-                  >
-                    <Database className="h-4 w-4 mr-2" /> View API Details
-                  </Button>
-                </>
-              )}
-
-              {apis.length === 0 && (
-                <div className="text-center py-4">
-                  <Database className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">No APIs available</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-2"
-                    onClick={onRequestApiTemplate}
-                  >
-                    Add API from Template
-                  </Button>
-                </div>
-              )}
+            <TabsContent value="properties" className="space-y-4">
+              {componentDefinition?.availableProps.map(renderPropEditor)}
+              {renderPreview()}
             </TabsContent>
-          )}
 
-          {component.type === 'text' && (
-            <TabsContent value="content" className="space-y-4">
-              <div className="space-y-4">
-                <ApiFieldMappingEditor
-                  availableFields={availableFields}
-                  onAddField={handleAddContentField}
-                  onRemoveField={handleRemoveContentField}
-                  fields={contentFields}
-                />
-
+            {hasApiIntegration && (
+              <TabsContent value="api" className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="formattedContent">Formatted Content</Label>
-                  <Textarea
-                    id="formattedContent"
-                    value={formattedContent}
-                    onChange={(e) => handleUpdateFormattedContent(e.target.value)}
-                    placeholder="Enter content with {{field}} placeholders"
-                    className="min-h-[100px]"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Use {{fieldName}} syntax to include dynamic content from API mappings
-                  </p>
+                  <Label htmlFor="api-select">Select API</Label>
+                  <Select
+                    value={selectedApi}
+                    onValueChange={handleApiSelection}
+                  >
+                    <SelectTrigger id="api-select">
+                      <SelectValue placeholder="Select an API" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {apis.map((api) => (
+                        <SelectItem key={api.id} value={api.id}>
+                          {api.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <div className="border rounded-md p-3 bg-muted/30">
-                  <div className="text-sm font-medium mb-2">Preview</div>
-                  <div className="p-2 bg-white rounded border">
-                    {formattedContent ? (
-                      <div>
-                        {contentFields.length > 0 ? (
-                          formattedContent.replace(
-                            /{{([^{}]+)}}/g,
-                            (_match, placeholder) => {
-                              const field = contentFields.find(f => f.label === placeholder);
-                              return field ? `<${field.apiField}>` : `{{${placeholder}}}`;
-                            }
-                          )
-                        ) : (
-                          formattedContent
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">No content defined</span>
-                    )}
+                {selectedApi && (
+                  <>
+                    {renderApiMappingFields()}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setIsApiDialogOpen(true)}
+                    >
+                      <Database className="h-4 w-4 mr-2" /> View API Details
+                    </Button>
+                  </>
+                )}
+
+                {apis.length === 0 && (
+                  <div className="text-center py-4">
+                    <Database className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">No APIs available</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={onRequestApiTemplate}
+                    >
+                      Add API from Template
+                    </Button>
+                  </div>
+                )}
+              </TabsContent>
+            )}
+
+            {component.type === 'text' && (
+              <TabsContent value="content" className="space-y-4">
+                <div className="space-y-4">
+                  <ApiFieldMappingEditor
+                    availableFields={availableFields}
+                    onAddField={handleAddContentField}
+                    onRemoveField={handleRemoveContentField}
+                    fields={contentFields}
+                  />
+
+                  <div className="space-y-2">
+                    <Label htmlFor="formattedContent">Formatted Content</Label>
+                    <Textarea
+                      id="formattedContent"
+                      value={formattedContent}
+                      onChange={(e) => handleUpdateFormattedContent(e.target.value)}
+                      placeholder="Enter content with {{field}} placeholders"
+                      className="min-h-[100px]"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Use {{fieldName}} syntax to include dynamic content from API mappings
+                    </p>
+                  </div>
+
+                  <div className="border rounded-md p-3 bg-muted/30">
+                    <div className="text-sm font-medium mb-2">Preview</div>
+                    <div className="p-2 bg-white rounded border">
+                      {formattedContent ? (
+                        <div>
+                          {contentFields.length > 0 ? (
+                            formattedContent.replace(
+                              /{{([^{}]+)}}/g,
+                              (_, placeholder) => {
+                                const field = contentFields.find(f => f.label === placeholder);
+                                return field ? `<${field.apiField}>` : `{{${placeholder}}}`;
+                              }
+                            )
+                          ) : (
+                            formattedContent
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">No content defined</span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </TabsContent>
-          )}
-        </Tabs>
+              </TabsContent>
+            )}
+          </Tabs>
 
-        <div className="flex justify-between mt-4 pt-4 border-t">
-          <div className="flex gap-2">
-            {onApplyTooltip && (
+          <div className="flex justify-between mt-4 pt-4 border-t">
+            <div className="flex gap-2">
+              {onApplyTooltip && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsTooltipDialogOpen(true)}
+                >
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  {component.tooltipId ? 'Change Tooltip' : 'Add Tooltip'}
+                </Button>
+              )}
+            </div>
+            {!disableRemove && (
               <Button
-                variant="outline"
+                variant="destructive"
                 size="sm"
-                onClick={() => setIsTooltipDialogOpen(true)}
+                onClick={() => onRemoveComponent(component.id)}
               >
-                <HelpCircle className="h-4 w-4 mr-2" />
-                {component.tooltipId ? 'Change Tooltip' : 'Add Tooltip'}
+                <Trash2 className="h-4 w-4 mr-2" /> Remove
               </Button>
             )}
           </div>
-          {!disableRemove && (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => onRemoveComponent(component.id)}
-            >
-              <Trash2 className="h-4 w-4 mr-2" /> Remove
-            </Button>
-          )}
-        </div>
-      </CollapsibleContent>
+        </CollapsibleContent>
+      </Collapsible>
 
       <Dialog open={isApiDialogOpen} onOpenChange={setIsApiDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
