@@ -150,6 +150,15 @@ const getTooltipContent = (tooltipId: string, customTooltips?: CustomTooltip[]) 
 const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any, onDismiss?: (id: string) => void) => {
   const { props, type, id } = component;
   
+  if (!type) {
+    console.error('Component has no type defined:', component);
+    return (
+      <div className="p-3 bg-red-50 border border-red-200 rounded">
+        <p className="text-red-500">Invalid component: missing type property</p>
+      </div>
+    );
+  }
+  
   let finalProps = { ...props };
   if (component.apiConfig && apiData) {
     const { dataMapping } = component.apiConfig;

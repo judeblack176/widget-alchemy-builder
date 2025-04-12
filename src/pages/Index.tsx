@@ -95,7 +95,7 @@ const Index = () => {
     const componentToAdd = typeof component === 'string' 
       ? {
           id: `${component}-${Date.now()}`,
-          type: component,
+          type: component as ComponentType,
           props: {}
         } 
       : component;
