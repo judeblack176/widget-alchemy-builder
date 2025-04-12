@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -770,8 +771,88 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   };
 
   return (
-    <div>
-      {/* Rest of your component */}
+    <div className="widget-component-editor border rounded-md overflow-hidden bg-white mb-3">
+      <div className="p-3 border-b bg-gray-50 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <span className="font-medium">{componentTypeLabels[component.type] || component.type}</span>
+          {component.tooltipId && component.tooltipId !== "none" && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="cursor-help">
+                    {getTooltipIcon(component.tooltipId)}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs">
+                    {selectedTooltip?.content || "Tooltip information"}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+        <div className="flex gap-1">
+          {onApplyTooltip && (
+            <Select 
+              value={component.tooltipId || "none"} 
+              onValueChange={(value) => onApplyTooltip(value)}
+            >
+              <SelectTrigger className="h-7 text-xs border-none bg-transparent hover:bg-gray-100 w-auto p-1 gap-1">
+                <HelpCircle size={16} className="text-gray-500" />
+              </SelectTrigger>
+              <SelectContent align="end">
+                {tooltipOptions.map(option => (
+                  <SelectItem key={option.id} value={option.id}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onToggleExpand} 
+            className="h-7 w-7 p-0"
+          >
+            {isExpanded ? (
+              <ChevronUp size={16} className="text-gray-500" />
+            ) : (
+              <ChevronDown size={16} className="text-gray-500" />
+            )}
+          </Button>
+          {!shouldDisableRemove && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => onRemoveComponent(component.id)} 
+              className="h-7 w-7 p-0 text-red-500 hover:text-red-700"
+            >
+              <X size={16} />
+            </Button>
+          )}
+        </div>
+      </div>
+      
+      {isExpanded && (
+        <div className="p-4 space-y-4">
+          {/* Property Editors */}
+          <div className="space-y-3">
+            {getPropertyDefinitions().map((property) => 
+              renderPropertyEditor(property)
+            )}
+          </div>
+          
+          {/* API Integration Section */}
+          {shouldShowDataIntegration() && (
+            <div className="mt-4">
+              <h3 className="text-sm font-medium mb-2">Integration</h3>
+              {renderApiSection()}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
