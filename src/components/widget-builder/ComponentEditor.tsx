@@ -19,7 +19,7 @@ import {
   FormInput, 
   CalendarDays, 
   List, 
-  Link as LinkIcon, 
+  LinkIcon, 
   Text,
   Palette,
   Bold,
@@ -47,7 +47,9 @@ import {
   ChevronDown,
   ChevronUp,
   Code,
-  Database
+  Database,
+  Plus,
+  Trash2
 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -91,6 +93,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   customTooltips = []
 }) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [selectedFields, setSelectedFields] = useState<Record<string, string[]>>({});
 
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
@@ -108,7 +111,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       ...component,
       apiConfig: {
         apiId,
-        dataMapping: component.apiConfig?.dataMapping || {}
+        dataMapping: component.apiConfig?.dataMapping || {},
+        multiMapping: component.apiConfig?.multiMapping || {}
       }
     };
     onUpdateComponent(updatedComponent);
@@ -126,6 +130,33 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       }
     };
     onUpdateComponent(updatedComponent);
+  };
+
+  const handleMultiMappingChange = (propKey: string, apiField: string, isChecked: boolean) => {
+    const currentFields = component.apiConfig?.multiMapping?.[propKey] || [];
+    
+    let updatedFields;
+    if (isChecked) {
+      updatedFields = [...currentFields, apiField];
+    } else {
+      updatedFields = currentFields.filter(field => field !== apiField);
+    }
+    
+    const updatedComponent = {
+      ...component,
+      apiConfig: {
+        ...component.apiConfig!,
+        multiMapping: {
+          ...component.apiConfig?.multiMapping,
+          [propKey]: updatedFields
+        }
+      }
+    };
+    onUpdateComponent(updatedComponent);
+  };
+
+  const isFieldSelected = (propKey: string, apiField: string) => {
+    return component.apiConfig?.multiMapping?.[propKey]?.includes(apiField) || false;
   };
 
   const componentTypeLabels: Record<string, string> = {
@@ -530,11 +561,11 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           <Accordion type="single" collapsible defaultValue="data-mapping">
             <AccordionItem value="data-mapping">
               <AccordionTrigger className="text-xs font-medium py-1">
-                Data Mapping
+                Single Data Mapping
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-3">
-                  <p className="text-xs text-gray-500">Map component properties to API data fields:</p>
+                  <p className="text-xs text-gray-500">Map one API field to each component property:</p>
                   
                   {getPropertyDefinitions().map((prop) => (
                     <div key={`map-${prop.name}`} className="grid grid-cols-2 gap-2 items-center">
@@ -555,6 +586,77 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                           )) || []}
                         </SelectContent>
                       </Select>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+
+        {/* Multiple Data Mapping */}
+        <div className="mt-1">
+          <Accordion type="single" collapsible defaultValue="multi-mapping">
+            <AccordionItem value="multi-mapping">
+              <AccordionTrigger className="text-xs font-medium py-1">
+                Multiple Data Mapping
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-3">
+                  <p className="text-xs text-gray-500">Select multiple API fields for each component property:</p>
+                  
+                  {getPropertyDefinitions().map((prop) => (
+                    <div key={`multimap-${prop.name}`} className="border rounded-md p-2 mb-3">
+                      <div className="text-xs font-medium mb-2">{prop.label}:</div>
+                      <div className="space-y-1 ml-1">
+                        {selectedApi.possibleFields && selectedApi.possibleFields.length > 0 ? (
+                          selectedApi.possibleFields.map((field, idx) => (
+                            <div key={`multifield-${prop.name}-${idx}`} className="flex items-center space-x-2">
+                              <Checkbox 
+                                id={`check-${prop.name}-${idx}`}
+                                checked={isFieldSelected(prop.name, field)}
+                                onCheckedChange={(checked) => {
+                                  handleMultiMappingChange(prop.name, field, checked === true);
+                                }}
+                              />
+                              <label 
+                                htmlFor={`check-${prop.name}-${idx}`}
+                                className="text-xs leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {field}
+                              </label>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-xs text-gray-500">No fields available</div>
+                        )}
+                      </div>
+                      
+                      {/* Show selected fields */}
+                      {component.apiConfig?.multiMapping?.[prop.name]?.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-gray-200">
+                          <div className="flex flex-wrap gap-1">
+                            {component.apiConfig.multiMapping[prop.name].map((field, idx) => (
+                              <Badge 
+                                key={`selected-${prop.name}-${idx}`} 
+                                variant="secondary"
+                                className="text-xs flex items-center gap-1"
+                              >
+                                {field}
+                                <button 
+                                  className="ml-1 hover:text-red-500"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleMultiMappingChange(prop.name, field, false);
+                                  }}
+                                >
+                                  <X size={10} />
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

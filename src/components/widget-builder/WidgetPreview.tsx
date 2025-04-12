@@ -46,6 +46,39 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   
   const hasExcessComponents = nonHeaderNonAlertComponents.length > MAX_COMPONENTS;
 
+  // Process multi-mapped data for rendering
+  const processComponentData = (component: WidgetComponent) => {
+    if (!component.apiConfig) return undefined;
+    
+    const apiId = component.apiConfig.apiId;
+    const apiResult = apiData[apiId];
+    
+    // If there's no API data or no multiMapping, just return the regular API data
+    if (!apiResult || !component.apiConfig.multiMapping) {
+      return apiResult;
+    }
+    
+    // Create an object with processed multi-mapped fields
+    const processedData = { ...apiResult };
+    
+    // Process each property that has multiple field mappings
+    Object.entries(component.apiConfig.multiMapping).forEach(([propKey, fields]) => {
+      if (fields && fields.length > 0) {
+        // Gather all field values into an array
+        const fieldValues = fields.map(field => {
+          return apiResult[field];
+        }).filter(val => val !== undefined);
+        
+        // Add the processed multi-mapped values to the data object
+        if (fieldValues.length > 0) {
+          processedData[`multi_${propKey}`] = fieldValues;
+        }
+      }
+    });
+    
+    return processedData;
+  };
+
   useEffect(() => {
     if (nonHeaderNonAlertComponents.length > MAX_COMPONENTS && !hasExcessComponents) {
       toast({
@@ -149,7 +182,14 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       return null;
     }
     
-    const componentContent = renderComponent(component, component.apiConfig ? apiData[component.apiConfig.apiId] : undefined, component.type === 'alert' ? handleAlertDismiss : undefined);
+    // Process component data with multi-mapping support
+    const componentData = processComponentData(component);
+    
+    const componentContent = renderComponent(
+      component, 
+      componentData, 
+      component.type === 'alert' ? handleAlertDismiss : undefined
+    );
     
     if (component.tooltipId && component.tooltipId !== "") {
       return (
