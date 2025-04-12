@@ -9,7 +9,7 @@ import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionFo
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library, User, HelpCircle, BookmarkIcon, Bookmark } from "lucide-react";
+import { Library, User, HelpCircle, BookmarkIcon, Bookmark, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -46,9 +46,11 @@ const Index = () => {
   const [isTooltipListModalOpen, setIsTooltipListModalOpen] = useState(false);
   const [savedApiTemplates, setSavedApiTemplates] = useState<ApiConfig[]>([]);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (widgetId) {
+      setIsEditing(true);
       if (widgetId) {
         try {
           const savedSubmissions = localStorage.getItem('widgetSubmissions');
@@ -265,9 +267,11 @@ const Index = () => {
 
   const handleLoadWidget = () => {
     navigate('/library?mode=select');
+    setIsEditing(false);
   };
 
   const handleSubmitSuccess = () => {
+    setIsEditing(false);
     toast({
       title: "Widget Submitted",
       description: "Your widget has been submitted to the library for approval",
@@ -396,6 +400,8 @@ const Index = () => {
                 widgetComponents={widgetComponents}
                 apis={apis}
                 onSubmitSuccess={handleSubmitSuccess}
+                widgetId={widgetId}
+                isEditing={isEditing}
               />
             </div>
           </div>
@@ -507,6 +513,16 @@ const Index = () => {
               <div className="flex justify-between items-center self-stretch mb-6">
                 <h2 className="text-xl font-semibold">Preview</h2>
                 <div className="space-x-2">
+                  {isEditing && (
+                    <Button
+                      onClick={handleCancelEditing}
+                      variant="outline"
+                      size="default"
+                      className="border-red-500 text-red-500 hover:bg-red-50"
+                    >
+                      <X size={16} className="mr-2" /> Cancel
+                    </Button>
+                  )}
                   <Button
                     onClick={handleSaveWidget}
                     variant="default"

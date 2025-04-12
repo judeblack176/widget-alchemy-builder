@@ -1,24 +1,28 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Send } from "lucide-react";
+import { Send, CheckCircle, Clock, XCircle, RefreshCw } from "lucide-react";
 import type { WidgetComponent, ApiConfig, WidgetConfig, WidgetSubmission } from "@/types/widget-types";
 
 interface WidgetSubmissionFormProps {
   widgetComponents: WidgetComponent[];
   apis: ApiConfig[];
   onSubmitSuccess: () => void;
+  widgetId?: string | null;
+  isEditing?: boolean;
 }
 
 const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
   widgetComponents,
   apis,
-  onSubmitSuccess
+  onSubmitSuccess,
+  widgetId,
+  isEditing
 }) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -28,6 +32,39 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
     category: "",
     tags: ""
   });
+  const [submissionStatus, setSubmissionStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
+  const [hasChanges, setHasChanges] = useState(false);
+
+  useEffect(() => {
+    if (widgetId) {
+      try {
+        const savedSubmissions = localStorage.getItem('widgetSubmissions');
+        if (savedSubmissions) {
+          const submissions: WidgetSubmission[] = JSON.parse(savedSubmissions);
+          const submission = submissions.find(s => s.id === widgetId);
+          
+          if (submission) {
+            setFormData({
+              name: submission.name || "",
+              description: submission.description || "",
+              category: submission.category || "",
+              tags: submission.tags ? submission.tags.join(', ') : ""
+            });
+            setSubmissionStatus(submission.status as any);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load widget submission data", error);
+      }
+    }
+  }, [widgetId]);
+
+  useEffect(() => {
+    // When editing, we want to set hasChanges to true
+    if (isEditing && submissionStatus !== 'none') {
+      setHasChanges(true);
+    }
+  }, [isEditing, submissionStatus]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -48,10 +85,10 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
 
     // Create submission object
     const submission: WidgetSubmission = {
-      id: `widget-${Date.now()}`,
+      id: widgetId || `widget-${Date.now()}`,
       name: formData.name,
       description: formData.description,
-      createdAt: new Date().toISOString(),
+      createdAt: widgetId ? new Date().toISOString() : new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       status: 'pending',
       config: {
@@ -69,21 +106,32 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
     try {
       const existingSubmissions = localStorage.getItem('widgetSubmissions');
       const submissions = existingSubmissions ? JSON.parse(existingSubmissions) : [];
-      submissions.push(submission);
+      
+      if (widgetId) {
+        // Update existing submission
+        const index = submissions.findIndex((s: WidgetSubmission) => s.id === widgetId);
+        if (index !== -1) {
+          submissions[index] = submission;
+        } else {
+          submissions.push(submission);
+        }
+      } else {
+        // New submission
+        submissions.push(submission);
+      }
+      
       localStorage.setItem('widgetSubmissions', JSON.stringify(submissions));
       
       toast({
-        title: "Widget Submitted",
-        description: "Your widget has been submitted for approval",
+        title: hasChanges ? "Widget Resubmitted" : "Widget Submitted",
+        description: hasChanges 
+          ? "Your updated widget has been submitted for review again" 
+          : "Your widget has been submitted for approval",
       });
       
       setOpen(false);
-      setFormData({
-        name: "",
-        description: "",
-        category: "",
-        tags: ""
-      });
+      setSubmissionStatus('pending');
+      setHasChanges(false);
       
       onSubmitSuccess();
     } catch (error) {
@@ -96,16 +144,59 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+  const renderSubmitButton = () => {
+    if (!widgetId || submissionStatus === 'none') {
+      return (
         <Button className="bg-widget-blue">
           <Send size={16} className="mr-2" /> Submit for Approval
         </Button>
+      );
+    }
+
+    if (hasChanges) {
+      return (
+        <Button className="bg-widget-blue">
+          <RefreshCw size={16} className="mr-2" /> Resubmit for Approval
+        </Button>
+      );
+    }
+
+    switch (submissionStatus) {
+      case 'pending':
+        return (
+          <Button variant="outline" disabled className="border-amber-500 text-amber-500">
+            <Clock size={16} className="mr-2" /> Pending Approval
+          </Button>
+        );
+      case 'approved':
+        return (
+          <Button variant="outline" disabled className="border-green-500 text-green-500">
+            <CheckCircle size={16} className="mr-2" /> Approved
+          </Button>
+        );
+      case 'rejected':
+        return (
+          <Button variant="outline" disabled className="border-red-500 text-red-500">
+            <XCircle size={16} className="mr-2" /> Rejected
+          </Button>
+        );
+      default:
+        return (
+          <Button className="bg-widget-blue">
+            <Send size={16} className="mr-2" /> Submit for Approval
+          </Button>
+        );
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {renderSubmitButton()}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Submit Widget for Approval</DialogTitle>
+          <DialogTitle>{hasChanges ? "Resubmit Widget for Approval" : "Submit Widget for Approval"}</DialogTitle>
           <DialogDescription>
             Provide details about your widget for the approval process
           </DialogDescription>
@@ -163,7 +254,7 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">Submit Widget</Button>
+            <Button type="submit">{hasChanges ? "Resubmit" : "Submit"} Widget</Button>
           </DialogFooter>
         </form>
       </DialogContent>
