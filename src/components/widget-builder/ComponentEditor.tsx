@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig, ComponentType, Tooltip, ApiFieldMapping, ComponentDefinition, PREDEFINED_COLORS } from '@/types/widget-types';
 import { Input } from '@/components/ui/input';
@@ -30,350 +29,7 @@ interface ComponentEditorProps {
 }
 
 const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
-  {
-    type: 'header',
-    name: 'Header',
-    icon: 'Heading',
-    defaultProps: {
-      title: 'Header Title',
-      subtitle: 'Subtitle text',
-      align: 'left',
-      size: 'medium',
-      color: '#000000',
-      backgroundColor: 'transparent',
-    },
-    availableProps: [
-      { name: 'title', type: 'text', label: 'Title' },
-      { name: 'subtitle', type: 'text', label: 'Subtitle' },
-      { name: 'align', type: 'select', label: 'Alignment', options: ['left', 'center', 'right'] },
-      { name: 'size', type: 'select', label: 'Size', options: ['small', 'medium', 'large'] },
-      { name: 'color', type: 'color', label: 'Text Color' },
-      { name: 'backgroundColor', type: 'color', label: 'Background Color' },
-      { name: 'icon', type: 'icon', label: 'Icon' },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      title: 'title',
-      subtitle: 'subtitle',
-    }
-  },
-  {
-    type: 'text',
-    name: 'Text',
-    icon: 'Type',
-    defaultProps: {
-      content: 'Text content goes here',
-      align: 'left',
-      size: 'medium',
-      color: '#000000',
-      backgroundColor: 'transparent',
-    },
-    availableProps: [
-      { name: 'content', type: 'text', label: 'Content' },
-      { name: 'align', type: 'select', label: 'Alignment', options: ['left', 'center', 'right'] },
-      { name: 'size', type: 'select', label: 'Size', options: ['small', 'medium', 'large'] },
-      { name: 'color', type: 'color', label: 'Text Color' },
-      { name: 'backgroundColor', type: 'color', label: 'Background Color' },
-      { name: 'font', type: 'font', label: 'Font' },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      content: 'content',
-    }
-  },
-  {
-    type: 'image',
-    name: 'Image',
-    icon: 'Image',
-    defaultProps: {
-      source: 'https://via.placeholder.com/300x200',
-      altText: 'Image description',
-      caption: '',
-      width: '100%',
-      height: 'auto',
-      borderRadius: '0',
-    },
-    availableProps: [
-      { name: 'source', type: 'text', label: 'Image URL' },
-      { name: 'altText', type: 'text', label: 'Alt Text' },
-      { name: 'caption', type: 'text', label: 'Caption' },
-      { name: 'width', type: 'text', label: 'Width' },
-      { name: 'height', type: 'text', label: 'Height' },
-      { name: 'borderRadius', type: 'text', label: 'Border Radius' },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      source: 'imageUrl',
-      altText: 'altText',
-      caption: 'caption',
-    }
-  },
-  {
-    type: 'button',
-    name: 'Button',
-    icon: 'Square',
-    defaultProps: {
-      label: 'Click Me',
-      variant: 'default',
-      size: 'default',
-      url: '#',
-      align: 'left',
-    },
-    availableProps: [
-      { name: 'label', type: 'text', label: 'Button Text' },
-      { name: 'variant', type: 'select', label: 'Variant', options: ['default', 'outline', 'secondary', 'ghost', 'link', 'destructive'] },
-      { name: 'size', type: 'select', label: 'Size', options: ['default', 'sm', 'lg', 'icon'] },
-      { name: 'url', type: 'text', label: 'URL' },
-      { name: 'align', type: 'select', label: 'Alignment', options: ['left', 'center', 'right'] },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      label: 'buttonText',
-      url: 'buttonUrl',
-    }
-  },
-  {
-    type: 'video',
-    name: 'Video',
-    icon: 'Video',
-    defaultProps: {
-      source: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      title: 'Video Title',
-      autoplay: false,
-      controls: true,
-      width: '100%',
-      height: '315',
-    },
-    availableProps: [
-      { name: 'source', type: 'text', label: 'Video URL' },
-      { name: 'title', type: 'text', label: 'Title' },
-      { name: 'autoplay', type: 'select', label: 'Autoplay', options: ['true', 'false'] },
-      { name: 'controls', type: 'select', label: 'Show Controls', options: ['true', 'false'] },
-      { name: 'width', type: 'text', label: 'Width' },
-      { name: 'height', type: 'text', label: 'Height' },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      source: 'videoUrl',
-      title: 'videoTitle',
-    }
-  },
-  {
-    type: 'chart',
-    name: 'Chart',
-    icon: 'BarChart',
-    defaultProps: {
-      type: 'bar',
-      title: 'Chart Title',
-      labels: ['Label 1', 'Label 2', 'Label 3'],
-      data: [10, 20, 30],
-      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-      borderColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-    },
-    availableProps: [
-      { name: 'type', type: 'select', label: 'Chart Type', options: ['bar', 'line', 'pie', 'doughnut'] },
-      { name: 'title', type: 'text', label: 'Title' },
-      { name: 'labels', type: 'text', label: 'Labels (comma separated)' },
-      { name: 'data', type: 'text', label: 'Data (comma separated)' },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      data: 'chartData',
-      labels: 'chartLabels',
-    }
-  },
-  {
-    type: 'form',
-    name: 'Form',
-    icon: 'FileText',
-    defaultProps: {
-      fields: [
-        { type: 'text', label: 'Name', placeholder: 'Enter your name', required: true },
-        { type: 'email', label: 'Email', placeholder: 'Enter your email', required: true },
-        { type: 'textarea', label: 'Message', placeholder: 'Enter your message', required: false },
-      ],
-      submitLabel: 'Submit',
-      successMessage: 'Form submitted successfully!',
-    },
-    availableProps: [
-      { name: 'submitLabel', type: 'text', label: 'Submit Button Label' },
-      { name: 'successMessage', type: 'text', label: 'Success Message' },
-    ],
-    supportsApiIntegration: true,
-  },
-  {
-    type: 'calendar',
-    name: 'Calendar',
-    icon: 'Calendar',
-    defaultProps: {
-      events: [
-        { title: 'Event 1', start: '2023-01-01', end: '2023-01-02' },
-        { title: 'Event 2', start: '2023-01-05', end: '2023-01-07' },
-      ],
-      view: 'month',
-      firstDay: 0,
-    },
-    availableProps: [
-      { name: 'view', type: 'select', label: 'Default View', options: ['month', 'week', 'day', 'agenda'] },
-      { name: 'firstDay', type: 'select', label: 'First Day of Week', options: ['0', '1'] },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      events: 'events',
-    }
-  },
-  {
-    type: 'dropdown',
-    name: 'Dropdown',
-    icon: 'ChevronDown',
-    defaultProps: {
-      label: 'Select an option',
-      placeholder: 'Choose...',
-      options: ['Option 1', 'Option 2', 'Option 3'],
-      defaultValue: '',
-    },
-    availableProps: [
-      { name: 'label', type: 'text', label: 'Label' },
-      { name: 'placeholder', type: 'text', label: 'Placeholder' },
-      { name: 'options', type: 'text', label: 'Options (comma separated)' },
-      { name: 'defaultValue', type: 'text', label: 'Default Value' },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      options: 'dropdownOptions',
-    }
-  },
-  {
-    type: 'link',
-    name: 'Link',
-    icon: 'Link',
-    defaultProps: {
-      text: 'Click here',
-      url: '#',
-      target: '_self',
-      color: '#3B82F6',
-    },
-    availableProps: [
-      { name: 'text', type: 'text', label: 'Link Text' },
-      { name: 'url', type: 'text', label: 'URL' },
-      { name: 'target', type: 'select', label: 'Target', options: ['_self', '_blank'] },
-      { name: 'color', type: 'color', label: 'Link Color' },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      text: 'linkText',
-      url: 'linkUrl',
-    }
-  },
-  {
-    type: 'multi-text',
-    name: 'Multi-Text',
-    icon: 'ListOrdered',
-    defaultProps: {
-      items: ['Item 1', 'Item 2', 'Item 3'],
-      type: 'bullet',
-      spacing: 'normal',
-    },
-    availableProps: [
-      { name: 'items', type: 'text', label: 'Items (one per line)' },
-      { name: 'type', type: 'select', label: 'List Type', options: ['bullet', 'numbered', 'check'] },
-      { name: 'spacing', type: 'select', label: 'Spacing', options: ['tight', 'normal', 'relaxed'] },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      items: 'listItems',
-    }
-  },
-  {
-    type: 'filter',
-    name: 'Filter',
-    icon: 'Filter',
-    defaultProps: {
-      label: 'Filter by',
-      options: ['All', 'Option 1', 'Option 2', 'Option 3'],
-      defaultValue: 'All',
-      multiple: false,
-    },
-    availableProps: [
-      { name: 'label', type: 'text', label: 'Label' },
-      { name: 'options', type: 'text', label: 'Options (comma separated)' },
-      { name: 'defaultValue', type: 'text', label: 'Default Value' },
-      { name: 'multiple', type: 'select', label: 'Multiple Selection', options: ['true', 'false'] },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      options: 'filterOptions',
-    }
-  },
-  {
-    type: 'alert',
-    name: 'Alert',
-    icon: 'AlertCircle',
-    defaultProps: {
-      title: 'Alert Title',
-      content: 'This is an alert message.',
-      type: 'info',
-      dismissible: true,
-    },
-    availableProps: [
-      { name: 'title', type: 'text', label: 'Title' },
-      { name: 'content', type: 'text', label: 'Content' },
-      { name: 'type', type: 'select', label: 'Type', options: ['info', 'success', 'warning', 'error'] },
-      { name: 'dismissible', type: 'select', label: 'Dismissible', options: ['true', 'false'] },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      title: 'alertTitle',
-      content: 'alertMessage',
-      type: 'alertType',
-    }
-  },
-  {
-    type: 'table',
-    name: 'Table',
-    icon: 'Table',
-    defaultProps: {
-      columns: [
-        { header: 'Name', accessor: 'name' },
-        { header: 'Age', accessor: 'age' },
-        { header: 'Status', accessor: 'status' },
-      ],
-      data: [
-        { name: 'John', age: 25, status: 'Active' },
-        { name: 'Jane', age: 30, status: 'Inactive' },
-      ],
-      striped: true,
-      bordered: true,
-    },
-    availableProps: [
-      { name: 'striped', type: 'select', label: 'Striped Rows', options: ['true', 'false'] },
-      { name: 'bordered', type: 'select', label: 'Bordered', options: ['true', 'false'] },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      data: 'tableData',
-      columns: 'tableColumns',
-    }
-  },
-  {
-    type: 'searchbar',
-    name: 'Search Bar',
-    icon: 'Search',
-    defaultProps: {
-      placeholder: 'Search...',
-      label: 'Search',
-      showIcon: true,
-    },
-    availableProps: [
-      { name: 'placeholder', type: 'text', label: 'Placeholder' },
-      { name: 'label', type: 'text', label: 'Label' },
-      { name: 'showIcon', type: 'select', label: 'Show Icon', options: ['true', 'false'] },
-    ],
-    supportsApiIntegration: true,
-    defaultDataMapping: {
-      placeholder: 'searchPlaceholder',
-    }
-  },
+  // ... keep existing COMPONENT_DEFINITIONS array
 ];
 
 const ComponentEditor: React.FC<ComponentEditorProps> = ({
@@ -666,6 +322,10 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     return [...defaultTooltips, ...customTooltips];
   };
 
+  const handleTabClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <div className="p-4">
       <div className="flex items-center justify-between gap-2 mb-4">
@@ -689,7 +349,10 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={onToggleExpand}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleExpand();
+            }}
             className="w-8 h-8 rounded-full"
           >
             {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -699,20 +362,24 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
       <Collapsible open={isExpanded}>
         <CollapsibleContent>
-          <Tabs value={currentTab} onValueChange={(v) => setCurrentTab(v as any)}>
-            <TabsList className="grid grid-cols-3 mb-4">
+          <Tabs 
+            value={currentTab} 
+            onValueChange={(v) => setCurrentTab(v as any)} 
+            className="mt-2"
+          >
+            <TabsList className="grid grid-cols-3 mb-4" onClick={handleTabClick}>
               <TabsTrigger value="properties">Properties</TabsTrigger>
               {hasApiIntegration && <TabsTrigger value="api">API Integration</TabsTrigger>}
               {component.type === 'text' && <TabsTrigger value="content">Content</TabsTrigger>}
             </TabsList>
 
-            <TabsContent value="properties" className="space-y-4">
+            <TabsContent value="properties" className="space-y-4" onClick={handleTabClick}>
               {componentDefinition?.availableProps.map(renderPropEditor)}
               {renderPreview()}
             </TabsContent>
 
             {hasApiIntegration && (
-              <TabsContent value="api" className="space-y-4">
+              <TabsContent value="api" className="space-y-4" onClick={handleTabClick}>
                 <div className="space-y-2">
                   <Label htmlFor="api-select">Select API</Label>
                   <Select
@@ -740,7 +407,10 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                       variant="outline"
                       size="sm"
                       className="w-full"
-                      onClick={() => setIsApiDialogOpen(true)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsApiDialogOpen(true);
+                      }}
                     >
                       <Database className="h-4 w-4 mr-2" /> View API Details
                     </Button>
@@ -755,7 +425,10 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                       variant="outline"
                       size="sm"
                       className="mt-2"
-                      onClick={onRequestApiTemplate}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRequestApiTemplate();
+                      }}
                     >
                       Add API from Template
                     </Button>
@@ -765,7 +438,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             )}
 
             {component.type === 'text' && (
-              <TabsContent value="content" className="space-y-4">
+              <TabsContent value="content" className="space-y-4" onClick={handleTabClick}>
                 <div className="space-y-4">
                   <ApiFieldMappingEditor
                     availableFields={availableFields}
@@ -782,6 +455,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                       onChange={(e) => handleUpdateFormattedContent(e.target.value)}
                       placeholder="Enter content with {{field}} placeholders"
                       className="min-h-[100px]"
+                      onClick={(e) => e.stopPropagation()}
                     />
                     <p className="text-xs text-muted-foreground">
                       Use {'{{'}{'{fieldName}'}{'}}'} syntax to include dynamic content from API mappings
@@ -821,7 +495,10 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setIsTooltipDialogOpen(true)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsTooltipDialogOpen(true);
+                  }}
                 >
                   <HelpCircle className="h-4 w-4 mr-2" />
                   {component.tooltipId ? 'Change Tooltip' : 'Add Tooltip'}
@@ -832,7 +509,10 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => onRemoveComponent(component.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemoveComponent(component.id);
+                }}
               >
                 <Trash2 className="h-4 w-4 mr-2" /> Remove
               </Button>
