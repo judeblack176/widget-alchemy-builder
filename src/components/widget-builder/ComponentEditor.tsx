@@ -21,9 +21,6 @@ import {
   List, 
   LinkIcon, 
   Text,
-  Palette,
-  Bold,
-  Italic,
   Filter,
   AlertTriangle,
   Table2,
@@ -328,8 +325,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           { name: "url", type: "text", label: "URL" },
           { name: "openInNewTab", type: "select", label: "Open in New Tab", options: ["true", "false"] },
           { name: "style", type: "select", label: "Style", options: ["default", "button", "underlined"] },
-          { name: "displayType", type: "select", label: "Display Type", options: ["text", "icon", "both"] },
-          { name: "icon", type: "select", label: "Icon (if using icon)", options: ["LinkIcon", "ExternalLink", "FileText", "Download", "Info"] }
+          { name: "icon", type: "select", label: "Icon", options: ["LinkIcon", "ExternalLink", "FileText", "Download", "Info"] }
         ];
       case 'table':
         return [
@@ -358,6 +354,35 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           { name: "minChars", type: "select", label: "Min Characters", options: ["1", "2", "3", "4"] },
           { name: "width", type: "select", label: "Width", options: ["full", "medium", "small"] },
           { name: "showIcon", type: "select", label: "Show Icon", options: ["true", "false"] }
+        ];
+      case 'form':
+        return [
+          { name: "fields", type: "text", label: "Fields (JSON string)" },
+          { name: "submitText", type: "text", label: "Submit Button Text" },
+          { name: "formMethod", type: "select", label: "Form Method", options: ["GET", "POST"] },
+          { name: "formAction", type: "text", label: "Form Action URL" },
+          { name: "redirectUrl", type: "text", label: "Redirect URL (on success)" }
+        ];
+      case 'multi-text':
+        return [
+          { name: "items", type: "text", label: "Text Items (JSON array)" },
+          { name: "layout", type: "select", label: "Layout", options: ["vertical", "horizontal", "grid"] }
+        ];
+      case 'filter':
+        return [
+          { name: "options", type: "text", label: "Filter Options (comma separated)" },
+          { name: "defaultSelected", type: "text", label: "Default Selected Option" },
+          { name: "filterType", type: "select", label: "Filter Type", options: ["button", "checkbox", "dropdown", "radio"] }
+        ];
+      case 'video':
+        return [
+          { name: "source", type: "text", label: "Video URL" },
+          { name: "title", type: "text", label: "Title" },
+          { name: "poster", type: "text", label: "Poster Image URL" },
+          { name: "controls", type: "select", label: "Show Controls", options: ["true", "false"] },
+          { name: "autoplay", type: "select", label: "Autoplay", options: ["true", "false"] },
+          { name: "loop", type: "select", label: "Loop", options: ["true", "false"] },
+          { name: "muted", type: "select", label: "Muted", options: ["true", "false"] }
         ];
       default:
         return [
@@ -844,7 +869,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           )}
           
           <div className="space-y-4">
-            {/* Tooltip selector */}
             {onApplyTooltip && (
               <div className="mb-4">
                 <Label htmlFor="tooltip-select" className="mb-1 block">Tooltip</Label>
@@ -874,7 +898,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
               </div>
             )}
             
-            {/* Component specific properties */}
             <div>
               <h3 className="font-medium mb-3">Component Properties</h3>
               <div className="space-y-1">
@@ -882,7 +905,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
               </div>
             </div>
             
-            {/* API Integration section */}
             {shouldShowDataIntegration() && renderApiSection()}
           </div>
         </div>
