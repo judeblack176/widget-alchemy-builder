@@ -31,9 +31,10 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   onApplyTooltip,
   tooltips = []
 }) => {
+  
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-
+  
   useEffect(() => {
     if (tooltips && onApplyTooltip) {
       const validTooltipIds = [
@@ -48,7 +49,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
       });
     }
   }, [tooltips, components, onApplyTooltip]);
-
+  
   const alertComponents = components.filter(c => c.type === 'alert');
   const hasAlertComponent = alertComponents.length > 0;
   
@@ -85,10 +86,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     setSearchQuery(query);
   };
 
-  const toggleExpand = (componentId: string) => {
-    setExpandedComponentId(expandedComponentId === componentId ? null : componentId);
-  };
-
   const filteredComponents = components.filter(component => {
     if (!searchQuery.trim()) return true;
     
@@ -117,7 +114,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   return (
     <div className="flex flex-col h-full">
       {/* Fixed section - header, alert, search */}
-      <div className="bg-widget-gray z-10 space-y-4 pb-4">
+      <div className="sticky top-0 bg-widget-gray z-10 space-y-4 pb-4">
         {atComponentLimit && (
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4 mr-2" />
@@ -137,15 +134,16 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         
         {/* Fixed header component section */}
         {filteredHeaderComponent && (
-          <Card 
-            className="bg-white border border-blue-500 shadow-sm mb-4 hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => toggleExpand(filteredHeaderComponent.id)}
-          >
+          <Card className="bg-white border border-blue-500 shadow-sm">
             <ComponentEditor
               component={filteredHeaderComponent}
               apis={apis}
               isExpanded={expandedComponentId === filteredHeaderComponent.id}
-              onToggleExpand={() => toggleExpand(filteredHeaderComponent.id)}
+              onToggleExpand={() => 
+                setExpandedComponentId(
+                  expandedComponentId === filteredHeaderComponent.id ? null : filteredHeaderComponent.id
+                )
+              }
               onUpdateComponent={onUpdateComponent}
               onRemoveComponent={onRemoveComponent}
               onRequestApiTemplate={() => onRequestApiTemplate(filteredHeaderComponent.id)}
@@ -160,18 +158,18 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         
         {/* Fixed alert section */}
         {filteredAlertComponents.length > 0 && (
-          <div className="space-y-4 mb-4">
+          <div className="space-y-4">
             {filteredAlertComponents.map((alertComponent) => (
-              <Card 
-                key={alertComponent.id} 
-                className="bg-white border border-amber-500 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => toggleExpand(alertComponent.id)}
-              >
+              <Card key={alertComponent.id} className="bg-white border border-amber-500 shadow-sm">
                 <ComponentEditor
                   component={alertComponent}
                   apis={apis}
                   isExpanded={expandedComponentId === alertComponent.id}
-                  onToggleExpand={() => toggleExpand(alertComponent.id)}
+                  onToggleExpand={() => 
+                    setExpandedComponentId(
+                      expandedComponentId === alertComponent.id ? null : alertComponent.id
+                    )
+                  }
                   onUpdateComponent={onUpdateComponent}
                   onRemoveComponent={onRemoveComponent}
                   onRequestApiTemplate={() => onRequestApiTemplate(alertComponent.id)}
@@ -186,70 +184,69 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         )}
       </div>
       
-      {/* Scrollable section */}
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full">
-          <div className="pr-4 pb-4">
-            {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
-              <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
-                <p className="text-gray-500">No components match your search</p>
-              </Card>
-            ) : filteredComponents.length === 0 ? (
-              <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
-                <p className="text-gray-500">Add components to your widget from the left panel</p>
-              </Card>
-            ) : filteredRegularComponents.length > 0 && (
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="components">
-                  {(provided) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="space-y-4"
-                    >
-                      {filteredRegularComponents.map((component, index) => (
-                        <Draggable 
-                          key={component.id} 
-                          draggableId={component.id} 
-                          index={index}
-                        >
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="relative"
-                            >
-                              <Card 
-                                className="bg-white border shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                                onClick={() => toggleExpand(component.id)}
-                              >
-                                <ComponentEditor
-                                  component={component}
-                                  apis={apis}
-                                  isExpanded={expandedComponentId === component.id}
-                                  onToggleExpand={() => toggleExpand(component.id)}
-                                  onUpdateComponent={onUpdateComponent}
-                                  onRemoveComponent={onRemoveComponent}
-                                  onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
-                                  onApplyTooltip={onApplyTooltip ? 
-                                    (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
-                                    undefined}
-                                  customTooltips={tooltips}
-                                />
-                              </Card>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            )}
-          </div>
-        </ScrollArea>
+      {/* Scrollable section - fixing the scrolling issue */}
+      <div className="flex-1 overflow-auto">
+        <div className="pr-4 pb-4">
+          {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
+            <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
+              <p className="text-gray-500">No components match your search</p>
+            </Card>
+          ) : filteredComponents.length === 0 ? (
+            <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
+              <p className="text-gray-500">Add components to your widget from the left panel</p>
+            </Card>
+          ) : filteredRegularComponents.length > 0 && (
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="components">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="space-y-4 pr-2"
+                  >
+                    {filteredRegularComponents.map((component, index) => (
+                      <Draggable 
+                        key={component.id} 
+                        draggableId={component.id} 
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="relative"
+                          >
+                            <Card className="bg-white border shadow-sm">
+                              <ComponentEditor
+                                component={component}
+                                apis={apis}
+                                isExpanded={expandedComponentId === component.id}
+                                onToggleExpand={() => 
+                                  setExpandedComponentId(
+                                    expandedComponentId === component.id ? null : component.id
+                                  )
+                                }
+                                onUpdateComponent={onUpdateComponent}
+                                onRemoveComponent={onRemoveComponent}
+                                onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
+                                onApplyTooltip={onApplyTooltip ? 
+                                  (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
+                                  undefined}
+                                customTooltips={tooltips}
+                              />
+                            </Card>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          )}
+        </div>
       </div>
     </div>
   );

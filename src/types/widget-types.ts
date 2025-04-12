@@ -12,11 +12,6 @@ export interface WidgetComponent {
     multiMapping?: Record<string, string[]>;
   };
   tooltipId?: string;
-  contentFields?: Array<{
-    label: string;
-    apiField: string;
-  }>;
-  formattedContent?: string;
 }
 
 export interface ComponentDefinition {
@@ -331,19 +326,6 @@ export const extractFieldPaths = (obj: any, prefix = ''): string[] => {
   
   return paths;
 };
-
-// Added missing interfaces
-export interface ApiFieldMapping {
-  label: string;
-  apiField: string;
-}
-
-export interface Tooltip {
-  id: string;
-  title: string;
-  content: string;
-  type?: 'info' | 'warning' | 'success' | 'error';
-}
 
 // Common predefined tooltip tags
 export const COMMON_TOOLTIP_TAGS = [
