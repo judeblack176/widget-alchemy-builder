@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,7 +7,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WidgetComponent } from '@/types/widget-types';
-import { ComponentType } from '@/types/widget-builder';
+import { ComponentType } from '@/types/widget-types';
+import { Search, ArrowDownAZ } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface ComponentLibraryProps {
   onAddComponent: (component: WidgetComponent | string) => void;
@@ -22,16 +24,20 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
 }) => {
   const [selectedComponents, setSelectedComponents] = useState<string[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortAZ, setSortAZ] = useState<boolean>(false);
 
-  const components: ComponentType[] = [
-    'header',
+  // Priority components that should always be at the top
+  const priorityComponents: ComponentType[] = ['header', 'alert'];
+  
+  // Regular components
+  const regularComponents: ComponentType[] = [
     'text',
     'button',
     'image',
     'chart',
     'form',
     'video',
-    'alert',
     'calendar',
     'dropdown',
     'link',
@@ -40,6 +46,9 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
     'table',
     'searchbar'
   ];
+
+  // All components (with priority ones first)
+  const components: ComponentType[] = [...priorityComponents, ...regularComponents];
 
   const componentCategories = {
     all: components,
@@ -104,7 +113,49 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
     }
   };
 
-  const displayedComponents = componentCategories[activeCategory as keyof typeof componentCategories] || components;
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const toggleSort = () => {
+    setSortAZ(!sortAZ);
+  };
+
+  // Get the components to display based on active category, search, and sort
+  const getDisplayedComponents = () => {
+    // Get the base components for the current category
+    let categoryComponents = componentCategories[activeCategory as keyof typeof componentCategories] || components;
+    
+    // Split into priority and regular components
+    const priorityComponentsInCategory = categoryComponents.filter(c => priorityComponents.includes(c));
+    let regularComponentsInCategory = categoryComponents.filter(c => !priorityComponents.includes(c));
+    
+    // Filter by search query if set
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      priorityComponentsInCategory.filter(c => 
+        getComponentTitle(c).toLowerCase().includes(query) || 
+        getComponentDescription(c).toLowerCase().includes(query)
+      );
+      regularComponentsInCategory = regularComponentsInCategory.filter(c => 
+        getComponentTitle(c).toLowerCase().includes(query) || 
+        getComponentDescription(c).toLowerCase().includes(query)
+      );
+    }
+    
+    // Sort regular components if sort is enabled
+    if (sortAZ) {
+      regularComponentsInCategory.sort((a, b) => getComponentTitle(a).localeCompare(getComponentTitle(b)));
+    }
+    
+    // Combine with priority components always at the top
+    return [...priorityComponentsInCategory, ...regularComponentsInCategory];
+  };
+
+  const displayedComponents = getDisplayedComponents();
+  
+  // Check if an alert component already exists
+  const alertExists = existingComponents.some(c => c.type === 'alert');
 
   return (
     <div className="h-full flex flex-col">
@@ -118,14 +169,37 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
           </TabsList>
         </div>
         
-        <TabsContent value={activeCategory} className="flex-1 pt-4 m-0">
+        <div className="pt-3 pb-2 flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input 
+              type="text" 
+              placeholder="Search components..." 
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="pl-8 h-8 text-sm"
+            />
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className={`h-8 px-2 ${sortAZ ? 'bg-blue-50' : ''}`} 
+            onClick={toggleSort}
+            title="Sort A-Z"
+          >
+            <ArrowDownAZ className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <TabsContent value={activeCategory} className="flex-1 pt-2 m-0">
           <ScrollArea className="h-full pr-4">
             <div className="space-y-3">
               {displayedComponents.map((componentType) => {
                 const hasMultiSelect = !!onAddMultipleComponents;
                 const isHeader = componentType === 'header';
+                const isAlert = componentType === 'alert';
                 const hasExistingHeader = existingComponents.some(c => c.type === 'header');
-                const isDisabled = isHeader && hasExistingHeader;
+                const isDisabled = (isHeader && hasExistingHeader) || (isAlert && alertExists);
                 
                 return (
                   <Card 

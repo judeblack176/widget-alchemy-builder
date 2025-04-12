@@ -8,7 +8,7 @@ import ApiManager from "@/components/widget-builder/ApiManager";
 import TooltipManager, { Tooltip } from "@/components/widget-builder/TooltipManager";
 import TagsManager from "@/components/widget-builder/TagsManager";
 import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionForm";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Library, User, HelpCircle, BookmarkIcon, Bookmark, X, Plus, ChevronDown, Tag } from "lucide-react";
@@ -101,6 +101,7 @@ const Index = () => {
         } 
       : component;
     
+    // Check if trying to add an Alert when one already exists
     if (componentToAdd.type === 'alert' && widgetComponents.some(c => c.type === 'alert')) {
       toast({
         title: "Alert Already Exists",

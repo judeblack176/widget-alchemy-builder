@@ -31,12 +31,12 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   });
   const { toast } = useToast();
   
+  // Get only the first header component to prevent duplicates
+  const headerComponent = components.find(c => c.type === 'header');
+  
   const alertComponents = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
   const hasAlertComponent = alertComponents.length > 0;
   const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
-  
-  // Get only the first header component to prevent duplicates
-  const headerComponent = components.find(c => c.type === 'header');
   
   const nonHeaderNonAlertComponents = components.filter(c => c.type !== 'header' && c.type !== 'alert');
   
