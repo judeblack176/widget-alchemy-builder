@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig, ComponentType, Tooltip, ApiFieldMapping, ComponentDefinition, PREDEFINED_COLORS } from '@/types/widget-types';
 import { Input } from '@/components/ui/input';
@@ -887,3 +888,68 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                       {api.possibleFields.map((field) => (
                         <Badge key={field} variant="outline" className="text-xs">
                           {field}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsApiDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isTooltipDialogOpen} onOpenChange={setIsTooltipDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Select Tooltip</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[400px] pr-4">
+            <div className="space-y-2">
+              {getTooltipOptions().map((tooltip) => (
+                <div
+                  key={tooltip.id}
+                  className={`p-3 rounded-md border cursor-pointer transition-colors ${
+                    component.tooltipId === tooltip.id
+                      ? 'bg-primary/10 border-primary'
+                      : 'hover:bg-muted'
+                  }`}
+                  onClick={() => {
+                    if (onApplyTooltip) {
+                      onApplyTooltip(tooltip.id);
+                      setIsTooltipDialogOpen(false);
+                    }
+                  }}
+                >
+                  <div className="flex items-start gap-2">
+                    {tooltip.id === 'help' && <HelpCircle size={16} className="text-blue-500 mt-0.5" />}
+                    {tooltip.id === 'info' && <Info size={16} className="text-green-500 mt-0.5" />}
+                    {tooltip.id === 'warning' && <AlertCircle size={16} className="text-amber-500 mt-0.5" />}
+                    {tooltip.id === 'tip' && <HelpCircle size={16} className="text-purple-500 mt-0.5" />}
+                    {tooltip.id === '' && <Check size={16} className="text-gray-500 mt-0.5" />}
+                    <div>
+                      <div className="font-medium text-sm">{tooltip.title}</div>
+                      <div className="text-xs text-muted-foreground">{tooltip.content}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsTooltipDialogOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default ComponentEditor;
