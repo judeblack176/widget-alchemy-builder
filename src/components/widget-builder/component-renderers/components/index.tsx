@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Alert as UIAlert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -15,16 +16,19 @@ export const Header = ({ title, icon }: any) => {
   );
 };
 
-export const Text = ({ content, fontSize, fontFamily, textAlign, isBold, isItalic, textColor }: any) => {
+export const Text = ({ content, fontSize, fontFamily, textAlign, isBold, isItalic, textColor, align, size, color, backgroundColor }: any) => {
   const textStyle = {
     fontFamily: fontFamily === 'default' ? 'inherit' : fontFamily,
-    fontSize: fontSize === 'small' ? '0.875rem' : 
+    fontSize: size === 'small' ? '0.875rem' : 
+             size === 'large' ? '1.25rem' : 
+             fontSize === 'small' ? '0.875rem' : 
              fontSize === 'large' ? '1.25rem' : 
              fontSize === 'xlarge' ? '1.5rem' : '1rem',
     fontWeight: isBold ? 'bold' : 'normal',
     fontStyle: isItalic ? 'italic' : 'normal',
-    color: textColor || 'inherit',
-    textAlign: textAlign || 'left'
+    color: color || textColor || 'inherit',
+    textAlign: align || textAlign || 'left',
+    backgroundColor: backgroundColor || 'transparent'
   };
 
   return <div className="text-foreground" style={textStyle}>{content}</div>;
