@@ -696,104 +696,104 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
               <p className="text-sm text-gray-400 mt-1">Try adjusting your search query</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               {filteredAndSortedApis.map((api) => (
-                <Card key={api.id} className={expandedRows[api.id] ? "bg-slate-50" : ""}>
-                  <CardHeader className="p-4 pb-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge 
-                          variant="outline" 
-                          className={`
-                            ${api.method === 'GET' ? 'border-green-500 bg-green-50 text-green-700' : ''}
-                            ${api.method === 'POST' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}
-                            ${api.method === 'PUT' ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : ''}
-                            ${api.method === 'DELETE' ? 'border-red-500 bg-red-50 text-red-700' : ''}
-                          `}
-                        >
-                          {api.method}
-                        </Badge>
+                <Card key={api.id} className={`${expandedRows[api.id] ? "bg-slate-50" : ""} w-full`}>
+                  <CardHeader className="p-3 pb-2">
+                    <div className="flex flex-col space-y-2">
+                      <div className="flex items-center justify-between">
                         <h3 className="text-lg font-medium">{api.name}</h3>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={() => copyApiToClipboard(api)}
-                              >
-                                {copyStatus[api.id] ? <Check size={16} /> : <Copy size={16} />}
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Copy API configuration</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="h-8 w-8 p-0"
-                                onClick={() => handleEditApi(api.id)}
-                              >
-                                <Code size={16} />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Edit API</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="h-8 w-8 p-0" 
-                                onClick={() => onRemoveApi(api.id)}
-                              >
-                                <Trash2 size={16} />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Remove API</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={() => toggleRowExpand(api.id)}
-                        >
-                          {expandedRows[api.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Badge 
+                            variant="outline" 
+                            className={`
+                              ${api.method === 'GET' ? 'border-green-500 bg-green-50 text-green-700' : ''}
+                              ${api.method === 'POST' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}
+                              ${api.method === 'PUT' ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : ''}
+                              ${api.method === 'DELETE' ? 'border-red-500 bg-red-50 text-red-700' : ''}
+                            `}
+                          >
+                            {api.method}
+                          </Badge>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => copyApiToClipboard(api)}
+                                >
+                                  {copyStatus[api.id] ? <Check size={16} /> : <Copy size={16} />}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Copy API configuration</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => handleEditApi(api.id)}
+                                >
+                                  <Code size={16} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Edit API</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 w-8 p-0" 
+                                  onClick={() => onRemoveApi(api.id)}
+                                >
+                                  <Trash2 size={16} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Remove API</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => toggleRowExpand(api.id)}
+                          >
+                            {expandedRows[api.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </CardHeader>
                   
-                  <CardContent className="px-4 py-2">
+                  <CardContent className="px-3 py-2">
                     <div className="text-sm space-y-2">
-                      <div className="flex items-center">
-                        <span className="font-semibold w-24">Endpoint:</span>
-                        <div className="flex items-center gap-1">
-                          <span className="font-mono text-xs truncate max-w-[300px]" title={api.endpoint}>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-xs text-gray-500">Endpoint:</span>
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="font-mono text-xs truncate max-w-[90%]" title={api.endpoint}>
                             {api.endpoint}
                           </span>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 w-6 p-0 ml-1"
+                            className="h-6 w-6 p-0 ml-auto"
                             onClick={() => window.open(api.endpoint, '_blank')}
                           >
                             <ExternalLink size={12} />
@@ -803,122 +803,128 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                       
                       {expandedRows[api.id] && (
                         <div className="space-y-3 pt-2">
-                          <div className="flex items-center">
-                            <span className="font-semibold w-24">Headers:</span>
-                            {api.headers && Object.keys(api.headers).length > 0 ? (
-                              <div className="flex items-center">
-                                <span className="text-xs mr-2">{Object.keys(api.headers).length}</span>
-                                {Object.keys(api.headers).length > 0 && (
-                                  <Popover>
-                                    <PopoverTrigger asChild>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
-                                      >
-                                        + more
-                                      </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-80 max-h-[200px] overflow-y-auto p-2">
-                                      <div className="space-y-1 text-xs">
-                                        <h4 className="font-semibold mb-2">Headers</h4>
-                                        {Object.entries(api.headers).map(([key, value]) => (
-                                          <div key={key} className="flex justify-between gap-2 py-1 border-b border-gray-100">
-                                            <span className="font-semibold">{key}:</span>
-                                            <span className="text-gray-700 truncate max-w-[200px]" title={value.toString()}>
-                                              {value.toString()}
-                                            </span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </PopoverContent>
-                                  </Popover>
-                                )}
-                              </div>
-                            ) : (
-                              <span className="text-xs text-gray-500">None</span>
-                            )}
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-xs text-gray-500">Headers:</span>
+                            <div className="mt-1">
+                              {api.headers && Object.keys(api.headers).length > 0 ? (
+                                <div className="flex items-center">
+                                  <span className="text-xs mr-2">{Object.keys(api.headers).length}</span>
+                                  {Object.keys(api.headers).length > 0 && (
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm" 
+                                          className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
+                                        >
+                                          + more
+                                        </Button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-80 max-h-[200px] overflow-y-auto p-2">
+                                        <div className="space-y-1 text-xs">
+                                          <h4 className="font-semibold mb-2">Headers</h4>
+                                          {Object.entries(api.headers).map(([key, value]) => (
+                                            <div key={key} className="flex justify-between gap-2 py-1 border-b border-gray-100">
+                                              <span className="font-semibold">{key}:</span>
+                                              <span className="text-gray-700 truncate max-w-[200px]" title={value.toString()}>
+                                                {value.toString()}
+                                              </span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-xs text-gray-500">None</span>
+                              )}
+                            </div>
                           </div>
                           
-                          <div className="flex items-center">
-                            <span className="font-semibold w-24">Parameters:</span>
-                            {api.parameters && Object.keys(api.parameters).length > 0 ? (
-                              <div className="flex items-center">
-                                <span className="text-xs mr-2">{Object.keys(api.parameters).length}</span>
-                                {Object.keys(api.parameters).length > 0 && (
-                                  <Popover>
-                                    <PopoverTrigger asChild>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
-                                      >
-                                        + more
-                                      </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-80 max-h-[200px] overflow-y-auto p-2">
-                                      <div className="space-y-1 text-xs">
-                                        <h4 className="font-semibold mb-2">Parameters</h4>
-                                        {Object.entries(api.parameters).map(([key, value]) => (
-                                          <div key={key} className="flex justify-between gap-2 py-1 border-b border-gray-100">
-                                            <span className="font-semibold">{key}:</span>
-                                            <span className="text-gray-700 truncate max-w-[200px]" title={value.toString()}>
-                                              {value.toString()}
-                                            </span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </PopoverContent>
-                                  </Popover>
-                                )}
-                              </div>
-                            ) : (
-                              <span className="text-xs text-gray-500">None</span>
-                            )}
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-xs text-gray-500">Parameters:</span>
+                            <div className="mt-1">
+                              {api.parameters && Object.keys(api.parameters).length > 0 ? (
+                                <div className="flex items-center">
+                                  <span className="text-xs mr-2">{Object.keys(api.parameters).length}</span>
+                                  {Object.keys(api.parameters).length > 0 && (
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm" 
+                                          className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
+                                        >
+                                          + more
+                                        </Button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-80 max-h-[200px] overflow-y-auto p-2">
+                                        <div className="space-y-1 text-xs">
+                                          <h4 className="font-semibold mb-2">Parameters</h4>
+                                          {Object.entries(api.parameters).map(([key, value]) => (
+                                            <div key={key} className="flex justify-between gap-2 py-1 border-b border-gray-100">
+                                              <span className="font-semibold">{key}:</span>
+                                              <span className="text-gray-700 truncate max-w-[200px]" title={value.toString()}>
+                                                {value.toString()}
+                                              </span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-xs text-gray-500">None</span>
+                              )}
+                            </div>
                           </div>
                           
-                          <div className="flex items-center">
-                            <span className="font-semibold w-24">Mappings:</span>
-                            {api.responseMapping && Object.keys(api.responseMapping).length > 0 ? (
-                              <div className="flex items-center">
-                                <span className="text-xs mr-2">{Object.keys(api.responseMapping).length}</span>
-                                {Object.keys(api.responseMapping).length > 0 && (
-                                  <Popover>
-                                    <PopoverTrigger asChild>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
-                                      >
-                                        + more
-                                      </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-80 max-h-[200px] overflow-y-auto p-2">
-                                      <div className="space-y-1 text-xs">
-                                        <h4 className="font-semibold mb-2">Response Mappings</h4>
-                                        {Object.entries(api.responseMapping).map(([key, value]) => (
-                                          <div key={key} className="flex justify-between gap-2 py-1 border-b border-gray-100">
-                                            <span className="font-semibold">{key}:</span>
-                                            <span className="text-gray-700 font-mono truncate max-w-[200px]" title={value.toString()}>
-                                              {value.toString()}
-                                            </span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </PopoverContent>
-                                  </Popover>
-                                )}
-                              </div>
-                            ) : (
-                              <span className="text-xs text-gray-500">None</span>
-                            )}
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-xs text-gray-500">Mappings:</span>
+                            <div className="mt-1">
+                              {api.responseMapping && Object.keys(api.responseMapping).length > 0 ? (
+                                <div className="flex items-center">
+                                  <span className="text-xs mr-2">{Object.keys(api.responseMapping).length}</span>
+                                  {Object.keys(api.responseMapping).length > 0 && (
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm" 
+                                          className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
+                                        >
+                                          + more
+                                        </Button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-80 max-h-[200px] overflow-y-auto p-2">
+                                        <div className="space-y-1 text-xs">
+                                          <h4 className="font-semibold mb-2">Response Mappings</h4>
+                                          {Object.entries(api.responseMapping).map(([key, value]) => (
+                                            <div key={key} className="flex justify-between gap-2 py-1 border-b border-gray-100">
+                                              <span className="font-semibold">{key}:</span>
+                                              <span className="text-gray-700 font-mono truncate max-w-[200px]" title={value.toString()}>
+                                                {value.toString()}
+                                              </span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-xs text-gray-500">None</span>
+                              )}
+                            </div>
                           </div>
                           
                           {api.possibleFields && api.possibleFields.length > 0 && (
-                            <div className="flex items-start">
-                              <span className="font-semibold w-24 pt-1">Fields:</span>
-                              <div className="flex-1">
-                                <div className="flex flex-wrap gap-1 mt-1">
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-xs text-gray-500">Fields:</span>
+                              <div className="mt-1">
+                                <div className="flex flex-wrap gap-1">
                                   {api.possibleFields.slice(0, 3).map((field, index) => (
                                     <Badge 
                                       key={index} 
@@ -975,3 +981,4 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
 };
 
 export default ApiManager;
+
