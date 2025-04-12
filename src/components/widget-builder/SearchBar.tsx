@@ -1,9 +1,7 @@
 
 import React, { useState } from 'react';
-import { Search, Tag } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -16,8 +14,6 @@ interface SearchBarProps {
   className?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onTagFilterClick?: () => void;
-  showTagFilter?: boolean;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
@@ -30,9 +26,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   showIcon = true,
   className = "w-full",
   value,
-  onChange,
-  onTagFilterClick,
-  showTagFilter = false
+  onChange
 }) => {
   const [query, setQuery] = useState('');
   
@@ -63,32 +57,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
         placeholder={placeholder}
         value={isControlled ? value : query}
         onChange={handleChange}
-        className={`${showIcon ? 'pl-10' : 'pl-4'} ${showTagFilter ? 'pr-10' : ''} shadow-sm`}
+        className={`${showIcon ? 'pl-10' : 'pl-4'} shadow-sm`}
         style={{
           backgroundColor: backgroundColor,
           color: textColor,
           borderColor: borderColor
         }}
       />
-      
-      {showTagFilter && onTagFilterClick && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
-                onClick={onTagFilterClick}
-              >
-                <Tag className="h-4 w-4" style={{ color: iconColor }} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Filter by tags</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )}
     </div>
   );
 };
