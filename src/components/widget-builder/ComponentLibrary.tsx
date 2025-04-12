@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ComponentDefinition, WidgetComponent, FontFamily, PREDEFINED_COLORS } from "@/types/widget-types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -456,11 +455,6 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent, exi
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="font-medium text-gray-700">Components</h3>
-        <Link to="/library">
-          <Button variant="default" size="sm" className="bg-widget-blue hover:bg-blue-600 transition-colors">
-            <Library size={16} className="mr-2" /> Widget Library
-          </Button>
-        </Link>
       </div>
       
       <div className="flex flex-col space-y-3">

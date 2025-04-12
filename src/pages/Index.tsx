@@ -271,6 +271,27 @@ const Index = () => {
     setIsEditing(false);
   };
 
+  const handleNewWidget = () => {
+    setWidgetComponents([{
+      id: "header-1",
+      type: "header",
+      props: {
+        icon: "BookOpen",
+        title: "Learning Module",
+        actions: ["Edit", "More"]
+      }
+    }]);
+    setApis([]);
+    setIsEditing(false);
+    
+    navigate('/');
+    
+    toast({
+      title: "New Widget Started",
+      description: "You can now start building a new widget from scratch."
+    });
+  };
+
   const handleCancelEditing = () => {
     setIsEditing(false);
     navigate('/');
@@ -401,6 +422,11 @@ const Index = () => {
           <div className="container mx-auto flex justify-between items-center">
             <h1 className="text-2xl font-bold text-widget-blue">EdTech Widget Builder</h1>
             <div className="flex space-x-2">
+              <Link to="/library">
+                <Button variant="outline" className="mr-2">
+                  <Library size={16} className="mr-2" /> Widget Library
+                </Button>
+              </Link>
               <Link to="/admin/login">
                 <Button variant="outline">
                   <User size={16} className="mr-2" /> Admin
@@ -495,6 +521,10 @@ const Index = () => {
                       </DropdownMenuTrigger>
                     </Button>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={handleNewWidget}>
+                        <Plus size={16} className="mr-2" /> 
+                        Create New Widget
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={handleLoadWidget}>
                         <Library size={16} className="mr-2" /> 
                         Load from Widget Library
