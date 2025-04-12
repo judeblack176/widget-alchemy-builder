@@ -114,41 +114,6 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
           />
         );
       case "text":
-        // For content property, show the formatted content with API fields
-        if (property.name === "content" && (component.contentFields?.length || component.formattedContent)) {
-          return (
-            <div key={property.name} className="mb-4">
-              <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
-              <div className="mt-2 border rounded-md p-3 bg-gray-50 min-h-[100px]">
-                <textarea
-                  className="w-full h-32 border rounded p-2 text-sm"
-                  value={component.formattedContent || ""}
-                  onChange={(e) => handleFormattedContentChange(e.target.value)}
-                  placeholder="Enter formatted content or use API fields..."
-                />
-                
-                {component.contentFields && component.contentFields.length > 0 && (
-                  <div className="mt-3">
-                    <Label className="text-xs font-medium mb-1 block">Available API Fields</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {component.contentFields.map((field, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs cursor-pointer hover:bg-gray-200"
-                          onClick={() => {
-                            const placeholder = `{{${field.label}}}`;
-                            const currentContent = component.formattedContent || "";
-                            handleFormattedContentChange(currentContent + placeholder);
-                          }}>
-                          {field.label} <span className="text-gray-500 ml-1">({field.apiField})</span>
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        }
-        
         return (
           <div key={property.name} className="mb-4">
             <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>

@@ -1,13 +1,6 @@
 
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import ColorPalettePicker from "./ColorPalettePicker";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { 
   Settings, 
   HelpCircle, 
@@ -52,29 +45,9 @@ import {
   Plus,
   Trash2
 } from 'lucide-react';
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipProvider, 
-  TooltipTrigger 
-} from "@/components/ui/tooltip";
+
+import { Button } from "@/components/ui/button";
 import { Tooltip as CustomTooltip } from "./TooltipManager";
-import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger 
-} from "@/components/ui/popover";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import PropertyEditor from "./property-editor/PropertyEditor";
 import ApiIntegrationSection from "./api-integration/ApiIntegrationSection";
 import ComponentHeader from "./component-header/ComponentHeader";
