@@ -578,19 +578,19 @@ const Index = () => {
                 </div>
               </div>
             </div>
-            <div className="flex-1 overflow-auto p-4 pt-0">
+            <div className="flex-1 overflow-auto flex flex-col items-center justify-start pt-8 px-4">
               <WidgetPreview components={widgetComponents} apis={apis} />
-            </div>
-            
-            <div className="flex justify-center py-4 bg-gray-200 border-t border-gray-300">
-              <WidgetSubmissionForm
-                widgetComponents={widgetComponents}
-                apis={apis}
-                onSubmitSuccess={handleSubmitSuccess}
-                widgetId={widgetId}
-                isEditing={isEditing}
-                onCancelEditing={handleCancelEditing}
-              />
+              
+              <div className="mt-6 mb-4">
+                <WidgetSubmissionForm
+                  widgetComponents={widgetComponents}
+                  apis={apis}
+                  onSubmitSuccess={handleSubmitSuccess}
+                  widgetId={widgetId}
+                  isEditing={isEditing}
+                  onCancelEditing={handleCancelEditing}
+                />
+              </div>
             </div>
           </div>
         </div>

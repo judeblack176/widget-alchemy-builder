@@ -171,7 +171,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
 
   return (
     <Card 
-      className="bg-white shadow-md rounded-lg overflow-hidden relative"
+      className="bg-white shadow-md rounded-lg overflow-hidden relative mx-auto"
       style={{ 
         width: '316px', 
         height: '384px',
