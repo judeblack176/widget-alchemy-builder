@@ -16,12 +16,6 @@ export interface WidgetComponent {
   selected?: boolean;
 }
 
-export interface ContentDetails {
-  size?: string;
-  color?: string;
-  variant?: string;
-}
-
 export type AlertType = 'info' | 'success' | 'warning' | 'error';
 
 export interface TableColumn {
@@ -39,8 +33,6 @@ export interface ApiConfig {
   rawBody?: string;
   sampleResponse?: string;
   possibleFields?: string[];
-  parameters?: Record<string, string>;
-  responseMapping?: Record<string, string>;
 }
 
 export interface WidgetSubmission {
@@ -53,14 +45,6 @@ export interface WidgetSubmission {
   };
   status: 'pending' | 'approved' | 'rejected';
   submittedAt: string;
-  createdAt: string;
-  updatedAt: string;
-  feedback?: string;
-  thumbnail?: string;
-  author: string;
-  category?: string;
-  tags?: string[];
-  version: string;
 }
 
 export interface Tooltip {
@@ -74,6 +58,12 @@ export interface Tag {
   id: string;
   name: string;
   color: string;
+}
+
+export interface ContentDetails {
+  size?: string;
+  color?: string;
+  variant?: string;
 }
 
 declare module "@/components/widget-builder/WidgetBuilder" {

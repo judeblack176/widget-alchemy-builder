@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig, ContentDetails } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
