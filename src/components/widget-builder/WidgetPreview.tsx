@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig, ContentFieldConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
 import { renderComponent } from './component-renderers';
-import { HelpCircle, AlertCircle, Check, Ruler, Palette } from 'lucide-react';
+import { HelpCircle, AlertCircle, Check, Ruler, Palette, Database } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -43,7 +42,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   
   const regularComponentsToDisplay = nonHeaderNonAlertComponents.slice(0, MAX_COMPONENTS);
   
-  // Filter components for display, excluding header (it's rendered separately)
   const displayComponents = components.filter(component => {
     if (component.type === 'header') {
       return false;
@@ -68,7 +66,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       return undefined;
     }
     
-    // Process content fields from contentConfig
     if (component.apiConfig.contentConfig) {
       const processedData = { ...apiResult };
       
@@ -83,7 +80,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
             alignment: typedConfig.alignment || 'left'
           };
         } else if (typedConfig.customText) {
-          // If there's only custom text with no field mapping
           processedData[`formatted_${contentKey}`] = {
             value: '',
             customText: typedConfig.customText,
@@ -97,7 +93,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       return processedData;
     }
     
-    // Fallback to legacy mapping
     if (component.apiConfig.multiMapping) {
       const processedData = { ...apiResult };
       
@@ -279,7 +274,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         maxHeight: '384px'
       }}
     >
-      {/* Render header separately, sticking to the top */}
       {headerComponent && (
         <div className="sticky top-0 z-20">
           {renderComponentWithTooltip(headerComponent, 0)}
@@ -288,7 +282,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       
       <ScrollArea className="h-full w-full">
         <div className={headerComponent ? "pt-2" : ""}>
-          {/* Render all non-header components */}
           {displayComponents.map((component, index) => 
             renderComponentWithTooltip(component, index)
           )}

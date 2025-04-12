@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig, ContentFieldConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -543,6 +544,17 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
         </div>
         
         <div className="space-y-3">
+          {/* Custom Text - Moved to the top */}
+          <div className="mb-3">
+            <Label className="mb-1 block text-xs">Custom Text</Label>
+            <Input 
+              value={contentConfig.customText || ""} 
+              onChange={(e) => handleContentConfigChange(index, "customText", e.target.value)} 
+              placeholder="Enter custom text or label"
+              className="h-8 text-xs"
+            />
+          </div>
+          
           {/* Field Selection */}
           <div className="mb-3">
             <Label className="mb-1 block text-xs">Select API Field</Label>
@@ -564,78 +576,95 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             </Select>
           </div>
           
-          {/* Custom Text (can be used as a prefix/suffix or standalone label) */}
-          <div className="mb-3">
-            <Label className="mb-1 block text-xs">Custom Text</Label>
-            <Input 
-              value={contentConfig.customText || ""} 
-              onChange={(e) => handleContentConfigChange(index, "customText", e.target.value)} 
-              placeholder="Enter custom text or label"
-              className="h-8 text-xs"
-            />
-          </div>
+          {/* Content Preview */}
+          {(contentConfig.customText || contentConfig.field) && (
+            <div className="mb-3 p-3 border border-dashed border-gray-300 rounded-md bg-gray-50">
+              <Label className="mb-1 block text-xs text-gray-600">Content Preview</Label>
+              <div 
+                className="p-2 min-h-[40px]"
+                style={{
+                  fontFamily: contentConfig.fontFamily || 'system-ui',
+                  fontSize: contentConfig.fontSize || '16px',
+                  textAlign: contentConfig.alignment as any || 'left'
+                }}
+              >
+                {contentConfig.customText || ''}
+                {contentConfig.field && (
+                  <span className="inline-flex items-center mx-1 py-0.5 px-2 bg-blue-100 text-blue-800 text-xs rounded">
+                    <Database size={10} className="mr-1" />
+                    {contentConfig.field}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
           
-          {/* Font Family */}
-          <div className="mb-3">
-            <Label className="mb-1 block text-xs">Font Family</Label>
-            <Select
-              value={contentConfig.fontFamily || "system-ui"}
-              onValueChange={(value) => handleContentConfigChange(index, "fontFamily", value)}
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Select font" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-gray-200 shadow-md">
-                {availableFonts.map((font) => (
-                  <SelectItem key={font} value={font} style={{ fontFamily: font }} className="text-xs">
-                    {font}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {/* Font Size */}
-          <div className="mb-3">
-            <Label className="mb-1 block text-xs">Font Size</Label>
-            <Select
-              value={contentConfig.fontSize || "16px"}
-              onValueChange={(value) => handleContentConfigChange(index, "fontSize", value)}
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Select size" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-gray-200 shadow-md">
-                {fontSizes.map((size) => (
-                  <SelectItem key={size} value={size} className="text-xs">
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {/* Text Alignment */}
-          <div className="mb-3">
-            <Label className="mb-1 block text-xs">Text Alignment</Label>
-            <ToggleGroup 
-              type="single" 
-              value={contentConfig.alignment || "left"}
-              onValueChange={(value) => {
-                if (value) handleContentConfigChange(index, "alignment", value);
-              }}
-              className="justify-start border rounded-md"
-            >
-              <ToggleGroupItem value="left" className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600">
-                <AlignLeft size={16} />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="center" className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600">
-                <AlignCenter size={16} />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="right" className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600">
-                <AlignRight size={16} />
-              </ToggleGroupItem>
-            </ToggleGroup>
+          {/* Formatting options */}
+          <div className="mb-3 border-t border-gray-200 pt-3">
+            <Label className="mb-2 block text-xs font-medium">Text Formatting</Label>
+            
+            {/* Font Family */}
+            <div className="mb-3">
+              <Label className="mb-1 block text-xs">Font Family</Label>
+              <Select
+                value={contentConfig.fontFamily || "system-ui"}
+                onValueChange={(value) => handleContentConfigChange(index, "fontFamily", value)}
+              >
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Select font" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-gray-200 shadow-md">
+                  {availableFonts.map((font) => (
+                    <SelectItem key={font} value={font} style={{ fontFamily: font }} className="text-xs">
+                      {font}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Font Size */}
+            <div className="mb-3">
+              <Label className="mb-1 block text-xs">Font Size</Label>
+              <Select
+                value={contentConfig.fontSize || "16px"}
+                onValueChange={(value) => handleContentConfigChange(index, "fontSize", value)}
+              >
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-gray-200 shadow-md">
+                  {fontSizes.map((size) => (
+                    <SelectItem key={size} value={size} className="text-xs">
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Text Alignment */}
+            <div className="mb-3">
+              <Label className="mb-1 block text-xs">Text Alignment</Label>
+              <ToggleGroup 
+                type="single" 
+                value={contentConfig.alignment || "left"}
+                onValueChange={(value) => {
+                  if (value) handleContentConfigChange(index, "alignment", value);
+                }}
+                className="justify-start border rounded-md"
+              >
+                <ToggleGroupItem value="left" className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600">
+                  <AlignLeft size={16} />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="center" className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600">
+                  <AlignCenter size={16} />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="right" className="data-[state=on]:bg-blue-50 data-[state=on]:text-blue-600">
+                  <AlignRight size={16} />
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
           </div>
         </div>
       </div>
