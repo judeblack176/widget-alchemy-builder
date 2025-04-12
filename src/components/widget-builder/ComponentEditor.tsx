@@ -74,6 +74,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+const InfoIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -102,6 +129,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 }) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [selectedFields, setSelectedFields] = useState<Record<string, string[]>>({});
+  const [showDisconnectAlert, setShowDisconnectAlert] = useState(false);
 
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
@@ -161,6 +189,13 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       }
     };
     onUpdateComponent(updatedComponent);
+  };
+
+  const disconnectApi = () => {
+    const updatedComponent = { ...component };
+    delete updatedComponent.apiConfig;
+    onUpdateComponent(updatedComponent);
+    setShowDisconnectAlert(false);
   };
 
   const isFieldSelected = (propKey: string, apiField: string) => {
@@ -502,7 +537,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
+          <DropdownMenuContent className="w-56 bg-white border border-gray-200 shadow-lg" align="start">
             <DropdownMenuLabel>API Fields</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <ScrollArea className="h-[200px]">
@@ -522,12 +557,12 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
         </DropdownMenu>
         
         {selectedFields.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
+          <div className="flex flex-wrap gap-1 mt-2 p-2 border border-gray-100 rounded-md">
             {selectedFields.map((field, idx) => (
               <Badge 
                 key={`selected-${propKey}-${idx}`} 
                 variant="secondary"
-                className="text-xs flex items-center gap-1"
+                className="text-xs flex items-center gap-1 mb-1"
               >
                 {field}
                 <button 
@@ -557,11 +592,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => {
-              const updatedComponent = { ...component };
-              delete updatedComponent.apiConfig;
-              onUpdateComponent(updatedComponent);
-            }}
+            onClick={() => setShowDisconnectAlert(true)}
             className="h-6 text-red-500 hover:text-red-700"
           >
             <X size={14} className="mr-1" /> Disconnect
@@ -628,7 +659,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         )}
 
-        {/* Data Mapping */}
+        {/* Data Mapping - Updated Section */}
         <div className="mt-1">
           <Accordion type="single" collapsible defaultValue="data-mapping">
             <AccordionItem value="data-mapping">
@@ -639,34 +670,45 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                 <div className="space-y-3">
                   <p className="text-xs text-gray-500">Map one API field to each component property:</p>
                   
-                  {getPropertyDefinitions().map((prop) => (
-                    <div key={`map-${prop.name}`} className="grid grid-cols-2 gap-2 items-center">
-                      <div className="text-xs font-medium">{prop.label}:</div>
-                      <Select
-                        value={component.apiConfig?.dataMapping?.[prop.name] || ""}
-                        onValueChange={(value) => handleDataMappingChange(prop.name, value)}
-                      >
-                        <SelectTrigger className="h-7 text-xs">
-                          <SelectValue placeholder="Select field" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          {selectedApi.possibleFields?.map((field, idx) => (
-                            <SelectItem key={`field-${idx}`} value={field} className="text-xs">
-                              {field}
-                            </SelectItem>
-                          )) || []}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ))}
+                  <div className="space-y-4 border rounded-md p-3 bg-white">
+                    {getPropertyDefinitions().map((prop) => (
+                      <div key={`map-${prop.name}`} className="grid grid-cols-5 gap-2 items-center">
+                        <div className="text-xs font-medium col-span-2">{prop.label}:</div>
+                        <div className="col-span-3">
+                          <Select
+                            value={component.apiConfig?.dataMapping?.[prop.name] || ""}
+                            onValueChange={(value) => handleDataMappingChange(prop.name, value)}
+                          >
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue placeholder="Select field" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border border-gray-200 shadow-md">
+                              <SelectItem value="none">None</SelectItem>
+                              {selectedApi.possibleFields?.map((field, idx) => (
+                                <SelectItem key={`field-${idx}`} value={field} className="text-xs">
+                                  {field}
+                                </SelectItem>
+                              )) || []}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="text-xs mt-2">
+                    <p className="text-blue-600 font-medium">
+                      <InfoIcon className="inline-block mr-1 h-3 w-3" />
+                      Selected fields will be displayed in both widget and preview
+                    </p>
+                  </div>
                 </div>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
         </div>
 
-        {/* Multiple Data Mapping - Now using dropdown */}
+        {/* Multiple Data Mapping - Updated Section */}
         <div className="mt-1">
           <Accordion type="single" collapsible defaultValue="multi-mapping">
             <AccordionItem value="multi-mapping">
@@ -677,15 +719,27 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                 <div className="space-y-3">
                   <p className="text-xs text-gray-500">Select multiple API fields for each component property:</p>
                   
-                  {getPropertyDefinitions().map((prop) => (
-                    <div key={`multimap-${prop.name}`} className="border rounded-md p-2 mb-3">
-                      {renderMultiSelectDropdown(
-                        prop.name, 
-                        prop.label, 
-                        selectedApi.possibleFields || []
-                      )}
-                    </div>
-                  ))}
+                  <div className="border rounded-md p-3 bg-white">
+                    {getPropertyDefinitions().map((prop) => (
+                      <div key={`multimap-${prop.name}`} className="border-b border-gray-100 py-2 last:border-0 last:pb-0 first:pt-0">
+                        {renderMultiSelectDropdown(
+                          prop.name, 
+                          prop.label, 
+                          selectedApi.possibleFields || []
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="text-xs mt-2 p-2 bg-blue-50 border border-blue-100 rounded-md">
+                    <p className="flex items-start">
+                      <Info className="h-4 w-4 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
+                      <span>
+                        Selected fields will be available in both widget and preview. 
+                        Use this for components that display multiple items like tables, lists, or charts.
+                      </span>
+                    </p>
+                  </div>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -721,7 +775,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                   <SelectTrigger id="api-select">
                     <SelectValue placeholder="Select an API to connect" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border border-gray-200 shadow-md">
                     {apis.length > 0 ? (
                       apis.map((api) => (
                         <SelectItem key={api.id} value={api.id}>
@@ -869,6 +923,24 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </Accordion>
         </div>
       )}
+
+      {/* Disconnect confirmation dialog */}
+      <AlertDialog open={showDisconnectAlert} onOpenChange={setShowDisconnectAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Disconnect API?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the API connection from this component. Any data mappings will be lost. Are you sure you want to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={disconnectApi} className="bg-red-500 text-white hover:bg-red-600">
+              Disconnect
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
