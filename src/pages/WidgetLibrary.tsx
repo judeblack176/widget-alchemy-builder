@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -9,7 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { 
   Clock, Check, X, Filter, Search, ArrowLeft, Eye, ShieldCheck, 
-  ListFilter, Grid, Calendar, Tag, ArrowUpDown, Edit
+  ListFilter, Grid, Calendar, Tag, ArrowUpDown, Edit, Home
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -175,7 +176,9 @@ const WidgetLibrary = ({ onTagManagerOpen }: WidgetLibraryProps) => {
                   </Button>
                 </Link>
                 <Link to="/">
-                  <Button variant="outline">Create New Widget</Button>
+                  <Button variant="default" className="gap-2">
+                    <Home size={16} /> Widget Builder
+                  </Button>
                 </Link>
               </>
             )}
