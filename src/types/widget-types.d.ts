@@ -14,6 +14,11 @@ export interface WidgetComponent {
   };
   tooltipId?: string;
   selected?: boolean;
+  contentFields?: Array<{
+    label: string;
+    apiField: string;
+  }>;
+  formattedContent?: string;
 }
 
 export type AlertType = 'info' | 'success' | 'warning' | 'error';
