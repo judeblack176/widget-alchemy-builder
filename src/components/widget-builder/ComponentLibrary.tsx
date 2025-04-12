@@ -1,534 +1,174 @@
-import React, { useState } from "react";
-import { ComponentDefinition, WidgetComponent, FontFamily, PREDEFINED_COLORS } from "@/types/widget-types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  BookOpen, 
-  Type, 
-  Image, 
-  Video, 
-  BarChart, 
-  MousePointer, 
-  FormInput, 
-  CalendarDays, 
-  List, 
-  LinkIcon, 
-  Text,
-  Palette,
-  Bold,
-  Italic,
-  Filter,
-  AlertTriangle,
-  Table2,
-  Search,
-  GripVertical,
-  XCircle,
-  SortAsc,
-  ChevronDown,
-  Library
-} from "lucide-react";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Draggable } from 'react-beautiful-dnd';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import SearchBar from "./SearchBar";
-import { Link } from "react-router-dom";
+
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { WidgetComponent } from '@/types/widget-types';
+import { ComponentType } from '@/types/widget-builder';
 
 interface ComponentLibraryProps {
-  onAddComponent: (component: WidgetComponent) => void;
+  onAddComponent: (componentType: string) => void;
+  onAddMultipleComponents?: (componentTypes: string[]) => void;
   existingComponents?: WidgetComponent[];
 }
 
-const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ onAddComponent, existingComponents = [] }) => {
-  const hasAlertComponent = existingComponents.some(c => c.type === 'alert');
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<"default" | "a-z">("default");
-  
-  const componentDefinitions: ComponentDefinition[] = [
-    {
-      type: "header",
-      name: "Header Bar",
-      icon: "BookOpen",
-      defaultProps: {
-        icon: "BookOpen",
-        title: "Widget Title",
-        actions: ["Edit", "More"],
-        backgroundColor: "#3B82F6",
-        textColor: "#FFFFFF",
-        fontFamily: "system-ui",
-        bold: false,
-        italic: false
-      },
-      availableProps: [
-        { name: "icon", type: "icon", label: "Icon" },
-        { name: "title", type: "text", label: "Title" },
-        { name: "actions", type: "select", label: "Actions", options: ["None", "Edit", "More", "Both"] },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "textColor", type: "color", label: "Text Color" },
-        { name: "fontFamily", type: "font", label: "Font Family", options: [
-          "Arial", "Helvetica", "Times New Roman", "Georgia", "Courier New",
-          "Verdana", "Tahoma", "Trebuchet MS", "Impact", "Comic Sans MS",
-          "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", 
-          "Playfair Display", "Merriweather", "system-ui"
-        ]},
-        { name: "bold", type: "select", label: "Bold", options: ["true", "false"] },
-        { name: "italic", type: "select", label: "Italic", options: ["true", "false"] }
-      ]
-    },
-    {
-      type: "text",
-      name: "Text Block",
-      icon: "Type",
-      defaultProps: {
-        content: "Your text content here",
-        size: "medium",
-        color: "#333333",
-        backgroundColor: "transparent",
-        fontWeight: "normal",
-        fontFamily: "system-ui",
-        bold: false,
-        italic: false
-      },
-      availableProps: [
-        { name: "content", type: "text", label: "Content" },
-        { name: "size", type: "select", label: "Size", options: ["small", "medium", "large"] },
-        { name: "color", type: "color", label: "Text Color" },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "fontWeight", type: "select", label: "Font Weight", options: ["normal", "bold", "light"] },
-        { name: "fontFamily", type: "font", label: "Font Family", options: [
-          "Arial", "Helvetica", "Times New Roman", "Georgia", "Courier New",
-          "Verdana", "Tahoma", "Trebuchet MS", "Impact", "Comic Sans MS",
-          "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", 
-          "Playfair Display", "Merriweather", "system-ui"
-        ]},
-        { name: "bold", type: "select", label: "Bold", options: ["true", "false"] },
-        { name: "italic", type: "select", label: "Italic", options: ["true", "false"] }
-      ]
-    },
-    {
-      type: "image",
-      name: "Image",
-      icon: "Image",
-      defaultProps: {
-        source: "https://via.placeholder.com/150",
-        altText: "Image description",
-        caption: ""
-      },
-      availableProps: [
-        { name: "source", type: "text", label: "Image URL" },
-        { name: "altText", type: "text", label: "Alt Text" },
-        { name: "caption", type: "text", label: "Caption" }
-      ]
-    },
-    {
-      type: "button",
-      name: "Button",
-      icon: "MousePointer",
-      defaultProps: {
-        label: "Click me",
-        style: "primary",
-        action: "none",
-        backgroundColor: "#3B82F6",
-        textColor: "#FFFFFF"
-      },
-      availableProps: [
-        { name: "label", type: "text", label: "Label" },
-        { name: "style", type: "select", label: "Style", options: ["primary", "secondary", "outline"] },
-        { name: "action", type: "text", label: "Action" },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "textColor", type: "color", label: "Text Color" }
-      ]
-    },
-    {
-      type: "video",
-      name: "Video Player",
-      icon: "Video",
-      defaultProps: {
-        source: "https://example.com/video.mp4",
-        autoplay: false,
-        controls: true
-      },
-      availableProps: [
-        { name: "source", type: "text", label: "Video URL" },
-        { name: "autoplay", type: "select", label: "Autoplay", options: ["true", "false"] },
-        { name: "controls", type: "select", label: "Show Controls", options: ["true", "false"] }
-      ]
-    },
-    {
-      type: "chart",
-      name: "Chart",
-      icon: "BarChart",
-      defaultProps: {
-        type: "bar",
-        data: [10, 20, 30, 40],
-        labels: ["A", "B", "C", "D"],
-        colors: ["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6"],
-        backgroundColor: "#FFFFFF",
-        borderColor: "#E5E7EB",
-        legendPosition: "top"
-      },
-      availableProps: [
-        { name: "type", type: "select", label: "Chart Type", options: ["bar", "line", "pie", "doughnut", "radar"] },
-        { name: "data", type: "text", label: "Data Values (comma separated)" },
-        { name: "labels", type: "text", label: "Labels (comma separated)" },
-        { name: "colors", type: "text", label: "Chart Colors (comma separated hex)" },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "borderColor", type: "color", label: "Border Color" },
-        { name: "legendPosition", type: "select", label: "Legend Position", options: ["top", "right", "bottom", "left", "none"] }
-      ]
-    },
-    {
-      type: "form",
-      name: "Form Input",
-      icon: "FormInput",
-      defaultProps: {
-        fieldType: "text",
-        label: "Input field",
-        placeholder: "Enter value..."
-      },
-      availableProps: [
-        { name: "fieldType", type: "select", label: "Field Type", options: ["text", "number", "select", "textarea"] },
-        { name: "label", type: "text", label: "Label" },
-        { name: "placeholder", type: "text", label: "Placeholder" }
-      ]
-    },
-    {
-      type: "calendar",
-      name: "Calendar",
-      icon: "CalendarDays",
-      defaultProps: {
-        label: "Select Date",
-        placeholder: "Pick a date",
-        initialDate: "",
-        calendarIntegration: {
-          serviceType: "none",
-          syncEnabled: false
-        },
-        allowExternalSync: false,
-        icsConfig: {
-          enabled: false,
-          importEnabled: false,
-          exportEnabled: false,
-          allowSubscribe: false,
-          icsUrl: "",
-          syncInterval: "daily"
-        }
-      },
-      availableProps: [
-        { name: "label", type: "text", label: "Label" },
-        { name: "placeholder", type: "text", label: "Placeholder" },
-        { name: "initialDate", type: "text", label: "Initial Date (YYYY-MM-DD)" },
-        { name: "allowExternalSync", type: "select", label: "Allow External Calendar Sync", options: ["true", "false"] },
-        { name: "calendarIntegration.serviceType", type: "select", label: "Calendar Service", 
-          options: ["none", "google", "outlook", "apple", "custom"] }
-      ]
-    },
-    {
-      type: "dropdown",
-      name: "Dropdown Menu",
-      icon: "List",
-      defaultProps: {
-        label: "Dropdown",
-        options: ["Option 1", "Option 2", "Option 3"],
-        placeholder: "Select an option"
-      },
-      availableProps: [
-        { name: "label", type: "text", label: "Label" },
-        { name: "options", type: "text", label: "Options (comma separated)" },
-        { name: "placeholder", type: "text", label: "Placeholder" }
-      ]
-    },
-    {
-      type: "link",
-      name: "Link",
-      icon: "LinkIcon",
-      defaultProps: {
-        text: "Click here",
-        url: "https://example.com",
-        openInNewTab: true,
-        style: "default"
-      },
-      availableProps: [
-        { name: "text", type: "text", label: "Link Text" },
-        { name: "url", type: "text", label: "URL" },
-        { name: "openInNewTab", type: "select", label: "Open in New Tab", options: ["true", "false"] },
-        { name: "style", type: "select", label: "Style", options: ["default", "button", "underlined"] }
-      ]
-    },
-    {
-      type: "multi-text",
-      name: "Multi-line Text",
-      icon: "Text",
-      defaultProps: {
-        label: "Multi-line Input",
-        placeholder: "Type your text here...",
-        rows: 4
-      },
-      availableProps: [
-        { name: "label", type: "text", label: "Label" },
-        { name: "placeholder", type: "text", label: "Placeholder" },
-        { name: "rows", type: "number", label: "Number of Rows" }
-      ]
-    },
-    {
-      type: "filter",
-      name: "Filter Component",
-      icon: "Filter",
-      defaultProps: {
-        label: "Filter",
-        placeholder: "Filter items...",
-        options: ["All", "Option 1", "Option 2", "Option 3"],
-        multiple: false,
-        searchable: true,
-        backgroundColor: "#FFFFFF",
-        textColor: "#333333",
-        accentColor: "#3B82F6",
-        borderColor: "#E2E8F0"
-      },
-      availableProps: [
-        { name: "label", type: "text", label: "Label" },
-        { name: "placeholder", type: "text", label: "Placeholder" },
-        { name: "options", type: "text", label: "Options (comma separated)" },
-        { name: "multiple", type: "select", label: "Allow Multiple Selection", options: ["true", "false"] },
-        { name: "searchable", type: "select", label: "Allow Search", options: ["true", "false"] },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "textColor", type: "color", label: "Text Color" },
-        { name: "accentColor", type: "color", label: "Accent Color" },
-        { name: "borderColor", type: "color", label: "Border Color" }
-      ]
-    },
-    {
-      type: "alert",
-      name: "Alert Bar",
-      icon: "AlertTriangle",
-      defaultProps: {
-        title: "Alert Title",
-        message: "This is an alert message.",
-        type: "info",
-        icon: true,
-        dismissible: true,
-        backgroundColor: "#EFF6FF",
-        textColor: "#1E3A8A",
-        borderColor: "#BFDBFE"
-      },
-      availableProps: [
-        { name: "title", type: "text", label: "Title" },
-        { name: "message", type: "text", label: "Message" },
-        { name: "type", type: "select", label: "Alert Type", options: ["info", "success", "warning", "error"] },
-        { name: "icon", type: "select", label: "Show Icon", options: ["true", "false"] },
-        { name: "dismissible", type: "select", label: "Dismissible", options: ["true", "false"] },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "textColor", type: "color", label: "Text Color" },
-        { name: "borderColor", type: "color", label: "Border Color" }
-      ]
-    },
-    {
-      type: "table",
-      name: "Table",
-      icon: "Table2",
-      defaultProps: {
-        columns: [
-          { header: "Name", accessor: "name", type: "text" },
-          { header: "Age", accessor: "age", type: "number" },
-          { header: "Status", accessor: "status", type: "text" }
-        ],
-        data: [
-          { name: "John Doe", age: 28, status: "Active" },
-          { name: "Jane Smith", age: 32, status: "Inactive" },
-          { name: "Bob Johnson", age: 45, status: "Active" }
-        ],
-        striped: true,
-        hoverable: true,
-        bordered: false,
-        compact: false,
-        headerBackgroundColor: "#F8FAFC",
-        headerTextColor: "#334155",
-        rowBackgroundColor: "#FFFFFF",
-        rowTextColor: "#1E293B",
-        borderColor: "#E2E8F0",
-        altRowBackgroundColor: "#F1F5F9"
-      },
-      availableProps: [
-        { name: "columns", type: "text", label: "Columns (JSON)" },
-        { name: "data", type: "text", label: "Data (JSON)" },
-        { name: "striped", type: "select", label: "Striped Rows", options: ["true", "false"] },
-        { name: "hoverable", type: "select", label: "Hoverable Rows", options: ["true", "false"] },
-        { name: "bordered", type: "select", label: "Bordered Cells", options: ["true", "false"] },
-        { name: "compact", type: "select", label: "Compact Layout", options: ["true", "false"] },
-        { name: "headerBackgroundColor", type: "color", label: "Header Background Color" },
-        { name: "headerTextColor", type: "color", label: "Header Text Color" },
-        { name: "rowBackgroundColor", type: "color", label: "Row Background Color" },
-        { name: "rowTextColor", type: "color", label: "Row Text Color" },
-        { name: "borderColor", type: "color", label: "Border Color" },
-        { name: "altRowBackgroundColor", type: "color", label: "Alt Row Background Color" }
-      ]
-    },
-    {
-      type: "searchbar",
-      name: "Search Bar",
-      icon: "Search",
-      defaultProps: {
-        placeholder: "Search...",
-        backgroundColor: "#FFFFFF",
-        textColor: "#333333",
-        borderColor: "#E2E8F0",
-        width: "full",
-        iconColor: "#6B7280",
-        showIcon: true
-      },
-      availableProps: [
-        { name: "placeholder", type: "text", label: "Placeholder" },
-        { name: "backgroundColor", type: "color", label: "Background Color" },
-        { name: "textColor", type: "color", label: "Text Color" },
-        { name: "borderColor", type: "color", label: "Border Color" },
-        { name: "width", type: "select", label: "Width", options: ["full", "medium", "small"] },
-        { name: "iconColor", type: "color", label: "Icon Color" },
-        { name: "showIcon", type: "select", label: "Show Icon", options: ["true", "false"] }
-      ]
-    }
+const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ 
+  onAddComponent, 
+  onAddMultipleComponents,
+  existingComponents = []
+}) => {
+  const [selectedComponents, setSelectedComponents] = useState<string[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+
+  const components: ComponentType[] = [
+    'header',
+    'text',
+    'button',
+    'image',
+    'chart',
+    'form',
+    'video',
+    'alert',
+    'calendar',
+    'dropdown',
+    'link',
+    'multi-text',
+    'filter',
+    'table',
+    'searchbar'
   ];
 
-  const getIconComponent = (iconName: string) => {
-    switch (iconName) {
-      case "BookOpen": return <BookOpen size={24} />;
-      case "Type": return <Type size={24} />;
-      case "Image": return <Image size={24} />;
-      case "MousePointer": return <MousePointer size={24} />;
-      case "Video": return <Video size={24} />;
-      case "BarChart": return <BarChart size={24} />;
-      case "FormInput": return <FormInput size={24} />;
-      case "CalendarDays": return <CalendarDays size={24} />;
-      case "List": return <List size={24} />;
-      case "LinkIcon": return <LinkIcon size={24} />;
-      case "Text": return <Text size={24} />;
-      case "Palette": return <Palette size={24} />;
-      case "Bold": return <Bold size={24} />;
-      case "Italic": return <Italic size={24} />;
-      case "Filter": return <Filter size={24} />;
-      case "AlertTriangle": return <AlertTriangle size={24} />;
-      case "Table2": return <Table2 size={24} />;
-      case "Search": return <Search size={24} />;
-      default: return <div className="w-6 h-6 bg-gray-200 rounded" />;
+  const componentCategories = {
+    all: components,
+    layout: ['header', 'text', 'image', 'alert'],
+    input: ['form', 'dropdown', 'multi-text', 'filter', 'searchbar'],
+    interactive: ['button', 'link', 'calendar', 'chart', 'table', 'video']
+  };
+
+  const getComponentTitle = (componentType: string): string => {
+    return componentType.charAt(0).toUpperCase() + componentType.slice(1).replace(/-/g, ' ');
+  };
+
+  const getComponentDescription = (componentType: string): string => {
+    switch(componentType) {
+      case 'header':
+        return 'A widget title with customizable icon and actions';
+      case 'text':
+        return 'Simple text content with formatting options';
+      case 'button':
+        return 'Interactive button with configurable actions';
+      case 'image':
+        return 'Display images with optional captions';
+      case 'chart':
+        return 'Data visualization using various chart types';
+      case 'form':
+        return 'Input field for collecting user information';
+      case 'video':
+        return 'Embed video content from various sources';
+      case 'alert':
+        return 'Highlighted message for important information';
+      case 'calendar':
+        return 'Date picker or calendar display';
+      case 'dropdown':
+        return 'Selection from a list of options';
+      case 'link':
+        return 'Clickable link to navigate to another page';
+      case 'multi-text':
+        return 'Multi-line text input for longer content';
+      case 'filter':
+        return 'Filter data based on selected criteria';
+      case 'table':
+        return 'Display tabular data with rows and columns';
+      case 'searchbar':
+        return 'Allow users to search through content';
+      default:
+        return 'Add this component to your widget';
     }
   };
 
-  const handleAddComponent = (definition: ComponentDefinition) => {
-    const newComponent: WidgetComponent = {
-      id: `${definition.type}-${Date.now()}`,
-      type: definition.type,
-      props: { ...definition.defaultProps }
-    };
-    
-    onAddComponent(newComponent);
+  const toggleSelectComponent = (componentType: string) => {
+    setSelectedComponents(prevSelected => 
+      prevSelected.includes(componentType)
+        ? prevSelected.filter(c => c !== componentType)
+        : [...prevSelected, componentType]
+    );
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
+  const handleAddMultiple = () => {
+    if (onAddMultipleComponents && selectedComponents.length > 0) {
+      onAddMultipleComponents(selectedComponents);
+      setSelectedComponents([]);
+    }
   };
 
-  const toggleSortOrder = () => {
-    setSortOrder(sortOrder === "default" ? "a-z" : "default");
-  };
-
-  const filteredDefinitions = componentDefinitions.filter(def => {
-    if (!searchQuery) return true;
-    return def.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           def.type.toLowerCase().includes(searchQuery.toLowerCase());
-  });
-
-  let sortedDefinitions = [...filteredDefinitions];
-  
-  const headerDef = sortedDefinitions.find(d => d.type === "header");
-  const alertDef = sortedDefinitions.find(d => d.type === "alert");
-  const otherDefs = sortedDefinitions.filter(d => d.type !== "header" && d.type !== "alert");
-  
-  if (sortOrder === "a-z") {
-    otherDefs.sort((a, b) => a.name.localeCompare(b.name));
-  }
-  
-  sortedDefinitions = [];
-  if (headerDef) sortedDefinitions.push(headerDef);
-  if (alertDef) sortedDefinitions.push(alertDef);
-  sortedDefinitions = [...sortedDefinitions, ...otherDefs];
+  const displayedComponents = componentCategories[activeCategory as keyof typeof componentCategories] || components;
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="font-medium text-gray-700">Components</h3>
-      </div>
-      
-      <div className="flex flex-col space-y-3">
-        <div className="flex justify-between items-center">
-          <SearchBar 
-            onSearch={handleSearch} 
-            placeholder="Search components..."
-            className="w-full"
-          />
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={toggleSortOrder} 
-            className="ml-2"
-            title={sortOrder === "default" ? "Sort A-Z" : "Default order"}
-          >
-            <SortAsc size={18} className={sortOrder === "a-z" ? "text-widget-blue" : ""} />
-          </Button>
+    <div className="h-full flex flex-col">
+      <Tabs defaultValue="all" value={activeCategory} onValueChange={setActiveCategory} className="flex-1 flex flex-col">
+        <div className="pb-2 border-b">
+          <TabsList className="w-full justify-start rounded-none bg-transparent p-0">
+            <TabsTrigger value="all" className="rounded text-xs px-3 py-1.5 data-[state=active]:bg-blue-50">All</TabsTrigger>
+            <TabsTrigger value="layout" className="rounded text-xs px-3 py-1.5 data-[state=active]:bg-blue-50">Layout</TabsTrigger>
+            <TabsTrigger value="input" className="rounded text-xs px-3 py-1.5 data-[state=active]:bg-blue-50">Input</TabsTrigger>
+            <TabsTrigger value="interactive" className="rounded text-xs px-3 py-1.5 data-[state=active]:bg-blue-50">Interactive</TabsTrigger>
+          </TabsList>
         </div>
         
-        <div className="grid grid-cols-1 gap-3">
-          {sortedDefinitions.map((definition, index) => {
-            const isDisabled = definition.type === 'alert' && hasAlertComponent;
-            const isUnmovable = definition.type === 'header' || definition.type === 'alert';
-            
-            return (
-              <Draggable
-                key={definition.type}
-                draggableId={definition.type}
-                index={index}
-                isDragDisabled={isDisabled || isUnmovable}
-              >
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...(isUnmovable ? {} : provided.dragHandleProps)}
-                    className="relative"
+        <TabsContent value={activeCategory} className="flex-1 pt-4 m-0">
+          <ScrollArea className="h-full pr-4">
+            <div className="space-y-3">
+              {displayedComponents.map((componentType) => {
+                const hasMultiSelect = !!onAddMultipleComponents;
+                const isHeader = componentType === 'header';
+                const hasExistingHeader = existingComponents.some(c => c.type === 'header');
+                const isDisabled = isHeader && hasExistingHeader;
+                
+                return (
+                  <Card 
+                    key={componentType}
+                    className={`relative border cursor-pointer transition-all ${
+                      isDisabled ? 'opacity-50 pointer-events-none' : 'hover:border-blue-500'
+                    } ${selectedComponents.includes(componentType) ? 'border-blue-500 bg-blue-50' : ''}`}
+                    data-component-type={componentType}
+                    onClick={() => hasMultiSelect ? toggleSelectComponent(componentType) : onAddComponent(componentType)}
                   >
-                    <Card 
-                      data-component-type={definition.type}
-                      className={`cursor-pointer transition-colors ${
-                        isDisabled ? 'opacity-50 border-gray-300 cursor-not-allowed' : 
-                        isUnmovable ? 'border-blue-500' : 'hover:border-widget-blue'
-                      } ${snapshot.isDragging ? 'shadow-lg' : ''}`}
-                      onClick={() => !isDisabled && handleAddComponent(definition)}
-                    >
-                      <div className="flex p-3 items-center">
-                        <div className={`mr-3 ${isDisabled ? 'text-gray-400' : isUnmovable ? 'text-blue-500' : 'text-widget-blue'}`}>
-                          {getIconComponent(definition.icon)}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className={`font-medium ${isDisabled ? 'text-gray-400' : ''}`}>
-                            {definition.name}
-                            {isDisabled && <span className="ml-2 text-xs text-red-500">(Already added)</span>}
-                            {isUnmovable && <span className="ml-2 text-xs text-blue-500">(Fixed position)</span>}
-                          </h4>
-                          <p className="text-xs text-gray-500">
-                            {isDisabled ? 'Only one alert allowed' : 
-                             isUnmovable ? 'Fixed position component' : 'Click or drag to add'}
-                          </p>
-                        </div>
-                        <div className="text-gray-400">
-                          {!isDisabled && !isUnmovable && <GripVertical size={16} />}
-                        </div>
+                    {hasMultiSelect && (
+                      <div className="absolute top-3 right-3 z-10">
+                        <Checkbox 
+                          checked={selectedComponents.includes(componentType)} 
+                          onCheckedChange={() => toggleSelectComponent(componentType)}
+                          disabled={isDisabled}
+                        />
                       </div>
-                    </Card>
-                  </div>
-                )}
-              </Draggable>
-            );
-          })}
+                    )}
+                    <CardHeader className="py-3 px-4">
+                      <CardTitle className="text-sm font-medium">{getComponentTitle(componentType)}</CardTitle>
+                      <CardDescription className="text-xs">{getComponentDescription(componentType)}</CardDescription>
+                    </CardHeader>
+                  </Card>
+                );
+              })}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
+      
+      {onAddMultipleComponents && selectedComponents.length > 0 && (
+        <div className="flex-none mt-4 pt-4 border-t">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">
+              {selectedComponents.length} component{selectedComponents.length > 1 ? 's' : ''} selected
+            </Label>
+            <Button onClick={handleAddMultiple}>
+              Add Selected
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
