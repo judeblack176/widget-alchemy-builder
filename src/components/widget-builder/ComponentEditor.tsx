@@ -252,29 +252,15 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       case 'header':
         return [
           { name: "title", type: "text", label: "Title" },
-          { name: "icon", type: "icon", label: "Icon" },
-          { name: "backgroundColor", type: "color", label: "Background Color" },
-          { name: "textColor", type: "color", label: "Text Color" },
-          { name: "fontFamily", type: "select", label: "Font Family", options: [
-            "system-ui", "Arial", "Helvetica", "Times New Roman", "Georgia"
-          ] },
-          { name: "bold", type: "select", label: "Bold", options: ["true", "false"] },
-          { name: "italic", type: "select", label: "Italic", options: ["true", "false"] }
+          { name: "icon", type: "icon", label: "Icon" }
         ];
       case 'text':
         return [
-          { name: "content", type: "text", label: "Content" },
-          { name: "size", type: "select", label: "Size", options: ["small", "medium", "large"] },
-          { name: "color", type: "color", label: "Text Color" },
-          { name: "backgroundColor", type: "color", label: "Background Color" },
-          { name: "bold", type: "select", label: "Bold", options: ["true", "false"] },
-          { name: "italic", type: "select", label: "Italic", options: ["true", "false"] }
+          { name: "content", type: "text", label: "Content" }
         ];
       case 'button':
         return [
           { name: "label", type: "text", label: "Label" },
-          { name: "backgroundColor", type: "color", label: "Background Color" },
-          { name: "textColor", type: "color", label: "Text Color" },
           { name: "variant", type: "select", label: "Style", options: ["default", "outline", "secondary"] },
           { name: "linkUrl", type: "text", label: "Link URL (Optional)" },
           { name: "openInNewTab", type: "select", label: "Open in New Tab", options: ["true", "false"] }
@@ -294,9 +280,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           { name: "title", type: "text", label: "Title" },
           { name: "message", type: "text", label: "Message" },
           { name: "type", type: "select", label: "Alert Type", options: ["info", "success", "warning", "error"] },
-          { name: "backgroundColor", type: "color", label: "Background Color" },
-          { name: "textColor", type: "color", label: "Text Color" },
-          { name: "borderColor", type: "color", label: "Border Color" },
           { name: "dismissible", type: "select", label: "Dismissible", options: ["true", "false"] },
           { name: "autoClose", type: "select", label: "Auto Close", options: ["false", "3000", "5000", "10000"] },
           { name: "notificationType", type: "select", label: "Notification Type", options: ["inline", "toast"] }
@@ -346,9 +329,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           { name: "openInNewTab", type: "select", label: "Open in New Tab", options: ["true", "false"] },
           { name: "style", type: "select", label: "Style", options: ["default", "button", "underlined"] },
           { name: "displayType", type: "select", label: "Display Type", options: ["text", "icon", "both"] },
-          { name: "icon", type: "select", label: "Icon (if using icon)", options: ["LinkIcon", "ExternalLink", "FileText", "Download", "Info"] },
-          { name: "color", type: "color", label: "Text Color" },
-          { name: "backgroundColor", type: "color", label: "Background Color (for button style)" }
+          { name: "icon", type: "select", label: "Icon (if using icon)", options: ["LinkIcon", "ExternalLink", "FileText", "Download", "Info"] }
         ];
       case 'table':
         return [
@@ -364,9 +345,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           { name: "searchable", type: "select", label: "Searchable", options: ["true", "false"] },
           { name: "sortable", type: "select", label: "Sortable", options: ["true", "false"] },
           { name: "exportable", type: "select", label: "Exportable", options: ["true", "false"] },
-          { name: "exportFormats", type: "select", label: "Export Formats", options: ["csv", "excel", "pdf", "all"] },
-          { name: "headerBackgroundColor", type: "color", label: "Header Background Color" },
-          { name: "headerTextColor", type: "color", label: "Header Text Color" }
+          { name: "exportFormats", type: "select", label: "Export Formats", options: ["csv", "excel", "pdf", "all"] }
         ];
       case 'searchbar':
         return [
@@ -377,17 +356,13 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           { name: "searchField", type: "text", label: "Search Field (if searching widget)" },
           { name: "debounceTime", type: "select", label: "Debounce Time (ms)", options: ["0", "300", "500", "1000"] },
           { name: "minChars", type: "select", label: "Min Characters", options: ["1", "2", "3", "4"] },
-          { name: "backgroundColor", type: "color", label: "Background Color" },
-          { name: "textColor", type: "color", label: "Text Color" },
-          { name: "borderColor", type: "color", label: "Border Color" },
           { name: "width", type: "select", label: "Width", options: ["full", "medium", "small"] },
           { name: "showIcon", type: "select", label: "Show Icon", options: ["true", "false"] }
         ];
       default:
         return [
           { name: "title", type: "text", label: "Title" },
-          { name: "content", type: "text", label: "Content" },
-          { name: "color", type: "color", label: "Color" }
+          { name: "content", type: "text", label: "Content" }
         ];
     }
   };
