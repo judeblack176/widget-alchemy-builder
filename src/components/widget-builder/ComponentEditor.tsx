@@ -567,6 +567,72 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     );
   };
 
+  const renderApiSection = () => {
+    return (
+      <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-gray-50 p-3 flex items-center justify-between">
+          <div className="flex items-center">
+            <Database size={16} className="mr-2 text-blue-500" />
+            <span className="font-medium">API Integration</span>
+            {component.apiConfig && (
+              <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-600 border-green-200">
+                Connected
+              </Badge>
+            )}
+          </div>
+        </div>
+        
+        <div className="p-3">
+          {component.apiConfig ? (
+            renderApiDetails()
+          ) : (
+            <div>
+              <div className="mb-4">
+                <Label htmlFor="api-select" className="mb-1 block">Select API</Label>
+                <Select onValueChange={handleApiSelection}>
+                  <SelectTrigger id="api-select">
+                    <SelectValue placeholder="Select an API to connect" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {apis.length > 0 ? (
+                      apis.map((api) => (
+                        <SelectItem key={api.id} value={api.id}>
+                          {api.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-apis" disabled>
+                        No APIs available
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex flex-col gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={onRequestApiTemplate}
+                  className="w-full"
+                >
+                  <Code size={16} className="mr-2" />
+                  Use API Template
+                </Button>
+
+                {shouldShowDataIntegration() && (
+                  <div className="mt-3 text-sm text-gray-500">
+                    <p>This component can be connected to external data sources.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={`p-4 ${isExpanded ? 'border-t border-gray-200' : ''}`}>
       <div className="flex justify-between items-center mb-2">
@@ -596,6 +662,9 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
       {isExpanded && (
         <div className="space-y-4 mt-4">
+          {/* API Integration section moved to the top */}
+          {renderApiSection()}
+          
           <Accordion type="single" collapsible defaultValue="properties">
             <AccordionItem value="properties">
               <AccordionTrigger className="text-sm font-medium">Component Properties</AccordionTrigger>
@@ -667,73 +736,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                     </div>
                   </div>
                 )}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
-          <Accordion type="single" collapsible defaultValue={component.apiConfig ? "api" : undefined}>
-            <AccordionItem value="api">
-              <AccordionTrigger className="text-sm font-medium">
-                <div className="flex items-center">
-                  <Database size={16} className="mr-2" />
-                  API Integration
-                  {component.apiConfig && (
-                    <Badge variant="outline" className="ml-2 text-xs">
-                      Connected
-                    </Badge>
-                  )}
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="pt-2">
-                  {component.apiConfig ? (
-                    <div>
-                      {renderApiDetails()}
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="mb-4">
-                        <Label htmlFor="api-select" className="mb-1 block">Select API</Label>
-                        <Select onValueChange={handleApiSelection}>
-                          <SelectTrigger id="api-select">
-                            <SelectValue placeholder="Select an API to connect" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {apis.length > 0 ? (
-                              apis.map((api) => (
-                                <SelectItem key={api.id} value={api.id}>
-                                  {api.name}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <SelectItem value="no-apis" disabled>
-                                No APIs available
-                              </SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="flex flex-col gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={onRequestApiTemplate}
-                          className="w-full"
-                        >
-                          <Code size={16} className="mr-2" />
-                          Use API Template
-                        </Button>
-
-                        {shouldShowDataIntegration() && (
-                          <div className="mt-3 text-sm text-gray-500">
-                            <p>This component can be connected to external data sources.</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
