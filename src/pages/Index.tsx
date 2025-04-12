@@ -18,7 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { WidgetComponent, ApiConfig, WidgetSubmission, ComponentType } from "@/types/widget-types";
+import { WidgetComponent, ApiConfig, WidgetSubmission } from "@/types/widget-types";
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -91,8 +91,8 @@ const Index = () => {
     }
   }, [widgetId, toast]);
 
-  const handleAddComponent = (componentType: ComponentType) => {
-    if (componentType === 'alert' && widgetComponents.some(c => c.type === 'alert')) {
+  const handleAddComponent = (component: WidgetComponent) => {
+    if (component.type === 'alert' && widgetComponents.some(c => c.type === 'alert')) {
       toast({
         title: "Alert Already Exists",
         description: "Only one alert component is allowed per widget.",
@@ -101,27 +101,26 @@ const Index = () => {
       return;
     }
     
-    const getDefaultProps = (type: ComponentType) => {
-      return {};
-    };
+    const hasAlertComponent = widgetComponents.some(c => c.type === 'alert') || component.type === 'alert';
+    const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
     
-    const newComponent: WidgetComponent = {
-      id: `${componentType}-${Date.now()}`,
-      type: componentType,
-      props: getDefaultProps(componentType)
-    };
+    const nonHeaderNonAlertCount = widgetComponents.filter(
+      c => c.type !== 'header' && c.type !== 'alert'
+    ).length;
     
-    setWidgetComponents([...widgetComponents, newComponent]);
+    if (nonHeaderNonAlertCount >= MAX_COMPONENTS && component.type !== 'header' && component.type !== 'alert') {
+      toast({
+        title: "Component Limit Reached",
+        description: `Widgets are limited to ${MAX_COMPONENTS} components (excluding header and alerts). Please remove a component first.`,
+        variant: "destructive"
+      });
+      return;
+    }
     
+    setWidgetComponents([...widgetComponents, {...component, id: `${component.type}-${Date.now()}`}]);
     toast({
       title: "Component Added",
-      description: `Added ${componentType} component to your widget.`
-    });
-  };
-
-  const handleAddMultipleComponents = (componentTypes: ComponentType[]) => {
-    componentTypes.forEach(componentType => {
-      handleAddComponent(componentType);
+      description: `Added ${component.type} component to your widget.`
     });
   };
 
@@ -462,8 +461,7 @@ const Index = () => {
                             className="h-full px-4"
                           >
                             <ComponentLibrary 
-                              onAddComponent={handleAddComponent}
-                              onAddMultipleComponents={handleAddMultipleComponents}
+                              onAddComponent={handleAddComponent} 
                               existingComponents={widgetComponents}
                             />
                             {provided.placeholder}
@@ -546,8 +544,14 @@ const Index = () => {
                     className="h-full"
                   >
                     <WidgetBuilder
-                      initialComponents={widgetComponents}
-                      initialApis={apis}
+                      components={widgetComponents}
+                      apis={apis}
+                      onUpdateComponent={handleUpdateComponent}
+                      onRemoveComponent={handleRemoveComponent}
+                      onReorderComponents={handleReorderComponents}
+                      onRequestApiTemplate={openApiTemplateModal}
+                      onApplyTooltip={handleApplyTooltip}
+                      tooltips={tooltips}
                     />
                     {provided.placeholder}
                   </div>
