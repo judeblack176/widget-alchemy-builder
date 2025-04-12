@@ -264,7 +264,9 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">{hasChanges ? "Resubmit" : "Submit"} Widget</Button>
+            <Button type="submit" className={hasChanges ? "bg-orange-500 text-white hover:bg-orange-600" : ""}>
+              {hasChanges ? "Resubmit" : "Submit"} Widget
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
