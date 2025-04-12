@@ -1,19 +1,30 @@
 
-import React, { useState, useRef } from 'react';
-import { Plus, Edit, Trash2, Upload, FileSpreadsheet, SortAsc, SortDesc, Search } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Plus, Edit, Trash2, Upload, FileSpreadsheet, SortAsc, SortDesc, Search, Tag, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
+import { Badge } from '@/components/ui/badge';
 import { 
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
 import {
   Table,
   TableBody,
@@ -23,11 +34,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import SearchBar from '@/components/widget-builder/SearchBar';
+import { COMMON_TOOLTIP_TAGS } from '@/types/widget-types';
 
 export interface Tooltip {
   id: string;
   title: string;
   content: string;
+  tags?: string[];
 }
 
 interface TooltipManagerProps {
@@ -48,15 +61,28 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
   const [currentTooltip, setCurrentTooltip] = useState<Tooltip | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+
+  useEffect(() => {
+    if (currentTooltip) {
+      setTags(currentTooltip.tags || []);
+    } else {
+      setTags([]);
+    }
+  }, [currentTooltip]);
 
   const handleAddNewTooltip = () => {
     setCurrentTooltip(null);
     setTitle('');
     setContent('');
+    setTags([]);
     setIsEditing(true);
   };
 
@@ -64,6 +90,7 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
     setCurrentTooltip(tooltip);
     setTitle(tooltip.title);
     setContent(tooltip.content);
+    setTags(tooltip.tags || []);
     setIsEditing(true);
   };
 
@@ -89,7 +116,8 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
     const tooltipData: Tooltip = {
       id: currentTooltip?.id || `tooltip-${Date.now()}`,
       title,
-      content
+      content,
+      tags
     };
 
     if (currentTooltip) {
@@ -110,6 +138,7 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
     setCurrentTooltip(null);
     setTitle('');
     setContent('');
+    setTags([]);
   };
 
   const handleRemoveTooltip = (tooltipId: string, tooltipTitle: string) => {
@@ -151,7 +180,8 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
           onAddTooltip({
             id: `tooltip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             title: tooltip.title,
-            content: tooltip.content
+            content: tooltip.content,
+            tags: tooltip.tags || []
           });
         });
 
@@ -175,13 +205,16 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
     e.target.value = '';
   };
 
-  const parseCSVorExcel = (data: string): { title: string; content: string }[] => {
-    const result: { title: string; content: string }[] = [];
+  const parseCSVorExcel = (data: string): { title: string; content: string; tags?: string[] }[] => {
+    const result: { title: string; content: string; tags?: string[] }[] = [];
     
     // Split by newlines and filter out empty lines
     const lines = data.split(/\r?\n/).filter(line => line.trim().length > 0);
     
     if (lines.length === 0) return result;
+    
+    // Check if header includes tags
+    const hasTagsColumn = lines[0].toLowerCase().includes('tags');
     
     // Skip header row if it exists
     const startIdx = lines[0].toLowerCase().includes('title') && 
@@ -200,11 +233,23 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
       
       if (parts.length >= 2) {
         const title = parts[0].trim();
-        // Join remaining parts as content in case content contains commas
-        const content = parts.slice(1).join(',').trim();
+        
+        // If we have tags column, last column is tags, content is everything in between
+        let content, tags;
+        
+        if (hasTagsColumn && parts.length >= 3) {
+          // Content is everything except first and last column
+          content = parts.slice(1, parts.length - 1).join(',').trim();
+          // Last column is tags
+          const tagsString = parts[parts.length - 1].trim();
+          tags = tagsString ? tagsString.split(';').map(tag => tag.trim()) : [];
+        } else {
+          // No tags column, content is everything except first column
+          content = parts.slice(1).join(',').trim();
+        }
         
         if (title && content) {
-          result.push({ title, content });
+          result.push({ title, content, tags });
         }
       }
     }
@@ -220,11 +265,44 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
     setSearchQuery(query);
   };
 
-  // Filter and sort tooltips
-  const filteredAndSortedTooltips = tooltips
+  const addTag = () => {
+    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
+      setTags([...tags, tagInput.trim()]);
+      setTagInput('');
+    }
+    setShowTagSuggestions(false);
+  };
+
+  const removeTag = (tag: string) => {
+    setTags(tags.filter(t => t !== tag));
+  };
+
+  const handleTagInputKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addTag();
+    } else if (e.key === 'Escape') {
+      setShowTagSuggestions(false);
+    }
+  };
+
+  const handleTagClick = (tag: string | null) => {
+    setSelectedTag(tag);
+    // If clicked the same tag again, clear the filter
+    if (selectedTag === tag) {
+      setSelectedTag(null);
+    }
+  };
+
+  // Filter tooltips based on search query and selected tag
+  const filteredTooltips = tooltips
     .filter(tooltip => 
-      tooltip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tooltip.content.toLowerCase().includes(searchQuery.toLowerCase())
+      (searchQuery === '' || 
+       tooltip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       tooltip.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       tooltip.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())))
+      &&
+      (selectedTag === null || tooltip.tags?.includes(selectedTag))
     )
     .sort((a, b) => {
       if (sortDirection === 'asc') {
@@ -233,6 +311,19 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
         return b.title.localeCompare(a.title);
       }
     });
+
+  // Extract all unique tags across all tooltips
+  const allTags = Array.from(
+    new Set(
+      tooltips.flatMap(tooltip => tooltip.tags || [])
+    )
+  ).sort();
+
+  // Filter tag suggestions based on input
+  const tagSuggestions = COMMON_TOOLTIP_TAGS.filter(tag => 
+    tag.toLowerCase().includes(tagInput.toLowerCase()) && 
+    !tags.includes(tag)
+  );
 
   return (
     <div className="space-y-4">
@@ -296,11 +387,37 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
             </Tooltip>
           </TooltipProvider>
         </div>
+
+        {/* Tag filters */}
+        {allTags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {allTags.map(tag => (
+              <Badge 
+                key={tag}
+                variant={selectedTag === tag ? "default" : "outline"}
+                className="cursor-pointer hover:bg-gray-100"
+                onClick={() => handleTagClick(tag)}
+              >
+                <Tag size={12} className="mr-1" /> {tag}
+              </Badge>
+            ))}
+            {selectedTag && (
+              <Button 
+                variant="ghost" 
+                size="xs" 
+                onClick={() => setSelectedTag(null)}
+                className="text-xs text-gray-500"
+              >
+                Clear filter
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Scrollable content area */}
       <ScrollArea className="h-[calc(100vh-240px)]">
-        {filteredAndSortedTooltips.length === 0 ? (
+        {filteredTooltips.length === 0 ? (
           <div className="py-8 text-center text-gray-500">
             {tooltips.length === 0 ? (
               <>
@@ -308,23 +425,44 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
                 <p className="text-sm mt-1">Create tooltips to provide additional information to users</p>
               </>
             ) : (
-              <p>No tooltips match your search</p>
+              <p>No tooltips match your search{selectedTag ? ` or tag filter: ${selectedTag}` : ''}</p>
             )}
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-1/3">Title</TableHead>
+                <TableHead className="w-1/4">Title</TableHead>
                 <TableHead className="w-1/2">Content</TableHead>
+                <TableHead className="w-1/5">Tags</TableHead>
                 <TableHead className="w-[100px] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredAndSortedTooltips.map((tooltip) => (
+              {filteredTooltips.map((tooltip) => (
                 <TableRow key={tooltip.id} className="border-b">
                   <TableCell className="font-medium align-top">{tooltip.title}</TableCell>
                   <TableCell className="max-w-[250px] align-top">{tooltip.content}</TableCell>
+                  <TableCell className="align-top">
+                    <div className="flex flex-wrap gap-1">
+                      {tooltip.tags?.map(tag => (
+                        <HoverCard key={tag} openDelay={300} closeDelay={100}>
+                          <HoverCardTrigger asChild>
+                            <Badge 
+                              variant="secondary" 
+                              className="cursor-pointer"
+                              onClick={() => handleTagClick(tag)}
+                            >
+                              <Tag size={10} className="mr-1" /> {tag.length > 10 ? `${tag.substring(0, 10)}...` : tag}
+                            </Badge>
+                          </HoverCardTrigger>
+                          <HoverCardContent className="w-auto p-2" align="start">
+                            <span className="text-xs">{tag}</span>
+                          </HoverCardContent>
+                        </HoverCard>
+                      ))}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right align-top">
                     <div className="flex justify-end">
                       <div className="flex space-x-1">
@@ -362,6 +500,9 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
             <DialogTitle>
               {currentTooltip ? 'Edit Tooltip' : 'Add New Tooltip'}
             </DialogTitle>
+            <DialogDescription>
+              Create tooltips to provide helpful information to users
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
@@ -387,6 +528,69 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
                 rows={4}
               />
             </div>
+            <div className="space-y-2">
+              <label htmlFor="tags" className="text-sm font-medium flex items-center">
+                Tags
+                <span className="text-xs text-gray-500 ml-2">(Press Enter to add)</span>
+              </label>
+              <div className="relative">
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {tags.map(tag => (
+                    <Badge key={tag} className="flex items-center gap-1 bg-gray-100 text-gray-800">
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => removeTag(tag)}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        <XCircle size={14} />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+                <div className="relative">
+                  <Input
+                    id="tags"
+                    value={tagInput}
+                    onChange={(e) => {
+                      setTagInput(e.target.value);
+                      setShowTagSuggestions(e.target.value.length > 0);
+                    }}
+                    onKeyDown={handleTagInputKeyPress}
+                    onFocus={() => tagInput && setShowTagSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowTagSuggestions(false), 200)}
+                    placeholder="Add tags..."
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={addTag}
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 px-2"
+                    disabled={!tagInput.trim()}
+                  >
+                    Add
+                  </Button>
+                </div>
+                
+                {showTagSuggestions && tagSuggestions.length > 0 && (
+                  <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg max-h-48 overflow-auto">
+                    {tagSuggestions.map(suggestion => (
+                      <div
+                        key={suggestion}
+                        className="px-3 py-1.5 hover:bg-gray-100 cursor-pointer text-sm"
+                        onClick={() => {
+                          setTagInput(suggestion);
+                          addTag();
+                        }}
+                      >
+                        {suggestion}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditing(false)}>
@@ -404,6 +608,9 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Import Tooltips</DialogTitle>
+            <DialogDescription>
+              Import tooltips from CSV or Excel files with columns for Title, Content, and Tags (optional)
+            </DialogDescription>
           </DialogHeader>
           <div className="py-6">
             <div className="flex flex-col items-center justify-center space-y-4">
@@ -413,7 +620,7 @@ const TooltipManager: React.FC<TooltipManagerProps> = ({
                   Import tooltips from CSV or Excel files
                 </p>
                 <p className="text-xs text-gray-500 mb-4">
-                  File should have columns for Title and Content
+                  File should have columns for Title, Content, and Tags (optional, separated by semicolons)
                 </p>
               </div>
               <Button 

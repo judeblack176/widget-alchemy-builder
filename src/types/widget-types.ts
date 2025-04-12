@@ -319,3 +319,22 @@ export const extractFieldPaths = (obj: any, prefix = ''): string[] => {
   
   return paths;
 };
+
+// Common predefined tooltip tags
+export const COMMON_TOOLTIP_TAGS = [
+  "Getting Started",
+  "Advanced",
+  "Interface",
+  "Features", 
+  "Tips",
+  "Help",
+  "Navigation",
+  "Forms",
+  "Charts",
+  "Tables",
+  "API",
+  "Data",
+  "Technical",
+  "User Guide",
+  "Best Practices"
+];

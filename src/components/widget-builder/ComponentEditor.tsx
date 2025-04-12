@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import ColorPalettePicker from "./ColorPalettePicker";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { 
@@ -41,7 +42,8 @@ import {
   Phone,
   ShoppingBag,
   Star,
-  X
+  X,
+  Tag
 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -285,7 +287,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     ...validCustomTooltips.map(tooltip => ({
       id: tooltip.id,
       label: tooltip.title,
-      content: tooltip.content
+      content: tooltip.content,
+      tags: tooltip.tags
     }))
   ];
 
@@ -393,6 +396,10 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     }, 0);
   }
 
+  const selectedTooltip = component.tooltipId ? 
+    validCustomTooltips.find(t => t.id === component.tooltipId) : 
+    null;
+
   const shouldShowDataIntegration = () => {
     const dataIntegrationComponents = ['calendar', 'chart', 'table', 'dropdown', 'alert', 'searchbar'];
     return dataIntegrationComponents.includes(component.type);
@@ -478,10 +485,22 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                           ))}
                         </SelectContent>
                       </Select>
-                      {component.tooltipId && validCustomTooltips.some(t => t.id === component.tooltipId) && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {validCustomTooltips.find(t => t.id === component.tooltipId)?.content}
-                        </p>
+                      
+                      {selectedTooltip && (
+                        <div className="mt-2">
+                          <p className="text-xs text-gray-500 mt-1 mb-2">
+                            {selectedTooltip.content}
+                          </p>
+                          {selectedTooltip.tags && selectedTooltip.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {selectedTooltip.tags.map(tag => (
+                                <Badge key={tag} variant="secondary" className="text-xs">
+                                  <Tag size={10} className="mr-1" /> {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
