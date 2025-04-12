@@ -1,7 +1,9 @@
 
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Tag } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -14,6 +16,8 @@ interface SearchBarProps {
   className?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onTagFilterClick?: () => void;
+  showTagFilter?: boolean;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
@@ -26,7 +30,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
   showIcon = true,
   className = "w-full",
   value,
-  onChange
+  onChange,
+  onTagFilterClick,
+  showTagFilter = false
 }) => {
   const [query, setQuery] = useState('');
   
@@ -57,13 +63,28 @@ const SearchBar: React.FC<SearchBarProps> = ({
         placeholder={placeholder}
         value={isControlled ? value : query}
         onChange={handleChange}
-        className={`${showIcon ? 'pl-10' : 'pl-4'} shadow-sm`}
+        className={`${showIcon ? 'pl-10' : 'pl-4'} ${showTagFilter ? 'pr-10' : ''} shadow-sm`}
         style={{
           backgroundColor: backgroundColor,
           color: textColor,
           borderColor: borderColor
         }}
       />
+      {showTagFilter && onTagFilterClick && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
+              onClick={onTagFilterClick}
+            >
+              <Tag className="h-4 w-4" style={{ color: iconColor }} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Filter by tags</TooltipContent>
+        </Tooltip>
+      )}
     </div>
   );
 };

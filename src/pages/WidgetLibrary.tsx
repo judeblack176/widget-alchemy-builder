@@ -17,7 +17,11 @@ import { format } from "date-fns";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { WidgetSubmission, WidgetApprovalStatus } from "@/types/widget-types";
 
-const WidgetLibrary = () => {
+interface WidgetLibraryProps {
+  onTagManagerOpen?: () => void;
+}
+
+const WidgetLibrary = ({ onTagManagerOpen }: WidgetLibraryProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -158,6 +162,13 @@ const WidgetLibrary = () => {
           <div className="flex items-center gap-2">
             {!isSelectionMode && (
               <>
+                <Button 
+                  variant="outline" 
+                  onClick={onTagManagerOpen}
+                  className="gap-2"
+                >
+                  <Tag size={16} className="mr-1" /> Tags
+                </Button>
                 <Link to="/admin/login">
                   <Button variant="secondary">
                     <ShieldCheck size={16} className="mr-2" /> Admin
