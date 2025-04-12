@@ -119,6 +119,15 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     textColor: component.props?.textColor || "#000000"
   });
 
+  const handleTextFormattingChange = (propertyName: string, value: any) => {
+    setTextFormatting(prev => ({
+      ...prev,
+      [propertyName]: value
+    }));
+    
+    handlePropertyChange(propertyName, value);
+  };
+
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
       ...component,
