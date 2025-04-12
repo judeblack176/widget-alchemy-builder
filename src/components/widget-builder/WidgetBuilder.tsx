@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { WidgetComponent, ComponentType, ApiConfig, DEFAULT_DATA_MAPPINGS } from '@/types/widget-types';
+import { WidgetComponent, ComponentType, ApiConfig, Tooltip } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import ComponentLibrary from './ComponentLibrary';
@@ -9,12 +9,12 @@ import WidgetPreview from './WidgetPreview';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertCircle, Download, Settings, Code, FilePlus, MonitorSmartphone, Smartphone } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip as UiTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import ApiManager from './ApiManager';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import TooltipManager, { Tooltip as CustomTooltip } from './TooltipManager';
+import TooltipManager from './TooltipManager';
 
 interface WidgetBuilderProps {
   initialComponents?: WidgetComponent[];
@@ -30,7 +30,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   const [expandedComponent, setExpandedComponent] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('build');
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
-  const [customTooltips, setCustomTooltips] = useState<CustomTooltip[]>([]);
+  const [customTooltips, setCustomTooltips] = useState<Tooltip[]>([]);
   const { toast } = useToast();
 
   const onAddComponent = (componentType: ComponentType) => {
@@ -161,7 +161,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           width: '100%',
           height: 'auto',
         };
-      
       case 'video':
         return {
           source: 'https://example.com/video.mp4',
@@ -334,7 +333,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     );
   };
   
-  const onUpdateTooltips = (updatedTooltips: CustomTooltip[]) => {
+  const onUpdateTooltips = (updatedTooltips: Tooltip[]) => {
     setCustomTooltips(updatedTooltips);
   };
 
@@ -345,7 +344,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           <h1 className="text-xl font-semibold">Widget Builder</h1>
           <div className="flex items-center gap-2">
             <TooltipProvider>
-              <Tooltip>
+              <UiTooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="outline"
@@ -359,11 +358,11 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                 <TooltipContent>
                   <p>Desktop view</p>
                 </TooltipContent>
-              </Tooltip>
+              </UiTooltip>
             </TooltipProvider>
             
             <TooltipProvider>
-              <Tooltip>
+              <UiTooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="outline"
@@ -377,7 +376,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                 <TooltipContent>
                   <p>Mobile view</p>
                 </TooltipContent>
-              </Tooltip>
+              </UiTooltip>
             </TooltipProvider>
             
             <Button variant="outline" size="sm">
@@ -474,7 +473,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                 <WidgetPreview components={components} apis={apis} />
                 
                 {components.length > 0 && components.filter(c => c.apiConfig).length === 0 && (
-                  <Alert variant="warning" className="mt-4">
+                  <Alert className="mt-4">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No API connections</AlertTitle>
                     <AlertDescription>
@@ -487,13 +486,28 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           </TabsContent>
           
           <TabsContent value="api" className="h-full m-0">
-            <ApiManager apis={apis} onSave={onSaveApis} />
+            <ApiManager 
+              apis={apis}
+              onAddApi={(api: ApiConfig) => setApis([...apis, api])}
+              onUpdateApi={(id, api) => {
+                setApis(apis.map(a => a.id === id ? api : a));
+              }}
+              onRemoveApi={(id) => {
+                setApis(apis.filter(a => a.id !== id));
+              }}
+            />
           </TabsContent>
           
           <TabsContent value="tooltips" className="h-full m-0">
             <TooltipManager 
-              tooltips={customTooltips} 
-              onUpdate={onUpdateTooltips} 
+              tooltips={customTooltips}
+              onAddTooltip={(tooltip) => setCustomTooltips([...customTooltips, tooltip])}
+              onUpdateTooltip={(id, tooltip) => {
+                setCustomTooltips(customTooltips.map(t => t.id === id ? tooltip : t));
+              }}
+              onRemoveTooltip={(id) => {
+                setCustomTooltips(customTooltips.filter(t => t.id !== id));
+              }}
             />
           </TabsContent>
         </div>

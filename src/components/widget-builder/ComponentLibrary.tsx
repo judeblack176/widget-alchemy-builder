@@ -68,7 +68,7 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
         { name: "content", type: "text", label: "Content" },
         { name: "size", type: "select", label: "Size" },
         { name: "color", type: "color", label: "Text Color" },
-        { name: "fontStyle", type: "fontStyle", label: "Font Style" }
+        { name: "fontStyle", type: "select", label: "Font Style" }
       ]
     },
     button: {
