@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { WidgetComponent, ComponentType, ApiConfig, Tooltip } from '@/types/widget-types';
+import { WidgetComponent, ComponentType, ApiConfig } from '@/types/widget-types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import ComponentLibrary from './ComponentLibrary';
@@ -14,7 +14,7 @@ import ApiManager from './ApiManager';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import TooltipManager from './TooltipManager';
+import TooltipManager, { Tooltip } from './TooltipManager';
 
 interface WidgetBuilderProps {
   initialComponents?: WidgetComponent[];
@@ -36,7 +36,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   const onAddComponent = (componentType: ComponentType) => {
     const hasHeader = components.some(comp => comp.type === 'header');
     
-    // If adding a header but one already exists, show warning
     if (componentType === 'header' && hasHeader) {
       toast({
         title: "Cannot add another header",
@@ -54,7 +53,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
       props: getDefaultProps(componentType),
     };
     
-    // Place header at the top
     if (componentType === 'header') {
       setComponents([newComponent, ...components]);
     } else {
@@ -69,7 +67,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     const newComponents: WidgetComponent[] = [];
     
     componentTypes.forEach(componentType => {
-      // Skip adding header if one already exists
       if (componentType === 'header' && hasHeader) {
         toast({
           title: "Skipped adding header",
@@ -90,11 +87,9 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
       newComponents.push(newComponent);
     });
     
-    // Separate headers from other components
     const headerComponents = newComponents.filter(c => c.type === 'header');
     const nonHeaderComponents = newComponents.filter(c => c.type !== 'header');
     
-    // Place headers at the top
     if (headerComponents.length > 0) {
       setComponents([...headerComponents, ...components, ...nonHeaderComponents]);
     } else {

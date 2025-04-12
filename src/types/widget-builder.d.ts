@@ -1,5 +1,6 @@
 
-import { WidgetComponent, ApiConfig, Tooltip } from "./widget-types";
+import { WidgetComponent, ApiConfig } from "./widget-types";
+import { Tooltip as TooltipType } from "@/components/widget-builder/TooltipManager";
 
 declare module "@/components/widget-builder/WidgetBuilder" {
   export interface WidgetBuilderProps {
@@ -27,9 +28,9 @@ declare module "@/components/widget-builder/ApiManager" {
 
 declare module "@/components/widget-builder/TooltipManager" {
   export interface TooltipManagerProps {
-    tooltips: Tooltip[];
-    onAddTooltip: (tooltip: Tooltip) => void;
-    onUpdateTooltip: (id: string, tooltip: Tooltip) => void;
+    tooltips: TooltipType[];
+    onAddTooltip: (tooltip: TooltipType) => void;
+    onUpdateTooltip: (id: string, tooltip: TooltipType) => void;
     onRemoveTooltip: (id: string) => void;
   }
 }
