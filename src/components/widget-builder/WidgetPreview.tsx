@@ -62,7 +62,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     
     if (component.apiFieldMappings && component.apiFieldMappings.length > 0) {
       component.apiFieldMappings.forEach(mapping => {
-        if (mapping.field && mapping.targetProperty) {
+        if (mapping && mapping.field && mapping.targetProperty) {
           processedData[mapping.targetProperty] = apiResult[mapping.field];
         }
       });

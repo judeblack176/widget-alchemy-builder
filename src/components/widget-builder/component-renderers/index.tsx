@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { WidgetComponent } from '@/types/widget-types';
 import { 
@@ -18,12 +19,12 @@ export const renderComponent = (
   let processedProps = { ...props };
   
   // Handle API field mappings
-  if (component.apiFieldMappings && apiData) {
+  if (component.apiFieldMappings && component.apiFieldMappings.length > 0 && apiData) {
     const componentApiData = component.apiConfig?.apiId ? apiData[component.apiConfig.apiId] : undefined;
     
     if (componentApiData) {
       component.apiFieldMappings.forEach(mapping => {
-        if (mapping.field && mapping.targetProperty && componentApiData[mapping.field]) {
+        if (mapping && mapping.field && mapping.targetProperty && componentApiData[mapping.field] !== undefined) {
           processedProps[mapping.targetProperty] = componentApiData[mapping.field];
         }
       });
@@ -83,3 +84,4 @@ export const renderComponent = (
       return <div>Unknown component type: {type}</div>;
   }
 };
+

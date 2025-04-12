@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, HelpCircle } from 'lucide-react';
-import { WidgetComponent, ApiConfig } from '@/types/widget-types';
+import { WidgetComponent, ApiConfig, Tooltip } from '@/types/widget-types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import ApiFieldMapping from './ApiFieldMapping';
-import { Tooltip } from './TooltipManager';
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -531,7 +530,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            {tooltips && tooltips.map(tooltip => (
+            {tooltips && tooltips.length > 0 ? tooltips.map(tooltip => (
               <div key={tooltip.id} className="flex items-center space-x-2">
                 <Button
                   variant="outline"
@@ -544,7 +543,11 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                   {tooltip.title}
                 </Button>
               </div>
-            ))}
+            )) : (
+              <div className="text-center py-4 text-muted-foreground">
+                No tooltips available. Create some in the Tooltips tab.
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button type="button" onClick={() => setIsTooltipModalOpen(false)}>

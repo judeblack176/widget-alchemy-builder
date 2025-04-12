@@ -1,4 +1,5 @@
 
+
 import { LucideIcon } from 'lucide-react';
 
 export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table' | 'searchbar';
@@ -86,3 +87,4 @@ declare module "@/components/widget-builder/WidgetBuilder" {
     onApplyTooltip: (componentId: string, tooltipId: string) => void;
   }
 }
+
