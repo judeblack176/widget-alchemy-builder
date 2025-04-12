@@ -1,12 +1,13 @@
+
 import React, { useState, useEffect } from "react";
-import { ApiConfig, extractFieldPaths } from "@/types/widget-types";
+import { ApiConfig } from "@/types/widget-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check, Search, SortAsc, SortDesc, ListFilter, ChevronDown, ChevronUp } from "lucide-react";
+import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check, Search, SortAsc, SortDesc, ListFilter, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import SearchBar from "./SearchBar";
+
+// Helper function to extract all possible field paths from a JSON object
+const extractFieldPaths = (obj: any, prefix = ''): string[] => {
+  let result: string[] = [];
+  
+  for (const key in obj) {
+    const newPrefix = prefix ? `${prefix}.${key}` : key;
+    
+    if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+      // If it's an object, recursively extract fields
+      result = result.concat(extractFieldPaths(obj[key], newPrefix));
+    } else if (Array.isArray(obj[key]) && obj[key].length > 0 && typeof obj[key][0] === 'object') {
+      // If it's an array of objects, extract fields from the first item with array notation
+      result = result.concat(extractFieldPaths(obj[key][0], `${newPrefix}[0]`));
+    } else {
+      // It's a primitive value
+      result.push(newPrefix);
+    }
+  }
+  
+  return result;
+};
 
 interface ApiManagerProps {
   apis: ApiConfig[];
@@ -673,43 +696,113 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
               <p className="text-sm text-gray-400 mt-1">Try adjusting your search query</p>
             </div>
           ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[200px]">API Name</TableHead>
-                    <TableHead>Details</TableHead>
-                    <TableHead className="text-right w-[100px]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredAndSortedApis.map((api) => (
-                    <TableRow key={api.id} className={expandedRows[api.id] ? "bg-slate-50" : ""}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          <Badge 
-                            variant="outline" 
-                            className={`
-                              ${api.method === 'GET' ? 'border-green-500 bg-green-50 text-green-700' : ''}
-                              ${api.method === 'POST' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}
-                              ${api.method === 'PUT' ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : ''}
-                              ${api.method === 'DELETE' ? 'border-red-500 bg-red-50 text-red-700' : ''}
-                            `}
+            <div className="space-y-4">
+              {filteredAndSortedApis.map((api) => (
+                <Card key={api.id} className={expandedRows[api.id] ? "bg-slate-50" : ""}>
+                  <CardHeader className="p-4 pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Badge 
+                          variant="outline" 
+                          className={`
+                            ${api.method === 'GET' ? 'border-green-500 bg-green-50 text-green-700' : ''}
+                            ${api.method === 'POST' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}
+                            ${api.method === 'PUT' ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : ''}
+                            ${api.method === 'DELETE' ? 'border-red-500 bg-red-50 text-red-700' : ''}
+                          `}
+                        >
+                          {api.method}
+                        </Badge>
+                        <h3 className="text-lg font-medium">{api.name}</h3>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                                onClick={() => copyApiToClipboard(api)}
+                              >
+                                {copyStatus[api.id] ? <Check size={16} /> : <Copy size={16} />}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy API configuration</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-8 w-8 p-0"
+                                onClick={() => handleEditApi(api.id)}
+                              >
+                                <Code size={16} />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Edit API</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-8 w-8 p-0" 
+                                onClick={() => onRemoveApi(api.id)}
+                              >
+                                <Trash2 size={16} />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Remove API</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => toggleRowExpand(api.id)}
+                        >
+                          {expandedRows[api.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="px-4 py-2">
+                    <div className="text-sm space-y-2">
+                      <div className="flex items-center">
+                        <span className="font-semibold w-24">Endpoint:</span>
+                        <div className="flex items-center gap-1">
+                          <span className="font-mono text-xs truncate max-w-[300px]" title={api.endpoint}>
+                            {api.endpoint}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 ml-1"
+                            onClick={() => window.open(api.endpoint, '_blank')}
                           >
-                            {api.method}
-                          </Badge>
-                          <span>{api.name}</span>
+                            <ExternalLink size={12} />
+                          </Button>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm space-y-2">
-                          <div className="flex items-center">
-                            <span className="font-semibold w-24">Endpoint:</span>
-                            <span className="font-mono text-xs truncate max-w-[300px]" title={api.endpoint}>
-                              {api.endpoint}
-                            </span>
-                          </div>
-                          
+                      </div>
+                      
+                      {expandedRows[api.id] && (
+                        <div className="space-y-3 pt-2">
                           <div className="flex items-center">
                             <span className="font-semibold w-24">Headers:</span>
                             {api.headers && Object.keys(api.headers).length > 0 ? (
@@ -868,68 +961,11 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                             </div>
                           )}
                         </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0"
-                                  onClick={() => copyApiToClipboard(api)}
-                                >
-                                  {copyStatus[api.id] ? <Check size={16} /> : <Copy size={16} />}
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Copy API configuration</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="h-8 w-8 p-0"
-                                  onClick={() => handleEditApi(api.id)}
-                                >
-                                  <Code size={16} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Edit API</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="h-8 w-8 p-0" 
-                                  onClick={() => onRemoveApi(api.id)}
-                                >
-                                  <Trash2 size={16} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Remove API</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
         </ScrollArea>

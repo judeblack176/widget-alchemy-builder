@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -103,8 +102,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 }) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [selectedFields, setSelectedFields] = useState<Record<string, string[]>>({});
-  const [newFieldLabel, setNewFieldLabel] = useState<string>("");
-  const [newFieldApiField, setNewFieldApiField] = useState<string>("");
 
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
@@ -168,48 +165,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const isFieldSelected = (propKey: string, apiField: string) => {
     return component.apiConfig?.multiMapping?.[propKey]?.includes(apiField) || false;
-  };
-
-  const addContentField = () => {
-    if (!newFieldLabel.trim() || !newFieldApiField.trim()) return;
-
-    const newContentFields = [
-      ...(component.contentFields || []),
-      {
-        label: newFieldLabel,
-        apiField: newFieldApiField
-      }
-    ];
-
-    const updatedComponent = {
-      ...component,
-      contentFields: newContentFields
-    };
-
-    onUpdateComponent(updatedComponent);
-
-    setNewFieldLabel("");
-    setNewFieldApiField("");
-  };
-
-  const removeContentField = (index: number) => {
-    const currentFields = [...(component.contentFields || [])];
-    currentFields.splice(index, 1);
-
-    const updatedComponent = {
-      ...component,
-      contentFields: currentFields
-    };
-
-    onUpdateComponent(updatedComponent);
-  };
-
-  const handleFormattedContentChange = (value: string) => {
-    const updatedComponent = {
-      ...component,
-      formattedContent: value
-    };
-    onUpdateComponent(updatedComponent);
   };
 
   const componentTypeLabels: Record<string, string> = {
@@ -455,40 +410,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           />
         );
       case "text":
-        if (property.name === "content" && (component.contentFields?.length || component.formattedContent)) {
-          return (
-            <div key={property.name} className="mb-4">
-              <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
-              <div className="mt-2 border rounded-md p-3 bg-gray-50 min-h-[100px]">
-                <textarea
-                  className="w-full h-32 border rounded p-2 text-sm"
-                  value={component.formattedContent || ""}
-                  onChange={(e) => handleFormattedContentChange(e.target.value)}
-                  placeholder="Enter formatted content or use API fields..."
-                />
-                
-                {component.contentFields && component.contentFields.length > 0 && (
-                  <div className="mt-3">
-                    <Label className="text-xs font-medium mb-1 block">Available API Fields</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {component.contentFields.map((field, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs cursor-pointer hover:bg-gray-200"
-                          onClick={() => {
-                            const placeholder = `{{${field.label}}}`;
-                            const currentContent = component.formattedContent || "";
-                            handleFormattedContentChange(currentContent + placeholder);
-                          }}>
-                          {field.label} <span className="text-gray-500 ml-1">({field.apiField})</span>
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        }
-        
         return (
           <div key={property.name} className="mb-4">
             <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
@@ -562,28 +483,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const selectedApi = component.apiConfig ? apis.find(api => api.id === component.apiConfig?.apiId) : undefined;
 
-  const getAvailableApiFields = () => {
-    if (!selectedApi) return [];
-    
-    if (selectedApi.possibleFields && selectedApi.possibleFields.length > 0) {
-      return selectedApi.possibleFields;
-    }
-    
-    if (selectedApi.sampleResponse) {
-      try {
-        const sampleData = JSON.parse(selectedApi.sampleResponse);
-        return Object.keys(sampleData);
-      } catch (e) {
-        return [];
-      }
-    }
-    
-    return [];
-  };
-
   const renderApiDetails = () => {
     if (!selectedApi) return null;
-    const availableApiFields = getAvailableApiFields();
 
     return (
       <div className="space-y-4 mt-4 border rounded-md p-3 bg-gray-50">
@@ -603,6 +504,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </Button>
         </div>
 
+        {/* Display API details */}
         <div className="space-y-3 text-sm">
           <div className="flex items-center gap-2">
             <span className="font-medium w-20">Endpoint:</span>
@@ -616,6 +518,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         </div>
 
+        {/* Parameters */}
         {selectedApi.parameters && Object.keys(selectedApi.parameters).length > 0 && (
           <div className="mt-1">
             <Accordion type="single" collapsible>
@@ -638,71 +541,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         )}
 
-        <div className="mt-3 border-t pt-3">
-          <h5 className="text-sm font-medium mb-2">Add Content Fields</h5>
-          <div className="flex items-end gap-2 mb-3">
-            <div className="flex-1">
-              <Label htmlFor="field-label" className="text-xs">Field Label</Label>
-              <Input 
-                id="field-label" 
-                value={newFieldLabel} 
-                onChange={(e) => setNewFieldLabel(e.target.value)}
-                placeholder="Enter field label"
-                className="h-8 text-sm"
-              />
-            </div>
-            <div className="flex-1">
-              <Label htmlFor="api-field" className="text-xs">API Field</Label>
-              <Select value={newFieldApiField} onValueChange={setNewFieldApiField}>
-                <SelectTrigger id="api-field" className="h-8 text-sm">
-                  <SelectValue placeholder="Select API field" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableApiFields.map((field) => (
-                    <SelectItem key={field} value={field}>
-                      {field}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={addContentField}
-              disabled={!newFieldLabel || !newFieldApiField}
-              className="h-8 px-2"
-            >
-              <Plus size={14} />
-            </Button>
-          </div>
-
-          {component.contentFields && component.contentFields.length > 0 && (
-            <div className="mt-2 space-y-2">
-              <h6 className="text-xs font-medium">Mapped Fields:</h6>
-              <div className="space-y-1">
-                {component.contentFields.map((field, idx) => (
-                  <div key={idx} className="flex justify-between items-center py-1 px-2 bg-white rounded border text-sm">
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium">{field.label}:</span>
-                      <Badge variant="outline" className="text-xs">
-                        {field.apiField}
-                      </Badge>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => removeContentField(idx)}
-                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 size={14} />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Removed Single Data Mapping section */}
+        {/* Removed Multiple Data Mapping section */}
       </div>
     );
   };
@@ -741,27 +581,30 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                         </SelectItem>
                       ))
                     ) : (
-                      <div className="p-2 text-center text-sm text-gray-500">
-                        No APIs available. Create an API first.
-                      </div>
+                      <SelectItem value="no-apis-available" disabled>
+                        No APIs available
+                      </SelectItem>
                     )}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex justify-center">
+              
+              <div className="flex flex-col gap-2">
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  onClick={() => {
-                    if (onRequestApiTemplate) {
-                      onRequestApiTemplate();
-                    }
-                  }}
-                  className="text-blue-500"
+                  onClick={onRequestApiTemplate}
+                  className="w-full"
                 >
-                  <Bookmark size={14} className="mr-1" /> 
-                  Choose from API Templates
+                  <Code size={16} className="mr-2" />
+                  Use API Template
                 </Button>
+
+                {shouldShowDataIntegration() && (
+                  <div className="mt-3 text-sm text-gray-500">
+                    <p>This component can be connected to external data sources.</p>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -771,86 +614,150 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   };
 
   return (
-    <div className="widget-component-editor border rounded-md overflow-hidden bg-white mb-3">
-      <div className="p-3 border-b bg-gray-50 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <span className="font-medium">{componentTypeLabels[component.type] || component.type}</span>
-          {component.tooltipId && component.tooltipId !== "none" && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="cursor-help">
-                    {getTooltipIcon(component.tooltipId)}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs">
-                    {selectedTooltip?.content || "Tooltip information"}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-        <div className="flex gap-1">
-          {onApplyTooltip && (
-            <Select 
-              value={component.tooltipId || "none"} 
-              onValueChange={(value) => onApplyTooltip(value)}
-            >
-              <SelectTrigger className="h-7 text-xs border-none bg-transparent hover:bg-gray-100 w-auto p-1 gap-1">
-                <HelpCircle size={16} className="text-gray-500" />
-              </SelectTrigger>
-              <SelectContent align="end">
-                {tooltipOptions.map(option => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={onToggleExpand} 
-            className="h-7 w-7 p-0"
-          >
-            {isExpanded ? (
-              <ChevronUp size={16} className="text-gray-500" />
-            ) : (
-              <ChevronDown size={16} className="text-gray-500" />
-            )}
-          </Button>
-          {!shouldDisableRemove && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => onRemoveComponent(component.id)} 
-              className="h-7 w-7 p-0 text-red-500 hover:text-red-700"
-            >
-              <X size={16} />
-            </Button>
+    <div 
+      className={`relative p-4 ${isExpanded ? 'border-t border-gray-200' : 'cursor-pointer'}`}
+      onClick={!isExpanded ? onToggleExpand : undefined}
+    >
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="text-lg font-medium">
+          {componentTypeLabels[component.type] || component.type}
+        </h3>
+        <div className="flex space-x-1">
+          {isExpanded ? (
+            <>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleExpand();
+                }}
+              >
+                <ChevronUp size={16} className="mr-2" /> Collapse
+              </Button>
+              {!shouldDisableRemove && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveComponent(component.id);
+                  }}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <Trash2 size={16} className="mr-2" /> Remove
+                </Button>
+              )}
+            </>
+          ) : (
+            <>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleExpand();
+                }}
+              >
+                <Settings size={16} className="mr-2" /> Edit
+              </Button>
+              {!shouldDisableRemove && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveComponent(component.id);
+                  }}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <X size={16} />
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>
-      
+
       {isExpanded && (
-        <div className="p-4 space-y-4">
-          {/* Property Editors */}
-          <div className="space-y-3">
-            {getPropertyDefinitions().map((property) => 
-              renderPropertyEditor(property)
-            )}
-          </div>
+        <div className="space-y-4 mt-4" onClick={(e) => e.stopPropagation()}>
+          {/* API Integration section moved to the top */}
+          {renderApiSection()}
           
-          {/* API Integration Section */}
-          {shouldShowDataIntegration() && (
-            <div className="mt-4">
-              <h3 className="text-sm font-medium mb-2">Integration</h3>
-              {renderApiSection()}
-            </div>
-          )}
+          <Accordion type="single" collapsible defaultValue="properties">
+            <AccordionItem value="properties">
+              <AccordionTrigger className="text-sm font-medium">Component Properties</AccordionTrigger>
+              <AccordionContent>
+                <div className="pt-2 space-y-3">
+                  {getPropertyDefinitions().map(prop => 
+                    renderPropertyEditor(prop)
+                  )}
+                </div>
+                
+                {onApplyTooltip && (
+                  <div className="pt-4 mt-4 border-t border-gray-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <HelpCircle size={16} />
+                      <span className="font-medium">Tooltip</span>
+                    </div>
+                    <div className="mb-4">
+                      <Label htmlFor="tooltip-select">Select Tooltip</Label>
+                      <Select
+                        value={isTooltipValid ? (component.tooltipId || "none") : "none"}
+                        onValueChange={(val) => onApplyTooltip(val === "none" ? "" : val)}
+                      >
+                        <SelectTrigger id="tooltip-select" className="w-full">
+                          <SelectValue placeholder="Select tooltip type">
+                            {component.tooltipId && isTooltipValid ? (
+                              <div className="flex items-center gap-2">
+                                {getTooltipIcon(component.tooltipId)}
+                                <span>
+                                  {tooltipOptions.find(o => o.id === component.tooltipId)?.label || component.tooltipId}
+                                </span>
+                              </div>
+                            ) : (
+                              "No Tooltip"
+                            )}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {tooltipOptions.map((option) => (
+                            <SelectItem key={option.id} value={option.id}>
+                              {option.id !== "none" ? (
+                                <div className="flex items-center gap-2">
+                                  {getTooltipIcon(option.id)}
+                                  <span>{option.label}</span>
+                                </div>
+                              ) : (
+                                option.label
+                              )}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      {selectedTooltip && (
+                        <div className="mt-2">
+                          <p className="text-xs text-gray-500 mt-1 mb-2">
+                            {selectedTooltip.content}
+                          </p>
+                          {selectedTooltip.tags && selectedTooltip.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {selectedTooltip.tags.map(tag => (
+                                <Badge key={tag} variant="secondary" className="text-xs">
+                                  <Tag size={10} className="mr-1" /> {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       )}
     </div>
