@@ -684,23 +684,21 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
             <div className="grid gap-4">
               {filteredAndSortedApis.map((api) => (
                 <Card key={api.id} className="overflow-hidden">
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-lg">{api.name}</CardTitle>
-                        <Badge 
-                          variant="outline" 
-                          className={`
-                            ${api.method === 'GET' ? 'border-green-500 bg-green-50 text-green-700' : ''}
-                            ${api.method === 'POST' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}
-                            ${api.method === 'PUT' ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : ''}
-                            ${api.method === 'DELETE' ? 'border-red-500 bg-red-50 text-red-700' : ''}
-                          `}
-                        >
-                          {api.method}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-1">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">{api.name}</CardTitle>
+                    <div className="flex justify-between items-center mt-2">
+                      <Badge 
+                        variant="outline" 
+                        className={`
+                          ${api.method === 'GET' ? 'border-green-500 bg-green-50 text-green-700' : ''}
+                          ${api.method === 'POST' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}
+                          ${api.method === 'PUT' ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : ''}
+                          ${api.method === 'DELETE' ? 'border-red-500 bg-red-50 text-red-700' : ''}
+                        `}
+                      >
+                        {api.method}
+                      </Badge>
+                      <div className="flex items-center gap-3">
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -757,25 +755,8 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="pt-0">
+                  <CardContent className="pt-2">
                     <div className="space-y-4 text-sm">
-                      <div className="flex items-start">
-                        <span className="font-semibold w-24 pt-1">Endpoint:</span>
-                        <div className="flex items-center">
-                          <span className="font-mono text-xs max-w-[400px] break-all" title={api.endpoint}>
-                            {api.endpoint}
-                          </span>
-                          <a 
-                            href={api.endpoint} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="ml-1 text-blue-600 hover:text-blue-800"
-                          >
-                            <ExternalLink size={12} />
-                          </a>
-                        </div>
-                      </div>
-                      
                       <div className="flex items-center">
                         <span className="font-semibold w-24">Headers:</span>
                         {api.headers && Object.keys(api.headers).length > 0 ? (
@@ -814,6 +795,23 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                         ) : (
                           <span className="text-xs text-gray-500">None</span>
                         )}
+                      </div>
+                      
+                      <div className="flex items-start">
+                        <span className="font-semibold w-24 pt-1">Endpoint:</span>
+                        <div className="flex items-center">
+                          <span className="font-mono text-xs max-w-[400px] break-all" title={api.endpoint}>
+                            {api.endpoint}
+                          </span>
+                          <a 
+                            href={api.endpoint} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="ml-1 text-blue-600 hover:text-blue-800"
+                          >
+                            <ExternalLink size={12} />
+                          </a>
+                        </div>
                       </div>
                       
                       <div className="flex items-center">
