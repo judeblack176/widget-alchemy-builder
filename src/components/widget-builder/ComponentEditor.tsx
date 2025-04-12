@@ -614,34 +614,73 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   };
 
   return (
-    <div className={`p-4 ${isExpanded ? 'border-t border-gray-200' : ''}`}>
+    <div 
+      className={`relative p-4 ${isExpanded ? 'border-t border-gray-200' : 'cursor-pointer'}`}
+      onClick={!isExpanded ? onToggleExpand : undefined}
+    >
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-lg font-medium">
           {componentTypeLabels[component.type] || component.type}
         </h3>
         <div className="flex space-x-1">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={onToggleExpand}
-          >
-            {isExpanded ? 'Collapse' : 'Edit'}
-          </Button>
-          {!shouldDisableRemove && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => onRemoveComponent(component.id)}
-              className="text-red-500 hover:text-red-700"
-            >
-              Remove
-            </Button>
+          {isExpanded ? (
+            <>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleExpand();
+                }}
+              >
+                <ChevronUp size={16} className="mr-2" /> Collapse
+              </Button>
+              {!shouldDisableRemove && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveComponent(component.id);
+                  }}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <Trash2 size={16} className="mr-2" /> Remove
+                </Button>
+              )}
+            </>
+          ) : (
+            <>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleExpand();
+                }}
+              >
+                <Settings size={16} className="mr-2" /> Edit
+              </Button>
+              {!shouldDisableRemove && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveComponent(component.id);
+                  }}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <X size={16} />
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>
 
       {isExpanded && (
-        <div className="space-y-4 mt-4">
+        <div className="space-y-4 mt-4" onClick={(e) => e.stopPropagation()}>
           {/* API Integration section moved to the top */}
           {renderApiSection()}
           
