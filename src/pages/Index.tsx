@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
@@ -413,7 +414,7 @@ const Index = () => {
 
   const handleDragEnd = (result: any) => {
     // Skip processing if there's no destination
-    if (!result.destination) return;
+    if (!result || !result.destination) return;
     
     try {
       // Handle component library to widget builder drag and drop

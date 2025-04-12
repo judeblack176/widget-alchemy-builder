@@ -69,7 +69,7 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {availableFields.map((field) => (
-                  <SelectItem key={field} value={field || "dummy-value"}>
+                  <SelectItem key={field} value={field}>
                     {field}
                   </SelectItem>
                 ))}
@@ -88,7 +88,7 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {componentProperties.map((prop) => (
-                  <SelectItem key={prop} value={prop || "dummy-value"}>
+                  <SelectItem key={prop} value={prop}>
                     {prop}
                   </SelectItem>
                 ))}

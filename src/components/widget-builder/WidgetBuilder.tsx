@@ -46,6 +46,11 @@ const ComponentEditorContainer: React.FC<ComponentEditorContainerProps> = ({
   disableRemove = false,
   customTooltips = []
 }) => {
+  if (!component) {
+    console.error("Attempted to render component editor with undefined component");
+    return null;
+  }
+
   // Render simplified view when not expanded
   if (!isExpanded) {
     return (
@@ -55,7 +60,7 @@ const ComponentEditorContainer: React.FC<ComponentEditorContainerProps> = ({
       >
         <div>
           <h3 className="font-medium">{component.type.charAt(0).toUpperCase() + component.type.slice(1)}</h3>
-          {component.props.title && <p className="text-sm text-gray-500">{component.props.title}</p>}
+          {component.props?.title && <p className="text-sm text-gray-500">{component.props.title}</p>}
         </div>
       </div>
     );
@@ -88,6 +93,12 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [dragEnabled, setDragEnabled] = useState(true);
+  
+  useEffect(() => {
+    // Disable drag when a component is expanded
+    setDragEnabled(expandedComponentId === null);
+  }, [expandedComponentId]);
   
   useEffect(() => {
     if (tooltips && onApplyTooltip) {
@@ -104,20 +115,20 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     }
   }, [tooltips, components, onApplyTooltip]);
   
-  const alertComponents = components.filter(c => c.type === 'alert');
+  const alertComponents = components.filter(c => c && c.type === 'alert');
   const hasAlertComponent = alertComponents.length > 0;
   
-  const nonHeaderNonAlertComponents = components.filter(c => c.type !== 'header' && c.type !== 'alert');
+  const nonHeaderNonAlertComponents = components.filter(c => c && c.type !== 'header' && c.type !== 'alert');
   const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
   const atComponentLimit = nonHeaderNonAlertComponents.length >= MAX_COMPONENTS;
 
-  const headerComponent = components.find(c => c.type === 'header');
+  const headerComponent = components.find(c => c && c.type === 'header');
 
   const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
-    if (result.destination.index === result.source.index) return;
-
     try {
+      if (!result.destination) return;
+      if (result.destination.index === result.source.index) return;
+
       const items = Array.from(nonHeaderNonAlertComponents);
       const [reorderedItem] = items.splice(result.source.index, 1);
       items.splice(result.destination.index, 0, reorderedItem);
@@ -145,6 +156,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   };
 
   const filteredComponents = components.filter(component => {
+    if (!component) return false;
     if (!searchQuery.trim()) return true;
     
     if (component.type.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -167,7 +179,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     ? headerComponent 
     : null;
   const filteredAlertComponents = alertComponents.filter(alert => filteredComponents.includes(alert));
-  const filteredRegularComponents = filteredComponents.filter(c => c.type !== 'header' && c.type !== 'alert');
+  const filteredRegularComponents = filteredComponents.filter(c => c && c.type !== 'header' && c.type !== 'alert');
 
   return (
     <div className="flex flex-col h-full">
@@ -267,7 +279,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                         key={component.id} 
                         draggableId={component.id} 
                         index={index}
-                        isDragDisabled={expandedComponentId !== null}
+                        isDragDisabled={!dragEnabled || expandedComponentId !== null}
                       >
                         {(provided, snapshot) => (
                           <div
