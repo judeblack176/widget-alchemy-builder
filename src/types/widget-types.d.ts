@@ -33,6 +33,13 @@ export interface ApiConfig {
   rawBody?: string;
   sampleResponse?: string;
   possibleFields?: string[];
+  parameters?: Record<string, string>;
+}
+
+export interface ContentDetails {
+  size?: string;
+  color?: string;
+  variant?: string;
 }
 
 export interface WidgetSubmission {
@@ -58,12 +65,6 @@ export interface Tag {
   id: string;
   name: string;
   color: string;
-}
-
-export interface ContentDetails {
-  size?: string;
-  color?: string;
-  variant?: string;
 }
 
 declare module "@/components/widget-builder/WidgetBuilder" {

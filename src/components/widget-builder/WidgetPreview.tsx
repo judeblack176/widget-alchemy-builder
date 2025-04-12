@@ -8,7 +8,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 
@@ -20,7 +19,6 @@ interface WidgetPreviewProps {
 const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   const [apiData, setApiData] = useState<Record<string, any>>({});
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
-  const [selectedComponents, setSelectedComponents] = useState<WidgetComponent[]>([]);
   const [contentDetails, setContentDetails] = useState<ContentDetails>({
     size: 'medium',
     color: '#3B82F6',
@@ -78,42 +76,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     });
     
     return processedData;
-  };
-
-  const handleComponentSelect = (component: WidgetComponent) => {
-    const isSelected = selectedComponents.some(c => c.id === component.id);
-    
-    if (isSelected) {
-      setSelectedComponents(selectedComponents.filter(c => c.id !== component.id));
-    } else {
-      setSelectedComponents([...selectedComponents, component]);
-    }
-  };
-
-  const handleSizeChange = (value: string) => {
-    setContentDetails(prev => ({ ...prev, size: value }));
-    
-    // Apply size to selected components
-    applyDetailsToSelectedComponents({ size: value });
-  };
-
-  const handleColorChange = (value: string) => {
-    setContentDetails(prev => ({ ...prev, color: value }));
-    
-    // Apply color to selected components
-    applyDetailsToSelectedComponents({ color: value });
-  };
-
-  const applyDetailsToSelectedComponents = (details: Partial<ContentDetails>) => {
-    // This function would implement the actual application of size/color
-    // to the selected components. It's a placeholder for now.
-    console.log('Applying details to selected components:', details);
-    console.log('Selected components:', selectedComponents);
-    
-    toast({
-      title: "Details Applied",
-      description: `Applied ${Object.keys(details).join(', ')} to ${selectedComponents.length} selected components.`,
-    });
   };
 
   useEffect(() => {
@@ -217,8 +179,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     
     const componentData = processComponentData(component);
     
-    const isSelected = selectedComponents.some(c => c.id === component.id);
-    
     const componentContent = (
       <div className="relative">
         {renderComponent(
@@ -226,13 +186,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
           componentData, 
           component.type === 'alert' ? handleAlertDismiss : undefined
         )}
-        <div className="absolute top-2 left-2 z-20">
-          <Checkbox 
-            checked={isSelected} 
-            onCheckedChange={() => handleComponentSelect(component)}
-            className="bg-white border-gray-300"
-          />
-        </div>
       </div>
     );
     
@@ -240,7 +193,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       return (
         <div 
           key={component.id} 
-          className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''} ${isSelected ? 'bg-blue-50' : ''}`}
+          className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}
           style={{
             borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
           }}
@@ -265,7 +218,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     return (
       <div 
         key={component.id} 
-        className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''} ${isSelected ? 'bg-blue-50' : ''}`}
+        className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}
         style={{
           borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
         }}
@@ -288,46 +241,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       {headerComponent && (
         <div className="sticky top-0 z-20">
           {renderComponentWithTooltip(headerComponent, 0)}
-        </div>
-      )}
-      
-      {selectedComponents.length > 0 && (
-        <div className="sticky top-0 z-10 bg-gray-100 p-2 border-b flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="flex items-center gap-1">
-              <Check size={12} /> {selectedComponents.length} selected
-            </Badge>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1">
-              <Ruler size={14} className="text-gray-500" />
-              <Select value={contentDetails.size} onValueChange={handleSizeChange}>
-                <SelectTrigger className="h-7 w-20">
-                  <SelectValue placeholder="Size" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="small">Small</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="large">Large</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Palette size={14} className="text-gray-500" />
-              <Select value={contentDetails.color} onValueChange={handleColorChange}>
-                <SelectTrigger className="h-7 w-24">
-                  <SelectValue placeholder="Color" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="#3B82F6">Blue</SelectItem>
-                  <SelectItem value="#EF4444">Red</SelectItem>
-                  <SelectItem value="#10B981">Green</SelectItem>
-                  <SelectItem value="#F59E0B">Orange</SelectItem>
-                  <SelectItem value="#8B5CF6">Purple</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
         </div>
       )}
       
