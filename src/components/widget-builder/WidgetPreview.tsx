@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
@@ -30,15 +31,27 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   });
   const { toast } = useToast();
   
-  const headerComponent = components.find(c => c.type === 'header');
+  if (!components || !Array.isArray(components)) {
+    return (
+      <Card className="bg-white shadow-md rounded-lg overflow-hidden relative mx-auto"
+        style={{ width: '316px', height: '384px' }}>
+        <div className="p-4 text-center">
+          <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+          <p>No valid components to display</p>
+        </div>
+      </Card>
+    );
+  }
   
-  const alertComponents = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
+  const headerComponent = components.find(c => c && c.type === 'header');
+  
+  const alertComponents = components.filter(c => c && c.type === 'alert' && !dismissedAlerts.includes(c.id));
   const hasAlertComponent = alertComponents.length > 0;
   const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
   
-  const nonHeaderNonAlertComponents = components.filter(c => c.type !== 'header' && c.type !== 'alert');
+  const nonHeaderNonAlertComponents = components.filter(c => c && c.type !== 'header' && c.type !== 'alert');
   
-  const displayableAlerts = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
+  const displayableAlerts = components.filter(c => c && c.type === 'alert' && !dismissedAlerts.includes(c.id));
   
   const regularComponentsToDisplay = nonHeaderNonAlertComponents.slice(0, MAX_COMPONENTS);
   
@@ -59,6 +72,14 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     if (!apiResult) return undefined;
     
     const processedData = { ...apiResult };
+    
+    if (component.apiFieldMappings && component.apiFieldMappings.length > 0) {
+      component.apiFieldMappings.forEach(mapping => {
+        if (mapping && mapping.field && mapping.targetProperty) {
+          processedData[mapping.targetProperty] = apiResult[mapping.field];
+        }
+      });
+    }
     
     if (component.apiConfig.multiMapping) {
       Object.entries(component.apiConfig.multiMapping).forEach(([propKey, fields]) => {
@@ -186,34 +207,65 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   };
 
   const renderComponentWithTooltip = (component: WidgetComponent, index: number) => {
+    if (!component) {
+      console.error("Attempted to render undefined component");
+      return null;
+    }
+    
     if (component.type === 'alert' && dismissedAlerts.includes(component.id)) {
       return null;
     }
     
-    const componentData = processComponentData(component);
-    
-    let componentToRender = component;
-    if (component.formattedContent && componentData?.formattedContent) {
-      componentToRender = {
-        ...component,
-        props: {
-          ...component.props,
-          content: componentData.formattedContent || component.formattedContent
-        }
-      };
-    }
-    
-    const componentContent = (
-      <div className="relative">
-        {renderComponent(
-          componentToRender, 
-          componentData, 
-          component.type === 'alert' ? handleAlertDismiss : undefined
-        )}
-      </div>
-    );
-    
-    if (component.tooltipId && component.tooltipId !== "") {
+    try {
+      const componentData = processComponentData(component);
+      
+      let componentToRender = component;
+      if (component.formattedContent && componentData?.formattedContent) {
+        componentToRender = {
+          ...component,
+          props: {
+            ...component.props,
+            content: componentData.formattedContent || component.formattedContent
+          }
+        };
+      }
+      
+      const componentContent = (
+        <div className="relative">
+          {renderComponent(
+            componentToRender, 
+            componentData, 
+            component.type === 'alert' ? handleAlertDismiss : undefined
+          )}
+        </div>
+      );
+      
+      if (component.tooltipId && component.tooltipId !== "") {
+        return (
+          <div 
+            key={component.id} 
+            className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}
+            style={{
+              borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
+            }}
+          >
+            <HoverCard openDelay={200} closeDelay={100}>
+              <HoverCardTrigger asChild>
+                <div className="relative cursor-help">
+                  {componentContent}
+                  <div className="absolute right-0 top-0 z-10">
+                    <HelpCircle size={16} className="text-gray-500" />
+                  </div>
+                </div>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80 p-3">
+                {getTooltipContent(component.tooltipId)}
+              </HoverCardContent>
+            </HoverCard>
+          </div>
+        );
+      }
+      
       return (
         <div 
           key={component.id} 
@@ -222,34 +274,17 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
             borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
           }}
         >
-          <HoverCard openDelay={200} closeDelay={100}>
-            <HoverCardTrigger asChild>
-              <div className="relative cursor-help">
-                {componentContent}
-                <div className="absolute right-0 top-0 z-10">
-                  <HelpCircle size={16} className="text-gray-500" />
-                </div>
-              </div>
-            </HoverCardTrigger>
-            <HoverCardContent className="w-80 p-3">
-              {getTooltipContent(component.tooltipId)}
-            </HoverCardContent>
-          </HoverCard>
+          {componentContent}
+        </div>
+      );
+    } catch (error) {
+      console.error("Error rendering component:", error, component);
+      return (
+        <div key={`error-${index}`} className="p-4 border border-red-300 rounded m-2 bg-red-50">
+          <p className="text-red-500 text-sm">Error rendering component</p>
         </div>
       );
     }
-    
-    return (
-      <div 
-        key={component.id} 
-        className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}
-        style={{
-          borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
-        }}
-      >
-        {componentContent}
-      </div>
-    );
   };
 
   return (
@@ -271,7 +306,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       <ScrollArea className="h-full w-full">
         <div className={headerComponent ? "pt-2" : ""}>
           {displayComponents
-            .filter(component => component.id !== headerComponent?.id)
+            .filter(component => component && component.id !== headerComponent?.id)
             .map((component, index) => 
               renderComponentWithTooltip(component, index + (headerComponent ? 1 : 0))
             )}
