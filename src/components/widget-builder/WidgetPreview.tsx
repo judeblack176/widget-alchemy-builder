@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
@@ -22,6 +21,7 @@ interface WidgetPreviewProps {
 }
 
 const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
+  
   const [apiData, setApiData] = useState<Record<string, any>>({});
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
   const [contentDetails, setContentDetails] = useState<ContentDetails>({
@@ -48,7 +48,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     }
     
     if (component.type === 'header') {
-      return false;
+      return true;
     }
     
     return regularComponentsToDisplay.includes(component);
@@ -249,7 +249,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         </div>
       )}
       
-      <ScrollArea className="h-full w-full overflow-x-hidden">
+      <ScrollArea className="h-full w-full">
         <div className={headerComponent ? "pt-2" : ""}>
           {displayComponents.map((component, index) => 
             renderComponentWithTooltip(component, index + (headerComponent ? 1 : 0))

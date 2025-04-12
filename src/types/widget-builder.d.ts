@@ -1,36 +1,18 @@
 
 import { WidgetComponent, ApiConfig } from "./widget-types";
-import { Tooltip as TooltipType } from "@/components/widget-builder/TooltipManager";
+import { Tooltip } from "@/components/widget-builder/TooltipManager";
 
 declare module "@/components/widget-builder/WidgetBuilder" {
   export interface WidgetBuilderProps {
-    initialComponents?: WidgetComponent[];
-    initialApis?: ApiConfig[]; 
-  }
-}
-
-declare module "@/components/widget-builder/ComponentLibrary" {
-  export interface ComponentLibraryProps {
-    onAddComponent: (component: ComponentType) => void;
-    onAddMultipleComponents: (components: ComponentType[]) => void;
-    existingComponents?: WidgetComponent[];
-  }
-}
-
-declare module "@/components/widget-builder/ApiManager" {
-  export interface ApiManagerProps {
+    components: WidgetComponent[];
     apis: ApiConfig[];
-    onAddApi: (api: ApiConfig) => void;
-    onUpdateApi: (id: string, api: ApiConfig) => void;
-    onRemoveApi: (id: string) => void;
+    onUpdateComponent: (updatedComponent: WidgetComponent) => void;
+    onRemoveComponent: (componentId: string) => void;
+    onReorderComponents: (reorderedComponents: WidgetComponent[]) => void;
+    onRequestApiTemplate: (componentId: string) => void;
+    onApplyTooltip?: (componentId: string, tooltipId: string) => void;
+    tooltips?: Tooltip[];
   }
 }
 
-declare module "@/components/widget-builder/TooltipManager" {
-  export interface TooltipManagerProps {
-    tooltips: TooltipType[];
-    onAddTooltip: (tooltip: TooltipType) => void;
-    onUpdateTooltip: (id: string, tooltip: TooltipType) => void;
-    onRemoveTooltip: (id: string) => void;
-  }
-}
+export type ComponentType = string;
