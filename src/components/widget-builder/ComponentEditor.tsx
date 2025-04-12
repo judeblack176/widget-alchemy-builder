@@ -50,9 +50,7 @@ import {
   Code,
   Database,
   Plus,
-  Trash2,
-  Edit,
-  Save
+  Trash2
 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -105,6 +103,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 }) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [selectedFields, setSelectedFields] = useState<Record<string, string[]>>({});
+  const [newFieldLabel, setNewFieldLabel] = useState<string>("");
+  const [newFieldApiField, setNewFieldApiField] = useState<string>("");
 
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
@@ -168,6 +168,50 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const isFieldSelected = (propKey: string, apiField: string) => {
     return component.apiConfig?.multiMapping?.[propKey]?.includes(apiField) || false;
+  };
+
+  const addContentField = () => {
+    if (!newFieldLabel.trim() || !newFieldApiField.trim()) return;
+
+    const newContentFields = [
+      ...(component.contentFields || []),
+      {
+        label: newFieldLabel,
+        apiField: newFieldApiField
+      }
+    ];
+
+    // Update the component with the new content field
+    const updatedComponent = {
+      ...component,
+      contentFields: newContentFields
+    };
+
+    onUpdateComponent(updatedComponent);
+
+    // Reset the inputs
+    setNewFieldLabel("");
+    setNewFieldApiField("");
+  };
+
+  const removeContentField = (index: number) => {
+    const currentFields = [...(component.contentFields || [])];
+    currentFields.splice(index, 1);
+
+    const updatedComponent = {
+      ...component,
+      contentFields: currentFields
+    };
+
+    onUpdateComponent(updatedComponent);
+  };
+
+  const handleFormattedContentChange = (value: string) => {
+    const updatedComponent = {
+      ...component,
+      formattedContent: value
+    };
+    onUpdateComponent(updatedComponent);
   };
 
   const componentTypeLabels: Record<string, string> = {
@@ -413,6 +457,41 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           />
         );
       case "text":
+        // For content property, show the formatted content with API fields
+        if (property.name === "content" && (component.contentFields?.length || component.formattedContent)) {
+          return (
+            <div key={property.name} className="mb-4">
+              <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
+              <div className="mt-2 border rounded-md p-3 bg-gray-50 min-h-[100px]">
+                <textarea
+                  className="w-full h-32 border rounded p-2 text-sm"
+                  value={component.formattedContent || ""}
+                  onChange={(e) => handleFormattedContentChange(e.target.value)}
+                  placeholder="Enter formatted content or use API fields..."
+                />
+                
+                {component.contentFields && component.contentFields.length > 0 && (
+                  <div className="mt-3">
+                    <Label className="text-xs font-medium mb-1 block">Available API Fields</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {component.contentFields.map((field, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs cursor-pointer hover:bg-gray-200"
+                          onClick={() => {
+                            const placeholder = `{{${field.label}}}`;
+                            const currentContent = component.formattedContent || "";
+                            handleFormattedContentChange(currentContent + placeholder);
+                          }}>
+                          {field.label} <span className="text-gray-500 ml-1">({field.apiField})</span>
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        }
+        
         return (
           <div key={property.name} className="mb-4">
             <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
@@ -486,8 +565,31 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const selectedApi = component.apiConfig ? apis.find(api => api.id === component.apiConfig?.apiId) : undefined;
 
+  const getAvailableApiFields = () => {
+    if (!selectedApi) return [];
+    
+    // Use possibleFields if available, otherwise extract from sampleResponse
+    if (selectedApi.possibleFields && selectedApi.possibleFields.length > 0) {
+      return selectedApi.possibleFields;
+    }
+    
+    // Try to parse sampleResponse if available
+    if (selectedApi.sampleResponse) {
+      try {
+        const sampleData = JSON.parse(selectedApi.sampleResponse);
+        // Get all top-level keys
+        return Object.keys(sampleData);
+      } catch (e) {
+        return [];
+      }
+    }
+    
+    return [];
+  };
+
   const renderApiDetails = () => {
     if (!selectedApi) return null;
+    const availableApiFields = getAvailableApiFields();
 
     return (
       <div className="space-y-4 mt-4 border rounded-md p-3 bg-gray-50">
@@ -544,8 +646,74 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         )}
 
-        {/* Removed Single Data Mapping section */}
-        {/* Removed Multiple Data Mapping section */}
+        {/* Content Field Mapping */}
+        <div className="mt-3 border-t pt-3">
+          <h5 className="text-sm font-medium mb-2">Add Content Fields</h5>
+          <div className="flex items-end gap-2 mb-3">
+            <div className="flex-1">
+              <Label htmlFor="field-label" className="text-xs">Field Label</Label>
+              <Input 
+                id="field-label" 
+                size="sm"
+                value={newFieldLabel} 
+                onChange={(e) => setNewFieldLabel(e.target.value)}
+                placeholder="Enter field label"
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="flex-1">
+              <Label htmlFor="api-field" className="text-xs">API Field</Label>
+              <Select value={newFieldApiField} onValueChange={setNewFieldApiField}>
+                <SelectTrigger id="api-field" className="h-8 text-sm">
+                  <SelectValue placeholder="Select API field" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableApiFields.map((field) => (
+                    <SelectItem key={field} value={field}>
+                      {field}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={addContentField}
+              disabled={!newFieldLabel || !newFieldApiField}
+              className="h-8 px-2"
+            >
+              <Plus size={14} />
+            </Button>
+          </div>
+
+          {/* List of mapped content fields */}
+          {component.contentFields && component.contentFields.length > 0 && (
+            <div className="mt-2 space-y-2">
+              <h6 className="text-xs font-medium">Mapped Fields:</h6>
+              <div className="space-y-1">
+                {component.contentFields.map((field, idx) => (
+                  <div key={idx} className="flex justify-between items-center py-1 px-2 bg-white rounded border text-sm">
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium">{field.label}:</span>
+                      <Badge variant="outline" className="text-xs">
+                        {field.apiField}
+                      </Badge>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => removeContentField(idx)}
+                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -617,73 +785,34 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   };
 
   return (
-    <div 
-      className={`relative p-4 ${isExpanded ? 'border-t border-gray-200' : 'cursor-pointer'}`}
-      onClick={!isExpanded ? onToggleExpand : undefined}
-    >
+    <div className={`p-4 ${isExpanded ? 'border-t border-gray-200' : ''}`}>
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-lg font-medium flex items-center">
+        <h3 className="text-lg font-medium">
           {componentTypeLabels[component.type] || component.type}
         </h3>
         <div className="flex space-x-1">
-          {isExpanded ? (
-            <>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleExpand();
-                }}
-              >
-                <Save size={16} className="mr-2" /> Done
-              </Button>
-              {!shouldDisableRemove && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemoveComponent(component.id);
-                  }}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <Trash2 size={16} className="mr-2" /> Remove
-                </Button>
-              )}
-            </>
-          ) : (
-            <>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleExpand();
-                }}
-              >
-                <Edit size={16} className="mr-2" /> Edit
-              </Button>
-              {!shouldDisableRemove && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemoveComponent(component.id);
-                  }}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <X size={16} />
-                </Button>
-              )}
-            </>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onToggleExpand}
+          >
+            {isExpanded ? 'Collapse' : 'Edit'}
+          </Button>
+          {!shouldDisableRemove && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => onRemoveComponent(component.id)}
+              className="text-red-500 hover:text-red-700"
+            >
+              Remove
+            </Button>
           )}
         </div>
       </div>
 
       {isExpanded && (
-        <div className="space-y-4 mt-4" onClick={(e) => e.stopPropagation()}>
+        <div className="space-y-4 mt-4">
           {/* API Integration section moved to the top */}
           {renderApiSection()}
           
@@ -768,4 +897,3 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 };
 
 export default ComponentEditor;
-
