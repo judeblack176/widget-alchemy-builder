@@ -15,6 +15,7 @@ interface WidgetSubmissionFormProps {
   onSubmitSuccess: () => void;
   widgetId?: string | null;
   isEditing?: boolean;
+  onCancelEditing?: () => void;
 }
 
 const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
@@ -22,7 +23,8 @@ const WidgetSubmissionForm: React.FC<WidgetSubmissionFormProps> = ({
   apis,
   onSubmitSuccess,
   widgetId,
-  isEditing
+  isEditing,
+  onCancelEditing
 }) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);

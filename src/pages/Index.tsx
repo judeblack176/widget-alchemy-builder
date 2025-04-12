@@ -411,6 +411,7 @@ const Index = () => {
                 onSubmitSuccess={handleSubmitSuccess}
                 widgetId={widgetId}
                 isEditing={isEditing}
+                onCancelEditing={handleCancelEditing}
               />
             </div>
           </div>
