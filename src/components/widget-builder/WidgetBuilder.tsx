@@ -4,11 +4,12 @@ import ComponentEditor from './ComponentEditor';
 import { Card } from '@/components/ui/card';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, ArrowDownAZ, ArrowUpAZ } from 'lucide-react';
+import { AlertCircle, ArrowDownAZ, ArrowUpAZ, SortAsc, SortDesc } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip } from './TooltipManager';
 import SearchBar from './SearchBar';
 import { Button } from '@/components/ui/button';
+import { TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -159,21 +160,29 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
             onSearch={handleSearch}
             className="flex-grow"
           />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleSort}
-            className={`h-8 w-8 p-0 flex items-center justify-center ${sortDirection ? 'bg-blue-50' : ''}`}
-            title={sortDirection === 'asc' ? 'Sort Z-A' : sortDirection === 'desc' ? 'Clear sorting' : 'Sort A-Z'}
-          >
-            {sortDirection === 'asc' ? (
-              <ArrowDownAZ className="h-4 w-4" />
-            ) : sortDirection === 'desc' ? (
-              <ArrowUpAZ className="h-4 w-4" />
-            ) : (
-              <ArrowDownAZ className="h-4 w-4 text-gray-400" />
-            )}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleSort}
+                  className={`h-8 w-8 p-0 flex items-center justify-center ${sortDirection ? 'bg-blue-50' : ''}`}
+                >
+                  {sortDirection === 'asc' ? (
+                    <SortAsc size={16} />
+                  ) : sortDirection === 'desc' ? (
+                    <SortDesc size={16} />
+                  ) : (
+                    <SortAsc size={16} className="text-gray-400" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{sortDirection === 'asc' ? 'Sort Z-A' : sortDirection === 'desc' ? 'Clear sorting' : 'Sort A-Z'}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         
         {/* Fixed header component section */}

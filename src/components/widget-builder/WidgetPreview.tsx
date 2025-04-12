@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
@@ -31,7 +30,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   });
   const { toast } = useToast();
   
-  // Get only the first header component to prevent duplicates
   const headerComponent = components.find(c => c.type === 'header');
   
   const alertComponents = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
@@ -44,7 +42,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   
   const regularComponentsToDisplay = nonHeaderNonAlertComponents.slice(0, MAX_COMPONENTS);
   
-  // Make sure we only have one header in the display components
   const displayComponents = [
     ...(headerComponent ? [headerComponent] : []),
     ...displayableAlerts,
@@ -195,7 +192,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       return (
         <div 
           key={component.id} 
-          className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}
+          className={`widget-component relative ${component.type !== 'header' ? 'px-3 pt-3 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-3' : ''}`}
           style={{
             borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
           }}
@@ -220,7 +217,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     return (
       <div 
         key={component.id} 
-        className={`widget-component relative ${component.type !== 'header' ? 'px-4 pt-4 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-4' : ''}`}
+        className={`widget-component relative ${component.type !== 'header' ? 'px-3 pt-3 border-t border-gray-200' : ''} ${index !== 0 && component.type === 'header' ? 'mt-3' : ''}`}
         style={{
           borderTop: component.type !== 'header' && index !== 0 ? '1px solid #E5E7EB' : 'none',
         }}
@@ -232,7 +229,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
 
   return (
     <Card 
-      className="bg-white shadow-md rounded-lg overflow-hidden relative mx-auto"
+      className="bg-white shadow-md rounded overflow-hidden relative mx-auto"
       style={{ 
         width: '316px', 
         height: '384px',
@@ -255,7 +252,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
             )}
           
           {hasExcessComponents && (
-            <Alert variant="destructive" className="mt-2 mx-4 mb-4 py-2">
+            <Alert variant="destructive" className="mt-2 mx-3 mb-3 py-2">
               <AlertCircle className="h-4 w-4 mr-2" />
               <AlertDescription>
                 Only showing {MAX_COMPONENTS} of {nonHeaderNonAlertComponents.length} components. 
