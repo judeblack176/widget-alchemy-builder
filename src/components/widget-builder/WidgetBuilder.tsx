@@ -138,7 +138,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         {/* Fixed header component section */}
         {filteredHeaderComponent && (
           <Card 
-            className="bg-white border border-blue-500 shadow-sm mb-4 cursor-pointer"
+            className="bg-white border border-blue-500 shadow-sm mb-4 hover:shadow-md transition-shadow cursor-pointer"
             onClick={() => toggleExpand(filteredHeaderComponent.id)}
           >
             <ComponentEditor
@@ -164,7 +164,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
             {filteredAlertComponents.map((alertComponent) => (
               <Card 
                 key={alertComponent.id} 
-                className="bg-white border border-amber-500 shadow-sm cursor-pointer"
+                className="bg-white border border-amber-500 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => toggleExpand(alertComponent.id)}
               >
                 <ComponentEditor
@@ -221,7 +221,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                               className="relative"
                             >
                               <Card 
-                                className="bg-white border shadow-sm cursor-pointer"
+                                className="bg-white border shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                                 onClick={() => toggleExpand(component.id)}
                               >
                                 <ComponentEditor
