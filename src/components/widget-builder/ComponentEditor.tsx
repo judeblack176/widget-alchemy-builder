@@ -454,20 +454,29 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           />
         );
       case "text":
-        if (property.name === "content" && (component.contentFields?.length || component.formattedContent)) {
+        if (property.name === "content" && (component.contentFields?.length || component.formattedContent !== undefined)) {
           return (
             <div key={property.name} className="mb-4">
               <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
-              <div className="mt-2 border rounded-md p-3 bg-gray-50 min-h-[100px]">
-                <textarea
-                  className="w-full h-32 border rounded p-2 text-sm"
-                  value={component.formattedContent || ""}
-                  onChange={(e) => handleFormattedContentChange(e.target.value)}
-                  placeholder="Enter formatted content or use API fields..."
-                />
+              <div className="mt-2 border rounded-md p-3 bg-gray-50">
+                <div className="mb-2">
+                  <textarea
+                    id={`prop-${property.name}`}
+                    className="w-full h-32 border rounded p-2 text-sm font-mono resize-none"
+                    value={component.formattedContent || ""}
+                    onChange={(e) => handleFormattedContentChange(e.target.value)}
+                    placeholder="Enter formatted content or use API fields..."
+                  />
+                </div>
+                
+                <div className="mt-1 mb-2">
+                  <p className="text-xs text-gray-500">
+                    Use <code className="bg-gray-200 px-1 rounded">{"{{Field Name}}"}</code> to insert dynamic content
+                  </p>
+                </div>
                 
                 {component.contentFields && component.contentFields.length > 0 && (
-                  <div className="mt-3">
+                  <div className="mt-2">
                     <Label className="text-xs font-medium mb-1 block">Available API Fields</Label>
                     <div className="flex flex-wrap gap-2">
                       {component.contentFields.map((field, idx) => (

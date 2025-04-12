@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
@@ -31,7 +30,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   });
   const { toast } = useToast();
   
-  // Get only the first header component to prevent duplicates
   const headerComponent = components.find(c => c.type === 'header');
   
   const alertComponents = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
@@ -44,7 +42,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   
   const regularComponentsToDisplay = nonHeaderNonAlertComponents.slice(0, MAX_COMPONENTS);
   
-  // Make sure we only have one header in the display components
   const displayComponents = [
     ...(headerComponent ? [headerComponent] : []),
     ...displayableAlerts,
@@ -59,23 +56,37 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     const apiId = component.apiConfig.apiId;
     const apiResult = apiData[apiId];
     
-    if (!apiResult || !component.apiConfig.multiMapping) {
-      return apiResult;
-    }
+    if (!apiResult) return undefined;
     
     const processedData = { ...apiResult };
     
-    Object.entries(component.apiConfig.multiMapping).forEach(([propKey, fields]) => {
-      if (fields && fields.length > 0) {
-        const fieldValues = fields.map(field => {
-          return apiResult[field];
-        }).filter(val => val !== undefined);
-        
-        if (fieldValues.length > 0) {
-          processedData[`multi_${propKey}`] = fieldValues;
+    if (component.apiConfig.multiMapping) {
+      Object.entries(component.apiConfig.multiMapping).forEach(([propKey, fields]) => {
+        if (fields && fields.length > 0) {
+          const fieldValues = fields.map(field => {
+            return apiResult[field];
+          }).filter(val => val !== undefined);
+          
+          if (fieldValues.length > 0) {
+            processedData[`multi_${propKey}`] = fieldValues;
+          }
         }
-      }
-    });
+      });
+    }
+    
+    if (component.formattedContent && component.contentFields) {
+      let formattedContent = component.formattedContent;
+      
+      component.contentFields.forEach(field => {
+        const value = apiResult[field.apiField];
+        if (value !== undefined) {
+          const placeholder = new RegExp(`{{${field.label}}}`, 'g');
+          formattedContent = formattedContent.replace(placeholder, value);
+        }
+      });
+      
+      processedData.formattedContent = formattedContent;
+    }
     
     return processedData;
   };
@@ -181,10 +192,21 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     
     const componentData = processComponentData(component);
     
+    let componentToRender = component;
+    if (component.formattedContent && componentData?.formattedContent) {
+      componentToRender = {
+        ...component,
+        props: {
+          ...component.props,
+          content: componentData.formattedContent || component.formattedContent
+        }
+      };
+    }
+    
     const componentContent = (
       <div className="relative">
         {renderComponent(
-          component, 
+          componentToRender, 
           componentData, 
           component.type === 'alert' ? handleAlertDismiss : undefined
         )}
