@@ -157,7 +157,15 @@ const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any
     Object.entries(dataMapping).forEach(([propKey, apiField]) => {
       const value = getNestedValue(apiData, apiField);
       if (value !== undefined) {
-        finalProps[propKey] = value;
+        if (typeof value === 'object' && value !== null) {
+          if (Array.isArray(value)) {
+            finalProps[propKey] = value.join(', ');
+          } else {
+            finalProps[propKey] = JSON.stringify(value);
+          }
+        } else {
+          finalProps[propKey] = value;
+        }
       }
     });
   }
@@ -762,6 +770,12 @@ const getNestedValue = (obj: any, path: string): any => {
     
     const index = /^\d+$/.test(part) ? parseInt(part, 10) : part;
     current = current[index];
+    
+    if (current && typeof current === 'object' && !Array.isArray(current) &&
+        'name' in current && 'region' in current && 'country' in current && 
+        'lat' in current && 'lon' in current && 'localtime' in current) {
+      return `${current.name}, ${current.region}, ${current.country}`;
+    }
   }
   
   return current;
