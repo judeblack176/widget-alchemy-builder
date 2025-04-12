@@ -66,6 +66,7 @@ import {
   PopoverTrigger 
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -88,6 +89,12 @@ interface ComponentEditorProps {
   customTooltips?: CustomTooltip[];
 }
 
+interface ContentField {
+  id: string;
+  text: string;
+  apiField: string;
+}
+
 const ComponentEditor: React.FC<ComponentEditorProps> = ({
   component,
   apis,
@@ -102,6 +109,14 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 }) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [selectedFields, setSelectedFields] = useState<Record<string, string[]>>({});
+  const [fieldText, setFieldText] = useState("");
+  const [selectedApiField, setSelectedApiField] = useState("");
+  const [contentFields, setContentFields] = useState<ContentField[]>(
+    component.contentFields || []
+  );
+  const [formattedContent, setFormattedContent] = useState(
+    component.formattedContent || ""
+  );
 
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
@@ -160,6 +175,55 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
         }
       }
     };
+    onUpdateComponent(updatedComponent);
+  };
+
+  const handleAddContentField = () => {
+    if (fieldText && selectedApiField) {
+      const newField: ContentField = {
+        id: `field-${Date.now()}`,
+        text: fieldText,
+        apiField: selectedApiField
+      };
+      
+      const updatedFields = [...contentFields, newField];
+      
+      // Update the content fields in the component
+      const updatedComponent = {
+        ...component,
+        contentFields: updatedFields
+      };
+      
+      setContentFields(updatedFields);
+      setFieldText("");
+      setSelectedApiField("");
+      
+      onUpdateComponent(updatedComponent);
+    }
+  };
+
+  const handleRemoveContentField = (fieldId: string) => {
+    const updatedFields = contentFields.filter(field => field.id !== fieldId);
+    
+    // Update the content fields in the component
+    const updatedComponent = {
+      ...component,
+      contentFields: updatedFields
+    };
+    
+    setContentFields(updatedFields);
+    onUpdateComponent(updatedComponent);
+  };
+
+  const handleContentChange = (content: string) => {
+    setFormattedContent(content);
+    
+    // Update the formatted content in the component
+    const updatedComponent = {
+      ...component,
+      formattedContent: content
+    };
+    
     onUpdateComponent(updatedComponent);
   };
 
@@ -541,8 +605,123 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         )}
 
-        {/* Removed Single Data Mapping section */}
-        {/* Removed Multiple Data Mapping section */}
+        {/* Add Content Field Section */}
+        <div className="mt-4 border-t pt-3">
+          <div className="flex justify-between items-center mb-2">
+            <h4 className="font-medium text-sm">API Field Mapping</h4>
+          </div>
+          
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="field-text" className="text-xs">Text Label</Label>
+              <Input
+                id="field-text"
+                placeholder="Enter text label"
+                value={fieldText}
+                onChange={(e) => setFieldText(e.target.value)}
+                className="h-8 text-sm"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="api-field" className="text-xs">API Field</Label>
+              <Select
+                value={selectedApiField}
+                onValueChange={setSelectedApiField}
+              >
+                <SelectTrigger id="api-field" className="h-8 text-sm">
+                  <SelectValue placeholder="Select API field" />
+                </SelectTrigger>
+                <SelectContent>
+                  {selectedApi.possibleFields && selectedApi.possibleFields.map((field, index) => (
+                    <SelectItem key={`field-${index}`} value={field} className="text-xs">
+                      {field}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <Button 
+              size="sm"
+              onClick={handleAddContentField}
+              disabled={!fieldText || !selectedApiField}
+              className="w-full"
+            >
+              <Plus size={14} className="mr-1" /> Add Field
+            </Button>
+          </div>
+        </div>
+
+        {/* Content Fields Display */}
+        {contentFields.length > 0 && (
+          <div className="mt-4 border-t pt-3">
+            <h4 className="font-medium text-sm mb-2">Content Fields</h4>
+            <div className="space-y-2">
+              {contentFields.map((field) => (
+                <div 
+                  key={field.id} 
+                  className="flex items-center justify-between p-2 bg-white rounded-md border"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center">
+                      <span className="font-medium text-xs">{field.text}:</span>
+                      <Badge variant="outline" className="ml-2 text-xs">
+                        {field.apiField}
+                      </Badge>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleRemoveContentField(field.id)}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Trash2 size={14} className="text-red-500" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Content Editor */}
+        {contentFields.length > 0 && (
+          <div className="mt-4 border-t pt-3">
+            <Label htmlFor="content-editor" className="text-sm font-medium">Content Editor</Label>
+            <div className="mt-2">
+              <Textarea
+                id="content-editor"
+                placeholder="Format your content here. Use {fieldName} to insert API fields."
+                value={formattedContent}
+                onChange={(e) => handleContentChange(e.target.value)}
+                className="min-h-[120px] font-mono text-sm"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Use field names in curly braces to insert API fields. Example: {"{title}"} will be replaced with the value from API.
+              </p>
+            </div>
+            
+            <div className="mt-3 p-2 bg-blue-50 rounded-md">
+              <h5 className="text-xs font-medium text-blue-700 mb-1">Available Fields:</h5>
+              <div className="flex flex-wrap gap-1">
+                {contentFields.map((field) => (
+                  <Badge 
+                    key={field.id} 
+                    variant="outline" 
+                    className="text-xs cursor-pointer hover:bg-blue-100"
+                    onClick={() => {
+                      const newContent = formattedContent + ` {${field.text}}`;
+                      handleContentChange(newContent);
+                    }}
+                  >
+                    {field.text}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
