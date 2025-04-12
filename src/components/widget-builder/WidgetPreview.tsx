@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
@@ -34,6 +35,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   const hasAlertComponent = alertComponents.length > 0;
   const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
   
+  // Get only the first header component to prevent duplicates
   const headerComponent = components.find(c => c.type === 'header');
   
   const nonHeaderNonAlertComponents = components.filter(c => c.type !== 'header' && c.type !== 'alert');
@@ -42,6 +44,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   
   const regularComponentsToDisplay = nonHeaderNonAlertComponents.slice(0, MAX_COMPONENTS);
   
+  // Make sure we only have one header in the display components
   const displayComponents = [
     ...(headerComponent ? [headerComponent] : []),
     ...displayableAlerts,
