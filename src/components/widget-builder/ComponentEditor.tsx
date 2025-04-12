@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -484,70 +483,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const selectedApi = component.apiConfig ? apis.find(api => api.id === component.apiConfig?.apiId) : undefined;
 
-  const renderMultiSelectDropdown = (propKey: string, label: string, apiFields: string[]) => {
-    const selectedFields = component.apiConfig?.multiMapping?.[propKey] || [];
-    
-    return (
-      <div className="space-y-2 mb-4">
-        <div className="flex justify-between items-center">
-          <Label>{label}</Label>
-          <Badge variant="outline" className="ml-2">
-            {selectedFields.length} selected
-          </Badge>
-        </div>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full justify-between">
-              Select Fields
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuLabel>API Fields</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <ScrollArea className="h-[200px]">
-              {apiFields.map(field => (
-                <DropdownMenuCheckboxItem
-                  key={`${propKey}-${field}`}
-                  checked={isFieldSelected(propKey, field)}
-                  onCheckedChange={(checked) => {
-                    handleMultiMappingChange(propKey, field, checked);
-                  }}
-                >
-                  {field}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </ScrollArea>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        
-        {selectedFields.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {selectedFields.map((field, idx) => (
-              <Badge 
-                key={`selected-${propKey}-${idx}`} 
-                variant="secondary"
-                className="text-xs flex items-center gap-1"
-              >
-                {field}
-                <button 
-                  className="ml-1 hover:text-red-500"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleMultiMappingChange(propKey, field, false);
-                  }}
-                >
-                  <X size={10} />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   const renderApiDetails = () => {
     if (!selectedApi) return null;
 
@@ -583,29 +518,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         </div>
 
-        {/* Headers */}
-        {selectedApi.headers && Object.keys(selectedApi.headers).length > 0 && (
-          <div className="mt-3">
-            <Accordion type="single" collapsible>
-              <AccordionItem value="headers">
-                <AccordionTrigger className="text-xs font-medium py-1">
-                  Headers
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-1 text-xs">
-                    {Object.entries(selectedApi.headers).map(([key, value], idx) => (
-                      <div key={`header-${idx}`} className="flex items-center gap-2">
-                        <span className="font-medium">{key}:</span>
-                        <span className="text-gray-600">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        )}
-
         {/* Parameters */}
         {selectedApi.parameters && Object.keys(selectedApi.parameters).length > 0 && (
           <div className="mt-1">
@@ -629,69 +541,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </div>
         )}
 
-        {/* Data Mapping */}
-        <div className="mt-1">
-          <Accordion type="single" collapsible defaultValue="data-mapping">
-            <AccordionItem value="data-mapping">
-              <AccordionTrigger className="text-xs font-medium py-1">
-                Single Data Mapping
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-3">
-                  <p className="text-xs text-gray-500">Map one API field to each component property:</p>
-                  
-                  {getPropertyDefinitions().map((prop) => (
-                    <div key={`map-${prop.name}`} className="grid grid-cols-2 gap-2 items-center">
-                      <div className="text-xs font-medium">{prop.label}:</div>
-                      <Select
-                        value={component.apiConfig?.dataMapping?.[prop.name] || ""}
-                        onValueChange={(value) => handleDataMappingChange(prop.name, value)}
-                      >
-                        <SelectTrigger className="h-7 text-xs">
-                          <SelectValue placeholder="Select field" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          {selectedApi.possibleFields?.map((field, idx) => (
-                            <SelectItem key={`field-${idx}`} value={field} className="text-xs">
-                              {field}
-                            </SelectItem>
-                          )) || []}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-
-        {/* Multiple Data Mapping - Now using dropdown */}
-        <div className="mt-1">
-          <Accordion type="single" collapsible defaultValue="multi-mapping">
-            <AccordionItem value="multi-mapping">
-              <AccordionTrigger className="text-xs font-medium py-1">
-                Multiple Data Mapping
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-3">
-                  <p className="text-xs text-gray-500">Select multiple API fields for each component property:</p>
-                  
-                  {getPropertyDefinitions().map((prop) => (
-                    <div key={`multimap-${prop.name}`} className="border rounded-md p-2 mb-3">
-                      {renderMultiSelectDropdown(
-                        prop.name, 
-                        prop.label, 
-                        selectedApi.possibleFields || []
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
+        {/* Removed Single Data Mapping section */}
+        {/* Removed Multiple Data Mapping section */}
       </div>
     );
   };
