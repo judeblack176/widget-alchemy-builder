@@ -18,7 +18,7 @@ const ButtonRenderer: React.FC<ButtonRendererProps> = ({ component, finalProps }
   };
   
   return (
-    <div className="inline-block w-1/2 pr-1 pb-2">
+    <div className="w-full pb-2">
       <Button
         variant={finalProps.variant || "default"}
         size="xs"

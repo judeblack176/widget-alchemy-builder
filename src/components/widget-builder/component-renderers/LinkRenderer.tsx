@@ -15,7 +15,7 @@ const LinkRenderer: React.FC<LinkRendererProps> = ({ component, finalProps }) =>
   const icon = displayType !== 'text' ? getLinkIcon(finalProps.icon || 'LinkIcon') : null;
   
   return (
-    <div className="inline-block w-1/2 pr-1 pb-2">
+    <div className="w-full pb-2">
       <a
         href={finalProps.url || "#"}
         target={openInNewTab ? "_blank" : "_self"}

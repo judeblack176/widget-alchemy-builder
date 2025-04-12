@@ -19,7 +19,7 @@ const PreviewComponent: React.FC<PreviewComponentProps> = ({
   tooltips
 }) => {
   return (
-    <div className={`component-preview ${component.selected ? 'ring-2 ring-blue-400' : ''}`} data-component-id={component.id}>
+    <div className={`component-preview w-full ${component.selected ? 'ring-2 ring-blue-400' : ''}`} data-component-id={component.id}>
       {renderComponent(component, componentData, handleAlertDismiss, tooltips)}
     </div>
   );
