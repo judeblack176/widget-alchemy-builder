@@ -184,10 +184,11 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         )}
       </div>
       
-      {/* Scrollable section */}
-      <div className="flex-1 h-full overflow-hidden">
-        <ScrollArea className="h-full w-full pr-2">
-          <div className="pb-4">
+      {/* Scrollable section - fixing the scrolling issue */}
+      <div className="flex-1 overflow-hidden">
+        {/* The ScrollArea needs to take full height to enable scrolling */}
+        <ScrollArea className="h-full" style={{ maxHeight: 'calc(100vh - 350px)' }}>
+          <div className="pr-4 pb-4">
             {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
               <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
                 <p className="text-gray-500">No components match your search</p>
