@@ -184,19 +184,19 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         )}
       </div>
       
-      {/* Scrollable section - only this part scrolls */}
+      {/* Scrollable section - this part needs to be fixed */}
       <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full">
-          {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
-            <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
-              <p className="text-gray-500">No components match your search</p>
-            </Card>
-          ) : filteredComponents.length === 0 ? (
-            <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
-              <p className="text-gray-500">Add components to your widget from the left panel</p>
-            </Card>
-          ) : filteredRegularComponents.length > 0 && (
-            <div className="pr-2 pb-4">
+        <ScrollArea className="h-full w-full">
+          <div className="pr-2 pb-4">
+            {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
+              <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
+                <p className="text-gray-500">No components match your search</p>
+              </Card>
+            ) : filteredComponents.length === 0 ? (
+              <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
+                <p className="text-gray-500">Add components to your widget from the left panel</p>
+              </Card>
+            ) : filteredRegularComponents.length > 0 && (
               <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="components">
                   {(provided) => (
@@ -246,8 +246,8 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                   )}
                 </Droppable>
               </DragDropContext>
-            </div>
-          )}
+            )}
+          </div>
         </ScrollArea>
       </div>
     </div>

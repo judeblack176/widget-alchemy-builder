@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
-import { ContentDetails } from '@/types/widget-types.d';
+import { ContentDetails } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
 import { renderComponent } from './component-renderers';
 import { HelpCircle, AlertCircle, Check, Ruler, Palette } from 'lucide-react';
@@ -245,7 +244,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         </div>
       )}
       
-      <ScrollArea className="h-full overflow-x-hidden">
+      <ScrollArea className="h-full w-full overflow-x-hidden">
         <div className={headerComponent ? "pt-2" : ""}>
           {displayComponents.map((component, index) => 
             renderComponentWithTooltip(component, index + (headerComponent ? 1 : 0))
