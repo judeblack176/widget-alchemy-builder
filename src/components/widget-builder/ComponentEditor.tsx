@@ -457,7 +457,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
         if (property.name === "content" && (component.contentFields?.length || component.formattedContent !== undefined)) {
           return (
             <div key={property.name} className="mb-4">
-              <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
               <div className="mt-2 border rounded-md p-3 bg-gray-50">
                 <div className="mb-2">
                   <textarea
@@ -899,7 +898,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             )}
             
             <div>
-              <h3 className="font-medium mb-3">Component Properties</h3>
+              <h3 className="font-medium mb-3">Content</h3>
               <div className="space-y-1">
                 {getPropertyDefinitions().map(renderPropertyEditor)}
               </div>
