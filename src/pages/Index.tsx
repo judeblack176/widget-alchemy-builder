@@ -1,27 +1,16 @@
 
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
-import ComponentLibrary from "@/components/widget-builder/ComponentLibrary";
-import WidgetPreview from "@/components/widget-builder/WidgetPreview";
-import ApiManager from "@/components/widget-builder/ApiManager";
-import TooltipManager, { Tooltip } from "@/components/widget-builder/TooltipManager";
-import TagsManager from "@/components/widget-builder/TagsManager";
-import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionForm";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Library, User, HelpCircle, BookmarkIcon, Bookmark, X, Plus, ChevronDown, Tag } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { WidgetComponent, ApiConfig, WidgetSubmission, ComponentType } from "@/types/widget-types";
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { WidgetComponent, ApiConfig, Tooltip } from "@/types/widget-types";
+import { DragDropContext } from 'react-beautiful-dnd';
+import WidgetBuilderHeader from "@/components/widget-builder/page-components/WidgetBuilderHeader";
+import ComponentLibraryPanel from "@/components/widget-builder/page-components/ComponentLibraryPanel";
+import WidgetBuilderPanel from "@/components/widget-builder/page-components/WidgetBuilderPanel";
+import WidgetPreviewPanel from "@/components/widget-builder/page-components/WidgetPreviewPanel";
+import ApiTemplateModal from "@/components/widget-builder/modals/ApiTemplateModal";
+import TooltipListModal from "@/components/widget-builder/modals/TooltipListModal";
 
 const Index = () => {
   const { toast } = useToast();
@@ -58,7 +47,7 @@ const Index = () => {
         try {
           const savedSubmissions = localStorage.getItem('widgetSubmissions');
           if (savedSubmissions) {
-            const submissions: WidgetSubmission[] = JSON.parse(savedSubmissions);
+            const submissions = JSON.parse(savedSubmissions);
             const submission = submissions.find(s => s.id === widgetId);
             
             if (submission) {
@@ -96,7 +85,7 @@ const Index = () => {
     const componentToAdd = typeof component === 'string' 
       ? {
           id: `${component}-${Date.now()}`,
-          type: component as ComponentType,
+          type: component as any,
           props: {}
         } 
       : component;
@@ -429,297 +418,63 @@ const Index = () => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="flex flex-col h-screen bg-gray-100">
-        <header className="bg-white border-b border-gray-200 p-4 w-full sticky top-0 z-50">
-          <div className="container mx-auto flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-widget-blue">EdTech Widget Builder</h1>
-            <div className="flex space-x-2">
-              <Link to="/library">
-                <Button variant="outline" className="mr-2">
-                  <Library size={16} className="mr-2" /> Widget Library
-                </Button>
-              </Link>
-              <Link to="/admin/login">
-                <Button variant="outline">
-                  <User size={16} className="mr-2" /> Admin
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </header>
+        <WidgetBuilderHeader
+          onLoadWidget={handleLoadWidget}
+          onNewWidget={handleNewWidget}
+        />
         
         <div className="flex flex-1 overflow-hidden">
-          <div className="w-1/4 border-r border-gray-200 bg-white overflow-hidden flex flex-col">
-            <div className="flex flex-col h-full">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
-                <div className="sticky top-0 bg-white z-40 pb-4 border-b">
-                  <TabsList className="w-full">
-                    <TabsTrigger value="components" className="flex-1">Components</TabsTrigger>
-                    <TabsTrigger value="tooltips" className="flex-1">Tooltips</TabsTrigger>
-                    <TabsTrigger value="apis" className="flex-1">APIs</TabsTrigger>
-                    <TabsTrigger value="tags" className="flex-1">Tags</TabsTrigger>
-                  </TabsList>
-                </div>
-                
-                <div className="flex-1 overflow-hidden">
-                  <TabsContent value="components" className="h-full mt-0">
-                    <ScrollArea className="h-full pb-10">
-                      <Droppable droppableId="component-library" isDropDisabled={true}>
-                        {(provided) => (
-                          <div
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                            className="h-full px-4"
-                          >
-                            <ComponentLibrary 
-                              onAddComponent={handleAddComponent} 
-                              existingComponents={widgetComponents}
-                            />
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
-                    </ScrollArea>
-                  </TabsContent>
-                  
-                  <TabsContent value="tooltips" className="h-full mt-0">
-                    <ScrollArea className="h-full px-4 pb-10">
-                      <TooltipManager
-                        tooltips={tooltips}
-                        onAddTooltip={handleAddTooltip}
-                        onUpdateTooltip={handleUpdateTooltip}
-                        onRemoveTooltip={handleRemoveTooltip}
-                      />
-                    </ScrollArea>
-                  </TabsContent>
-                  
-                  <TabsContent value="apis" className="h-full mt-0">
-                    <ScrollArea className="h-full px-4 pb-10">
-                      <ApiManager 
-                        apis={apis} 
-                        onAddApi={handleAddApi} 
-                        onRemoveApi={handleRemoveApi} 
-                        onUpdateApi={handleUpdateApi}
-                      />
-                    </ScrollArea>
-                  </TabsContent>
-
-                  <TabsContent value="tags" className="h-full mt-0">
-                    <ScrollArea className="h-full px-4 pb-10">
-                      <TagsManager />
-                    </ScrollArea>
-                  </TabsContent>
-                </div>
-              </Tabs>
-            </div>
-          </div>
+          <ComponentLibraryPanel
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            onAddComponent={handleAddComponent}
+            widgetComponents={widgetComponents}
+            apis={apis}
+            tooltips={tooltips}
+            onAddApi={handleAddApi}
+            onRemoveApi={handleRemoveApi}
+            onUpdateApi={handleUpdateApi}
+            onAddTooltip={handleAddTooltip}
+            onUpdateTooltip={handleUpdateTooltip}
+            onRemoveTooltip={handleRemoveTooltip}
+          />
           
-          <div className="w-2/5 bg-widget-gray overflow-hidden flex flex-col">
-            <div className="sticky top-0 z-40 bg-widget-gray p-4 border-b border-gray-200">
-              <div className="flex justify-between mb-4">
-                <h2 className="text-xl font-semibold">Widget Builder</h2>
-                <div className="space-x-2">
-                  <DropdownMenu>
-                    <Button
-                      asChild
-                      variant="default"
-                      size="default"
-                      className="bg-widget-blue hover:bg-blue-600 transition-colors"
-                    >
-                      <DropdownMenuTrigger>
-                        <Plus size={16} className="mr-2" /> Add New Widget
-                        <ChevronDown size={16} className="ml-2" />
-                      </DropdownMenuTrigger>
-                    </Button>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={handleNewWidget}>
-                        <Plus size={16} className="mr-2" /> 
-                        Create New Widget
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleLoadWidget}>
-                        <Library size={16} className="mr-2" /> 
-                        Load from Widget Library
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex-1 overflow-hidden px-4 pb-4">
-              <Droppable droppableId="widget-builder">
-                {(provided) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className="h-full"
-                  >
-                    <WidgetBuilder
-                      components={widgetComponents}
-                      apis={apis}
-                      onUpdateComponent={handleUpdateComponent}
-                      onRemoveComponent={handleRemoveComponent}
-                      onReorderComponents={handleReorderComponents}
-                      onRequestApiTemplate={openApiTemplateModal}
-                      onApplyTooltip={handleApplyTooltip}
-                      tooltips={tooltips}
-                    />
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
-          </div>
+          <WidgetBuilderPanel
+            widgetComponents={widgetComponents}
+            apis={apis}
+            tooltips={tooltips}
+            onUpdateComponent={handleUpdateComponent}
+            onRemoveComponent={handleRemoveComponent}
+            onReorderComponents={handleReorderComponents}
+            onRequestApiTemplate={openApiTemplateModal}
+            onApplyTooltip={handleApplyTooltip}
+            onNewWidget={handleNewWidget}
+            onLoadWidget={handleLoadWidget}
+          />
           
-          <div className="w-1/3 bg-gray-200 overflow-hidden flex flex-col">
-            <div className="sticky top-0 z-40 bg-gray-200 p-4 border-b border-gray-300">
-              <div className="flex justify-between items-center self-stretch mb-6">
-                <h2 className="text-xl font-semibold">Preview</h2>
-                <div className="space-x-2">
-                  {isEditing && (
-                    <Button
-                      onClick={handleCancelEditing}
-                      variant="outline"
-                      size="default"
-                      className="border-red-500 text-red-500 hover:bg-red-50"
-                    >
-                      <X size={16} className="mr-2" /> Cancel
-                    </Button>
-                  )}
-                  <Button
-                    onClick={handleSaveWidget}
-                    variant="default"
-                    size="default"
-                    className="bg-green-500 hover:bg-green-600 transition-colors"
-                  >
-                    Save
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <div className="flex-1 overflow-auto flex flex-col items-center justify-start pt-8 px-4">
-              <WidgetPreview components={widgetComponents} apis={apis} />
-              
-              <div className="mt-6 mb-4">
-                <WidgetSubmissionForm
-                  widgetComponents={widgetComponents}
-                  apis={apis}
-                  onSubmitSuccess={handleSubmitSuccess}
-                  widgetId={widgetId}
-                  isEditing={isEditing}
-                  onCancelEditing={handleCancelEditing}
-                />
-              </div>
-            </div>
-          </div>
+          <WidgetPreviewPanel
+            widgetComponents={widgetComponents}
+            apis={apis}
+            isEditing={isEditing}
+            widgetId={widgetId}
+            onSaveWidget={handleSaveWidget}
+            onCancelEditing={handleCancelEditing}
+            onSubmitSuccess={handleSubmitSuccess}
+          />
         </div>
         
-        <Dialog open={isApiTemplateModalOpen} onOpenChange={setIsApiTemplateModalOpen}>
-          <DialogContent className="sm:max-w-[650px]">
-            <DialogHeader>
-              <DialogTitle>Select API Template</DialogTitle>
-            </DialogHeader>
-            
-            {savedApiTemplates.length === 0 ? (
-              <div className="text-center py-8">
-                <BookmarkIcon className="mx-auto text-gray-400 mb-2" size={32} />
-                <p className="text-gray-500">No saved API templates yet</p>
-                <p className="text-sm text-gray-400 mt-1">
-                  Save your APIs as templates from the API tab to reuse them
-                </p>
-              </div>
-            ) : (
-              <ScrollArea className="h-[400px]">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-1">
-                  {savedApiTemplates.map((template) => (
-                    <Card 
-                      key={template.id} 
-                      className="cursor-pointer hover:border-widget-blue transition-colors"
-                      onClick={() => applyApiTemplateToComponent(template)}
-                    >
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-base">{template.name}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-sm space-y-1">
-                          <div className="flex">
-                            <span className="font-semibold w-20">Method:</span>
-                            <span className="font-mono text-widget-blue">{template.method}</span>
-                          </div>
-                          <div className="flex">
-                            <span className="font-semibold w-20">Endpoint:</span>
-                            <span className="font-mono text-xs truncate" title={template.endpoint}>
-                              {template.endpoint}
-                            </span>
-                          </div>
-                          {template.possibleFields && template.possibleFields.length > 0 && (
-                            <div className="mt-2">
-                              <span className="font-semibold text-xs block mb-1">Available Fields:</span>
-                              <div className="flex flex-wrap gap-1">
-                                {template.possibleFields.slice(0, 3).map((field, i) => (
-                                  <Badge key={i} variant="outline" className="text-xs">{field}</Badge>
-                                ))}
-                                {template.possibleFields.length > 3 && (
-                                  <Badge variant="outline" className="text-xs">
-                                    +{template.possibleFields.length - 3} more
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </ScrollArea>
-            )}
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsApiTemplateModalOpen(false)}>
-                Cancel
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <ApiTemplateModal
+          isOpen={isApiTemplateModalOpen}
+          onOpenChange={setIsApiTemplateModalOpen}
+          apiTemplates={savedApiTemplates}
+          onApplyTemplate={applyApiTemplateToComponent}
+        />
 
-        <Dialog open={isTooltipListModalOpen} onOpenChange={setIsTooltipListModalOpen}>
-          <DialogContent className="sm:max-w-[650px]">
-            <DialogHeader>
-              <DialogTitle>Available Tooltips</DialogTitle>
-            </DialogHeader>
-            
-            {tooltips.length === 0 ? (
-              <div className="text-center py-8">
-                <HelpCircle className="mx-auto text-gray-400 mb-2" size={32} />
-                <p className="text-gray-500">No tooltips created yet</p>
-                <p className="text-sm text-gray-400 mt-1">
-                  Create tooltips from the Tooltips tab to use them in your components
-                </p>
-              </div>
-            ) : (
-              <ScrollArea className="h-[400px]">
-                <div className="grid grid-cols-1 gap-4 p-1">
-                  {tooltips.map((tooltip) => (
-                    <Card key={tooltip.id} className="overflow-hidden">
-                      <CardHeader className="py-3 px-4">
-                        <CardTitle className="text-base font-medium">{tooltip.title}</CardTitle>
-                      </CardHeader>
-                      <CardContent className="py-2 px-4">
-                        <p className="text-sm">{tooltip.content}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </ScrollArea>
-            )}
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsTooltipListModalOpen(false)}>
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <TooltipListModal
+          isOpen={isTooltipListModalOpen}
+          onOpenChange={setIsTooltipListModalOpen}
+          tooltips={tooltips}
+        />
       </div>
     </DragDropContext>
   );
