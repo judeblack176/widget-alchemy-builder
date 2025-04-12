@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip as CustomTooltip } from "./TooltipManager";

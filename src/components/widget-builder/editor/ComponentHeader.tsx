@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronUp, ChevronDown, Trash2, HelpCircle, Info, AlertTriangle, Star } from 'lucide-react';
 import { Tooltip as CustomTooltip } from "../TooltipManager";
-import TooltipSelector from "./TooltipSelector";
 
 interface ComponentHeaderProps {
   title: string;
@@ -55,14 +54,6 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
       </div>
       
       <div className="flex space-x-2">
-        {onApplyTooltip && (
-          <TooltipSelector 
-            tooltipId={tooltipId} 
-            onApplyTooltip={onApplyTooltip} 
-            customTooltips={customTooltips} 
-          />
-        )}
-        
         <Button 
           variant="ghost" 
           size="sm" 
