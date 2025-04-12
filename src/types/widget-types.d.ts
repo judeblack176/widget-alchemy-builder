@@ -7,21 +7,18 @@ export interface WidgetComponent {
   id: string;
   type: ComponentType;
   props: Record<string, any>;
-  tooltipId?: string;
   apiConfig?: {
     apiId: string;
-    dataMapping?: Record<string, string>;
+    dataMapping: Record<string, string>;
+    multiMapping?: Record<string, string[]>;
   };
-  apiFieldMappings?: Array<{
-    id: string;
-    field: string;
-    targetProperty: string;
-  }>;
-  formattedContent?: string;
+  tooltipId?: string;
+  selected?: boolean;
   contentFields?: Array<{
     label: string;
     apiField: string;
   }>;
+  formattedContent?: string;
 }
 
 export type AlertType = 'info' | 'success' | 'warning' | 'error';
@@ -84,6 +81,5 @@ declare module "@/components/widget-builder/WidgetBuilder" {
     onReorderComponents: (reorderedComponents: WidgetComponent[]) => void;
     onRequestApiTemplate: (componentId: string) => void;
     onApplyTooltip: (componentId: string, tooltipId: string) => void;
-    tooltips?: Tooltip[];
   }
 }

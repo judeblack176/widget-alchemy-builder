@@ -11,11 +11,12 @@ import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionFo
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library, User, HelpCircle, BookmarkIcon, X, Plus, ChevronDown, Tag } from "lucide-react";
+import { Library, User, HelpCircle, BookmarkIcon, Bookmark, X, Plus, ChevronDown, Tag } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { WidgetComponent, ApiConfig, WidgetSubmission, ComponentType } from "@/types/widget-types";
@@ -413,25 +414,15 @@ const Index = () => {
   };
 
   const handleDragEnd = (result: any) => {
-    // Skip processing if there's no destination
-    if (!result || !result.destination) return;
+    if (!result.destination) return;
     
-    try {
-      // Handle component library to widget builder drag and drop
-      if (result.source.droppableId === 'component-library' && result.destination.droppableId === 'widget-builder') {
-        try {
-          const componentType = result.draggableId;
-          const componentLibraryItem = document.querySelector(`[data-component-type="${componentType}"]`);
-          
-          if (componentLibraryItem && componentLibraryItem instanceof HTMLElement) {
-            componentLibraryItem.click();
-          }
-        } catch (error) {
-          console.error("Failed to process drag and drop:", error);
-        }
+    if (result.source.droppableId === 'component-library' && result.destination.droppableId === 'widget-builder') {
+      const componentType = result.draggableId;
+      const componentLibraryItem = document.querySelector(`[data-component-type="${componentType}"]`);
+      
+      if (componentLibraryItem && componentLibraryItem instanceof HTMLElement) {
+        componentLibraryItem.click();
       }
-    } catch (error) {
-      console.error("Error in drag end handler:", error);
     }
   };
 

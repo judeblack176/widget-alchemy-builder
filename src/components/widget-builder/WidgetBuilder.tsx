@@ -21,65 +21,6 @@ interface WidgetBuilderProps {
   tooltips?: Tooltip[];
 }
 
-interface ComponentEditorContainerProps {
-  component: WidgetComponent;
-  apis: ApiConfig[];
-  isExpanded: boolean;
-  onToggleExpand: () => void;
-  onUpdateComponent: (updatedComponent: WidgetComponent) => void;
-  onRemoveComponent: (componentId: string) => void;
-  onRequestApiTemplate: () => void;
-  onApplyTooltip?: (tooltipId: string) => void;
-  disableRemove?: boolean;
-  customTooltips?: Tooltip[];
-}
-
-const ComponentEditorContainer: React.FC<ComponentEditorContainerProps> = ({
-  component,
-  apis,
-  isExpanded,
-  onToggleExpand,
-  onUpdateComponent,
-  onRemoveComponent,
-  onRequestApiTemplate,
-  onApplyTooltip,
-  disableRemove = false,
-  customTooltips = []
-}) => {
-  if (!component) {
-    console.error("Attempted to render component editor with undefined component");
-    return null;
-  }
-
-  // Render simplified view when not expanded
-  if (!isExpanded) {
-    return (
-      <div 
-        className="p-4 cursor-pointer flex justify-between items-center"
-        onClick={onToggleExpand}
-      >
-        <div>
-          <h3 className="font-medium">{component.type.charAt(0).toUpperCase() + component.type.slice(1)}</h3>
-          {component.props?.title && <p className="text-sm text-gray-500">{component.props.title}</p>}
-        </div>
-      </div>
-    );
-  }
-
-  // Render full editor when expanded
-  return (
-    <ComponentEditor
-      component={component}
-      onUpdateComponent={onUpdateComponent}
-      onClose={onToggleExpand}
-      availableApis={apis}
-      onRequestApiTemplate={onRequestApiTemplate}
-      onApplyTooltip={onApplyTooltip || (() => {})}
-      tooltips={customTooltips}
-    />
-  );
-};
-
 const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   components,
   apis,
@@ -93,12 +34,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [dragEnabled, setDragEnabled] = useState(true);
-  
-  useEffect(() => {
-    // Disable drag when a component is expanded
-    setDragEnabled(expandedComponentId === null);
-  }, [expandedComponentId]);
   
   useEffect(() => {
     if (tooltips && onApplyTooltip) {
@@ -115,40 +50,36 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     }
   }, [tooltips, components, onApplyTooltip]);
   
-  const alertComponents = components.filter(c => c && c.type === 'alert');
+  const alertComponents = components.filter(c => c.type === 'alert');
   const hasAlertComponent = alertComponents.length > 0;
   
-  const nonHeaderNonAlertComponents = components.filter(c => c && c.type !== 'header' && c.type !== 'alert');
+  const nonHeaderNonAlertComponents = components.filter(c => c.type !== 'header' && c.type !== 'alert');
   const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
   const atComponentLimit = nonHeaderNonAlertComponents.length >= MAX_COMPONENTS;
 
-  const headerComponent = components.find(c => c && c.type === 'header');
+  const headerComponent = components.find(c => c.type === 'header');
 
   const handleDragEnd = (result: any) => {
-    try {
-      if (!result.destination) return;
-      if (result.destination.index === result.source.index) return;
+    if (!result.destination) return;
+    if (result.destination.index === result.source.index) return;
 
-      const items = Array.from(nonHeaderNonAlertComponents);
-      const [reorderedItem] = items.splice(result.source.index, 1);
-      items.splice(result.destination.index, 0, reorderedItem);
+    const items = Array.from(nonHeaderNonAlertComponents);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
 
-      let reorderedComponents = [];
-      
-      if (headerComponent) {
-        reorderedComponents.push(headerComponent);
-      }
-      
-      if (alertComponents.length > 0) {
-        reorderedComponents = [...reorderedComponents, ...alertComponents];
-      }
-      
-      reorderedComponents = [...reorderedComponents, ...items];
-
-      onReorderComponents(reorderedComponents);
-    } catch (error) {
-      console.error("Error during drag end:", error);
+    let reorderedComponents = [];
+    
+    if (headerComponent) {
+      reorderedComponents.push(headerComponent);
     }
+    
+    if (alertComponents.length > 0) {
+      reorderedComponents = [...reorderedComponents, ...alertComponents];
+    }
+    
+    reorderedComponents = [...reorderedComponents, ...items];
+
+    onReorderComponents(reorderedComponents);
   };
 
   const handleSearch = (query: string) => {
@@ -156,7 +87,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   };
 
   const filteredComponents = components.filter(component => {
-    if (!component) return false;
     if (!searchQuery.trim()) return true;
     
     if (component.type.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -179,7 +109,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     ? headerComponent 
     : null;
   const filteredAlertComponents = alertComponents.filter(alert => filteredComponents.includes(alert));
-  const filteredRegularComponents = filteredComponents.filter(c => c && c.type !== 'header' && c.type !== 'alert');
+  const filteredRegularComponents = filteredComponents.filter(c => c.type !== 'header' && c.type !== 'alert');
 
   return (
     <div className="flex flex-col h-full">
@@ -205,7 +135,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         {/* Fixed header component section */}
         {filteredHeaderComponent && (
           <Card className="bg-white border border-blue-500 shadow-sm">
-            <ComponentEditorContainer
+            <ComponentEditor
               component={filteredHeaderComponent}
               apis={apis}
               isExpanded={expandedComponentId === filteredHeaderComponent.id}
@@ -231,7 +161,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           <div className="space-y-4">
             {filteredAlertComponents.map((alertComponent) => (
               <Card key={alertComponent.id} className="bg-white border border-amber-500 shadow-sm">
-                <ComponentEditorContainer
+                <ComponentEditor
                   component={alertComponent}
                   apis={apis}
                   isExpanded={expandedComponentId === alertComponent.id}
@@ -279,7 +209,6 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                         key={component.id} 
                         draggableId={component.id} 
                         index={index}
-                        isDragDisabled={!dragEnabled || expandedComponentId !== null}
                       >
                         {(provided, snapshot) => (
                           <div
@@ -289,7 +218,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                             className="relative"
                           >
                             <Card className="bg-white border shadow-sm">
-                              <ComponentEditorContainer
+                              <ComponentEditor
                                 component={component}
                                 apis={apis}
                                 isExpanded={expandedComponentId === component.id}

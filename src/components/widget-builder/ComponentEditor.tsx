@@ -1,48 +1,119 @@
-import React, { useState, useEffect } from 'react';
-import { X, HelpCircle } from 'lucide-react';
-import { WidgetComponent, ApiConfig, Tooltip } from '@/types/widget-types';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from "@/components/ui/switch"
+import React, { useState } from "react";
+import { WidgetComponent, ApiConfig } from "@/types/widget-types";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import ColorPalettePicker from "./ColorPalettePicker";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { 
+  Settings, 
+  HelpCircle, 
+  BookOpen, 
+  Type, 
+  Image, 
+  Video, 
+  BarChart, 
+  MousePointer, 
+  FormInput, 
+  CalendarDays, 
+  List, 
+  LinkIcon, 
+  Text,
+  Filter,
+  AlertTriangle,
+  Table2,
+  Search,
+  Library,
+  Bookmark,
+  User,
+  Info,
+  Coffee,
+  Bell,
+  FileText,
+  Globe,
+  Home,
+  Mail,
+  Map,
+  Phone,
+  ShoppingBag,
+  Star,
+  X,
+  Tag,
+  ChevronDown,
+  ChevronUp,
+  Code,
+  Database,
+  Plus,
+  Trash2,
+  Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Baseline
+} from 'lucide-react';
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
+import { Tooltip as CustomTooltip } from "./TooltipManager";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger 
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog"
-import ApiFieldMapping from './ApiFieldMapping';
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ComponentEditorProps {
   component: WidgetComponent;
-  onUpdateComponent: (component: WidgetComponent) => void;
-  onClose: () => void;
-  availableApis: ApiConfig[];
-  onRequestApiTemplate: (componentId: string) => void;
-  onApplyTooltip: (tooltipId: string) => void;
-  tooltips?: Tooltip[];
+  apis: ApiConfig[];
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  onUpdateComponent: (updatedComponent: WidgetComponent) => void;
+  onRemoveComponent: (componentId: string) => void;
+  onRequestApiTemplate: () => void;
+  onApplyTooltip?: (tooltipId: string) => void;
+  disableRemove?: boolean;
+  customTooltips?: CustomTooltip[];
 }
 
 const ComponentEditor: React.FC<ComponentEditorProps> = ({
   component,
+  apis,
+  isExpanded,
+  onToggleExpand,
   onUpdateComponent,
-  onClose,
-  availableApis,
+  onRemoveComponent,
   onRequestApiTemplate,
   onApplyTooltip,
-  tooltips = []
+  disableRemove = false,
+  customTooltips = []
 }) => {
-  const isApiCompatible = component.type !== 'header';
-  const [isTooltipModalOpen, setIsTooltipModalOpen] = useState(false);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [selectedFields, setSelectedFields] = useState<Record<string, string[]>>({});
+  const [newFieldLabel, setNewFieldLabel] = useState<string>("");
+  const [newFieldApiField, setNewFieldApiField] = useState<string>("");
 
   const [textFormatting, setTextFormatting] = useState({
-    fontSize: component.props?.fontSize || 'medium',
-    fontFamily: component.props?.fontFamily || 'default',
-    textAlign: component.props?.textAlign || 'left',
+    fontSize: component.props?.fontSize || "normal",
+    fontFamily: component.props?.fontFamily || "default",
+    textAlign: component.props?.textAlign || "left",
     isBold: component.props?.isBold || false,
     isItalic: component.props?.isItalic || false,
     textColor: component.props?.textColor || "#000000"
@@ -58,7 +129,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   };
 
   const handlePropertyChange = (propertyName: string, value: any) => {
-    const updatedComponent: WidgetComponent = {
+    const updatedComponent = {
       ...component,
       props: {
         ...component.props,
@@ -68,493 +139,941 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     onUpdateComponent(updatedComponent);
   };
 
-  const handleApiConfigChange = (apiId: string) => {
-    const updatedComponent: WidgetComponent = {
+  const handleApiSelection = (apiId: string) => {
+    const updatedComponent = {
       ...component,
       apiConfig: {
-        ...component.apiConfig,
-        apiId: apiId === "" ? undefined : apiId,
-      },
+        apiId,
+        dataMapping: component.apiConfig?.dataMapping || {},
+        multiMapping: component.apiConfig?.multiMapping || {}
+      }
     };
     onUpdateComponent(updatedComponent);
   };
 
-  // Add handlers for API field mappings
-  const handleAddApiFieldMapping = () => {
-    if (!component.apiConfig?.apiId) return;
-
+  const handleDataMappingChange = (propKey: string, apiField: string) => {
     const updatedComponent = {
       ...component,
-      apiFieldMappings: [
-        ...(component.apiFieldMappings || []),
-        {
-          id: `mapping-${Date.now()}`,
-          field: '',
-          targetProperty: ''
+      apiConfig: {
+        ...component.apiConfig!,
+        dataMapping: {
+          ...component.apiConfig?.dataMapping,
+          [propKey]: apiField
         }
-      ]
+      }
     };
-
     onUpdateComponent(updatedComponent);
   };
 
-  const handleUpdateApiFieldMapping = (id: string, field: string, value: string) => {
-    if (!component.apiFieldMappings) return;
+  const handleMultiMappingChange = (propKey: string, apiField: string, isChecked: boolean) => {
+    const currentFields = component.apiConfig?.multiMapping?.[propKey] || [];
+    
+    let updatedFields;
+    if (isChecked) {
+      updatedFields = [...currentFields, apiField];
+    } else {
+      updatedFields = currentFields.filter(field => field !== apiField);
+    }
+    
+    const updatedComponent = {
+      ...component,
+      apiConfig: {
+        ...component.apiConfig!,
+        multiMapping: {
+          ...component.apiConfig?.multiMapping,
+          [propKey]: updatedFields
+        }
+      }
+    };
+    onUpdateComponent(updatedComponent);
+  };
 
-    const updatedMappings = component.apiFieldMappings.map(mapping => 
-      mapping.id === id ? { ...mapping, [field]: value } : mapping
-    );
+  const isFieldSelected = (propKey: string, apiField: string) => {
+    return component.apiConfig?.multiMapping?.[propKey]?.includes(apiField) || false;
+  };
+
+  const addContentField = () => {
+    if (!newFieldLabel.trim() || !newFieldApiField.trim()) return;
+
+    const newContentFields = [
+      ...(component.contentFields || []),
+      {
+        label: newFieldLabel,
+        apiField: newFieldApiField
+      }
+    ];
 
     const updatedComponent = {
       ...component,
-      apiFieldMappings: updatedMappings
+      contentFields: newContentFields
     };
 
     onUpdateComponent(updatedComponent);
+
+    setNewFieldLabel("");
+    setNewFieldApiField("");
   };
 
-  const handleRemoveApiFieldMapping = (id: string) => {
-    if (!component.apiFieldMappings) return;
-
-    const updatedMappings = component.apiFieldMappings.filter(mapping => mapping.id !== id);
+  const removeContentField = (index: number) => {
+    const currentFields = [...(component.contentFields || [])];
+    currentFields.splice(index, 1);
 
     const updatedComponent = {
       ...component,
-      apiFieldMappings: updatedMappings
+      contentFields: currentFields
     };
 
     onUpdateComponent(updatedComponent);
   };
 
-  const handleApplyTooltip = (tooltipId: string) => {
+  const handleFormattedContentChange = (value: string) => {
     const updatedComponent = {
       ...component,
-      tooltipId
+      formattedContent: value
     };
-    onApplyTooltip(tooltipId);
     onUpdateComponent(updatedComponent);
   };
 
-  // Generate a list of component properties for mapping
-  const getComponentProperties = () => {
+  const componentTypeLabels: Record<string, string> = {
+    header: "Header",
+    text: "Text",
+    image: "Image",
+    button: "Button",
+    video: "Video",
+    chart: "Chart",
+    form: "Form",
+    calendar: "Calendar",
+    dropdown: "Dropdown",
+    link: "Link",
+    "multi-text": "Multi-Text",
+    filter: "Filter",
+    alert: "Alert",
+    table: "Table",
+    searchbar: "Search Bar"
+  };
+
+  const availableIcons = [
+    { name: "BookOpen", component: <BookOpen size={18} /> },
+    { name: "Library", component: <Library size={18} /> },
+    { name: "Bell", component: <Bell size={18} /> },
+    { name: "Bookmark", component: <Bookmark size={18} /> },
+    { name: "FileText", component: <FileText size={18} /> },
+    { name: "User", component: <User size={18} /> },
+    { name: "Info", component: <Info size={18} /> },
+    { name: "Globe", component: <Globe size={18} /> },
+    { name: "Home", component: <Home size={18} /> },
+    { name: "Mail", component: <Mail size={18} /> },
+    { name: "Map", component: <Map size={18} /> },
+    { name: "Phone", component: <Phone size={18} /> },
+    { name: "ShoppingBag", component: <ShoppingBag size={18} /> },
+    { name: "Star", component: <Star size={18} /> },
+    { name: "Coffee", component: <Coffee size={18} /> }
+  ];
+
+  const getPropertyDefinitions = () => {
     switch (component.type) {
-      case 'text':
-        return ['content', 'fontSize', 'fontFamily', 'textAlign', 'textColor'];
       case 'header':
-        return ['title', 'icon'];
-      case 'image':
-        return ['source', 'altText', 'caption'];
+        return [
+          { name: "title", type: "text", label: "Title" },
+          { name: "icon", type: "icon", label: "Icon" }
+        ];
+      case 'text':
+        return [
+          { name: "content", type: "text", label: "Content" }
+        ];
       case 'button':
-        return ['text', 'onClick'];
+        return [
+          { name: "label", type: "text", label: "Label" },
+          { name: "variant", type: "select", label: "Style", options: ["default", "outline", "secondary"] },
+          { name: "linkUrl", type: "text", label: "Link URL (Optional)" },
+          { name: "openInNewTab", type: "select", label: "Open in New Tab", options: ["true", "false"] }
+        ];
+      case 'image':
+        return [
+          { name: "source", type: "text", label: "Image URL" },
+          { name: "altText", type: "text", label: "Alt Text" },
+          { name: "caption", type: "text", label: "Caption" },
+          { name: "width", type: "select", label: "Width", options: ["auto", "25%", "50%", "75%", "100%"] },
+          { name: "height", type: "select", label: "Height", options: ["auto", "small", "medium", "large"] },
+          { name: "borderRadius", type: "select", label: "Border Radius", options: ["none", "small", "medium", "large", "circle"] },
+          { name: "objectFit", type: "select", label: "Object Fit", options: ["contain", "cover", "fill", "none"] }
+        ];
+      case 'alert':
+        return [
+          { name: "title", type: "text", label: "Title" },
+          { name: "message", type: "text", label: "Message" },
+          { name: "type", type: "select", label: "Alert Type", options: ["info", "success", "warning", "error"] },
+          { name: "dismissible", type: "select", label: "Dismissible", options: ["true", "false"] },
+          { name: "autoClose", type: "select", label: "Auto Close", options: ["false", "3000", "5000", "10000"] },
+          { name: "notificationType", type: "select", label: "Notification Type", options: ["inline", "toast"] }
+        ];
+      case 'calendar':
+        return [
+          { name: "label", type: "text", label: "Label" },
+          { name: "placeholder", type: "text", label: "Placeholder" },
+          { name: "calendarType", type: "select", label: "Calendar Type", options: ["date-picker", "event-calendar"] },
+          { name: "calendarProvider", type: "select", label: "Calendar Provider", options: ["none", "google", "microsoft", "apple", "custom"] },
+          { name: "apiKey", type: "text", label: "API Key (if using provider)" },
+          { name: "calendarId", type: "text", label: "Calendar ID (if using provider)" },
+          { name: "showControls", type: "select", label: "Show Controls", options: ["true", "false"] },
+          { name: "allowEditing", type: "select", label: "Allow Editing", options: ["true", "false"] },
+          { name: "startDate", type: "text", label: "Start Date (YYYY-MM-DD)" },
+          { name: "endDate", type: "text", label: "End Date (YYYY-MM-DD)" }
+        ];
+      case 'chart':
+        return [
+          { name: "chartType", type: "select", label: "Chart Type", options: ["bar", "line", "pie", "doughnut", "area", "radar"] },
+          { name: "title", type: "text", label: "Chart Title" },
+          { name: "dataSource", type: "select", label: "Data Source", options: ["static", "api", "url"] },
+          { name: "dataUrl", type: "text", label: "Data URL (if using URL)" },
+          { name: "staticData", type: "text", label: "Static Data (comma-separated)" },
+          { name: "labels", type: "text", label: "Labels (comma-separated)" },
+          { name: "legend", type: "select", label: "Show Legend", options: ["true", "false"] },
+          { name: "legendPosition", type: "select", label: "Legend Position", options: ["top", "bottom", "left", "right"] },
+          { name: "colors", type: "text", label: "Colors (comma-separated hex values)" },
+          { name: "height", type: "text", label: "Chart Height (px)" }
+        ];
+      case 'dropdown':
+        return [
+          { name: "label", type: "text", label: "Label" },
+          { name: "placeholder", type: "text", label: "Placeholder" },
+          { name: "options", type: "text", label: "Options (comma separated)" },
+          { name: "multiple", type: "select", label: "Allow Multiple Selection", options: ["true", "false"] },
+          { name: "searchable", type: "select", label: "Searchable", options: ["true", "false"] },
+          { name: "required", type: "select", label: "Required", options: ["true", "false"] },
+          { name: "dynamicOptions", type: "select", label: "Dynamic Options", options: ["true", "false"] },
+          { name: "optionsUrl", type: "text", label: "Options URL (if using dynamic)" },
+          { name: "defaultValue", type: "text", label: "Default Value" }
+        ];
+      case 'link':
+        return [
+          { name: "text", type: "text", label: "Link Text" },
+          { name: "url", type: "text", label: "URL" },
+          { name: "openInNewTab", type: "select", label: "Open in New Tab", options: ["true", "false"] },
+          { name: "style", type: "select", label: "Style", options: ["default", "button", "underlined"] },
+          { name: "icon", type: "select", label: "Icon", options: ["LinkIcon", "ExternalLink", "FileText", "Download", "Info"] }
+        ];
+      case 'table':
+        return [
+          { name: "dataSource", type: "select", label: "Data Source", options: ["static", "api", "url"] },
+          { name: "staticData", type: "text", label: "Static Data (JSON string)" },
+          { name: "dataUrl", type: "text", label: "Data URL (if using URL)" },
+          { name: "columns", type: "text", label: "Columns (JSON string)" },
+          { name: "striped", type: "select", label: "Striped Rows", options: ["true", "false"] },
+          { name: "hoverable", type: "select", label: "Hoverable Rows", options: ["true", "false"] },
+          { name: "bordered", type: "select", label: "Bordered", options: ["true", "false"] },
+          { name: "pagination", type: "select", label: "Pagination", options: ["true", "false"] },
+          { name: "pageSize", type: "select", label: "Items Per Page", options: ["5", "10", "20", "50", "100"] },
+          { name: "searchable", type: "select", label: "Searchable", options: ["true", "false"] },
+          { name: "sortable", type: "select", label: "Sortable", options: ["true", "false"] },
+          { name: "exportable", type: "select", label: "Exportable", options: ["true", "false"] },
+          { name: "exportFormats", type: "select", label: "Export Formats", options: ["csv", "excel", "pdf", "all"] }
+        ];
+      case 'searchbar':
+        return [
+          { name: "placeholder", type: "text", label: "Placeholder" },
+          { name: "searchTarget", type: "select", label: "Search Target", options: ["widget", "external", "api"] },
+          { name: "targetComponent", type: "text", label: "Target Component ID (if searching widget)" },
+          { name: "searchApiUrl", type: "text", label: "Search API URL (if using API)" },
+          { name: "searchField", type: "text", label: "Search Field (if searching widget)" },
+          { name: "debounceTime", type: "select", label: "Debounce Time (ms)", options: ["0", "300", "500", "1000"] },
+          { name: "minChars", type: "select", label: "Min Characters", options: ["1", "2", "3", "4"] },
+          { name: "width", type: "select", label: "Width", options: ["full", "medium", "small"] },
+          { name: "showIcon", type: "select", label: "Show Icon", options: ["true", "false"] }
+        ];
+      case 'form':
+        return [
+          { name: "fields", type: "text", label: "Fields (JSON string)" },
+          { name: "submitText", type: "text", label: "Submit Button Text" },
+          { name: "formMethod", type: "select", label: "Form Method", options: ["GET", "POST"] },
+          { name: "formAction", type: "text", label: "Form Action URL" },
+          { name: "redirectUrl", type: "text", label: "Redirect URL (on success)" }
+        ];
+      case 'multi-text':
+        return [
+          { name: "items", type: "text", label: "Text Items (JSON array)" },
+          { name: "layout", type: "select", label: "Layout", options: ["vertical", "horizontal", "grid"] }
+        ];
+      case 'filter':
+        return [
+          { name: "options", type: "text", label: "Filter Options (comma separated)" },
+          { name: "defaultSelected", type: "text", label: "Default Selected Option" },
+          { name: "filterType", type: "select", label: "Filter Type", options: ["button", "checkbox", "dropdown", "radio"] }
+        ];
       case 'video':
-        return ['source', 'title'];
+        return [
+          { name: "source", type: "text", label: "Video URL" },
+          { name: "title", type: "text", label: "Title" },
+          { name: "poster", type: "text", label: "Poster Image URL" },
+          { name: "controls", type: "select", label: "Show Controls", options: ["true", "false"] },
+          { name: "autoplay", type: "select", label: "Autoplay", options: ["true", "false"] },
+          { name: "loop", type: "select", label: "Loop", options: ["true", "false"] },
+          { name: "muted", type: "select", label: "Muted", options: ["true", "false"] }
+        ];
       default:
-        return Object.keys(component.props || {});
+        return [
+          { name: "title", type: "text", label: "Title" },
+          { name: "content", type: "text", label: "Content" }
+        ];
     }
   };
 
-  const renderProperties = () => {
-    switch (component.type) {
-      case 'header':
+  const defaultTooltipOptions = [
+    { id: "none", label: "No Tooltip" },
+    { id: "help", label: "Help Info" },
+    { id: "info", label: "Additional Info" },
+    { id: "warning", label: "Warning" },
+    { id: "tip", label: "Pro Tip" }
+  ];
+
+  const validCustomTooltips = customTooltips.filter(tooltip => tooltip && tooltip.id);
+
+  const tooltipOptions = [
+    ...defaultTooltipOptions,
+    ...validCustomTooltips.map(tooltip => ({
+      id: tooltip.id,
+      label: tooltip.title,
+      content: tooltip.content,
+      tags: tooltip.tags
+    }))
+  ];
+
+  const renderPropertyEditor = (property: {
+    name: string;
+    type: string;
+    label: string;
+    options?: string[];
+  }) => {
+    const value = component.props && component.props[property.name];
+
+    switch (property.type) {
+      case "icon":
         return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="header-title">Title</Label>
-              <Input
-                type="text"
-                id="header-title"
-                value={component.props.title || ''}
-                onChange={(e) => handlePropertyChange('title', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="header-icon">Icon</Label>
-              <Input
-                type="text"
-                id="header-icon"
-                value={component.props.icon || ''}
-                onChange={(e) => handlePropertyChange('icon', e.target.value)}
-              />
-            </div>
-          </>
+          <div key={property.name} className="mb-4">
+            <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
+            <ScrollArea className="h-[180px] border rounded-md p-2 mt-1">
+              <div className="grid grid-cols-5 gap-2">
+                {availableIcons.map((icon) => (
+                  <div
+                    key={icon.name}
+                    className={`flex flex-col items-center justify-center p-2 border rounded cursor-pointer hover:bg-gray-100 ${
+                      value === icon.name ? "bg-blue-100 border-blue-300" : ""
+                    }`}
+                    onClick={() => handlePropertyChange(property.name, icon.name)}
+                  >
+                    {icon.component}
+                    <span className="text-xs mt-1 text-center">{icon.name}</span>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
         );
-      case 'text':
+      case "color":
         return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="text-font-size">Font Size</Label>
-              <Select
-                value={textFormatting.fontSize}
-                onValueChange={(value) => handleTextFormattingChange('fontSize', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select font size" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="small">Small</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="large">Large</SelectItem>
-                  <SelectItem value="xlarge">XLarge</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="text-font-family">Font Family</Label>
-              <Select
-                value={textFormatting.fontFamily}
-                onValueChange={(value) => handleTextFormattingChange('fontFamily', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select font family" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">Default</SelectItem>
-                  <SelectItem value="Arial">Arial</SelectItem>
-                  <SelectItem value="Helvetica">Helvetica</SelectItem>
-                  <SelectItem value="Times New Roman">Times New Roman</SelectItem>
-                  <SelectItem value="Courier New">Courier New</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="text-text-align">Text Align</Label>
-              <Select
-                value={textFormatting.textAlign}
-                onValueChange={(value) => handleTextFormattingChange('textAlign', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select text align" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="left">Left</SelectItem>
-                  <SelectItem value="center">Center</SelectItem>
-                  <SelectItem value="right">Right</SelectItem>
-                  <SelectItem value="justify">Justify</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="text-is-bold">Bold</Label>
-              <Switch
-                id="text-is-bold"
-                checked={textFormatting.isBold}
-                onCheckedChange={(checked) => handleTextFormattingChange('isBold', checked)}
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="text-is-italic">Italic</Label>
-              <Switch
-                id="text-is-italic"
-                checked={textFormatting.isItalic}
-                onCheckedChange={(checked) => handleTextFormattingChange('isItalic', checked)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="text-color">Text Color</Label>
-              <Input
-                type="color"
-                id="text-color"
-                value={textFormatting.textColor}
-                onChange={(e) => handleTextFormattingChange('textColor', e.target.value)}
-              />
-            </div>
-          </>
+          <ColorPalettePicker
+            key={property.name}
+            label={property.label}
+            value={value || "#FFFFFF"}
+            onChange={(newValue) => handlePropertyChange(property.name, newValue)}
+            className="mb-4"
+          />
         );
-      case 'image':
-        return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="image-source">Source URL</Label>
-              <Input
-                type="text"
-                id="image-source"
-                value={component.props.source || ''}
-                onChange={(e) => handlePropertyChange('source', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="image-alt-text">Alt Text</Label>
-              <Input
-                type="text"
-                id="image-alt-text"
-                value={component.props.altText || ''}
-                onChange={(e) => handlePropertyChange('altText', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="image-caption">Caption</Label>
-              <Input
-                type="text"
-                id="image-caption"
-                value={component.props.caption || ''}
-                onChange={(e) => handlePropertyChange('caption', e.target.value)}
-              />
-            </div>
-          </>
-        );
-      case 'button':
-        return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="button-text">Text</Label>
-              <Input
-                type="text"
-                id="button-text"
-                value={component.props.text || ''}
-                onChange={(e) => handlePropertyChange('text', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="button-onclick">onClick Action</Label>
-              <Input
-                type="text"
-                id="button-onclick"
-                value={component.props.onClick || ''}
-                onChange={(e) => handlePropertyChange('onClick', e.target.value)}
-              />
-            </div>
-          </>
-        );
-        case 'alert':
+      case "text":
+        if (property.name === "content" && (component.contentFields?.length || component.formattedContent !== undefined)) {
           return (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="alert-title">Title</Label>
-                <Input
-                  type="text"
-                  id="alert-title"
-                  value={component.props.title || ''}
-                  onChange={(e) => handlePropertyChange('title', e.target.value)}
-                />
+            <div key={property.name} className="mb-4">
+              <div className="mb-3 border rounded-md p-2 bg-white shadow-sm">
+                <div className="flex flex-wrap items-center gap-2 border-b pb-2 mb-2">
+                  <Select
+                    value={textFormatting.fontFamily}
+                    onValueChange={(val) => handleTextFormattingChange("fontFamily", val)}
+                  >
+                    <SelectTrigger className="h-8 w-28">
+                      <SelectValue placeholder="Font" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="default">Default</SelectItem>
+                      <SelectItem value="serif">Serif</SelectItem>
+                      <SelectItem value="sans-serif">Sans-serif</SelectItem>
+                      <SelectItem value="monospace">Monospace</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={textFormatting.fontSize}
+                    onValueChange={(val) => handleTextFormattingChange("fontSize", val)}
+                  >
+                    <SelectTrigger className="h-8 w-24">
+                      <SelectValue placeholder="Size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="small">Small</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="large">Large</SelectItem>
+                      <SelectItem value="xlarge">X-Large</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8 px-2 border-dashed">
+                        <div 
+                          className="w-4 h-4 rounded-sm mr-1" 
+                          style={{ backgroundColor: textFormatting.textColor }}
+                        />
+                        <span className="sr-only">Color</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64">
+                      <div className="grid gap-4">
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-sm">Text Color</h4>
+                          <div className="grid grid-cols-6 gap-2">
+                            {["#000000", "#5c5c5c", "#737373", "#a3a3a3", "#d4d4d4", "#ffffff", 
+                              "#ff0000", "#ff8000", "#ffff00", "#00ff00", "#00ffff", "#0000ff", 
+                              "#8000ff", "#ff00ff", "#581c87", "#166534", "#0e7490", "#1e40af"].map(color => (
+                              <Button 
+                                key={color} 
+                                variant="outline"
+                                className="w-8 h-8 p-0 rounded-md"
+                                style={{ backgroundColor: color }}
+                                onClick={() => handleTextFormattingChange("textColor", color)}
+                              />
+                            ))}
+                          </div>
+                          <Input 
+                            type="text" 
+                            value={textFormatting.textColor} 
+                            onChange={(e) => handleTextFormattingChange("textColor", e.target.value)}
+                            className="h-8 mt-2"
+                          />
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
+                  <div className="flex items-center border rounded-md">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`px-2 h-8 rounded-none ${textFormatting.isBold ? 'bg-gray-200' : ''}`}
+                      onClick={() => handleTextFormattingChange("isBold", !textFormatting.isBold)}
+                    >
+                      <Bold size={16} />
+                      <span className="sr-only">Bold</span>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`px-2 h-8 rounded-none ${textFormatting.isItalic ? 'bg-gray-200' : ''}`}
+                      onClick={() => handleTextFormattingChange("isItalic", !textFormatting.isItalic)}
+                    >
+                      <Italic size={16} />
+                      <span className="sr-only">Italic</span>
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center border rounded-md">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`px-2 h-8 rounded-none ${textFormatting.textAlign === 'left' ? 'bg-gray-200' : ''}`}
+                      onClick={() => handleTextFormattingChange("textAlign", "left")}
+                    >
+                      <AlignLeft size={16} />
+                      <span className="sr-only">Align Left</span>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`px-2 h-8 rounded-none ${textFormatting.textAlign === 'center' ? 'bg-gray-200' : ''}`}
+                      onClick={() => handleTextFormattingChange("textAlign", "center")}
+                    >
+                      <AlignCenter size={16} />
+                      <span className="sr-only">Align Center</span>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`px-2 h-8 rounded-none ${textFormatting.textAlign === 'right' ? 'bg-gray-200' : ''}`}
+                      onClick={() => handleTextFormattingChange("textAlign", "right")}
+                    >
+                      <AlignRight size={16} />
+                      <span className="sr-only">Align Right</span>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`px-2 h-8 rounded-none ${textFormatting.textAlign === 'justify' ? 'bg-gray-200' : ''}`}
+                      onClick={() => handleTextFormattingChange("textAlign", "justify")}
+                    >
+                      <AlignJustify size={16} />
+                      <span className="sr-only">Justify</span>
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="mb-2">
+                  <textarea
+                    id={`prop-${property.name}`}
+                    className="w-full h-32 border rounded p-2 text-sm font-mono resize-none"
+                    value={component.formattedContent || ""}
+                    onChange={(e) => handleFormattedContentChange(e.target.value)}
+                    placeholder="Enter formatted content or use API fields..."
+                    style={{
+                      fontFamily: textFormatting.fontFamily === 'default' ? 'inherit' : textFormatting.fontFamily,
+                      fontSize: textFormatting.fontSize === 'small' ? '0.875rem' : 
+                               textFormatting.fontSize === 'large' ? '1.25rem' : 
+                               textFormatting.fontSize === 'xlarge' ? '1.5rem' : '1rem',
+                      fontWeight: textFormatting.isBold ? 'bold' : 'normal',
+                      fontStyle: textFormatting.isItalic ? 'italic' : 'normal',
+                      color: textFormatting.textColor,
+                      textAlign: textFormatting.textAlign as any
+                    }}
+                  />
+                </div>
+                
+                <div className="mt-1 mb-2">
+                  <p className="text-xs text-gray-500">
+                    Use <code className="bg-gray-200 px-1 rounded">{"{{Field Name}}"}</code> to insert dynamic content
+                  </p>
+                </div>
+                
+                {component.contentFields && component.contentFields.length > 0 && (
+                  <div className="mt-2">
+                    <Label className="text-xs font-medium mb-1 block">Available API Fields</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {component.contentFields.map((field, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs cursor-pointer hover:bg-gray-200"
+                          onClick={() => {
+                            const placeholder = `{{${field.label}}}`;
+                            const currentContent = component.formattedContent || "";
+                            handleFormattedContentChange(currentContent + placeholder);
+                          }}>
+                          {field.label} <span className="text-gray-500 ml-1">({field.apiField})</span>
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="alert-variant">Variant</Label>
-                <Select
-                  value={component.props.variant || 'default'}
-                  onValueChange={(value) => handlePropertyChange('variant', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select variant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="default">Default</SelectItem>
-                    <SelectItem value="destructive">Destructive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
+            </div>
           );
-      case 'video':
+        }
+        
         return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="video-source">Source URL</Label>
-              <Input
-                type="text"
-                id="video-source"
-                value={component.props.source || ''}
-                onChange={(e) => handlePropertyChange('source', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="video-title">Title</Label>
-              <Input
-                type="text"
-                id="video-title"
-                value={component.props.title || ''}
-                onChange={(e) => handlePropertyChange('title', e.target.value)}
-              />
-            </div>
-          </>
+          <div key={property.name} className="mb-4">
+            <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
+            <Input
+              id={`prop-${property.name}`}
+              value={value || ""}
+              onChange={(e) => handlePropertyChange(property.name, e.target.value)}
+            />
+          </div>
+        );
+      case "select":
+        return (
+          <div key={property.name} className="mb-4">
+            <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
+            <Select
+              value={String(value)}
+              onValueChange={(val) => handlePropertyChange(property.name, val === "true" ? true : val === "false" ? false : val)}
+            >
+              <SelectTrigger id={`prop-${property.name}`}>
+                <SelectValue placeholder={`Select ${property.label}`} />
+              </SelectTrigger>
+              <SelectContent>
+                {property.options?.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         );
       default:
-        return <p>No properties to edit for this component.</p>;
+        return null;
     }
   };
 
-  const renderContentEditor = () => {
-    const handleContentChange = (content: string) => {
-      const updatedComponent: WidgetComponent = {
-        ...component,
-        props: {
-          ...component.props,
-          content: content,
-        },
-        formattedContent: content,
-      };
-      onUpdateComponent(updatedComponent);
-    };
+  const isHeader = component.type === 'header';
+  const shouldDisableRemove = disableRemove || isHeader;
+
+  const getTooltipIcon = (tooltipId: string) => {
+    switch(tooltipId) {
+      case "help": return <HelpCircle size={16} className="text-blue-500" />;
+      case "info": return <Info size={16} className="text-green-500" />;
+      case "warning": return <AlertTriangle size={16} className="text-amber-500" />;
+      case "tip": return <Star size={16} className="text-purple-500" />;
+      default: 
+        return validCustomTooltips.some(t => t.id === tooltipId) ? 
+          <Info size={16} className="text-indigo-500" /> : 
+          null;
+    }
+  };
+
+  const isTooltipValid = component.tooltipId ? 
+    tooltipOptions.some(option => option.id === component.tooltipId) : 
+    true;
+  
+  if (component.tooltipId && !isTooltipValid && onApplyTooltip) {
+    setTimeout(() => {
+      onApplyTooltip("");
+    }, 0);
+  }
+
+  const selectedTooltip = component.tooltipId ? 
+    validCustomTooltips.find(t => t.id === component.tooltipId) : 
+    null;
+
+  const shouldShowDataIntegration = () => {
+    const dataIntegrationComponents = ['calendar', 'chart', 'table', 'dropdown', 'alert', 'searchbar'];
+    return dataIntegrationComponents.includes(component.type);
+  };
+
+  const selectedApi = component.apiConfig ? apis.find(api => api.id === component.apiConfig?.apiId) : undefined;
+
+  const getAvailableApiFields = () => {
+    if (!selectedApi) return [];
+    
+    if (selectedApi.possibleFields && selectedApi.possibleFields.length > 0) {
+      return selectedApi.possibleFields;
+    }
+    
+    if (selectedApi.sampleResponse) {
+      try {
+        const sampleData = JSON.parse(selectedApi.sampleResponse);
+        return Object.keys(sampleData);
+      } catch (e) {
+        return [];
+      }
+    }
+    
+    return [];
+  };
+
+  const renderApiDetails = () => {
+    if (!selectedApi) return null;
+    const availableApiFields = getAvailableApiFields();
 
     return (
-      <Textarea
-        value={component.props.content || component.formattedContent || ''}
-        onChange={(e) => handleContentChange(e.target.value)}
-        placeholder="Enter content here..."
-        className="w-full"
-      />
-    );
-  };
-
-  return (
-    <div className="h-full overflow-y-auto pb-20">
-      <div className="p-4 space-y-6">
+      <div className="space-y-4 mt-4 border rounded-md p-3 bg-gray-50">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-widget-blue">
-            Edit {component.type.charAt(0).toUpperCase() + component.type.slice(1)}
-          </h3>
+          <h4 className="font-medium text-sm">Connected to: {selectedApi.name}</h4>
           <Button 
             variant="ghost" 
-            size="icon"
-            onClick={onClose}
+            size="sm" 
+            onClick={() => {
+              const updatedComponent = { ...component };
+              delete updatedComponent.apiConfig;
+              onUpdateComponent(updatedComponent);
+            }}
+            className="h-6 text-red-500 hover:text-red-700"
           >
-            <X size={20} />
+            <X size={14} className="mr-1" /> Disconnect
           </Button>
         </div>
 
-        {/* API Configuration */}
-        {isApiCompatible && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h4 className="text-sm font-medium">API Configuration</h4>
-              {!component.apiConfig?.apiId && availableApis.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onRequestApiTemplate(component.id)}
-                >
-                  Use API Template
-                </Button>
-              )}
-            </div>
-
-            {availableApis.length === 0 ? (
-              <div className="text-sm text-muted-foreground">
-                No APIs available. Add an API from the APIs panel first.
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <Select
-                  value={component.apiConfig?.apiId || ""}
-                  onValueChange={handleApiConfigChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an API" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">None</SelectItem>
-                    {availableApis.map(api => (
-                      <SelectItem key={api.id} value={api.id}>
-                        {api.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* API Field Mappings Section - Add above content editor */}
-                {component.apiConfig?.apiId && (
-                  <ApiFieldMapping
-                    apis={availableApis}
-                    selectedApiId={component.apiConfig.apiId}
-                    apiFieldMappings={component.apiFieldMappings || []}
-                    onAddMapping={handleAddApiFieldMapping}
-                    onUpdateMapping={handleUpdateApiFieldMapping}
-                    onRemoveMapping={handleRemoveApiFieldMapping}
-                    componentProperties={getComponentProperties()}
-                  />
-                )}
-              </div>
-            )}
+        <div className="space-y-3 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="font-medium w-20">Endpoint:</span>
+            <span className="text-xs overflow-hidden overflow-ellipsis">{selectedApi.endpoint}</span>
           </div>
-        )}
-
-        {/* Content Editor */}
-        {(component.type === 'text' || component.type === 'header' || component.type === 'alert') && (
-          <div className="space-y-4">
-            <h4 className="text-sm font-medium">Content</h4>
-            {renderContentEditor()}
+          <div className="flex items-center gap-2">
+            <span className="font-medium w-20">Method:</span>
+            <Badge variant="outline" className="text-xs font-mono">
+              {selectedApi.method}
+            </Badge>
           </div>
-        )}
-
-        {/* Properties */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-medium">Properties</h4>
-          {renderProperties()}
         </div>
 
-        {/* Tooltip Selection */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="text-sm font-medium">Tooltip</h4>
-            {!component.tooltipId && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsTooltipModalOpen(true)}
-              >
-                <HelpCircle size={14} className="mr-1" /> Add Tooltip
-              </Button>
-            )}
+        {selectedApi.parameters && Object.keys(selectedApi.parameters).length > 0 && (
+          <div className="mt-1">
+            <Accordion type="single" collapsible>
+              <AccordionItem value="parameters">
+                <AccordionTrigger className="text-xs font-medium py-1">
+                  Parameters
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-1 text-xs">
+                    {Object.entries(selectedApi.parameters).map(([key, value], idx) => (
+                      <div key={`param-${idx}`} className="flex items-center gap-2">
+                        <span className="font-medium">{key}:</span>
+                        <span className="text-gray-600">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        )}
+
+        <div className="mt-3 border-t pt-3">
+          <h5 className="text-sm font-medium mb-2">Add Content Fields</h5>
+          <div className="flex items-end gap-2 mb-3">
+            <div className="flex-1">
+              <Label htmlFor="field-label" className="text-xs">Field Label</Label>
+              <Input 
+                id="field-label" 
+                value={newFieldLabel} 
+                onChange={(e) => setNewFieldLabel(e.target.value)}
+                placeholder="Enter field label"
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="flex-1">
+              <Label htmlFor="api-field" className="text-xs">API Field</Label>
+              <Select value={newFieldApiField} onValueChange={setNewFieldApiField}>
+                <SelectTrigger id="api-field" className="h-8 text-sm">
+                  <SelectValue placeholder="Select API field" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableApiFields.map((field) => (
+                    <SelectItem key={field} value={field}>
+                      {field}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={addContentField}
+              disabled={!newFieldLabel || !newFieldApiField}
+              className="h-8 px-2"
+            >
+              <Plus size={14} />
+            </Button>
           </div>
 
-          {component.tooltipId ? (
-            <div className="flex justify-between items-center rounded-md border p-2">
-              <div className="flex items-center">
-                <HelpCircle size={16} className="text-blue-500 mr-2" />
-                <span className="text-sm">
-                  {tooltips && tooltips.find(t => t.id === component.tooltipId)?.title || 'Tooltip'}
-                </span>
+          {component.contentFields && component.contentFields.length > 0 && (
+            <div className="mt-2 space-y-2">
+              <h6 className="text-xs font-medium">Mapped Fields:</h6>
+              <div className="space-y-1">
+                {component.contentFields.map((field, idx) => (
+                  <div key={idx} className="flex justify-between items-center py-1 px-2 bg-white rounded border text-sm">
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium">{field.label}:</span>
+                      <Badge variant="outline" className="text-xs">
+                        {field.apiField}
+                      </Badge>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => removeContentField(idx)}
+                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
+                ))}
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleApplyTooltip('')}
-              >
-                <X size={14} className="mr-1" /> Remove
-              </Button>
-            </div>
-          ) : (
-            <div className="text-sm text-muted-foreground">
-              No tooltip applied. Add one to provide contextual help.
             </div>
           )}
         </div>
       </div>
+    );
+  };
 
-      <Dialog open={isTooltipModalOpen} onOpenChange={setIsTooltipModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Select a Tooltip</DialogTitle>
-            <DialogDescription>
-              Choose a tooltip to provide more information about this component.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {tooltips && tooltips.length > 0 ? tooltips.map(tooltip => (
-              <div key={tooltip.id} className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    handleApplyTooltip(tooltip.id);
-                    setIsTooltipModalOpen(false);
-                  }}
-                >
-                  {tooltip.title}
-                </Button>
-              </div>
-            )) : (
-              <div className="text-center py-4 text-muted-foreground">
-                No tooltips available. Create some in the Tooltips tab.
-              </div>
+  const renderApiSection = () => {
+    return (
+      <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-gray-50 p-3 flex items-center justify-between">
+          <div className="flex items-center">
+            <Database size={16} className="mr-2 text-blue-500" />
+            <span className="font-medium">API Integration</span>
+            {component.apiConfig && (
+              <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-600 border-green-200">
+                Connected
+              </Badge>
             )}
           </div>
-          <DialogFooter>
-            <Button type="button" onClick={() => setIsTooltipModalOpen(false)}>
-              Cancel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+        
+        <div className="p-3">
+          {component.apiConfig ? (
+            renderApiDetails()
+          ) : (
+            <div>
+              <div className="mb-4">
+                <Label htmlFor="api-select" className="mb-1 block">Select API</Label>
+                <Select onValueChange={handleApiSelection}>
+                  <SelectTrigger id="api-select">
+                    <SelectValue placeholder="Select an API to connect" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {apis.length > 0 ? (
+                      apis.map((api) => (
+                        <SelectItem key={api.id} value={api.id}>
+                          {api.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="none" disabled>
+                        No APIs available
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex flex-col items-center justify-center py-4 text-center text-sm text-gray-500">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={onRequestApiTemplate}
+                  className="mb-2"
+                >
+                  <Bookmark size={14} className="mr-1" /> Choose from API Templates
+                </Button>
+                <p className="text-xs">
+                  Or create a new API from the APIs tab
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="relative rounded-lg overflow-hidden border bg-white">
+      <div 
+        className={`flex items-center justify-between px-4 py-3 border-b cursor-pointer ${isExpanded ? 'bg-gray-50' : 'hover:bg-gray-50'}`}
+        onClick={onToggleExpand}
+      >
+        <div className="flex items-center">
+          <div className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 mr-3">
+            {component.type === 'header' && <BookOpen size={18} className="text-blue-600" />}
+            {component.type === 'text' && <Text size={18} />}
+            {component.type === 'image' && <Image size={18} />}
+            {component.type === 'button' && <MousePointer size={18} />}
+            {component.type === 'video' && <Video size={18} />}
+            {component.type === 'chart' && <BarChart size={18} />}
+            {component.type === 'form' && <FormInput size={18} />}
+            {component.type === 'calendar' && <CalendarDays size={18} />}
+            {component.type === 'dropdown' && <ChevronDown size={18} />}
+            {component.type === 'link' && <LinkIcon size={18} />}
+            {component.type === 'multi-text' && <List size={18} />}
+            {component.type === 'filter' && <Filter size={18} />}
+            {component.type === 'alert' && <AlertTriangle size={18} />}
+            {component.type === 'table' && <Table2 size={18} />}
+            {component.type === 'searchbar' && <Search size={18} />}
+          </div>
+          <div>
+            <h3 className="font-medium text-sm">
+              {componentTypeLabels[component.type] || component.type}
+              {component.props?.title && <span className="ml-2 opacity-70">({component.props.title})</span>}
+              {component.props?.label && <span className="ml-2 opacity-70">({component.props.label})</span>}
+              {component.tooltipId && (
+                <span className="ml-2">
+                  {getTooltipIcon(component.tooltipId)}
+                </span>
+              )}
+            </h3>
+            {component.apiConfig && (
+              <Badge variant="outline" className="mt-1 text-xs bg-blue-50 text-blue-600 border-blue-200">
+                API: {apis.find(api => api.id === component.apiConfig?.apiId)?.name || "Connected"}
+              </Badge>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center">
+          {shouldDisableRemove ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="opacity-50 cursor-not-allowed">
+                    <Trash2 size={14} className="text-gray-400" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">This component cannot be removed</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <button
+              className="text-red-500 hover:text-red-700 transition-colors p-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemoveComponent(component.id);
+              }}
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
+          <div className="ml-2 w-5 flex justify-center">
+            {isExpanded ? (
+              <ChevronUp size={16} className="text-gray-500" />
+            ) : (
+              <ChevronDown size={16} className="text-gray-500" />
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {isExpanded && (
+        <div className="p-4">
+          {component.type === 'alert' && (
+            <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded p-3 text-sm">
+              <h4 className="font-medium flex items-center text-yellow-800">
+                <AlertTriangle size={16} className="mr-2" />
+                Alert Component
+              </h4>
+              <p className="mt-1 text-yellow-700">
+                This component will be displayed at the top of your widget, regardless of its position in the component list.
+              </p>
+            </div>
+          )}
+          
+          <div className="space-y-4">
+            {onApplyTooltip && (
+              <div className="mb-4">
+                <Label htmlFor="tooltip-select" className="mb-1 block">Tooltip</Label>
+                <Select 
+                  value={component.tooltipId || "none"} 
+                  onValueChange={(value) => onApplyTooltip(value === "none" ? "" : value)}
+                >
+                  <SelectTrigger id="tooltip-select">
+                    <SelectValue placeholder="Select tooltip" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tooltipOptions.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedTooltip && (
+                  <div className="mt-2 text-sm">
+                    <div className="border rounded-md p-3 bg-gray-50">
+                      <span className="block font-medium text-xs">{selectedTooltip.title}</span>
+                      <p className="mt-1 text-xs text-gray-600">{selectedTooltip.content}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <div>
+              <h3 className="font-medium mb-3">Content</h3>
+              <div className="space-y-1">
+                {getPropertyDefinitions().map(renderPropertyEditor)}
+              </div>
+            </div>
+            
+            {shouldShowDataIntegration() && renderApiSection()}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
