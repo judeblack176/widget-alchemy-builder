@@ -1,0 +1,30 @@
+
+import React from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
+
+interface ComponentLimitAlertProps {
+  hasExcessComponents: boolean;
+  nonHeaderNonAlertComponentsLength: number;
+  maxComponents: number;
+}
+
+const ComponentLimitAlert: React.FC<ComponentLimitAlertProps> = ({ 
+  hasExcessComponents, 
+  nonHeaderNonAlertComponentsLength, 
+  maxComponents 
+}) => {
+  if (!hasExcessComponents) return null;
+
+  return (
+    <Alert variant="destructive" className="mt-2 mx-4 mb-4 py-2">
+      <AlertCircle className="h-4 w-4 mr-2" />
+      <AlertDescription>
+        Only showing {maxComponents} of {nonHeaderNonAlertComponentsLength} components. 
+        Widgets are limited to {maxComponents} components (excluding header and alerts).
+      </AlertDescription>
+    </Alert>
+  );
+};
+
+export default ComponentLimitAlert;
