@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { WidgetComponent, ApiConfig, ContentDetails } from '@/types/widget-types'; // Fixed import
+import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
 import { renderComponent } from './component-renderers';
 import { HelpCircle, AlertCircle, Check, Ruler, Palette } from 'lucide-react';
@@ -10,6 +10,11 @@ import { useToast } from '@/hooks/use-toast';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+
+interface ContentDetails {
+  size?: 'small' | 'medium' | 'large';
+  color?: string;
+}
 
 interface WidgetPreviewProps {
   components: WidgetComponent[];
