@@ -66,6 +66,14 @@ import {
   PopoverTrigger 
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -475,6 +483,70 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const selectedApi = component.apiConfig ? apis.find(api => api.id === component.apiConfig?.apiId) : undefined;
 
+  const renderMultiSelectDropdown = (propKey: string, label: string, apiFields: string[]) => {
+    const selectedFields = component.apiConfig?.multiMapping?.[propKey] || [];
+    
+    return (
+      <div className="space-y-2 mb-4">
+        <div className="flex justify-between items-center">
+          <Label>{label}</Label>
+          <Badge variant="outline" className="ml-2">
+            {selectedFields.length} selected
+          </Badge>
+        </div>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="w-full justify-between">
+              Select Fields
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuLabel>API Fields</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <ScrollArea className="h-[200px]">
+              {apiFields.map(field => (
+                <DropdownMenuCheckboxItem
+                  key={`${propKey}-${field}`}
+                  checked={isFieldSelected(propKey, field)}
+                  onCheckedChange={(checked) => {
+                    handleMultiMappingChange(propKey, field, checked);
+                  }}
+                >
+                  {field}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </ScrollArea>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
+        {selectedFields.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {selectedFields.map((field, idx) => (
+              <Badge 
+                key={`selected-${propKey}-${idx}`} 
+                variant="secondary"
+                className="text-xs flex items-center gap-1"
+              >
+                {field}
+                <button 
+                  className="ml-1 hover:text-red-500"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleMultiMappingChange(propKey, field, false);
+                  }}
+                >
+                  <X size={10} />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderApiDetails = () => {
     if (!selectedApi) return null;
 
@@ -594,7 +666,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           </Accordion>
         </div>
 
-        {/* Multiple Data Mapping */}
+        {/* Multiple Data Mapping - Now using dropdown */}
         <div className="mt-1">
           <Accordion type="single" collapsible defaultValue="multi-mapping">
             <AccordionItem value="multi-mapping">
@@ -607,55 +679,10 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                   
                   {getPropertyDefinitions().map((prop) => (
                     <div key={`multimap-${prop.name}`} className="border rounded-md p-2 mb-3">
-                      <div className="text-xs font-medium mb-2">{prop.label}:</div>
-                      <div className="space-y-1 ml-1">
-                        {selectedApi.possibleFields && selectedApi.possibleFields.length > 0 ? (
-                          selectedApi.possibleFields.map((field, idx) => (
-                            <div key={`multifield-${prop.name}-${idx}`} className="flex items-center space-x-2">
-                              <Checkbox 
-                                id={`check-${prop.name}-${idx}`}
-                                checked={isFieldSelected(prop.name, field)}
-                                onCheckedChange={(checked) => {
-                                  handleMultiMappingChange(prop.name, field, checked === true);
-                                }}
-                              />
-                              <label 
-                                htmlFor={`check-${prop.name}-${idx}`}
-                                className="text-xs leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                {field}
-                              </label>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-xs text-gray-500">No fields available</div>
-                        )}
-                      </div>
-                      
-                      {/* Show selected fields */}
-                      {component.apiConfig?.multiMapping?.[prop.name]?.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-gray-200">
-                          <div className="flex flex-wrap gap-1">
-                            {component.apiConfig.multiMapping[prop.name].map((field, idx) => (
-                              <Badge 
-                                key={`selected-${prop.name}-${idx}`} 
-                                variant="secondary"
-                                className="text-xs flex items-center gap-1"
-                              >
-                                {field}
-                                <button 
-                                  className="ml-1 hover:text-red-500"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    handleMultiMappingChange(prop.name, field, false);
-                                  }}
-                                >
-                                  <X size={10} />
-                                </button>
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
+                      {renderMultiSelectDropdown(
+                        prop.name, 
+                        prop.label, 
+                        selectedApi.possibleFields || []
                       )}
                     </div>
                   ))}
