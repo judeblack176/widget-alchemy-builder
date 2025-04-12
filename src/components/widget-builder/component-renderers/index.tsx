@@ -35,8 +35,10 @@ export const renderComponent = (
             mapping && 
             mapping.field && 
             mapping.targetProperty && 
-            mapping.field !== 'select_field' && 
-            mapping.targetProperty !== 'select_property' && 
+            mapping.field !== 'default_field_placeholder' &&
+            mapping.field !== 'select_field' &&
+            mapping.targetProperty !== 'default_property_placeholder' &&
+            mapping.targetProperty !== 'select_property' &&
             componentApiData[mapping.field] !== undefined
           ) {
             processedProps[mapping.targetProperty] = componentApiData[mapping.field];

@@ -32,6 +32,17 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
   const selectedApi = apis.find(api => api.id === selectedApiId);
   const availableFields = selectedApi?.possibleFields || [];
 
+  // Ensure we never pass empty values to SelectItem
+  const getDefaultField = (field: string | undefined) => {
+    if (field && field !== "") return field;
+    return "default_field_placeholder";
+  };
+
+  const getDefaultProperty = (property: string | undefined) => {
+    if (property && property !== "") return property;
+    return "default_property_placeholder";
+  };
+
   return (
     <div className="space-y-4 border rounded-md p-4 mb-4">
       <div className="flex justify-between items-center">
@@ -61,7 +72,7 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
           <div className="space-y-1">
             <Label htmlFor={`field-${mapping.id}`} className="text-xs">API Field</Label>
             <Select
-              value={mapping.field || "select_field"} 
+              value={getDefaultField(mapping.field)}
               onValueChange={(value) => onUpdateMapping(mapping.id, 'field', value)}
             >
               <SelectTrigger id={`field-${mapping.id}`} className="h-8">
@@ -73,7 +84,7 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
                     {field}
                   </SelectItem>
                 ))}
-                <SelectItem value="select_field">Select a field</SelectItem>
+                <SelectItem value="default_field_placeholder">Select a field</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -81,7 +92,7 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
           <div className="space-y-1">
             <Label htmlFor={`property-${mapping.id}`} className="text-xs">Component Property</Label>
             <Select
-              value={mapping.targetProperty || "select_property"} 
+              value={getDefaultProperty(mapping.targetProperty)}
               onValueChange={(value) => onUpdateMapping(mapping.id, 'targetProperty', value)}
             >
               <SelectTrigger id={`property-${mapping.id}`} className="h-8">
@@ -93,7 +104,7 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
                     {prop}
                   </SelectItem>
                 ))}
-                <SelectItem value="select_property">Select a property</SelectItem>
+                <SelectItem value="default_property_placeholder">Select a property</SelectItem>
               </SelectContent>
             </Select>
           </div>
