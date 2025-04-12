@@ -1,5 +1,6 @@
 
-import { WidgetComponent, ApiConfig, Tooltip } from "./widget-types";
+import { WidgetComponent, ApiConfig } from "./widget-types";
+import { Tooltip } from "@/components/widget-builder/TooltipManager";
 
 declare module "@/components/widget-builder/WidgetBuilder" {
   export interface WidgetBuilderProps {

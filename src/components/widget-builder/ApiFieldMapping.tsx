@@ -1,81 +1,79 @@
 
-import React from 'react';
-import { ApiConfig } from '@/types/widget-types';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { X, Plus } from 'lucide-react';
+import { ApiFieldMapping } from '@/types/widget-types';
 
 interface ApiFieldMappingProps {
-  apis: ApiConfig[];
-  selectedApiId?: string;
-  apiFieldMappings: Array<{
-    id: string;
-    field: string;
-    targetProperty: string;
-  }>;
-  onAddMapping: () => void;
-  onUpdateMapping: (id: string, field: string, value: string) => void;
-  onRemoveMapping: (id: string) => void;
-  componentProperties: string[];
+  availableFields?: string[];
+  onAddField: (field: ApiFieldMapping) => void;
+  onRemoveField: (index: number) => void;
+  fields: ApiFieldMapping[];
 }
 
-const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
-  apis,
-  selectedApiId,
-  apiFieldMappings,
-  onAddMapping,
-  onUpdateMapping,
-  onRemoveMapping,
-  componentProperties,
+const ApiFieldMappingEditor: React.FC<ApiFieldMappingProps> = ({
+  availableFields = [],
+  onAddField,
+  onRemoveField,
+  fields,
 }) => {
-  const selectedApi = apis.find(api => api.id === selectedApiId);
-  const availableFields = selectedApi?.possibleFields || [];
+  const [newLabel, setNewLabel] = useState('');
+  const [newApiField, setNewApiField] = useState('');
 
-  // Ensure we never pass empty values to SelectItem
-  const getDefaultField = (field: string | undefined) => {
-    if (field && field !== "") return field;
-    return "default_field_placeholder";
-  };
-
-  const getDefaultProperty = (property: string | undefined) => {
-    if (property && property !== "") return property;
-    return "default_property_placeholder";
+  const handleAddField = () => {
+    if (newLabel.trim() && newApiField) {
+      onAddField({
+        label: newLabel.trim(),
+        apiField: newApiField,
+      });
+      setNewLabel('');
+      setNewApiField('');
+    }
   };
 
   return (
-    <div className="space-y-4 border rounded-md p-4 mb-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-sm font-medium">API Field Mappings</h3>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={onAddMapping}
-          disabled={!selectedApiId || availableFields.length === 0}
-        >
-          Add Field Mapping
-        </Button>
+    <div className="space-y-4">
+      <div className="font-medium text-sm">Content Field Mappings</div>
+      
+      <div className="space-y-2">
+        {fields.map((field, index) => (
+          <div key={index} className="flex items-center gap-2 bg-muted/50 p-2 rounded-md">
+            <div className="flex-1">
+              <span className="text-sm font-medium">{field.label}</span>
+              <span className="text-xs text-muted-foreground ml-2">→</span>
+              <span className="text-xs text-muted-foreground ml-2">{field.apiField}</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => onRemoveField(index)}
+            >
+              <X size={14} />
+            </Button>
+          </div>
+        ))}
       </div>
 
-      {apiFieldMappings.length === 0 && (
-        <div className="text-sm text-muted-foreground text-center py-2">
-          {!selectedApiId 
-            ? "Select an API in the API configuration section to add field mappings" 
-            : availableFields.length === 0 
-              ? "No fields available in the selected API" 
-              : "No mappings added yet. Click 'Add Field Mapping' to create one"}
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <Label htmlFor="labelField" className="text-xs">Label</Label>
+          <Input
+            id="labelField"
+            value={newLabel}
+            onChange={(e) => setNewLabel(e.target.value)}
+            placeholder="Field label"
+            className="h-8"
+          />
         </div>
-      )}
-
-      {apiFieldMappings.map((mapping) => (
-        <div key={mapping.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-end">
-          <div className="space-y-1">
-            <Label htmlFor={`field-${mapping.id}`} className="text-xs">API Field</Label>
-            <Select
-              value={getDefaultField(mapping.field)}
-              onValueChange={(value) => onUpdateMapping(mapping.id, 'field', value)}
-            >
-              <SelectTrigger id={`field-${mapping.id}`} className="h-8">
+        <div>
+          <Label htmlFor="apiField" className="text-xs">API Field</Label>
+          {availableFields.length > 0 ? (
+            <Select value={newApiField} onValueChange={setNewApiField}>
+              <SelectTrigger className="h-8">
                 <SelectValue placeholder="Select field" />
               </SelectTrigger>
               <SelectContent>
@@ -84,43 +82,31 @@ const ApiFieldMapping: React.FC<ApiFieldMappingProps> = ({
                     {field}
                   </SelectItem>
                 ))}
-                <SelectItem value="default_field_placeholder">Select a field</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor={`property-${mapping.id}`} className="text-xs">Component Property</Label>
-            <Select
-              value={getDefaultProperty(mapping.targetProperty)}
-              onValueChange={(value) => onUpdateMapping(mapping.id, 'targetProperty', value)}
-            >
-              <SelectTrigger id={`property-${mapping.id}`} className="h-8">
-                <SelectValue placeholder="Select property" />
-              </SelectTrigger>
-              <SelectContent>
-                {componentProperties.map((prop) => (
-                  <SelectItem key={prop} value={prop}>
-                    {prop}
-                  </SelectItem>
-                ))}
-                <SelectItem value="default_property_placeholder">Select a property</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-destructive hover:bg-destructive/10"
-            onClick={() => onRemoveMapping(mapping.id)}
-          >
-            <Trash2 size={16} />
-          </Button>
+          ) : (
+            <Input
+              id="apiField"
+              value={newApiField}
+              onChange={(e) => setNewApiField(e.target.value)}
+              placeholder="API field"
+              className="h-8"
+            />
+          )}
         </div>
-      ))}
+      </div>
+
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-full"
+        onClick={handleAddField}
+        disabled={!newLabel.trim() || !newApiField}
+      >
+        <Plus size={14} className="mr-1" /> Add Field Mapping
+      </Button>
     </div>
   );
 };
 
-export default ApiFieldMapping;
+export default ApiFieldMappingEditor;

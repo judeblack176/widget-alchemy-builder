@@ -1,555 +1,948 @@
+
 import React, { useState, useEffect } from 'react';
-import { X, HelpCircle } from 'lucide-react';
-import { WidgetComponent, ApiConfig, Tooltip } from '@/types/widget-types';
+import { WidgetComponent, ApiConfig, ComponentType, Tooltip, ApiFieldMapping, ComponentDefinition, PREDEFINED_COLORS } from '@/types/widget-types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from "@/components/ui/switch"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog"
-import ApiFieldMapping from './ApiFieldMapping';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { renderComponent } from './component-renderers';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ChevronDown, ChevronUp, Trash2, Database, HelpCircle, AlertCircle, Info, Check } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import ApiFieldMappingEditor from './ApiFieldMapping';
 
 interface ComponentEditorProps {
   component: WidgetComponent;
-  onUpdateComponent: (component: WidgetComponent) => void;
-  onClose: () => void;
-  availableApis: ApiConfig[];
-  onRequestApiTemplate: (componentId: string) => void;
-  onApplyTooltip: (tooltipId: string) => void;
-  tooltips?: Tooltip[];
+  apis: ApiConfig[];
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  onUpdateComponent: (updatedComponent: WidgetComponent) => void;
+  onRemoveComponent: (componentId: string) => void;
+  onRequestApiTemplate: () => void;
+  onApplyTooltip?: (tooltipId: string) => void;
+  disableRemove?: boolean;
+  customTooltips?: Tooltip[];
 }
+
+const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
+  {
+    type: 'header',
+    name: 'Header',
+    icon: 'Heading',
+    defaultProps: {
+      title: 'Header Title',
+      subtitle: 'Subtitle text',
+      align: 'left',
+      size: 'medium',
+      color: '#000000',
+      backgroundColor: 'transparent',
+    },
+    availableProps: [
+      { name: 'title', type: 'text', label: 'Title' },
+      { name: 'subtitle', type: 'text', label: 'Subtitle' },
+      { name: 'align', type: 'select', label: 'Alignment', options: ['left', 'center', 'right'] },
+      { name: 'size', type: 'select', label: 'Size', options: ['small', 'medium', 'large'] },
+      { name: 'color', type: 'color', label: 'Text Color' },
+      { name: 'backgroundColor', type: 'color', label: 'Background Color' },
+      { name: 'icon', type: 'icon', label: 'Icon' },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      title: 'title',
+      subtitle: 'subtitle',
+    }
+  },
+  {
+    type: 'text',
+    name: 'Text',
+    icon: 'Type',
+    defaultProps: {
+      content: 'Text content goes here',
+      align: 'left',
+      size: 'medium',
+      color: '#000000',
+      backgroundColor: 'transparent',
+    },
+    availableProps: [
+      { name: 'content', type: 'text', label: 'Content' },
+      { name: 'align', type: 'select', label: 'Alignment', options: ['left', 'center', 'right'] },
+      { name: 'size', type: 'select', label: 'Size', options: ['small', 'medium', 'large'] },
+      { name: 'color', type: 'color', label: 'Text Color' },
+      { name: 'backgroundColor', type: 'color', label: 'Background Color' },
+      { name: 'font', type: 'font', label: 'Font' },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      content: 'content',
+    }
+  },
+  {
+    type: 'image',
+    name: 'Image',
+    icon: 'Image',
+    defaultProps: {
+      source: 'https://via.placeholder.com/300x200',
+      altText: 'Image description',
+      caption: '',
+      width: '100%',
+      height: 'auto',
+      borderRadius: '0',
+    },
+    availableProps: [
+      { name: 'source', type: 'text', label: 'Image URL' },
+      { name: 'altText', type: 'text', label: 'Alt Text' },
+      { name: 'caption', type: 'text', label: 'Caption' },
+      { name: 'width', type: 'text', label: 'Width' },
+      { name: 'height', type: 'text', label: 'Height' },
+      { name: 'borderRadius', type: 'text', label: 'Border Radius' },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      source: 'imageUrl',
+      altText: 'altText',
+      caption: 'caption',
+    }
+  },
+  {
+    type: 'button',
+    name: 'Button',
+    icon: 'Square',
+    defaultProps: {
+      label: 'Click Me',
+      variant: 'default',
+      size: 'default',
+      url: '#',
+      align: 'left',
+    },
+    availableProps: [
+      { name: 'label', type: 'text', label: 'Button Text' },
+      { name: 'variant', type: 'select', label: 'Variant', options: ['default', 'outline', 'secondary', 'ghost', 'link', 'destructive'] },
+      { name: 'size', type: 'select', label: 'Size', options: ['default', 'sm', 'lg', 'icon'] },
+      { name: 'url', type: 'text', label: 'URL' },
+      { name: 'align', type: 'select', label: 'Alignment', options: ['left', 'center', 'right'] },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      label: 'buttonText',
+      url: 'buttonUrl',
+    }
+  },
+  {
+    type: 'video',
+    name: 'Video',
+    icon: 'Video',
+    defaultProps: {
+      source: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      title: 'Video Title',
+      autoplay: false,
+      controls: true,
+      width: '100%',
+      height: '315',
+    },
+    availableProps: [
+      { name: 'source', type: 'text', label: 'Video URL' },
+      { name: 'title', type: 'text', label: 'Title' },
+      { name: 'autoplay', type: 'select', label: 'Autoplay', options: ['true', 'false'] },
+      { name: 'controls', type: 'select', label: 'Show Controls', options: ['true', 'false'] },
+      { name: 'width', type: 'text', label: 'Width' },
+      { name: 'height', type: 'text', label: 'Height' },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      source: 'videoUrl',
+      title: 'videoTitle',
+    }
+  },
+  {
+    type: 'chart',
+    name: 'Chart',
+    icon: 'BarChart',
+    defaultProps: {
+      type: 'bar',
+      title: 'Chart Title',
+      labels: ['Label 1', 'Label 2', 'Label 3'],
+      data: [10, 20, 30],
+      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+      borderColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+    },
+    availableProps: [
+      { name: 'type', type: 'select', label: 'Chart Type', options: ['bar', 'line', 'pie', 'doughnut'] },
+      { name: 'title', type: 'text', label: 'Title' },
+      { name: 'labels', type: 'text', label: 'Labels (comma separated)' },
+      { name: 'data', type: 'text', label: 'Data (comma separated)' },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      data: 'chartData',
+      labels: 'chartLabels',
+    }
+  },
+  {
+    type: 'form',
+    name: 'Form',
+    icon: 'FileText',
+    defaultProps: {
+      fields: [
+        { type: 'text', label: 'Name', placeholder: 'Enter your name', required: true },
+        { type: 'email', label: 'Email', placeholder: 'Enter your email', required: true },
+        { type: 'textarea', label: 'Message', placeholder: 'Enter your message', required: false },
+      ],
+      submitLabel: 'Submit',
+      successMessage: 'Form submitted successfully!',
+    },
+    availableProps: [
+      { name: 'submitLabel', type: 'text', label: 'Submit Button Label' },
+      { name: 'successMessage', type: 'text', label: 'Success Message' },
+    ],
+    supportsApiIntegration: true,
+  },
+  {
+    type: 'calendar',
+    name: 'Calendar',
+    icon: 'Calendar',
+    defaultProps: {
+      events: [
+        { title: 'Event 1', start: '2023-01-01', end: '2023-01-02' },
+        { title: 'Event 2', start: '2023-01-05', end: '2023-01-07' },
+      ],
+      view: 'month',
+      firstDay: 0,
+    },
+    availableProps: [
+      { name: 'view', type: 'select', label: 'Default View', options: ['month', 'week', 'day', 'agenda'] },
+      { name: 'firstDay', type: 'select', label: 'First Day of Week', options: ['0', '1'] },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      events: 'events',
+    }
+  },
+  {
+    type: 'dropdown',
+    name: 'Dropdown',
+    icon: 'ChevronDown',
+    defaultProps: {
+      label: 'Select an option',
+      placeholder: 'Choose...',
+      options: ['Option 1', 'Option 2', 'Option 3'],
+      defaultValue: '',
+    },
+    availableProps: [
+      { name: 'label', type: 'text', label: 'Label' },
+      { name: 'placeholder', type: 'text', label: 'Placeholder' },
+      { name: 'options', type: 'text', label: 'Options (comma separated)' },
+      { name: 'defaultValue', type: 'text', label: 'Default Value' },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      options: 'dropdownOptions',
+    }
+  },
+  {
+    type: 'link',
+    name: 'Link',
+    icon: 'Link',
+    defaultProps: {
+      text: 'Click here',
+      url: '#',
+      target: '_self',
+      color: '#3B82F6',
+    },
+    availableProps: [
+      { name: 'text', type: 'text', label: 'Link Text' },
+      { name: 'url', type: 'text', label: 'URL' },
+      { name: 'target', type: 'select', label: 'Target', options: ['_self', '_blank'] },
+      { name: 'color', type: 'color', label: 'Link Color' },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      text: 'linkText',
+      url: 'linkUrl',
+    }
+  },
+  {
+    type: 'multi-text',
+    name: 'Multi-Text',
+    icon: 'ListOrdered',
+    defaultProps: {
+      items: ['Item 1', 'Item 2', 'Item 3'],
+      type: 'bullet',
+      spacing: 'normal',
+    },
+    availableProps: [
+      { name: 'items', type: 'text', label: 'Items (one per line)' },
+      { name: 'type', type: 'select', label: 'List Type', options: ['bullet', 'numbered', 'check'] },
+      { name: 'spacing', type: 'select', label: 'Spacing', options: ['tight', 'normal', 'relaxed'] },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      items: 'listItems',
+    }
+  },
+  {
+    type: 'filter',
+    name: 'Filter',
+    icon: 'Filter',
+    defaultProps: {
+      label: 'Filter by',
+      options: ['All', 'Option 1', 'Option 2', 'Option 3'],
+      defaultValue: 'All',
+      multiple: false,
+    },
+    availableProps: [
+      { name: 'label', type: 'text', label: 'Label' },
+      { name: 'options', type: 'text', label: 'Options (comma separated)' },
+      { name: 'defaultValue', type: 'text', label: 'Default Value' },
+      { name: 'multiple', type: 'select', label: 'Multiple Selection', options: ['true', 'false'] },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      options: 'filterOptions',
+    }
+  },
+  {
+    type: 'alert',
+    name: 'Alert',
+    icon: 'AlertCircle',
+    defaultProps: {
+      title: 'Alert Title',
+      content: 'This is an alert message.',
+      type: 'info',
+      dismissible: true,
+    },
+    availableProps: [
+      { name: 'title', type: 'text', label: 'Title' },
+      { name: 'content', type: 'text', label: 'Content' },
+      { name: 'type', type: 'select', label: 'Type', options: ['info', 'success', 'warning', 'error'] },
+      { name: 'dismissible', type: 'select', label: 'Dismissible', options: ['true', 'false'] },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      title: 'alertTitle',
+      content: 'alertMessage',
+      type: 'alertType',
+    }
+  },
+  {
+    type: 'table',
+    name: 'Table',
+    icon: 'Table',
+    defaultProps: {
+      columns: [
+        { header: 'Name', accessor: 'name' },
+        { header: 'Age', accessor: 'age' },
+        { header: 'Status', accessor: 'status' },
+      ],
+      data: [
+        { name: 'John', age: 25, status: 'Active' },
+        { name: 'Jane', age: 30, status: 'Inactive' },
+      ],
+      striped: true,
+      bordered: true,
+    },
+    availableProps: [
+      { name: 'striped', type: 'select', label: 'Striped Rows', options: ['true', 'false'] },
+      { name: 'bordered', type: 'select', label: 'Bordered', options: ['true', 'false'] },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      data: 'tableData',
+      columns: 'tableColumns',
+    }
+  },
+  {
+    type: 'searchbar',
+    name: 'Search Bar',
+    icon: 'Search',
+    defaultProps: {
+      placeholder: 'Search...',
+      label: 'Search',
+      showIcon: true,
+    },
+    availableProps: [
+      { name: 'placeholder', type: 'text', label: 'Placeholder' },
+      { name: 'label', type: 'text', label: 'Label' },
+      { name: 'showIcon', type: 'select', label: 'Show Icon', options: ['true', 'false'] },
+    ],
+    supportsApiIntegration: true,
+    defaultDataMapping: {
+      placeholder: 'searchPlaceholder',
+    }
+  },
+];
 
 const ComponentEditor: React.FC<ComponentEditorProps> = ({
   component,
+  apis,
+  isExpanded,
+  onToggleExpand,
   onUpdateComponent,
-  onClose,
-  availableApis,
+  onRemoveComponent,
   onRequestApiTemplate,
   onApplyTooltip,
-  tooltips = []
+  disableRemove = false,
+  customTooltips = [],
 }) => {
-  const isApiCompatible = component.type !== 'header';
-  const [isTooltipModalOpen, setIsTooltipModalOpen] = useState(false);
+  const [isApiDialogOpen, setIsApiDialogOpen] = useState(false);
+  const [isTooltipDialogOpen, setIsTooltipDialogOpen] = useState(false);
+  const [selectedApi, setSelectedApi] = useState<string>(component.apiConfig?.apiId || '');
+  const [mappings, setMappings] = useState<Record<string, string>>(component.apiConfig?.dataMapping || {});
+  const [currentTab, setCurrentTab] = useState<'properties' | 'api' | 'content'>('properties');
+  
+  const componentDefinition = COMPONENT_DEFINITIONS.find(def => def.type === component.type);
+  const api = apis.find(api => api.id === selectedApi);
+  const availableFields = api?.possibleFields || [];
+  const hasApiIntegration = componentDefinition?.supportsApiIntegration && apis.length > 0;
+  
+  const [contentFields, setContentFields] = useState<ApiFieldMapping[]>(
+    component.contentFields || []
+  );
+  const [formattedContent, setFormattedContent] = useState<string>(
+    component.formattedContent || ''
+  );
 
-  const [textFormatting, setTextFormatting] = useState({
-    fontSize: component.props?.fontSize || 'medium',
-    fontFamily: component.props?.fontFamily || 'default',
-    textAlign: component.props?.textAlign || 'left',
-    isBold: component.props?.isBold || false,
-    isItalic: component.props?.isItalic || false,
-    textColor: component.props?.textColor || "#000000"
-  });
+  useEffect(() => {
+    if (componentDefinition) {
+      const updatedProps = { ...componentDefinition.defaultProps, ...component.props };
+      if (JSON.stringify(updatedProps) !== JSON.stringify(component.props)) {
+        onUpdateComponent({
+          ...component,
+          props: updatedProps
+        });
+      }
+    }
+  }, [component.type]);
 
-  const handleTextFormattingChange = (propertyName: string, value: any) => {
-    setTextFormatting(prev => ({
-      ...prev,
-      [propertyName]: value
-    }));
+  useEffect(() => {
+    let content = formattedContent;
     
-    handlePropertyChange(propertyName, value);
-  };
+    if ((!content || content === '') && contentFields.length > 0) {
+      content = contentFields.map(field => `{{${field.label}}}`).join(' ');
+    }
+    
+    setFormattedContent(content);
+  }, [contentFields]);
 
-  const handlePropertyChange = (propertyName: string, value: any) => {
-    const updatedComponent: WidgetComponent = {
+  const handleUpdateContentField = (fields: ApiFieldMapping[]) => {
+    setContentFields(fields);
+    onUpdateComponent({
       ...component,
-      props: {
-        ...component.props,
-        [propertyName]: value,
-      },
-    };
-    onUpdateComponent(updatedComponent);
+      contentFields: fields,
+      formattedContent
+    });
   };
 
-  const handleApiConfigChange = (apiId: string) => {
-    const updatedComponent: WidgetComponent = {
+  const handleUpdateFormattedContent = (content: string) => {
+    setFormattedContent(content);
+    onUpdateComponent({
+      ...component,
+      formattedContent: content,
+      contentFields
+    });
+  };
+
+  const handleAddContentField = (field: ApiFieldMapping) => {
+    const updatedFields = [...contentFields, field];
+    setContentFields(updatedFields);
+    onUpdateComponent({
+      ...component,
+      contentFields: updatedFields,
+      formattedContent
+    });
+  };
+
+  const handleRemoveContentField = (index: number) => {
+    const updatedFields = contentFields.filter((_, i) => i !== index);
+    setContentFields(updatedFields);
+    onUpdateComponent({
+      ...component,
+      contentFields: updatedFields,
+      formattedContent
+    });
+  };
+
+  const handleApiSelection = (apiId: string) => {
+    setSelectedApi(apiId);
+    setMappings({});
+
+    if (apiId) {
+      onUpdateComponent({
+        ...component,
+        apiConfig: {
+          apiId,
+          dataMapping: {},
+        },
+        contentFields,
+        formattedContent
+      });
+    } else {
+      const { apiConfig, ...restComponent } = component;
+      onUpdateComponent({
+        ...restComponent,
+        contentFields,
+        formattedContent
+      });
+    }
+  };
+
+  const handleMappingChange = (propName: string, fieldName: string) => {
+    const updatedMappings = { ...mappings, [propName]: fieldName };
+    setMappings(updatedMappings);
+
+    onUpdateComponent({
       ...component,
       apiConfig: {
-        ...component.apiConfig,
-        apiId: apiId === "" ? undefined : apiId,
+        apiId: selectedApi,
+        dataMapping: updatedMappings,
       },
-    };
-    onUpdateComponent(updatedComponent);
+      contentFields,
+      formattedContent
+    });
   };
 
-  // Add handlers for API field mappings
-  const handleAddApiFieldMapping = () => {
-    if (!component.apiConfig?.apiId) return;
-
-    const updatedComponent = {
+  const handlePropChange = (propName: string, value: any) => {
+    const updatedProps = { ...component.props, [propName]: value };
+    onUpdateComponent({
       ...component,
-      apiFieldMappings: [
-        ...(component.apiFieldMappings || []),
-        {
-          id: `mapping-${Date.now()}`,
-          field: '',
-          targetProperty: ''
-        }
-      ]
-    };
-
-    onUpdateComponent(updatedComponent);
+      props: updatedProps
+    });
   };
 
-  const handleUpdateApiFieldMapping = (id: string, field: string, value: string) => {
-    if (!component.apiFieldMappings) return;
+  const renderPropEditor = (propDef: { name: string; type: string; label: string; options?: string[] }) => {
+    const { name, type, label, options } = propDef;
+    const value = component.props[name] !== undefined ? component.props[name] : '';
 
-    const updatedMappings = component.apiFieldMappings.map(mapping => 
-      mapping.id === id ? { ...mapping, [field]: value } : mapping
-    );
-
-    const updatedComponent = {
-      ...component,
-      apiFieldMappings: updatedMappings
-    };
-
-    onUpdateComponent(updatedComponent);
-  };
-
-  const handleRemoveApiFieldMapping = (id: string) => {
-    if (!component.apiFieldMappings) return;
-
-    const updatedMappings = component.apiFieldMappings.filter(mapping => mapping.id !== id);
-
-    const updatedComponent = {
-      ...component,
-      apiFieldMappings: updatedMappings
-    };
-
-    onUpdateComponent(updatedComponent);
-  };
-
-  const handleApplyTooltip = (tooltipId: string) => {
-    const updatedComponent = {
-      ...component,
-      tooltipId
-    };
-    onApplyTooltip(tooltipId);
-    onUpdateComponent(updatedComponent);
-  };
-
-  // Generate a list of component properties for mapping
-  const getComponentProperties = () => {
-    switch (component.type) {
+    switch (type) {
       case 'text':
-        return ['content', 'fontSize', 'fontFamily', 'textAlign', 'textColor'];
-      case 'header':
-        return ['title', 'icon'];
-      case 'image':
-        return ['source', 'altText', 'caption'];
-      case 'button':
-        return ['text', 'onClick'];
-      case 'video':
-        return ['source', 'title'];
+        return (
+          <div key={name} className="space-y-2">
+            <Label htmlFor={`prop-${name}`}>{label}</Label>
+            <Input
+              id={`prop-${name}`}
+              value={value}
+              onChange={(e) => handlePropChange(name, e.target.value)}
+            />
+          </div>
+        );
+      case 'number':
+        return (
+          <div key={name} className="space-y-2">
+            <Label htmlFor={`prop-${name}`}>{label}</Label>
+            <Input
+              id={`prop-${name}`}
+              type="number"
+              value={value}
+              onChange={(e) => handlePropChange(name, parseFloat(e.target.value))}
+            />
+          </div>
+        );
+      case 'select':
+        return (
+          <div key={name} className="space-y-2">
+            <Label htmlFor={`prop-${name}`}>{label}</Label>
+            <Select
+              value={value.toString()}
+              onValueChange={(val) => handlePropChange(name, val)}
+            >
+              <SelectTrigger id={`prop-${name}`}>
+                <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
+              </SelectTrigger>
+              <SelectContent>
+                {options?.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        );
+      case 'color':
+        return (
+          <div key={name} className="space-y-2">
+            <Label htmlFor={`prop-${name}`}>{label}</Label>
+            <div className="flex items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="h-4 w-4 rounded-full border"
+                        style={{ backgroundColor: value || 'transparent' }}
+                      />
+                      <span>{value || 'Select color'}</span>
+                    </div>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64">
+                  <div className="grid grid-cols-5 gap-2">
+                    {PREDEFINED_COLORS.map((color) => (
+                      <div
+                        key={color}
+                        className="h-6 w-6 cursor-pointer rounded-full border"
+                        style={{ backgroundColor: color }}
+                        onClick={() => handlePropChange(name, color)}
+                      />
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+        );
       default:
-        return Object.keys(component.props || {});
+        return (
+          <div key={name} className="space-y-2">
+            <Label htmlFor={`prop-${name}`}>{label}</Label>
+            <Input
+              id={`prop-${name}`}
+              value={value}
+              onChange={(e) => handlePropChange(name, e.target.value)}
+            />
+          </div>
+        );
     }
   };
 
-  const renderProperties = () => {
-    switch (component.type) {
-      case 'header':
-        return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="header-title">Title</Label>
-              <Input
-                type="text"
-                id="header-title"
-                value={component.props.title || ''}
-                onChange={(e) => handlePropertyChange('title', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="header-icon">Icon</Label>
-              <Input
-                type="text"
-                id="header-icon"
-                value={component.props.icon || ''}
-                onChange={(e) => handlePropertyChange('icon', e.target.value)}
-              />
-            </div>
-          </>
-        );
-      case 'text':
-        return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="text-font-size">Font Size</Label>
-              <Select
-                value={textFormatting.fontSize}
-                onValueChange={(value) => handleTextFormattingChange('fontSize', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select font size" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="small">Small</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="large">Large</SelectItem>
-                  <SelectItem value="xlarge">XLarge</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="text-font-family">Font Family</Label>
-              <Select
-                value={textFormatting.fontFamily}
-                onValueChange={(value) => handleTextFormattingChange('fontFamily', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select font family" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">Default</SelectItem>
-                  <SelectItem value="Arial">Arial</SelectItem>
-                  <SelectItem value="Helvetica">Helvetica</SelectItem>
-                  <SelectItem value="Times New Roman">Times New Roman</SelectItem>
-                  <SelectItem value="Courier New">Courier New</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="text-text-align">Text Align</Label>
-              <Select
-                value={textFormatting.textAlign}
-                onValueChange={(value) => handleTextFormattingChange('textAlign', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select text align" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="left">Left</SelectItem>
-                  <SelectItem value="center">Center</SelectItem>
-                  <SelectItem value="right">Right</SelectItem>
-                  <SelectItem value="justify">Justify</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="text-is-bold">Bold</Label>
-              <Switch
-                id="text-is-bold"
-                checked={textFormatting.isBold}
-                onCheckedChange={(checked) => handleTextFormattingChange('isBold', checked)}
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="text-is-italic">Italic</Label>
-              <Switch
-                id="text-is-italic"
-                checked={textFormatting.isItalic}
-                onCheckedChange={(checked) => handleTextFormattingChange('isItalic', checked)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="text-color">Text Color</Label>
-              <Input
-                type="color"
-                id="text-color"
-                value={textFormatting.textColor}
-                onChange={(e) => handleTextFormattingChange('textColor', e.target.value)}
-              />
-            </div>
-          </>
-        );
-      case 'image':
-        return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="image-source">Source URL</Label>
-              <Input
-                type="text"
-                id="image-source"
-                value={component.props.source || ''}
-                onChange={(e) => handlePropertyChange('source', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="image-alt-text">Alt Text</Label>
-              <Input
-                type="text"
-                id="image-alt-text"
-                value={component.props.altText || ''}
-                onChange={(e) => handlePropertyChange('altText', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="image-caption">Caption</Label>
-              <Input
-                type="text"
-                id="image-caption"
-                value={component.props.caption || ''}
-                onChange={(e) => handlePropertyChange('caption', e.target.value)}
-              />
-            </div>
-          </>
-        );
-      case 'button':
-        return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="button-text">Text</Label>
-              <Input
-                type="text"
-                id="button-text"
-                value={component.props.text || ''}
-                onChange={(e) => handlePropertyChange('text', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="button-onclick">onClick Action</Label>
-              <Input
-                type="text"
-                id="button-onclick"
-                value={component.props.onClick || ''}
-                onChange={(e) => handlePropertyChange('onClick', e.target.value)}
-              />
-            </div>
-          </>
-        );
-        case 'alert':
-          return (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="alert-title">Title</Label>
-                <Input
-                  type="text"
-                  id="alert-title"
-                  value={component.props.title || ''}
-                  onChange={(e) => handlePropertyChange('title', e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="alert-variant">Variant</Label>
-                <Select
-                  value={component.props.variant || 'default'}
-                  onValueChange={(value) => handlePropertyChange('variant', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select variant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="default">Default</SelectItem>
-                    <SelectItem value="destructive">Destructive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
-          );
-      case 'video':
-        return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="video-source">Source URL</Label>
-              <Input
-                type="text"
-                id="video-source"
-                value={component.props.source || ''}
-                onChange={(e) => handlePropertyChange('source', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="video-title">Title</Label>
-              <Input
-                type="text"
-                id="video-title"
-                value={component.props.title || ''}
-                onChange={(e) => handlePropertyChange('title', e.target.value)}
-              />
-            </div>
-          </>
-        );
-      default:
-        return <p>No properties to edit for this component.</p>;
-    }
-  };
-
-  const renderContentEditor = () => {
-    const handleContentChange = (content: string) => {
-      const updatedComponent: WidgetComponent = {
-        ...component,
-        props: {
-          ...component.props,
-          content: content,
-        },
-        formattedContent: content,
-      };
-      onUpdateComponent(updatedComponent);
-    };
+  const renderApiMappingFields = () => {
+    if (!componentDefinition || !api) return null;
 
     return (
-      <Textarea
-        value={component.props.content || component.formattedContent || ''}
-        onChange={(e) => handleContentChange(e.target.value)}
-        placeholder="Enter content here..."
-        className="w-full"
-      />
+      <div className="space-y-4">
+        <div className="text-sm font-medium">Map API Fields to Component Properties</div>
+        {componentDefinition.availableProps.map((propDef) => (
+          <div key={propDef.name} className="space-y-2">
+            <Label htmlFor={`mapping-${propDef.name}`}>{propDef.label}</Label>
+            <Select
+              value={mappings[propDef.name] || ''}
+              onValueChange={(val) => handleMappingChange(propDef.name, val)}
+            >
+              <SelectTrigger id={`mapping-${propDef.name}`}>
+                <SelectValue placeholder={`Select field for ${propDef.label.toLowerCase()}`} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {availableFields.map((field) => (
+                  <SelectItem key={field} value={field}>
+                    {field}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
+      </div>
     );
+  };
+
+  const renderPreview = () => {
+    return (
+      <div className="border rounded-md p-3 bg-muted/30">
+        <div className="text-sm font-medium mb-2">Component Preview</div>
+        <div className="p-2 bg-white rounded border">
+          {renderComponent(component)}
+        </div>
+      </div>
+    );
+  };
+
+  const getTooltipOptions = () => {
+    const defaultTooltips = [
+      { id: '', title: 'None', content: 'No tooltip' },
+      { id: 'help', title: 'Help', content: 'Help information about this feature' },
+      { id: 'info', title: 'Information', content: 'Additional information about this component' },
+      { id: 'warning', title: 'Warning', content: 'Warning: Please review this information carefully' },
+      { id: 'tip', title: 'Tip', content: 'Pro Tip: This feature can help you save time' },
+    ];
+
+    return [...defaultTooltips, ...customTooltips];
   };
 
   return (
-    <div className="h-full overflow-y-auto pb-20">
-      <div className="p-4 space-y-6">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-widget-blue">
-            Edit {component.type.charAt(0).toUpperCase() + component.type.slice(1)}
-          </h3>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={onClose}
-          >
-            <X size={20} />
-          </Button>
-        </div>
-
-        {/* API Configuration */}
-        {isApiCompatible && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h4 className="text-sm font-medium">API Configuration</h4>
-              {!component.apiConfig?.apiId && availableApis.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onRequestApiTemplate(component.id)}
-                >
-                  Use API Template
-                </Button>
-              )}
-            </div>
-
-            {availableApis.length === 0 ? (
-              <div className="text-sm text-muted-foreground">
-                No APIs available. Add an API from the APIs panel first.
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <Select
-                  value={component.apiConfig?.apiId || ""}
-                  onValueChange={handleApiConfigChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an API" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">None</SelectItem>
-                    {availableApis.map(api => (
-                      <SelectItem key={api.id} value={api.id}>
-                        {api.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* API Field Mappings Section - Add above content editor */}
-                {component.apiConfig?.apiId && (
-                  <ApiFieldMapping
-                    apis={availableApis}
-                    selectedApiId={component.apiConfig.apiId}
-                    apiFieldMappings={component.apiFieldMappings || []}
-                    onAddMapping={handleAddApiFieldMapping}
-                    onUpdateMapping={handleUpdateApiFieldMapping}
-                    onRemoveMapping={handleRemoveApiFieldMapping}
-                    componentProperties={getComponentProperties()}
-                  />
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Content Editor */}
-        {(component.type === 'text' || component.type === 'header' || component.type === 'alert') && (
-          <div className="space-y-4">
-            <h4 className="text-sm font-medium">Content</h4>
-            {renderContentEditor()}
-          </div>
-        )}
-
-        {/* Properties */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-medium">Properties</h4>
-          {renderProperties()}
-        </div>
-
-        {/* Tooltip Selection */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="text-sm font-medium">Tooltip</h4>
-            {!component.tooltipId && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsTooltipModalOpen(true)}
-              >
-                <HelpCircle size={14} className="mr-1" /> Add Tooltip
-              </Button>
-            )}
-          </div>
-
-          {component.tooltipId ? (
-            <div className="flex justify-between items-center rounded-md border p-2">
-              <div className="flex items-center">
-                <HelpCircle size={16} className="text-blue-500 mr-2" />
-                <span className="text-sm">
-                  {tooltips && tooltips.find(t => t.id === component.tooltipId)?.title || 'Tooltip'}
-                </span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleApplyTooltip('')}
-              >
-                <X size={14} className="mr-1" /> Remove
-              </Button>
-            </div>
-          ) : (
-            <div className="text-sm text-muted-foreground">
-              No tooltip applied. Add one to provide contextual help.
-            </div>
+    <div className="p-4">
+      <div className="flex items-center justify-between gap-2 mb-4">
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="font-normal">
+            {componentDefinition?.name || component.type}
+          </Badge>
+          {component.tooltipId && (
+            <Badge variant="secondary" className="font-normal">
+              <HelpCircle className="h-3 w-3 mr-1" /> Has Tooltip
+            </Badge>
           )}
+          {component.apiConfig?.apiId && (
+            <Badge variant="secondary" className="font-normal">
+              <Database className="h-3 w-3 mr-1" /> API Connected
+            </Badge>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleExpand}
+            className="w-8 h-8 rounded-full"
+          >
+            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </Button>
         </div>
       </div>
 
-      <Dialog open={isTooltipModalOpen} onOpenChange={setIsTooltipModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Select a Tooltip</DialogTitle>
-            <DialogDescription>
-              Choose a tooltip to provide more information about this component.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {tooltips && tooltips.length > 0 ? tooltips.map(tooltip => (
-              <div key={tooltip.id} className="flex items-center space-x-2">
+      <Collapsible open={isExpanded}>
+        <CollapsibleContent>
+          <Tabs value={currentTab} onValueChange={(v) => setCurrentTab(v as any)}>
+            <TabsList className="grid grid-cols-3 mb-4">
+              <TabsTrigger value="properties">Properties</TabsTrigger>
+              {hasApiIntegration && <TabsTrigger value="api">API Integration</TabsTrigger>}
+              {component.type === 'text' && <TabsTrigger value="content">Content</TabsTrigger>}
+            </TabsList>
+
+            <TabsContent value="properties" className="space-y-4">
+              {componentDefinition?.availableProps.map(renderPropEditor)}
+              {renderPreview()}
+            </TabsContent>
+
+            {hasApiIntegration && (
+              <TabsContent value="api" className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="api-select">Select API</Label>
+                  <Select
+                    value={selectedApi}
+                    onValueChange={handleApiSelection}
+                  >
+                    <SelectTrigger id="api-select">
+                      <SelectValue placeholder="Select an API" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {apis.map((api) => (
+                        <SelectItem key={api.id} value={api.id}>
+                          {api.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedApi && (
+                  <>
+                    {renderApiMappingFields()}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setIsApiDialogOpen(true)}
+                    >
+                      <Database className="h-4 w-4 mr-2" /> View API Details
+                    </Button>
+                  </>
+                )}
+
+                {apis.length === 0 && (
+                  <div className="text-center py-4">
+                    <Database className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">No APIs available</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={onRequestApiTemplate}
+                    >
+                      Add API from Template
+                    </Button>
+                  </div>
+                )}
+              </TabsContent>
+            )}
+
+            {component.type === 'text' && (
+              <TabsContent value="content" className="space-y-4">
+                <div className="space-y-4">
+                  <ApiFieldMappingEditor
+                    availableFields={availableFields}
+                    onAddField={handleAddContentField}
+                    onRemoveField={handleRemoveContentField}
+                    fields={contentFields}
+                  />
+
+                  <div className="space-y-2">
+                    <Label htmlFor="formattedContent">Formatted Content</Label>
+                    <Textarea
+                      id="formattedContent"
+                      value={formattedContent}
+                      onChange={(e) => handleUpdateFormattedContent(e.target.value)}
+                      placeholder="Enter content with {{field}} placeholders"
+                      className="min-h-[100px]"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Use {'{{'}{'{fieldName}'}{'}}'} syntax to include dynamic content from API mappings
+                    </p>
+                  </div>
+
+                  <div className="border rounded-md p-3 bg-muted/30">
+                    <div className="text-sm font-medium mb-2">Preview</div>
+                    <div className="p-2 bg-white rounded border">
+                      {formattedContent ? (
+                        <div>
+                          {contentFields.length > 0 ? (
+                            formattedContent.replace(
+                              /\{\{([^{}]+)\}\}/g,
+                              (match, placeholder) => {
+                                const field = contentFields.find(f => f.label === placeholder);
+                                return field ? `<${field.apiField}>` : match;
+                              }
+                            )
+                          ) : (
+                            formattedContent
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">No content defined</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            )}
+          </Tabs>
+
+          <div className="flex justify-between mt-4 pt-4 border-t">
+            <div className="flex gap-2">
+              {onApplyTooltip && (
                 <Button
                   variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    handleApplyTooltip(tooltip.id);
-                    setIsTooltipModalOpen(false);
-                  }}
+                  size="sm"
+                  onClick={() => setIsTooltipDialogOpen(true)}
                 >
-                  {tooltip.title}
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  {component.tooltipId ? 'Change Tooltip' : 'Add Tooltip'}
                 </Button>
-              </div>
-            )) : (
-              <div className="text-center py-4 text-muted-foreground">
-                No tooltips available. Create some in the Tooltips tab.
-              </div>
+              )}
+            </div>
+            {!disableRemove && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => onRemoveComponent(component.id)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" /> Remove
+              </Button>
             )}
           </div>
+        </CollapsibleContent>
+      </Collapsible>
+
+      <Dialog open={isApiDialogOpen} onOpenChange={setIsApiDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>API Details</DialogTitle>
+          </DialogHeader>
+          {api && (
+            <ScrollArea className="h-[400px]">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-medium mb-1">Name</h3>
+                  <p className="text-sm">{api.name}</p>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-1">Endpoint</h3>
+                  <p className="text-sm font-mono bg-muted p-2 rounded">{api.endpoint}</p>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-1">Method</h3>
+                  <Badge variant="outline">{api.method}</Badge>
+                </div>
+                {api.headers && Object.keys(api.headers).length > 0 && (
+                  <div>
+                    <h3 className="font-medium mb-1">Headers</h3>
+                    <div className="bg-muted p-2 rounded">
+                      {Object.entries(api.headers).map(([key, value]) => (
+                        <div key={key} className="text-sm">
+                          <span className="font-medium">{key}:</span> {value}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {api.sampleResponse && (
+                  <div>
+                    <h3 className="font-medium mb-1">Sample Response</h3>
+                    <pre className="text-xs bg-muted p-2 rounded overflow-auto max-h-[200px]">
+                      {api.sampleResponse}
+                    </pre>
+                  </div>
+                )}
+                {api.possibleFields && api.possibleFields.length > 0 && (
+                  <div>
+                    <h3 className="font-medium mb-1">Available Fields</h3>
+                    <div className="flex flex-wrap gap-1">
+                      {api.possibleFields.map((field) => (
+                        <Badge key={field} variant="outline" className="text-xs">
+                          {field}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          )}
           <DialogFooter>
-            <Button type="button" onClick={() => setIsTooltipModalOpen(false)}>
+            <Button variant="outline" onClick={() => setIsApiDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isTooltipDialogOpen} onOpenChange={setIsTooltipDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Select Tooltip</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[400px] pr-4">
+            <div className="space-y-2">
+              {getTooltipOptions().map((tooltip) => (
+                <div
+                  key={tooltip.id}
+                  className={`p-3 rounded-md border cursor-pointer transition-colors ${
+                    component.tooltipId === tooltip.id
+                      ? 'bg-primary/10 border-primary'
+                      : 'hover:bg-muted'
+                  }`}
+                  onClick={() => {
+                    if (onApplyTooltip) {
+                      onApplyTooltip(tooltip.id);
+                      setIsTooltipDialogOpen(false);
+                    }
+                  }}
+                >
+                  <div className="flex items-start gap-2">
+                    {tooltip.id === 'help' && <HelpCircle size={16} className="text-blue-500 mt-0.5" />}
+                    {tooltip.id === 'info' && <Info size={16} className="text-green-500 mt-0.5" />}
+                    {tooltip.id === 'warning' && <AlertCircle size={16} className="text-amber-500 mt-0.5" />}
+                    {tooltip.id === 'tip' && <HelpCircle size={16} className="text-purple-500 mt-0.5" />}
+                    {tooltip.id === '' && <Check size={16} className="text-gray-500 mt-0.5" />}
+                    <div>
+                      <div className="font-medium text-sm">{tooltip.title}</div>
+                      <div className="text-xs text-muted-foreground">{tooltip.content}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsTooltipDialogOpen(false)}>
               Cancel
             </Button>
           </DialogFooter>

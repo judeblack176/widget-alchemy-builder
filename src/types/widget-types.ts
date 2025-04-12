@@ -12,11 +12,6 @@ export interface WidgetComponent {
     multiMapping?: Record<string, string[]>;
   };
   tooltipId?: string;
-  apiFieldMappings?: Array<{
-    id: string;
-    field: string;
-    targetProperty: string;
-  }>;
   contentFields?: Array<{
     label: string;
     apiField: string;
@@ -117,13 +112,6 @@ export interface TableColumn {
   header: string;
   accessor: string;
   type?: 'text' | 'number' | 'date' | 'boolean' | 'icon';
-}
-
-export interface Tooltip {
-  id: string;
-  title: string;
-  content: string;
-  type?: 'info' | 'warning' | 'success' | 'error';
 }
 
 export const COLOR_PALETTE = {
@@ -227,6 +215,7 @@ export const COLOR_PALETTE = {
   ]
 };
 
+// Default data mapping configurations for each component type
 export const DEFAULT_DATA_MAPPINGS: Record<ComponentType, Record<string, string>> = {
   header: {
     title: "title",
@@ -343,6 +332,20 @@ export const extractFieldPaths = (obj: any, prefix = ''): string[] => {
   return paths;
 };
 
+// Added missing interfaces
+export interface ApiFieldMapping {
+  label: string;
+  apiField: string;
+}
+
+export interface Tooltip {
+  id: string;
+  title: string;
+  content: string;
+  type?: 'info' | 'warning' | 'success' | 'error';
+}
+
+// Common predefined tooltip tags
 export const COMMON_TOOLTIP_TAGS = [
   "Getting Started",
   "Advanced",
