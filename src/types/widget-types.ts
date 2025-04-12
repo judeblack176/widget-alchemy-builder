@@ -2,6 +2,11 @@ import { LucideIcon } from 'lucide-react';
 
 export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table' | 'searchbar';
 
+export interface ContentField {
+  label: string;
+  apiField: string;
+}
+
 export interface WidgetComponent {
   id: string;
   type: ComponentType;
@@ -12,6 +17,8 @@ export interface WidgetComponent {
     multiMapping?: Record<string, string[]>;
   };
   tooltipId?: string;
+  formattedContent?: string;
+  contentFields?: ContentField[];
 }
 
 export interface ComponentDefinition {
