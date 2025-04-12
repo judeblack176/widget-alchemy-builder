@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check, Search, SortAsc, SortDesc, ListFilter } from "lucide-react";
+import { Trash2, Plus, Globe, Code, UploadCloud, Save, Copy, Check, Search, SortAsc, SortDesc, ListFilter, ChevronDown, ChevronUp } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import SearchBar from "./SearchBar";
 
 interface ApiManagerProps {
@@ -32,6 +33,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
   const [copyStatus, setCopyStatus] = useState<{[key: string]: boolean}>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(null);
+  const [expandedRows, setExpandedRows] = useState<{[key: string]: boolean}>({});
   
   const [newApi, setNewApi] = useState<Partial<ApiConfig>>({
     name: "",
@@ -284,6 +286,13 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
 
   const toggleSort = () => {
     setSortDirection(prevDirection => prevDirection === 'asc' ? 'desc' : 'asc');
+  };
+
+  const toggleRowExpand = (apiId: string) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [apiId]: !prev[apiId]
+    }));
   };
 
   const filteredAndSortedApis = apis
@@ -675,7 +684,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                 </TableHeader>
                 <TableBody>
                   {filteredAndSortedApis.map((api) => (
-                    <TableRow key={api.id}>
+                    <TableRow key={api.id} className={expandedRows[api.id] ? "bg-slate-50" : ""}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
                           <Badge 
@@ -693,43 +702,169 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm space-y-1">
+                        <div className="text-sm space-y-2">
                           <div className="flex items-center">
                             <span className="font-semibold w-24">Endpoint:</span>
-                            <span className="font-mono text-xs truncate" title={api.endpoint}>
+                            <span className="font-mono text-xs truncate max-w-[300px]" title={api.endpoint}>
                               {api.endpoint}
                             </span>
                           </div>
-                          <div className="flex flex-wrap gap-4">
-                            <div className="flex items-center">
-                              <span className="font-semibold w-24">Headers:</span>
-                              <span className="text-xs">{api.headers ? Object.keys(api.headers).length : 0}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="font-semibold w-24">Parameters:</span>
-                              <span className="text-xs">{api.parameters ? Object.keys(api.parameters).length : 0}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="font-semibold w-24">Mappings:</span>
-                              <span className="text-xs">{api.responseMapping ? Object.keys(api.responseMapping).length : 0}</span>
-                            </div>
+                          
+                          <div className="flex items-center">
+                            <span className="font-semibold w-24">Headers:</span>
+                            {api.headers && Object.keys(api.headers).length > 0 ? (
+                              <div className="flex items-center">
+                                <span className="text-xs mr-2">{Object.keys(api.headers).length}</span>
+                                {Object.keys(api.headers).length > 0 && (
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
+                                      >
+                                        + more
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-80 max-h-[200px] overflow-y-auto p-2">
+                                      <div className="space-y-1 text-xs">
+                                        <h4 className="font-semibold mb-2">Headers</h4>
+                                        {Object.entries(api.headers).map(([key, value]) => (
+                                          <div key={key} className="flex justify-between gap-2 py-1 border-b border-gray-100">
+                                            <span className="font-semibold">{key}:</span>
+                                            <span className="text-gray-700 truncate max-w-[200px]" title={value.toString()}>
+                                              {value.toString()}
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-xs text-gray-500">None</span>
+                            )}
                           </div>
+                          
+                          <div className="flex items-center">
+                            <span className="font-semibold w-24">Parameters:</span>
+                            {api.parameters && Object.keys(api.parameters).length > 0 ? (
+                              <div className="flex items-center">
+                                <span className="text-xs mr-2">{Object.keys(api.parameters).length}</span>
+                                {Object.keys(api.parameters).length > 0 && (
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
+                                      >
+                                        + more
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-80 max-h-[200px] overflow-y-auto p-2">
+                                      <div className="space-y-1 text-xs">
+                                        <h4 className="font-semibold mb-2">Parameters</h4>
+                                        {Object.entries(api.parameters).map(([key, value]) => (
+                                          <div key={key} className="flex justify-between gap-2 py-1 border-b border-gray-100">
+                                            <span className="font-semibold">{key}:</span>
+                                            <span className="text-gray-700 truncate max-w-[200px]" title={value.toString()}>
+                                              {value.toString()}
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-xs text-gray-500">None</span>
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center">
+                            <span className="font-semibold w-24">Mappings:</span>
+                            {api.responseMapping && Object.keys(api.responseMapping).length > 0 ? (
+                              <div className="flex items-center">
+                                <span className="text-xs mr-2">{Object.keys(api.responseMapping).length}</span>
+                                {Object.keys(api.responseMapping).length > 0 && (
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
+                                      >
+                                        + more
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-80 max-h-[200px] overflow-y-auto p-2">
+                                      <div className="space-y-1 text-xs">
+                                        <h4 className="font-semibold mb-2">Response Mappings</h4>
+                                        {Object.entries(api.responseMapping).map(([key, value]) => (
+                                          <div key={key} className="flex justify-between gap-2 py-1 border-b border-gray-100">
+                                            <span className="font-semibold">{key}:</span>
+                                            <span className="text-gray-700 font-mono truncate max-w-[200px]" title={value.toString()}>
+                                              {value.toString()}
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-xs text-gray-500">None</span>
+                            )}
+                          </div>
+                          
                           {api.possibleFields && api.possibleFields.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {api.possibleFields.slice(0, 3).map((field, index) => (
-                                <Badge 
-                                  key={index} 
-                                  variant="outline" 
-                                  className="font-mono text-xs"
-                                >
-                                  {field}
-                                </Badge>
-                              ))}
-                              {api.possibleFields.length > 3 && (
-                                <Badge variant="outline" className="text-xs">
-                                  +{api.possibleFields.length - 3} more
-                                </Badge>
-                              )}
+                            <div className="flex items-start">
+                              <span className="font-semibold w-24 pt-1">Fields:</span>
+                              <div className="flex-1">
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {api.possibleFields.slice(0, 3).map((field, index) => (
+                                    <Badge 
+                                      key={index} 
+                                      variant="outline" 
+                                      className="font-mono text-xs"
+                                    >
+                                      {field}
+                                    </Badge>
+                                  ))}
+                                  {api.possibleFields.length > 3 && (
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <Badge 
+                                          variant="outline" 
+                                          className="text-xs cursor-pointer text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                                        >
+                                          +{api.possibleFields.length - 3} more
+                                        </Badge>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-80 max-h-[300px] overflow-y-auto p-2">
+                                        <div className="space-y-1">
+                                          <h4 className="font-semibold mb-2 text-sm">Available Fields</h4>
+                                          <div className="flex flex-wrap gap-1">
+                                            {api.possibleFields.map((field, index) => (
+                                              <Badge 
+                                                key={index} 
+                                                variant="outline" 
+                                                className="font-mono text-xs mb-1"
+                                              >
+                                                {field}
+                                              </Badge>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           )}
                         </div>
