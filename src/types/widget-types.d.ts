@@ -1,4 +1,3 @@
-
 import { LucideIcon } from 'lucide-react';
 
 export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table' | 'searchbar';
@@ -70,6 +69,11 @@ export interface Tag {
   id: string;
   name: string;
   color: string;
+}
+
+export interface ApiFieldMapping {
+  label: string;
+  apiField: string;
 }
 
 declare module "@/components/widget-builder/WidgetBuilder" {
