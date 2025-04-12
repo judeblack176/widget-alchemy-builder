@@ -51,7 +51,14 @@ export const renderComponent = (
     case 'filter':
       return <Filter {...props} options={apiData?.options || props.options} />;
     case 'alert':
-      return <Alert {...props} onDismiss={onAlertDismiss ? () => onAlertDismiss(component.id) : undefined} />;
+      return (
+        <Alert 
+          {...props} 
+          onDismiss={onAlertDismiss ? () => onAlertDismiss(component.id) : undefined}
+        >
+          {props.content}
+        </Alert>
+      );
     case 'table':
       return <Table {...props} data={apiData?.rows || []} columns={apiData?.columns || props.columns} />;
     case 'searchbar':

@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { BarChart, LineChart, PieChart } from '@/components/ui/chart';
+import { ChartContainer } from '@/components/ui/chart';
+import * as RechartsPrimitive from "recharts";
 
 // Basic component definitions
 export const Header = ({ title, icon, backgroundColor, textColor, fontFamily, bold, italic }: any) => {
@@ -78,15 +78,50 @@ export const Video = ({ source, title, width, height, controls = true, autoplay 
 };
 
 export const Chart = ({ chartType, title, data, labels, legend, colors, height }: any) => {
-  // Simple placeholder for chart component
   return (
     <div className="w-full p-4 border rounded-md">
       <h4 className="text-sm font-medium mb-2">{title || 'Chart'}</h4>
       <div style={{ height: height || '200px' }} className="bg-gray-100 rounded-md flex items-center justify-center">
-        {chartType === 'bar' ? <BarChart /> : 
-         chartType === 'line' ? <LineChart /> : 
-         chartType === 'pie' ? <PieChart /> : 
-         <div>Chart: {chartType}</div>}
+        <ChartContainer config={{}} className="w-full h-full p-2">
+          {chartType === 'bar' && (
+            <RechartsPrimitive.BarChart data={data || []}>
+              <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" />
+              <RechartsPrimitive.XAxis dataKey="name" />
+              <RechartsPrimitive.YAxis />
+              <RechartsPrimitive.Tooltip />
+              <RechartsPrimitive.Legend />
+              <RechartsPrimitive.Bar dataKey="value" fill="#8884d8" />
+            </RechartsPrimitive.BarChart>
+          )}
+          {chartType === 'line' && (
+            <RechartsPrimitive.LineChart data={data || []}>
+              <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" />
+              <RechartsPrimitive.XAxis dataKey="name" />
+              <RechartsPrimitive.YAxis />
+              <RechartsPrimitive.Tooltip />
+              <RechartsPrimitive.Legend />
+              <RechartsPrimitive.Line type="monotone" dataKey="value" stroke="#8884d8" />
+            </RechartsPrimitive.LineChart>
+          )}
+          {chartType === 'pie' && (
+            <RechartsPrimitive.PieChart>
+              <RechartsPrimitive.Pie 
+                data={data || []} 
+                dataKey="value" 
+                nameKey="name" 
+                cx="50%" 
+                cy="50%" 
+                outerRadius={80} 
+                fill="#8884d8" 
+                label
+              />
+              <RechartsPrimitive.Tooltip />
+            </RechartsPrimitive.PieChart>
+          )}
+          {!['bar', 'line', 'pie'].includes(chartType) && (
+            <div>Chart: {chartType}</div>
+          )}
+        </ChartContainer>
       </div>
     </div>
   );
@@ -217,7 +252,23 @@ export const Filter = ({ options, onFilter }: any) => {
   );
 };
 
-export { Alert };
+// Create a custom Alert component that accepts onDismiss
+export const Alert = ({ title, children, variant, onDismiss }: any) => {
+  return (
+    <div className={`alert alert-${variant || 'default'} relative`}>
+      {title && <h5 className="font-medium">{title}</h5>}
+      <div>{children}</div>
+      {onDismiss && (
+        <button 
+          className="absolute top-1 right-1 text-gray-500 hover:text-gray-700"
+          onClick={onDismiss}
+        >
+          &times;
+        </button>
+      )}
+    </div>
+  );
+};
 
 export const Table = ({ data, columns }: any) => {
   const tableData = Array.isArray(data) ? data : [];
