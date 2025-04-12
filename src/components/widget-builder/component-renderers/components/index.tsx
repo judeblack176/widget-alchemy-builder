@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Alert as UIAlert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -118,7 +119,7 @@ export const Chart = ({ chartType, title, data, labels, legend, colors, height }
               <RechartsPrimitive.Tooltip />
             </RechartsPrimitive.PieChart>
           )}
-          {!['bar', 'line', 'pie'].includes(chartType) && (
+          {!['bar', 'line', 'pie'].includes(chartType || '') && (
             <div>Chart: {chartType}</div>
           )}
         </ChartContainer>
