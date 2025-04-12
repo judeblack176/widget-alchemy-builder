@@ -511,7 +511,7 @@ const Index = () => {
                     onClick={handleSaveWidget}
                     variant="default"
                     size="default"
-                    className="bg-widget-blue hover:bg-blue-600 transition-colors"
+                    className="bg-green-500 hover:bg-green-600 transition-colors"
                   >
                     Save
                   </Button>
