@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig, ContentFieldConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -717,3 +718,205 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                         <span className="text-gray-600">{value}</span>
                       </div>
                     ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        )}
+        
+        {renderContentField(0)}
+      </div>
+    );
+  };
+
+  return (
+    <div className="relative bg-white rounded-md overflow-hidden border mb-4">
+      {/* Component header with badge and expand/collapse toggle */}
+      <button
+        onClick={onToggleExpand}
+        className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50"
+      >
+        <div className="flex items-center space-x-2">
+          <Badge className="bg-gray-200 text-gray-700 hover:bg-gray-200">
+            {componentTypeLabels[component.type] || component.type}
+          </Badge>
+          <span className="font-medium text-sm truncate">
+            {component.props.title ||
+              component.props.label ||
+              component.props.content ||
+              component.props.text ||
+              component.id}
+          </span>
+          {component.tooltipId && (
+            <div className="ml-2">
+              {getTooltipIcon(component.tooltipId)}
+            </div>
+          )}
+        </div>
+        <div className="flex items-center">
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemoveComponent(component.id);
+            }}
+            variant="ghost"
+            size="sm"
+            className="h-7 opacity-60 hover:opacity-100 hover:bg-red-50 hover:text-red-500"
+            disabled={shouldDisableRemove}
+          >
+            <Trash2 size={14} />
+          </Button>
+          {isExpanded ? (
+            <ChevronUp size={18} className="ml-1" />
+          ) : (
+            <ChevronDown size={18} className="ml-1" />
+          )}
+        </div>
+      </button>
+
+      {/* Expanded editor */}
+      {isExpanded && (
+        <div className="p-4 border-t">
+          <Accordion
+            type="single"
+            defaultValue="properties"
+            collapsible
+            value={expandedSection}
+            onValueChange={setExpandedSection}
+          >
+            {/* General properties */}
+            <AccordionItem value="properties">
+              <AccordionTrigger className="text-sm font-medium py-1">
+                Component Properties
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="py-2 space-y-2">
+                  {getPropertyDefinitions().map((prop) => renderPropertyEditor(prop))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Tooltips */}
+            <AccordionItem value="tooltips">
+              <AccordionTrigger className="text-sm font-medium py-1">
+                Tooltip
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="py-2">
+                  <div className="mb-3">
+                    <Select
+                      value={component.tooltipId || "none"}
+                      onValueChange={(tooltipId) => {
+                        if (onApplyTooltip) {
+                          onApplyTooltip(tooltipId === "none" ? "" : tooltipId);
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select tooltip" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {tooltipOptions.map((option) => (
+                          <SelectItem key={option.id} value={option.id}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {selectedTooltip && (
+                    <div className="mt-3 p-3 bg-gray-50 rounded-md border text-sm">
+                      <h4 className="font-medium mb-1">{selectedTooltip.title}</h4>
+                      <p className="text-gray-600">{selectedTooltip.content}</p>
+                      {selectedTooltip.tags && selectedTooltip.tags.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {selectedTooltip.tags.map((tag, idx) => (
+                            <Badge key={idx} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Data integration */}
+            {shouldShowDataIntegration() && (
+              <AccordionItem value="data-integration">
+                <AccordionTrigger className="text-sm font-medium py-1">
+                  Data Integration
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="py-2">
+                    {!component.apiConfig ? (
+                      <div className="flex flex-col items-center p-4 border rounded-md border-dashed">
+                        <Database size={24} className="text-gray-400 mb-3" />
+                        <p className="text-sm text-center mb-3">
+                          Connect this component to a data source to display dynamic content
+                        </p>
+                        <div className="flex space-x-2">
+                          <Select
+                            value=""
+                            onValueChange={handleApiSelection}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select API" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {apis.map((api) => (
+                                <SelectItem key={api.id} value={api.id}>
+                                  {api.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => onRequestApiTemplate()}
+                            title="Use API template"
+                          >
+                            <Library size={16} />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        {renderApiDetails()}
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+          </Accordion>
+        </div>
+      )}
+
+      {/* Disconnect API confirmation dialog */}
+      <AlertDialog open={showDisconnectAlert} onOpenChange={setShowDisconnectAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Disconnect API?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the API connection from this component. Any configured data mappings will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={disconnectApi} className="bg-red-500 hover:bg-red-600">
+              Disconnect
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
+
+export default ComponentEditor;
