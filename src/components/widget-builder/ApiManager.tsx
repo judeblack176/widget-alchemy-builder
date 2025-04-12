@@ -696,10 +696,10 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                 <Card key={api.id} className={`${expandedRows[api.id] ? "bg-slate-50" : ""} w-full`}>
                   <CardHeader className="p-3 pb-2">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-medium">{api.name}</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="font-mono text-xs truncate max-w-[500px]" title={api.endpoint}>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-medium">{api.name}</h3>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="font-mono text-xs truncate max-w-[700px]" title={api.endpoint}>
                             {api.endpoint}
                           </span>
                           <Button
@@ -791,22 +791,22 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                   </CardHeader>
                   
                   {expandedRows[api.id] && (
-                    <CardContent className="px-3 py-2">
-                      <div className="grid grid-cols-3 gap-4">
+                    <CardContent className="px-4 py-3">
+                      <div className="grid grid-cols-4 gap-6">
                         <div className="space-y-2">
-                          <span className="font-semibold text-xs text-gray-500">Headers:</span>
+                          <span className="font-semibold text-sm text-gray-500">Headers:</span>
                           <div className="mt-1">
                             {api.headers && Object.keys(api.headers).length > 0 ? (
                               <div className="flex flex-col gap-1">
-                                {Object.entries(api.headers).slice(0, 3).map(([key, value]) => (
+                                {Object.entries(api.headers).slice(0, 6).map(([key, value]) => (
                                   <div key={key} className="flex justify-between gap-2 py-1 border-b border-gray-100">
-                                    <span className="font-semibold text-xs truncate max-w-[100px]">{key}:</span>
-                                    <span className="text-xs text-gray-700 truncate max-w-[150px]" title={value.toString()}>
+                                    <span className="font-semibold text-xs truncate max-w-[120px]">{key}:</span>
+                                    <span className="text-xs text-gray-700 truncate max-w-[180px]" title={value.toString()}>
                                       {value.toString()}
                                     </span>
                                   </div>
                                 ))}
-                                {Object.keys(api.headers).length > 3 && (
+                                {Object.keys(api.headers).length > 6 && (
                                   <Popover>
                                     <PopoverTrigger asChild>
                                       <Button 
@@ -814,10 +814,10 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                                         size="sm" 
                                         className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800 self-start"
                                       >
-                                        +{Object.keys(api.headers).length - 3} more
+                                        +{Object.keys(api.headers).length - 6} more
                                       </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-80 max-h-[200px] overflow-y-auto p-2">
+                                    <PopoverContent className="w-80 max-h-[300px] overflow-y-auto p-2">
                                       <div className="space-y-1 text-xs">
                                         <h4 className="font-semibold mb-2">Headers</h4>
                                         {Object.entries(api.headers).map(([key, value]) => (
@@ -840,19 +840,19 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                         </div>
                         
                         <div className="space-y-2">
-                          <span className="font-semibold text-xs text-gray-500">Parameters:</span>
+                          <span className="font-semibold text-sm text-gray-500">Parameters:</span>
                           <div className="mt-1">
                             {api.parameters && Object.keys(api.parameters).length > 0 ? (
                               <div className="flex flex-col gap-1">
-                                {Object.entries(api.parameters).slice(0, 3).map(([key, value]) => (
+                                {Object.entries(api.parameters).slice(0, 6).map(([key, value]) => (
                                   <div key={key} className="flex justify-between gap-2 py-1 border-b border-gray-100">
-                                    <span className="font-semibold text-xs truncate max-w-[100px]">{key}:</span>
-                                    <span className="text-xs text-gray-700 truncate max-w-[150px]" title={value.toString()}>
+                                    <span className="font-semibold text-xs truncate max-w-[120px]">{key}:</span>
+                                    <span className="text-xs text-gray-700 truncate max-w-[180px]" title={value.toString()}>
                                       {value.toString()}
                                     </span>
                                   </div>
                                 ))}
-                                {Object.keys(api.parameters).length > 3 && (
+                                {Object.keys(api.parameters).length > 6 && (
                                   <Popover>
                                     <PopoverTrigger asChild>
                                       <Button 
@@ -860,10 +860,10 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                                         size="sm" 
                                         className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800 self-start"
                                       >
-                                        +{Object.keys(api.parameters).length - 3} more
+                                        +{Object.keys(api.parameters).length - 6} more
                                       </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-80 max-h-[200px] overflow-y-auto p-2">
+                                    <PopoverContent className="w-80 max-h-[300px] overflow-y-auto p-2">
                                       <div className="space-y-1 text-xs">
                                         <h4 className="font-semibold mb-2">Parameters</h4>
                                         {Object.entries(api.parameters).map(([key, value]) => (
@@ -886,19 +886,19 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                         </div>
                         
                         <div className="space-y-2">
-                          <span className="font-semibold text-xs text-gray-500">Mappings:</span>
+                          <span className="font-semibold text-sm text-gray-500">Mappings:</span>
                           <div className="mt-1">
                             {api.responseMapping && Object.keys(api.responseMapping).length > 0 ? (
                               <div className="flex flex-col gap-1">
-                                {Object.entries(api.responseMapping).slice(0, 3).map(([key, value]) => (
+                                {Object.entries(api.responseMapping).slice(0, 6).map(([key, value]) => (
                                   <div key={key} className="flex justify-between gap-2 py-1 border-b border-gray-100">
-                                    <span className="font-semibold text-xs truncate max-w-[100px]">{key}:</span>
-                                    <span className="text-xs text-gray-700 font-mono truncate max-w-[150px]" title={value.toString()}>
+                                    <span className="font-semibold text-xs truncate max-w-[120px]">{key}:</span>
+                                    <span className="text-xs text-gray-700 font-mono truncate max-w-[180px]" title={value.toString()}>
                                       {value.toString()}
                                     </span>
                                   </div>
                                 ))}
-                                {Object.keys(api.responseMapping).length > 3 && (
+                                {Object.keys(api.responseMapping).length > 6 && (
                                   <Popover>
                                     <PopoverTrigger asChild>
                                       <Button 
@@ -906,10 +906,10 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                                         size="sm" 
                                         className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800 self-start"
                                       >
-                                        +{Object.keys(api.responseMapping).length - 3} more
+                                        +{Object.keys(api.responseMapping).length - 6} more
                                       </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-80 max-h-[200px] overflow-y-auto p-2">
+                                    <PopoverContent className="w-80 max-h-[300px] overflow-y-auto p-2">
                                       <div className="space-y-1 text-xs">
                                         <h4 className="font-semibold mb-2">Response Mappings</h4>
                                         {Object.entries(api.responseMapping).map(([key, value]) => (
@@ -931,31 +931,31 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                           </div>
                         </div>
                         
-                        {api.possibleFields && api.possibleFields.length > 0 && (
-                          <div className="col-span-3 space-y-2 mt-2">
-                            <span className="font-semibold text-xs text-gray-500">Available Fields:</span>
-                            <div className="mt-1">
+                        <div className="space-y-2">
+                          <span className="font-semibold text-sm text-gray-500">Available Fields:</span>
+                          <div className="mt-1">
+                            {api.possibleFields && api.possibleFields.length > 0 ? (
                               <div className="flex flex-wrap gap-1">
-                                {api.possibleFields.slice(0, 10).map((field, index) => (
+                                {api.possibleFields.slice(0, 15).map((field, index) => (
                                   <Badge 
                                     key={index} 
                                     variant="outline" 
-                                    className="font-mono text-xs"
+                                    className="font-mono text-xs mb-1"
                                   >
                                     {field}
                                   </Badge>
                                 ))}
-                                {api.possibleFields.length > 10 && (
+                                {api.possibleFields.length > 15 && (
                                   <Popover>
                                     <PopoverTrigger asChild>
                                       <Badge 
                                         variant="outline" 
                                         className="text-xs cursor-pointer text-blue-600 hover:text-blue-800 hover:bg-blue-50"
                                       >
-                                        +{api.possibleFields.length - 10} more
+                                        +{api.possibleFields.length - 15} more
                                       </Badge>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-80 max-h-[300px] overflow-y-auto p-2">
+                                    <PopoverContent className="w-96 max-h-[400px] overflow-y-auto p-3">
                                       <div className="space-y-1">
                                         <h4 className="font-semibold mb-2 text-sm">Available Fields</h4>
                                         <div className="flex flex-wrap gap-1">
@@ -974,6 +974,35 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                                   </Popover>
                                 )}
                               </div>
+                            ) : (
+                              <span className="text-xs text-gray-500">None</span>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {api.sampleResponse && (
+                          <div className="col-span-4 mt-2 border-t pt-3">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="font-semibold text-sm text-gray-500">Sample Response:</span>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-6 px-2 text-xs"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(api.sampleResponse || "");
+                                  toast({
+                                    title: "Copied",
+                                    description: "Sample response copied to clipboard",
+                                  });
+                                }}
+                              >
+                                <Copy size={12} className="mr-1" /> Copy
+                              </Button>
+                            </div>
+                            <div className="rounded-md bg-gray-50 p-3 overflow-auto max-h-[200px]">
+                              <pre className="text-xs font-mono whitespace-pre-wrap break-all">
+                                {api.sampleResponse}
+                              </pre>
                             </div>
                           </div>
                         )}
