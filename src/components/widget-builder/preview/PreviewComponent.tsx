@@ -6,21 +6,21 @@ import { renderComponent } from '../component-renderers';
 interface PreviewComponentProps {
   component: WidgetComponent;
   index: number;
-  apiData?: Record<string, any>;
-  onAlertDismiss?: (id: string) => void;
+  componentData?: any;
+  handleAlertDismiss?: (id: string) => void;
   tooltips?: Tooltip[];
 }
 
 const PreviewComponent: React.FC<PreviewComponentProps> = ({ 
   component, 
   index, 
-  apiData, 
-  onAlertDismiss,
+  componentData, 
+  handleAlertDismiss,
   tooltips
 }) => {
   return (
     <div className={`component-preview ${component.selected ? 'ring-2 ring-blue-400' : ''}`} data-component-id={component.id}>
-      {renderComponent(component, apiData, onAlertDismiss, tooltips)}
+      {renderComponent(component, componentData, handleAlertDismiss, tooltips)}
     </div>
   );
 };
