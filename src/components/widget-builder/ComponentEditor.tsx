@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { WidgetComponent, ApiConfig } from "@/types/widget-types";
+import { WidgetComponent, ApiConfig, ContentFieldConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -529,7 +529,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     if (!selectedApi) return null;
     
     const contentKey = `content${index + 1}`;
-    const contentConfig = component.apiConfig?.contentConfig?.[contentKey] || {};
+    const contentConfig = component.apiConfig?.contentConfig?.[contentKey] as ContentFieldConfig || {};
     
     return (
       <div className="border rounded-md p-3 bg-white mb-4">
@@ -644,7 +644,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const renderApiDetails = () => {
     if (!selectedApi) return null;
-
+    
     return (
       <div className="space-y-4 mt-4 border rounded-md p-3 bg-gray-50">
         <div className="flex justify-between items-center">

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { WidgetComponent, ApiConfig } from '@/types/widget-types';
+import { WidgetComponent, ApiConfig, ContentFieldConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
 import { renderComponent } from './component-renderers';
 import { HelpCircle, AlertCircle, Check, Ruler, Palette } from 'lucide-react';
@@ -73,22 +73,23 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       const processedData = { ...apiResult };
       
       Object.entries(component.apiConfig.contentConfig).forEach(([contentKey, config]) => {
-        if (config.field && apiResult[config.field] !== undefined) {
+        const typedConfig = config as ContentFieldConfig;
+        if (typedConfig.field && apiResult[typedConfig.field] !== undefined) {
           processedData[`formatted_${contentKey}`] = {
-            value: apiResult[config.field],
-            customText: config.customText || '',
-            fontFamily: config.fontFamily || 'system-ui',
-            fontSize: config.fontSize || '16px',
-            alignment: config.alignment || 'left'
+            value: apiResult[typedConfig.field],
+            customText: typedConfig.customText || '',
+            fontFamily: typedConfig.fontFamily || 'system-ui',
+            fontSize: typedConfig.fontSize || '16px',
+            alignment: typedConfig.alignment || 'left'
           };
-        } else if (config.customText) {
+        } else if (typedConfig.customText) {
           // If there's only custom text with no field mapping
           processedData[`formatted_${contentKey}`] = {
             value: '',
-            customText: config.customText,
-            fontFamily: config.fontFamily || 'system-ui',
-            fontSize: config.fontSize || '16px',
-            alignment: config.alignment || 'left'
+            customText: typedConfig.customText,
+            fontFamily: typedConfig.fontFamily || 'system-ui',
+            fontSize: typedConfig.fontSize || '16px',
+            alignment: typedConfig.alignment || 'left'
           };
         }
       });
