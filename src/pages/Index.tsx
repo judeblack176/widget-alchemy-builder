@@ -467,8 +467,9 @@ const Index = () => {
                 <div className="space-x-2">
                   <Button
                     onClick={handleLoadWidget}
-                    variant="outline"
+                    variant="default"
                     size="default"
+                    className="bg-widget-blue hover:bg-blue-600 transition-colors"
                   >
                     <Library size={16} className="mr-2" /> Load Widget
                   </Button>
