@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ApiConfig, extractFieldPaths } from "@/types/widget-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -750,8 +749,8 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-sm">
+                  <CardContent className="pt-0">
+                    <div className="space-y-4 text-sm">
                       <div className="flex items-start">
                         <span className="font-semibold w-24 pt-1">Endpoint:</span>
                         <div className="flex items-center">
