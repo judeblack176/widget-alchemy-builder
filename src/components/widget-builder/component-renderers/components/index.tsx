@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Alert } from '@/components/ui/alert';
+import { Alert as UIAlert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ChartContainer } from '@/components/ui/chart';
@@ -82,7 +83,7 @@ export const Chart = ({ chartType, title, data, labels, legend, colors, height }
     <div className="w-full p-4 border rounded-md">
       <h4 className="text-sm font-medium mb-2">{title || 'Chart'}</h4>
       <div style={{ height: height || '200px' }} className="bg-gray-100 rounded-md flex items-center justify-center">
-        <ChartContainer config={{}} className="w-full h-full p-2">
+        <ChartContainer config={{}}>
           {chartType === 'bar' && (
             <RechartsPrimitive.BarChart data={data || []}>
               <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" />
@@ -252,12 +253,12 @@ export const Filter = ({ options, onFilter }: any) => {
   );
 };
 
-// Create a custom Alert component that accepts onDismiss
+// Custom Alert component
 export const Alert = ({ title, children, variant, onDismiss }: any) => {
   return (
-    <div className={`alert alert-${variant || 'default'} relative`}>
-      {title && <h5 className="font-medium">{title}</h5>}
-      <div>{children}</div>
+    <div className={`relative w-full rounded-lg border p-4 ${variant === 'destructive' ? 'border-destructive/50 text-destructive' : 'bg-background text-foreground'}`}>
+      {title && <h5 className="mb-1 font-medium">{title}</h5>}
+      <div className="text-sm">{children}</div>
       {onDismiss && (
         <button 
           className="absolute top-1 right-1 text-gray-500 hover:text-gray-700"
