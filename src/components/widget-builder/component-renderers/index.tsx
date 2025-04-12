@@ -14,11 +14,12 @@ export const renderComponent = (
 ) => {
   const { type, props } = component;
   
-  // For text components, process content with dynamic fields
+  // Process dynamic content for text components
   if (type === 'text' && component.formattedContent) {
+    const processedContent = component.formattedContent;
     const textProps = {
       ...props,
-      content: props.content || component.formattedContent
+      content: processedContent || props.content
     };
     
     return <Text {...textProps} />;

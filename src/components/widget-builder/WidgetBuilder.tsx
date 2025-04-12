@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import ComponentEditor from './ComponentEditor';
@@ -31,10 +30,9 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   onApplyTooltip,
   tooltips = []
 }) => {
-  
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  
+
   useEffect(() => {
     if (tooltips && onApplyTooltip) {
       const validTooltipIds = [
@@ -49,7 +47,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
       });
     }
   }, [tooltips, components, onApplyTooltip]);
-  
+
   const alertComponents = components.filter(c => c.type === 'alert');
   const hasAlertComponent = alertComponents.length > 0;
   
@@ -84,6 +82,10 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+  };
+
+  const toggleExpand = (componentId: string) => {
+    setExpandedComponentId(expandedComponentId === componentId ? null : componentId);
   };
 
   const filteredComponents = components.filter(component => {
@@ -139,11 +141,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
               component={filteredHeaderComponent}
               apis={apis}
               isExpanded={expandedComponentId === filteredHeaderComponent.id}
-              onToggleExpand={() => 
-                setExpandedComponentId(
-                  expandedComponentId === filteredHeaderComponent.id ? null : filteredHeaderComponent.id
-                )
-              }
+              onToggleExpand={() => toggleExpand(filteredHeaderComponent.id)}
               onUpdateComponent={onUpdateComponent}
               onRemoveComponent={onRemoveComponent}
               onRequestApiTemplate={() => onRequestApiTemplate(filteredHeaderComponent.id)}
@@ -165,11 +163,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                   component={alertComponent}
                   apis={apis}
                   isExpanded={expandedComponentId === alertComponent.id}
-                  onToggleExpand={() => 
-                    setExpandedComponentId(
-                      expandedComponentId === alertComponent.id ? null : alertComponent.id
-                    )
-                  }
+                  onToggleExpand={() => toggleExpand(alertComponent.id)}
                   onUpdateComponent={onUpdateComponent}
                   onRemoveComponent={onRemoveComponent}
                   onRequestApiTemplate={() => onRequestApiTemplate(alertComponent.id)}
@@ -222,11 +216,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                                 component={component}
                                 apis={apis}
                                 isExpanded={expandedComponentId === component.id}
-                                onToggleExpand={() => 
-                                  setExpandedComponentId(
-                                    expandedComponentId === component.id ? null : component.id
-                                  )
-                                }
+                                onToggleExpand={() => toggleExpand(component.id)}
                                 onUpdateComponent={onUpdateComponent}
                                 onRemoveComponent={onRemoveComponent}
                                 onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
