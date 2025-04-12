@@ -184,10 +184,10 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         )}
       </div>
       
-      {/* Scrollable section - this part needs to be fixed */}
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full w-full">
-          <div className="pr-2 pb-4">
+      {/* Scrollable section */}
+      <div className="flex-1 h-full overflow-hidden">
+        <ScrollArea className="h-full w-full pr-2">
+          <div className="pb-4">
             {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
               <Card className="p-8 text-center bg-white border-dashed border-2 border-gray-300">
                 <p className="text-gray-500">No components match your search</p>
