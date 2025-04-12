@@ -45,30 +45,24 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   
   const hasExcessComponents = nonHeaderNonAlertComponents.length > MAX_COMPONENTS;
 
-  // Process multi-mapped data for rendering
   const processComponentData = (component: WidgetComponent) => {
     if (!component.apiConfig) return undefined;
     
     const apiId = component.apiConfig.apiId;
     const apiResult = apiData[apiId];
     
-    // If there's no API data or no multiMapping, just return the regular API data
     if (!apiResult || !component.apiConfig.multiMapping) {
       return apiResult;
     }
     
-    // Create an object with processed multi-mapped fields
     const processedData = { ...apiResult };
     
-    // Process each property that has multiple field mappings
     Object.entries(component.apiConfig.multiMapping).forEach(([propKey, fields]) => {
       if (fields && fields.length > 0) {
-        // Gather all field values into an array
         const fieldValues = fields.map(field => {
           return apiResult[field];
         }).filter(val => val !== undefined);
         
-        // Add the processed multi-mapped values to the data object
         if (fieldValues.length > 0) {
           processedData[`multi_${propKey}`] = fieldValues;
         }
@@ -97,7 +91,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
             continue;
           }
           
-          // For demonstration/preview purposes only
           if (api.sampleResponse) {
             try {
               apiDataResults[api.id] = JSON.parse(api.sampleResponse);
@@ -107,7 +100,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
             }
           }
           
-          // Only try to fetch if we don't have sample data
           const response = await fetch(api.endpoint, {
             method: api.method,
             headers: api.headers || {},
@@ -115,7 +107,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
 
           if (!response.ok) {
             console.error(`Failed to fetch API ${api.name}: ${response.status}`);
-            // Fallback to empty data
             apiDataResults[api.id] = {};
             continue;
           }
@@ -124,7 +115,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
           apiDataResults[api.id] = data;
         } catch (error) {
           console.error(`Error fetching API ${api.name}:`, error);
-          // Set empty object as fallback
           apiDataResults[api.id] = {};
         }
       }
@@ -181,7 +171,6 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       return null;
     }
     
-    // Process component data with multi-mapping support
     const componentData = processComponentData(component);
     
     const componentContent = renderComponent(
