@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Alert as UIAlert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -84,7 +83,7 @@ export const Chart = ({ chartType, title, data, labels, legend, colors, height }
       <h4 className="text-sm font-medium mb-2">{title || 'Chart'}</h4>
       <div style={{ height: height || '200px' }} className="bg-gray-100 rounded-md flex items-center justify-center">
         <ChartContainer config={{}}>
-          {chartType === 'bar' && (
+          {chartType === 'bar' ? (
             <RechartsPrimitive.BarChart data={data || []}>
               <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" />
               <RechartsPrimitive.XAxis dataKey="name" />
@@ -93,8 +92,7 @@ export const Chart = ({ chartType, title, data, labels, legend, colors, height }
               <RechartsPrimitive.Legend />
               <RechartsPrimitive.Bar dataKey="value" fill="#8884d8" />
             </RechartsPrimitive.BarChart>
-          )}
-          {chartType === 'line' && (
+          ) : chartType === 'line' ? (
             <RechartsPrimitive.LineChart data={data || []}>
               <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" />
               <RechartsPrimitive.XAxis dataKey="name" />
@@ -103,8 +101,7 @@ export const Chart = ({ chartType, title, data, labels, legend, colors, height }
               <RechartsPrimitive.Legend />
               <RechartsPrimitive.Line type="monotone" dataKey="value" stroke="#8884d8" />
             </RechartsPrimitive.LineChart>
-          )}
-          {chartType === 'pie' && (
+          ) : chartType === 'pie' ? (
             <RechartsPrimitive.PieChart>
               <RechartsPrimitive.Pie 
                 data={data || []} 
@@ -118,9 +115,8 @@ export const Chart = ({ chartType, title, data, labels, legend, colors, height }
               />
               <RechartsPrimitive.Tooltip />
             </RechartsPrimitive.PieChart>
-          )}
-          {!['bar', 'line', 'pie'].includes(chartType || '') && (
-            <div>Chart: {chartType}</div>
+          ) : (
+            <div>Chart: {chartType || 'unknown'}</div>
           )}
         </ChartContainer>
       </div>
