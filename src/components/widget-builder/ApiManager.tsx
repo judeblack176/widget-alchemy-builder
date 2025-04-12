@@ -51,6 +51,76 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
   const [mappingKey, setMappingKey] = useState("");
   const [mappingValue, setMappingValue] = useState("");
 
+  const createSampleApi = () => {
+    const sampleApi: ApiConfig = {
+      id: `api-sample-${Date.now()}`,
+      name: "Weather API",
+      endpoint: "https://api.weatherapi.com/v1/current.json",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer api-key-goes-here"
+      },
+      parameters: {
+        "q": "London",
+        "units": "metric"
+      },
+      responseMapping: {
+        "temperature": "current.temp_c",
+        "condition": "current.condition.text",
+        "location": "location.name",
+        "country": "location.country"
+      },
+      sampleResponse: JSON.stringify({
+        "location": {
+          "name": "London",
+          "region": "City of London, Greater London",
+          "country": "United Kingdom",
+          "lat": 51.52,
+          "lon": -0.11,
+          "localtime": "2023-04-12 15:30"
+        },
+        "current": {
+          "temp_c": 18.0,
+          "temp_f": 64.4,
+          "condition": {
+            "text": "Partly cloudy",
+            "icon": "//cdn.weatherapi.com/weather/64x64/day/116.png"
+          },
+          "wind_mph": 6.9,
+          "humidity": 73,
+          "cloud": 75,
+          "feelslike_c": 18.0,
+          "uv": 4.0
+        }
+      }, null, 2),
+      possibleFields: [
+        "location.name",
+        "location.region",
+        "location.country",
+        "location.lat",
+        "location.lon",
+        "location.localtime",
+        "current.temp_c",
+        "current.temp_f",
+        "current.condition.text",
+        "current.condition.icon",
+        "current.wind_mph",
+        "current.humidity",
+        "current.cloud",
+        "current.feelslike_c",
+        "current.uv"
+      ]
+    };
+    
+    onAddApi(sampleApi);
+    
+    toast({
+      title: "Sample API Added",
+      description: "The sample Weather API has been added to your configuration."
+    });
+  };
+
   const resetForm = () => {
     setNewApi({
       name: "",
@@ -237,309 +307,320 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
       <div className="sticky top-0 bg-white z-10 pb-4 space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium">APIs</h3>
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                size="sm" 
-                variant="outline"
-                className="flex items-center gap-1"
-              >
-                <Plus size={16} className="inline-flex" />
-                <span>Add API</span>
-              </Button>
-            </DialogTrigger>
-            
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{selectedApiForEdit ? "Edit API Integration" : "Add New API Integration"}</DialogTitle>
-                <DialogDescription>
-                  Configure an API endpoint to use with your widget components.
-                </DialogDescription>
-              </DialogHeader>
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="flex items-center gap-1"
+              onClick={createSampleApi}
+            >
+              <Globe size={16} className="inline-flex" />
+              <span>Add Sample API</span>
+            </Button>
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className="flex items-center gap-1"
+                >
+                  <Plus size={16} className="inline-flex" />
+                  <span>Add API</span>
+                </Button>
+              </DialogTrigger>
               
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="w-full">
-                  <TabsTrigger value="general">General</TabsTrigger>
-                  <TabsTrigger value="headers">Headers</TabsTrigger>
-                  <TabsTrigger value="params">Parameters</TabsTrigger>
-                  <TabsTrigger value="sample">Sample Response</TabsTrigger>
-                  <TabsTrigger value="mapping">Response Mapping</TabsTrigger>
-                </TabsList>
+              <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{selectedApiForEdit ? "Edit API Integration" : "Add New API Integration"}</DialogTitle>
+                  <DialogDescription>
+                    Configure an API endpoint to use with your widget components.
+                  </DialogDescription>
+                </DialogHeader>
                 
-                <TabsContent value="general" className="space-y-4 pt-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="api-name">API Name</Label>
-                    <Input
-                      id="api-name"
-                      value={newApi.name}
-                      onChange={(e) => setNewApi({ ...newApi, name: e.target.value })}
-                      placeholder="Enter a descriptive name"
-                    />
-                  </div>
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="w-full">
+                    <TabsTrigger value="general">General</TabsTrigger>
+                    <TabsTrigger value="headers">Headers</TabsTrigger>
+                    <TabsTrigger value="params">Parameters</TabsTrigger>
+                    <TabsTrigger value="sample">Sample Response</TabsTrigger>
+                    <TabsTrigger value="mapping">Response Mapping</TabsTrigger>
+                  </TabsList>
                   
-                  <div className="grid gap-2">
-                    <Label htmlFor="api-endpoint">Endpoint URL</Label>
-                    <Input
-                      id="api-endpoint"
-                      value={newApi.endpoint}
-                      onChange={(e) => setNewApi({ ...newApi, endpoint: e.target.value })}
-                      placeholder="https://api.example.com/data"
-                    />
-                  </div>
+                  <TabsContent value="general" className="space-y-4 pt-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="api-name">API Name</Label>
+                      <Input
+                        id="api-name"
+                        value={newApi.name}
+                        onChange={(e) => setNewApi({ ...newApi, name: e.target.value })}
+                        placeholder="Enter a descriptive name"
+                      />
+                    </div>
+                    
+                    <div className="grid gap-2">
+                      <Label htmlFor="api-endpoint">Endpoint URL</Label>
+                      <Input
+                        id="api-endpoint"
+                        value={newApi.endpoint}
+                        onChange={(e) => setNewApi({ ...newApi, endpoint: e.target.value })}
+                        placeholder="https://api.example.com/data"
+                      />
+                    </div>
+                    
+                    <div className="grid gap-2">
+                      <Label htmlFor="api-method">HTTP Method</Label>
+                      <Select
+                        value={newApi.method}
+                        onValueChange={(value) => setNewApi({ ...newApi, method: value as any })}
+                      >
+                        <SelectTrigger id="api-method">
+                          <SelectValue placeholder="Select method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="GET">GET</SelectItem>
+                          <SelectItem value="POST">POST</SelectItem>
+                          <SelectItem value="PUT">PUT</SelectItem>
+                          <SelectItem value="DELETE">DELETE</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </TabsContent>
                   
-                  <div className="grid gap-2">
-                    <Label htmlFor="api-method">HTTP Method</Label>
-                    <Select
-                      value={newApi.method}
-                      onValueChange={(value) => setNewApi({ ...newApi, method: value as any })}
-                    >
-                      <SelectTrigger id="api-method">
-                        <SelectValue placeholder="Select method" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="GET">GET</SelectItem>
-                        <SelectItem value="POST">POST</SelectItem>
-                        <SelectItem value="PUT">PUT</SelectItem>
-                        <SelectItem value="DELETE">DELETE</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="headers" className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label>Headers</Label>
-                    <div className="flex space-x-2">
-                      <Input
-                        placeholder="Key"
-                        value={headerKey}
-                        onChange={(e) => setHeaderKey(e.target.value)}
-                        className="flex-1"
-                      />
-                      <Input
-                        placeholder="Value"
-                        value={headerValue}
-                        onChange={(e) => setHeaderValue(e.target.value)}
-                        className="flex-1"
-                      />
-                      <Button 
-                        type="button" 
-                        size="sm"
-                        onClick={handleAddHeader} 
-                        disabled={!headerKey || !headerValue}
-                      >
-                        Add
-                      </Button>
-                    </div>
-                    
-                    {newApi.headers && Object.keys(newApi.headers).length > 0 && (
-                      <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
-                        {Object.entries(newApi.headers).map(([key, value]) => (
-                          <div key={key} className="flex justify-between items-center py-1">
-                            <span className="font-mono">{key}: {value}</span>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                const newHeaders = { ...newApi.headers };
-                                delete newHeaders[key];
-                                setNewApi({ ...newApi, headers: newHeaders });
-                              }}
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          </div>
-                        ))}
+                  <TabsContent value="headers" className="space-y-4 pt-4">
+                    <div className="space-y-2">
+                      <Label>Headers</Label>
+                      <div className="flex space-x-2">
+                        <Input
+                          placeholder="Key"
+                          value={headerKey}
+                          onChange={(e) => setHeaderKey(e.target.value)}
+                          className="flex-1"
+                        />
+                        <Input
+                          placeholder="Value"
+                          value={headerValue}
+                          onChange={(e) => setHeaderValue(e.target.value)}
+                          className="flex-1"
+                        />
+                        <Button 
+                          type="button" 
+                          size="sm"
+                          onClick={handleAddHeader} 
+                          disabled={!headerKey || !headerValue}
+                        >
+                          Add
+                        </Button>
                       </div>
-                    )}
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="params" className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label>Parameters</Label>
-                    <div className="flex space-x-2">
-                      <Input
-                        placeholder="Key"
-                        value={paramKey}
-                        onChange={(e) => setParamKey(e.target.value)}
-                        className="flex-1"
-                      />
-                      <Input
-                        placeholder="Value"
-                        value={paramValue}
-                        onChange={(e) => setParamValue(e.target.value)}
-                        className="flex-1"
-                      />
-                      <Button 
-                        type="button" 
-                        size="sm"
-                        onClick={handleAddParam} 
-                        disabled={!paramKey || !paramValue}
-                      >
-                        Add
-                      </Button>
-                    </div>
-                    
-                    {newApi.parameters && Object.keys(newApi.parameters).length > 0 && (
-                      <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
-                        {Object.entries(newApi.parameters).map(([key, value]) => (
-                          <div key={key} className="flex justify-between items-center py-1">
-                            <span className="font-mono">{key}: {value}</span>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                const newParams = { ...newApi.parameters };
-                                delete newParams[key];
-                                setNewApi({ ...newApi, parameters: newParams });
-                              }}
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="sample" className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label>Sample API Response</Label>
-                      <Button 
-                        type="button" 
-                        size="sm" 
-                        onClick={processSampleResponse}
-                        variant="outline"
-                      >
-                        <UploadCloud size={14} className="mr-1" /> Process Response
-                      </Button>
-                    </div>
-                    <Textarea 
-                      placeholder="Paste a sample JSON response from this API"
-                      value={newApi.sampleResponse || ''}
-                      onChange={(e) => setNewApi({ ...newApi, sampleResponse: e.target.value })}
-                      className="min-h-[200px] font-mono text-sm"
-                    />
-                    
-                    {newApi.possibleFields && newApi.possibleFields.length > 0 && (
-                      <div className="mt-4 space-y-2">
-                        <Label>Available Fields</Label>
-                        <ScrollArea className="h-[150px] border rounded-md p-2">
-                          <div className="flex flex-wrap gap-2">
-                            {newApi.possibleFields.map((field, index) => (
-                              <Badge 
-                                key={index} 
-                                variant="outline" 
-                                className="font-mono text-xs cursor-pointer hover:bg-slate-100"
+                      
+                      {newApi.headers && Object.keys(newApi.headers).length > 0 && (
+                        <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
+                          {Object.entries(newApi.headers).map(([key, value]) => (
+                            <div key={key} className="flex justify-between items-center py-1">
+                              <span className="font-mono">{key}: {value}</span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
                                 onClick={() => {
-                                  setMappingValue(field);
-                                  setActiveTab("mapping");
+                                  const newHeaders = { ...newApi.headers };
+                                  delete newHeaders[key];
+                                  setNewApi({ ...newApi, headers: newHeaders });
                                 }}
                               >
-                                {field}
-                              </Badge>
-                            ))}
-                          </div>
-                        </ScrollArea>
-                        <p className="text-xs text-gray-500">
-                          Click on a field to use it in response mapping
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="mapping" className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label>Response Data Mapping</Label>
-                      <span className="text-xs text-gray-500">Map component properties to API response data</span>
+                                <Trash2 size={14} />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div className="flex space-x-2">
-                      <Input
-                        placeholder="Component Property"
-                        value={mappingKey}
-                        onChange={(e) => setMappingKey(e.target.value)}
-                        className="flex-1"
+                  </TabsContent>
+                  
+                  <TabsContent value="params" className="space-y-4 pt-4">
+                    <div className="space-y-2">
+                      <Label>Parameters</Label>
+                      <div className="flex space-x-2">
+                        <Input
+                          placeholder="Key"
+                          value={paramKey}
+                          onChange={(e) => setParamKey(e.target.value)}
+                          className="flex-1"
+                        />
+                        <Input
+                          placeholder="Value"
+                          value={paramValue}
+                          onChange={(e) => setParamValue(e.target.value)}
+                          className="flex-1"
+                        />
+                        <Button 
+                          type="button" 
+                          size="sm"
+                          onClick={handleAddParam} 
+                          disabled={!paramKey || !paramValue}
+                        >
+                          Add
+                        </Button>
+                      </div>
+                      
+                      {newApi.parameters && Object.keys(newApi.parameters).length > 0 && (
+                        <div className="mt-2 p-2 bg-gray-50 rounded-md text-sm">
+                          {Object.entries(newApi.parameters).map(([key, value]) => (
+                            <div key={key} className="flex justify-between items-center py-1">
+                              <span className="font-mono">{key}: {value}</span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  const newParams = { ...newApi.parameters };
+                                  delete newParams[key];
+                                  setNewApi({ ...newApi, parameters: newParams });
+                                }}
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="sample" className="space-y-4 pt-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label>Sample API Response</Label>
+                        <Button 
+                          type="button" 
+                          size="sm" 
+                          onClick={processSampleResponse}
+                          variant="outline"
+                        >
+                          <UploadCloud size={14} className="mr-1" /> Process Response
+                        </Button>
+                      </div>
+                      <Textarea 
+                        placeholder="Paste a sample JSON response from this API"
+                        value={newApi.sampleResponse || ''}
+                        onChange={(e) => setNewApi({ ...newApi, sampleResponse: e.target.value })}
+                        className="min-h-[200px] font-mono text-sm"
                       />
-                      <Input
-                        placeholder="API Response Field"
-                        value={mappingValue}
-                        onChange={(e) => setMappingValue(e.target.value)}
-                        className="flex-1"
-                      />
-                      <Button 
-                        type="button" 
-                        size="sm"
-                        onClick={handleAddMapping} 
-                        disabled={!mappingKey || !mappingValue}
-                      >
-                        Add
+                      
+                      {newApi.possibleFields && newApi.possibleFields.length > 0 && (
+                        <div className="mt-4 space-y-2">
+                          <Label>Available Fields</Label>
+                          <ScrollArea className="h-[150px] border rounded-md p-2">
+                            <div className="flex flex-wrap gap-2">
+                              {newApi.possibleFields.map((field, index) => (
+                                <Badge 
+                                  key={index} 
+                                  variant="outline" 
+                                  className="font-mono text-xs cursor-pointer hover:bg-slate-100"
+                                  onClick={() => {
+                                    setMappingValue(field);
+                                    setActiveTab("mapping");
+                                  }}
+                                >
+                                  {field}
+                                </Badge>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                          <p className="text-xs text-gray-500">
+                            Click on a field to use it in response mapping
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="mapping" className="space-y-4 pt-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label>Response Data Mapping</Label>
+                        <span className="text-xs text-gray-500">Map component properties to API response data</span>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Input
+                          placeholder="Component Property"
+                          value={mappingKey}
+                          onChange={(e) => setMappingKey(e.target.value)}
+                          className="flex-1"
+                        />
+                        <Input
+                          placeholder="API Response Field"
+                          value={mappingValue}
+                          onChange={(e) => setMappingValue(e.target.value)}
+                          className="flex-1"
+                        />
+                        <Button 
+                          type="button" 
+                          size="sm"
+                          onClick={handleAddMapping} 
+                          disabled={!mappingKey || !mappingValue}
+                        >
+                          Add
+                        </Button>
+                      </div>
+                      
+                      {newApi.possibleFields && newApi.possibleFields.length > 0 && (
+                        <div className="mt-2 p-2 bg-gray-50 rounded-md">
+                          <Label className="text-xs mb-1">Available Fields (click to use)</Label>
+                          <ScrollArea className="h-[100px]">
+                            <div className="flex flex-wrap gap-1">
+                              {newApi.possibleFields.map((field, index) => (
+                                <Badge 
+                                  key={index} 
+                                  variant="outline" 
+                                  className="font-mono text-xs cursor-pointer hover:bg-slate-100"
+                                  onClick={() => setMappingValue(field)}
+                                >
+                                  {field}
+                                </Badge>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                        </div>
+                      )}
+                      
+                      {newApi.responseMapping && Object.keys(newApi.responseMapping).length > 0 && (
+                        <div className="mt-4 p-2 bg-gray-50 rounded-md text-sm">
+                          <Label className="text-xs mb-1">Current Mappings</Label>
+                          {Object.entries(newApi.responseMapping).map(([key, value]) => (
+                            <div key={key} className="flex justify-between items-center py-1">
+                              <span className="font-mono">{key} → {value}</span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  const newMapping = { ...newApi.responseMapping };
+                                  delete newMapping[key];
+                                  setNewApi({ ...newApi, responseMapping: newMapping });
+                                }}
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+                
+                <DialogFooter>
+                  <div className="flex justify-between w-full">
+                    <div className="flex gap-2">
+                      <Button variant="outline" onClick={handleCloseDialog}>
+                        Cancel
+                      </Button>
+                      <Button className="bg-widget-blue" onClick={handleSubmit}>
+                        {selectedApiForEdit ? "Update API" : "Add API"}
                       </Button>
                     </div>
-                    
-                    {newApi.possibleFields && newApi.possibleFields.length > 0 && (
-                      <div className="mt-2 p-2 bg-gray-50 rounded-md">
-                        <Label className="text-xs mb-1">Available Fields (click to use)</Label>
-                        <ScrollArea className="h-[100px]">
-                          <div className="flex flex-wrap gap-1">
-                            {newApi.possibleFields.map((field, index) => (
-                              <Badge 
-                                key={index} 
-                                variant="outline" 
-                                className="font-mono text-xs cursor-pointer hover:bg-slate-100"
-                                onClick={() => setMappingValue(field)}
-                              >
-                                {field}
-                              </Badge>
-                            ))}
-                          </div>
-                        </ScrollArea>
-                      </div>
-                    )}
-                    
-                    {newApi.responseMapping && Object.keys(newApi.responseMapping).length > 0 && (
-                      <div className="mt-4 p-2 bg-gray-50 rounded-md text-sm">
-                        <Label className="text-xs mb-1">Current Mappings</Label>
-                        {Object.entries(newApi.responseMapping).map(([key, value]) => (
-                          <div key={key} className="flex justify-between items-center py-1">
-                            <span className="font-mono">{key} → {value}</span>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => {
-                                const newMapping = { ...newApi.responseMapping };
-                                delete newMapping[key];
-                                setNewApi({ ...newApi, responseMapping: newMapping });
-                              }}
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
-                </TabsContent>
-              </Tabs>
-              
-              <DialogFooter>
-                <div className="flex justify-between w-full">
-                  <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleCloseDialog}>
-                      Cancel
-                    </Button>
-                    <Button className="bg-widget-blue" onClick={handleSubmit}>
-                      {selectedApiForEdit ? "Update API" : "Add API"}
-                    </Button>
-                  </div>
-                </div>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
         
         <div className="flex gap-2 mb-2">
@@ -573,7 +654,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
           <div className="py-8 text-center text-gray-500">
             <Globe className="mx-auto text-gray-400 mb-2" size={32} />
             <p className="text-gray-500">No APIs configured yet</p>
-            <p className="text-sm text-gray-400 mt-1">Click "Add API" to create your first API integration</p>
+            <p className="text-sm text-gray-400 mt-1">Click "Add API" to create your first API integration or "Add Sample API" to see an example</p>
           </div>
         ) : filteredAndSortedApis.length === 0 ? (
           <div className="py-8 text-center text-gray-500">
