@@ -9,7 +9,7 @@ import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionFo
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library, User, HelpCircle, BookmarkIcon, Bookmark, X } from "lucide-react";
+import { Library, User, HelpCircle, BookmarkIcon, Bookmark, X, Plus, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { WidgetComponent, ApiConfig, WidgetSubmission } from "@/types/widget-types";
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const Index = () => {
   const { toast } = useToast();
@@ -481,14 +482,25 @@ const Index = () => {
               <div className="flex justify-between mb-4">
                 <h2 className="text-xl font-semibold">Widget Builder</h2>
                 <div className="space-x-2">
-                  <Button
-                    onClick={handleLoadWidget}
-                    variant="default"
-                    size="default"
-                    className="bg-widget-blue hover:bg-blue-600 transition-colors"
-                  >
-                    <Library size={16} className="mr-2" /> Load Widget
-                  </Button>
+                  <DropdownMenu>
+                    <Button
+                      asChild
+                      variant="default"
+                      size="default"
+                      className="bg-widget-blue hover:bg-blue-600 transition-colors"
+                    >
+                      <DropdownMenuTrigger>
+                        <Plus size={16} className="mr-2" /> Add New Widget
+                        <ChevronDown size={16} className="ml-2" />
+                      </DropdownMenuTrigger>
+                    </Button>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={handleLoadWidget}>
+                        <Library size={16} className="mr-2" /> 
+                        Load from Widget Library
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </div>
