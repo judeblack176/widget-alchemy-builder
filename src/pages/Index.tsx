@@ -432,14 +432,6 @@ const Index = () => {
                   <User size={16} className="mr-2" /> Admin
                 </Button>
               </Link>
-              <WidgetSubmissionForm
-                widgetComponents={widgetComponents}
-                apis={apis}
-                onSubmitSuccess={handleSubmitSuccess}
-                widgetId={widgetId}
-                isEditing={isEditing}
-                onCancelEditing={handleCancelEditing}
-              />
             </div>
           </div>
         </header>
@@ -588,6 +580,17 @@ const Index = () => {
             </div>
             <div className="flex-1 overflow-auto p-4 pt-0">
               <WidgetPreview components={widgetComponents} apis={apis} />
+            </div>
+            
+            <div className="flex justify-center py-4 bg-gray-200 border-t border-gray-300">
+              <WidgetSubmissionForm
+                widgetComponents={widgetComponents}
+                apis={apis}
+                onSubmitSuccess={handleSubmitSuccess}
+                widgetId={widgetId}
+                isEditing={isEditing}
+                onCancelEditing={handleCancelEditing}
+              />
             </div>
           </div>
         </div>
