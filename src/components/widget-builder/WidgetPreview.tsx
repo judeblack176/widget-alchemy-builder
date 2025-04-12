@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
@@ -42,6 +43,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
   
   const regularComponentsToDisplay = nonHeaderNonAlertComponents.slice(0, MAX_COMPONENTS);
   
+  // Filter components for display, excluding header (it's rendered separately)
   const displayComponents = components.filter(component => {
     if (component.type === 'header') {
       return false;
@@ -62,25 +64,58 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
     const apiId = component.apiConfig.apiId;
     const apiResult = apiData[apiId];
     
-    if (!apiResult || !component.apiConfig.multiMapping) {
-      return apiResult;
+    if (!apiResult) {
+      return undefined;
     }
     
-    const processedData = { ...apiResult };
-    
-    Object.entries(component.apiConfig.multiMapping).forEach(([propKey, fields]) => {
-      if (fields && fields.length > 0) {
-        const fieldValues = fields.map(field => {
-          return apiResult[field];
-        }).filter(val => val !== undefined);
-        
-        if (fieldValues.length > 0) {
-          processedData[`multi_${propKey}`] = fieldValues;
+    // Process content fields from contentConfig
+    if (component.apiConfig.contentConfig) {
+      const processedData = { ...apiResult };
+      
+      Object.entries(component.apiConfig.contentConfig).forEach(([contentKey, config]) => {
+        if (config.field && apiResult[config.field] !== undefined) {
+          processedData[`formatted_${contentKey}`] = {
+            value: apiResult[config.field],
+            customText: config.customText || '',
+            fontFamily: config.fontFamily || 'system-ui',
+            fontSize: config.fontSize || '16px',
+            alignment: config.alignment || 'left'
+          };
+        } else if (config.customText) {
+          // If there's only custom text with no field mapping
+          processedData[`formatted_${contentKey}`] = {
+            value: '',
+            customText: config.customText,
+            fontFamily: config.fontFamily || 'system-ui',
+            fontSize: config.fontSize || '16px',
+            alignment: config.alignment || 'left'
+          };
         }
-      }
-    });
+      });
+      
+      return processedData;
+    }
     
-    return processedData;
+    // Fallback to legacy mapping
+    if (component.apiConfig.multiMapping) {
+      const processedData = { ...apiResult };
+      
+      Object.entries(component.apiConfig.multiMapping).forEach(([propKey, fields]) => {
+        if (fields && fields.length > 0) {
+          const fieldValues = fields.map(field => {
+            return apiResult[field];
+          }).filter(val => val !== undefined);
+          
+          if (fieldValues.length > 0) {
+            processedData[`multi_${propKey}`] = fieldValues;
+          }
+        }
+      });
+      
+      return processedData;
+    }
+    
+    return apiResult;
   };
 
   useEffect(() => {
@@ -243,6 +278,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
         maxHeight: '384px'
       }}
     >
+      {/* Render header separately, sticking to the top */}
       {headerComponent && (
         <div className="sticky top-0 z-20">
           {renderComponentWithTooltip(headerComponent, 0)}
@@ -251,6 +287,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       
       <ScrollArea className="h-full w-full">
         <div className={headerComponent ? "pt-2" : ""}>
+          {/* Render all non-header components */}
           {displayComponents.map((component, index) => 
             renderComponentWithTooltip(component, index)
           )}
