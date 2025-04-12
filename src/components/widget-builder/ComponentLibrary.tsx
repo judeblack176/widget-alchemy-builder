@@ -7,7 +7,23 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { WidgetComponent, ComponentType } from '@/types/widget-types';
-import { Search, ArrowDownAZ } from 'lucide-react';
+import { 
+  Search, 
+  ArrowDownAZ,
+  BookOpen, 
+  Type, 
+  Image, 
+  Video, 
+  BarChart, 
+  FormInput, 
+  CalendarDays, 
+  List, 
+  LinkIcon, 
+  Text,
+  Filter,
+  AlertTriangle,
+  Table2
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface ComponentLibraryProps {
@@ -58,6 +74,27 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
     layout: ['header', 'text', 'image', 'alert'],
     input: ['form', 'dropdown', 'multi-text', 'filter', 'searchbar'],
     interactive: ['button', 'link', 'calendar', 'chart', 'table', 'video']
+  };
+
+  // Function to get the appropriate icon based on component type
+  const getComponentIcon = (componentType: ComponentType) => {
+    switch (componentType) {
+      case 'header': return <BookOpen size={16} />;
+      case 'text': return <Text size={16} />;
+      case 'button': return <FormInput size={16} />;
+      case 'image': return <Image size={16} />;
+      case 'video': return <Video size={16} />;
+      case 'chart': return <BarChart size={16} />;
+      case 'calendar': return <CalendarDays size={16} />;
+      case 'dropdown': return <List size={16} />;
+      case 'link': return <LinkIcon size={16} />;
+      case 'multi-text': return <Type size={16} />;
+      case 'filter': return <Filter size={16} />;
+      case 'alert': return <AlertTriangle size={16} />;
+      case 'table': return <Table2 size={16} />;
+      case 'searchbar': return <Search size={16} />;
+      default: return <BookOpen size={16} />;
+    }
   };
 
   const getComponentTitle = (componentType: ComponentType): string => {
@@ -223,8 +260,15 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
                       </div>
                     )}
                     <CardHeader className="py-3 px-4">
-                      <CardTitle className="text-sm font-medium">{getComponentTitle(componentType)}</CardTitle>
-                      <CardDescription className="text-xs">{getComponentDescription(componentType)}</CardDescription>
+                      <div className="flex items-center gap-3">
+                        <div className="bg-gray-100 p-1.5 rounded">
+                          {getComponentIcon(componentType)}
+                        </div>
+                        <div>
+                          <CardTitle className="text-sm font-medium">{getComponentTitle(componentType)}</CardTitle>
+                          <CardDescription className="text-xs">{getComponentDescription(componentType)}</CardDescription>
+                        </div>
+                      </div>
                     </CardHeader>
                   </Card>
                 );

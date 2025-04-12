@@ -112,6 +112,9 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   const filteredAlertComponents = alertComponents.filter(alert => filteredComponents.includes(alert));
   const filteredRegularComponents = filteredComponents.filter(c => c.type !== 'header' && c.type !== 'alert');
 
+  // Common card style for consistent width
+  const cardStyle = "w-full bg-white border shadow-sm";
+
   return (
     <div className="flex flex-col h-full">
       {/* Fixed section - header, alert, search */}
@@ -135,7 +138,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         
         {/* Fixed header component section */}
         {filteredHeaderComponent && (
-          <Card className="bg-white border border-blue-500 shadow-sm">
+          <Card className={`${cardStyle} border-blue-500`}>
             <div 
               className="relative w-full cursor-pointer" 
               onClick={() => setExpandedComponentId(
@@ -165,7 +168,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         {filteredAlertComponents.length > 0 && (
           <div className="space-y-4">
             {filteredAlertComponents.map((alertComponent) => (
-              <Card key={alertComponent.id} className="bg-white border border-amber-500 shadow-sm">
+              <Card key={alertComponent.id} className={`${cardStyle} border-amber-500`}>
                 <div className="relative w-full">
                   <div 
                     className="cursor-pointer flex-grow" 
@@ -239,7 +242,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                             {...provided.dragHandleProps}
                             className="relative"
                           >
-                            <Card className="bg-white border shadow-sm">
+                            <Card className={cardStyle}>
                               <div className="relative w-full">
                                 <div 
                                   className="cursor-pointer" 
