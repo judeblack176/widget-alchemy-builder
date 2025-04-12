@@ -13,6 +13,7 @@ export interface WidgetComponent {
     multiMapping?: Record<string, string[]>;
   };
   tooltipId?: string;
+  selected?: boolean;
 }
 
 export type AlertType = 'info' | 'success' | 'warning' | 'error';
@@ -57,6 +58,12 @@ export interface Tag {
   id: string;
   name: string;
   color: string;
+}
+
+export interface ContentDetails {
+  size?: string;
+  color?: string;
+  variant?: string;
 }
 
 declare module "@/components/widget-builder/WidgetBuilder" {
