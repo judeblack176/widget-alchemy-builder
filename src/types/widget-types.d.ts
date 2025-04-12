@@ -1,4 +1,3 @@
-
 import { LucideIcon } from 'lucide-react';
 
 export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table' | 'searchbar';
@@ -43,6 +42,19 @@ export interface WidgetSubmission {
   };
   status: 'pending' | 'approved' | 'rejected';
   submittedAt: string;
+}
+
+export interface Tooltip {
+  id: string;
+  title: string;
+  content: string;
+  type?: 'info' | 'warning' | 'success' | 'error';
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  color: string;
 }
 
 declare module "@/components/widget-builder/WidgetBuilder" {

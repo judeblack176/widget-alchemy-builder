@@ -5,11 +5,12 @@ import ComponentLibrary from "@/components/widget-builder/ComponentLibrary";
 import WidgetPreview from "@/components/widget-builder/WidgetPreview";
 import ApiManager from "@/components/widget-builder/ApiManager";
 import TooltipManager, { Tooltip } from "@/components/widget-builder/TooltipManager";
+import TagsManager from "@/components/widget-builder/TagsManager";
 import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionForm";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Library, User, HelpCircle, BookmarkIcon, Bookmark, X, Plus, ChevronDown } from "lucide-react";
+import { Library, User, HelpCircle, BookmarkIcon, Bookmark, X, Plus, ChevronDown, Tag } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -445,6 +446,7 @@ const Index = () => {
                     <TabsTrigger value="components" className="flex-1">Components</TabsTrigger>
                     <TabsTrigger value="tooltips" className="flex-1">Tooltips</TabsTrigger>
                     <TabsTrigger value="apis" className="flex-1">APIs</TabsTrigger>
+                    <TabsTrigger value="tags" className="flex-1">Tags</TabsTrigger>
                   </TabsList>
                 </div>
                 
@@ -488,6 +490,12 @@ const Index = () => {
                         onRemoveApi={handleRemoveApi} 
                         onUpdateApi={handleUpdateApi}
                       />
+                    </ScrollArea>
+                  </TabsContent>
+
+                  <TabsContent value="tags" className="h-full mt-0">
+                    <ScrollArea className="h-full px-4 pb-10">
+                      <TagsManager />
                     </ScrollArea>
                   </TabsContent>
                 </div>
