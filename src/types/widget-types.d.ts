@@ -64,6 +64,7 @@ export interface Tooltip {
   title: string;
   content: string;
   type?: 'info' | 'warning' | 'success' | 'error';
+  tags?: string[];
 }
 
 export interface Tag {

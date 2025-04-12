@@ -156,7 +156,6 @@ const ApiIntegration: React.FC<ApiIntegrationProps> = ({
               <Label htmlFor="field-label" className="text-xs">Field Label</Label>
               <Input 
                 id="field-label" 
-                size="sm"
                 value={newFieldLabel} 
                 onChange={(e) => setNewFieldLabel(e.target.value)}
                 placeholder="Enter field label"
