@@ -5,10 +5,11 @@ import ComponentEditor from './ComponentEditor';
 import { Card } from '@/components/ui/card';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Trash2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip } from './TooltipManager';
 import SearchBar from './SearchBar';
+import { Button } from '@/components/ui/button';
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -135,24 +136,28 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         {/* Fixed header component section */}
         {filteredHeaderComponent && (
           <Card className="bg-white border border-blue-500 shadow-sm">
-            <ComponentEditor
-              component={filteredHeaderComponent}
-              apis={apis}
-              isExpanded={expandedComponentId === filteredHeaderComponent.id}
-              onToggleExpand={() => 
-                setExpandedComponentId(
-                  expandedComponentId === filteredHeaderComponent.id ? null : filteredHeaderComponent.id
-                )
-              }
-              onUpdateComponent={onUpdateComponent}
-              onRemoveComponent={onRemoveComponent}
-              onRequestApiTemplate={() => onRequestApiTemplate(filteredHeaderComponent.id)}
-              onApplyTooltip={onApplyTooltip ? 
-                (tooltipId: string) => onApplyTooltip(filteredHeaderComponent.id, tooltipId) : 
-                undefined}
-              disableRemove={true}
-              customTooltips={tooltips}
-            />
+            <div 
+              className="relative w-full cursor-pointer" 
+              onClick={() => setExpandedComponentId(
+                expandedComponentId === filteredHeaderComponent.id ? null : filteredHeaderComponent.id
+              )}
+            >
+              <ComponentEditor
+                component={filteredHeaderComponent}
+                apis={apis}
+                isExpanded={expandedComponentId === filteredHeaderComponent.id}
+                onToggleExpand={() => {}}  // Empty function as we're handling this on the parent div
+                onUpdateComponent={onUpdateComponent}
+                onRemoveComponent={onRemoveComponent}
+                onRequestApiTemplate={() => onRequestApiTemplate(filteredHeaderComponent.id)}
+                onApplyTooltip={onApplyTooltip ? 
+                  (tooltipId: string) => onApplyTooltip(filteredHeaderComponent.id, tooltipId) : 
+                  undefined}
+                disableRemove={true}
+                customTooltips={tooltips}
+                showActionButtons={false}
+              />
+            </div>
           </Card>
         )}
         
@@ -161,23 +166,40 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           <div className="space-y-4">
             {filteredAlertComponents.map((alertComponent) => (
               <Card key={alertComponent.id} className="bg-white border border-amber-500 shadow-sm">
-                <ComponentEditor
-                  component={alertComponent}
-                  apis={apis}
-                  isExpanded={expandedComponentId === alertComponent.id}
-                  onToggleExpand={() => 
-                    setExpandedComponentId(
+                <div className="relative w-full">
+                  <div 
+                    className="cursor-pointer flex-grow" 
+                    onClick={() => setExpandedComponentId(
                       expandedComponentId === alertComponent.id ? null : alertComponent.id
-                    )
-                  }
-                  onUpdateComponent={onUpdateComponent}
-                  onRemoveComponent={onRemoveComponent}
-                  onRequestApiTemplate={() => onRequestApiTemplate(alertComponent.id)}
-                  onApplyTooltip={onApplyTooltip ? 
-                    (tooltipId: string) => onApplyTooltip(alertComponent.id, tooltipId) : 
-                    undefined}
-                  customTooltips={tooltips}
-                />
+                    )}
+                  >
+                    <ComponentEditor
+                      component={alertComponent}
+                      apis={apis}
+                      isExpanded={expandedComponentId === alertComponent.id}
+                      onToggleExpand={() => {}}  // Empty function as we're handling this in the parent div
+                      onUpdateComponent={onUpdateComponent}
+                      onRemoveComponent={onRemoveComponent}
+                      onRequestApiTemplate={() => onRequestApiTemplate(alertComponent.id)}
+                      onApplyTooltip={onApplyTooltip ? 
+                        (tooltipId: string) => onApplyTooltip(alertComponent.id, tooltipId) : 
+                        undefined}
+                      customTooltips={tooltips}
+                      showActionButtons={false}
+                    />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemoveComponent(alertComponent.id);
+                    }}
+                    className="absolute top-3 right-3 h-8 w-8 p-0 text-gray-500 hover:text-red-500"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>
@@ -218,23 +240,40 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                             className="relative"
                           >
                             <Card className="bg-white border shadow-sm">
-                              <ComponentEditor
-                                component={component}
-                                apis={apis}
-                                isExpanded={expandedComponentId === component.id}
-                                onToggleExpand={() => 
-                                  setExpandedComponentId(
+                              <div className="relative w-full">
+                                <div 
+                                  className="cursor-pointer" 
+                                  onClick={() => setExpandedComponentId(
                                     expandedComponentId === component.id ? null : component.id
-                                  )
-                                }
-                                onUpdateComponent={onUpdateComponent}
-                                onRemoveComponent={onRemoveComponent}
-                                onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
-                                onApplyTooltip={onApplyTooltip ? 
-                                  (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
-                                  undefined}
-                                customTooltips={tooltips}
-                              />
+                                  )}
+                                >
+                                  <ComponentEditor
+                                    component={component}
+                                    apis={apis}
+                                    isExpanded={expandedComponentId === component.id}
+                                    onToggleExpand={() => {}}  // Empty function as we're handling this in the parent div
+                                    onUpdateComponent={onUpdateComponent}
+                                    onRemoveComponent={onRemoveComponent}
+                                    onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
+                                    onApplyTooltip={onApplyTooltip ? 
+                                      (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
+                                      undefined}
+                                    customTooltips={tooltips}
+                                    showActionButtons={false}
+                                  />
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onRemoveComponent(component.id);
+                                  }}
+                                  className="absolute top-3 right-3 h-8 w-8 p-0 text-gray-500 hover:text-red-500"
+                                >
+                                  <Trash2 size={16} />
+                                </Button>
+                              </div>
                             </Card>
                           </div>
                         )}
