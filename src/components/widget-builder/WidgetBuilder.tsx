@@ -117,23 +117,27 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     if (!result.destination) return;
     if (result.destination.index === result.source.index) return;
 
-    const items = Array.from(nonHeaderNonAlertComponents);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+    try {
+      const items = Array.from(nonHeaderNonAlertComponents);
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
 
-    let reorderedComponents = [];
-    
-    if (headerComponent) {
-      reorderedComponents.push(headerComponent);
-    }
-    
-    if (alertComponents.length > 0) {
-      reorderedComponents = [...reorderedComponents, ...alertComponents];
-    }
-    
-    reorderedComponents = [...reorderedComponents, ...items];
+      let reorderedComponents = [];
+      
+      if (headerComponent) {
+        reorderedComponents.push(headerComponent);
+      }
+      
+      if (alertComponents.length > 0) {
+        reorderedComponents = [...reorderedComponents, ...alertComponents];
+      }
+      
+      reorderedComponents = [...reorderedComponents, ...items];
 
-    onReorderComponents(reorderedComponents);
+      onReorderComponents(reorderedComponents);
+    } catch (error) {
+      console.error("Error during drag end:", error);
+    }
   };
 
   const handleSearch = (query: string) => {
