@@ -10,7 +10,7 @@ import { WidgetComponent } from '@/types/widget-types';
 import { ComponentType } from '@/types/widget-builder';
 
 interface ComponentLibraryProps {
-  onAddComponent: (componentType: string) => void;
+  onAddComponent: (component: WidgetComponent | string) => void;
   onAddMultipleComponents?: (componentTypes: string[]) => void;
   existingComponents?: WidgetComponent[];
 }
