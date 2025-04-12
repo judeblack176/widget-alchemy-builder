@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -49,7 +50,9 @@ import {
   Code,
   Database,
   Plus,
-  Trash2
+  Trash2,
+  Edit,
+  Save
 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -619,7 +622,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       onClick={!isExpanded ? onToggleExpand : undefined}
     >
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-lg font-medium">
+        <h3 className="text-lg font-medium flex items-center">
           {componentTypeLabels[component.type] || component.type}
         </h3>
         <div className="flex space-x-1">
@@ -633,7 +636,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                   onToggleExpand();
                 }}
               >
-                <ChevronUp size={16} className="mr-2" /> Collapse
+                <Save size={16} className="mr-2" /> Done
               </Button>
               {!shouldDisableRemove && (
                 <Button 
@@ -659,7 +662,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                   onToggleExpand();
                 }}
               >
-                <Settings size={16} className="mr-2" /> Edit
+                <Edit size={16} className="mr-2" /> Edit
               </Button>
               {!shouldDisableRemove && (
                 <Button 
@@ -765,3 +768,4 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 };
 
 export default ComponentEditor;
+
