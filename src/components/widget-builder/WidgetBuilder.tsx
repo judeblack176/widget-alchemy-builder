@@ -21,6 +21,60 @@ interface WidgetBuilderProps {
   tooltips?: Tooltip[];
 }
 
+interface ComponentEditorContainerProps {
+  component: WidgetComponent;
+  apis: ApiConfig[];
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  onUpdateComponent: (updatedComponent: WidgetComponent) => void;
+  onRemoveComponent: (componentId: string) => void;
+  onRequestApiTemplate: () => void;
+  onApplyTooltip?: (tooltipId: string) => void;
+  disableRemove?: boolean;
+  customTooltips?: Tooltip[];
+}
+
+const ComponentEditorContainer: React.FC<ComponentEditorContainerProps> = ({
+  component,
+  apis,
+  isExpanded,
+  onToggleExpand,
+  onUpdateComponent,
+  onRemoveComponent,
+  onRequestApiTemplate,
+  onApplyTooltip,
+  disableRemove = false,
+  customTooltips = []
+}) => {
+  // Render simplified view when not expanded
+  if (!isExpanded) {
+    return (
+      <div 
+        className="p-4 cursor-pointer flex justify-between items-center"
+        onClick={onToggleExpand}
+      >
+        <div>
+          <h3 className="font-medium">{component.type.charAt(0).toUpperCase() + component.type.slice(1)}</h3>
+          {component.props.title && <p className="text-sm text-gray-500">{component.props.title}</p>}
+        </div>
+      </div>
+    );
+  }
+
+  // Render full editor when expanded
+  return (
+    <ComponentEditor
+      component={component}
+      onUpdateComponent={onUpdateComponent}
+      onClose={onToggleExpand}
+      availableApis={apis}
+      onRequestApiTemplate={onRequestApiTemplate}
+      onApplyTooltip={onApplyTooltip || (() => {})}
+      tooltips={customTooltips}
+    />
+  );
+};
+
 const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   components,
   apis,
@@ -135,7 +189,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         {/* Fixed header component section */}
         {filteredHeaderComponent && (
           <Card className="bg-white border border-blue-500 shadow-sm">
-            <ComponentEditor
+            <ComponentEditorContainer
               component={filteredHeaderComponent}
               apis={apis}
               isExpanded={expandedComponentId === filteredHeaderComponent.id}
@@ -161,7 +215,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           <div className="space-y-4">
             {filteredAlertComponents.map((alertComponent) => (
               <Card key={alertComponent.id} className="bg-white border border-amber-500 shadow-sm">
-                <ComponentEditor
+                <ComponentEditorContainer
                   component={alertComponent}
                   apis={apis}
                   isExpanded={expandedComponentId === alertComponent.id}
@@ -218,7 +272,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
                             className="relative"
                           >
                             <Card className="bg-white border shadow-sm">
-                              <ComponentEditor
+                              <ComponentEditorContainer
                                 component={component}
                                 apis={apis}
                                 isExpanded={expandedComponentId === component.id}

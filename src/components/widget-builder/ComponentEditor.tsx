@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { X, HelpCircle } from 'lucide-react';
-import { WidgetComponent, ApiConfig, Tooltip } from '@/types/widget-types';
+import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import ApiFieldMapping from './ApiFieldMapping';
+import { Tooltip } from './TooltipManager';
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -24,7 +26,7 @@ interface ComponentEditorProps {
   availableApis: ApiConfig[];
   onRequestApiTemplate: (componentId: string) => void;
   onApplyTooltip: (tooltipId: string) => void;
-  tooltips: Tooltip[];
+  tooltips?: Tooltip[];
 }
 
 const ComponentEditor: React.FC<ComponentEditorProps> = ({
@@ -34,7 +36,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   availableApis,
   onRequestApiTemplate,
   onApplyTooltip,
-  tooltips
+  tooltips = []
 }) => {
   const isApiCompatible = component.type !== 'header';
   const [isTooltipModalOpen, setIsTooltipModalOpen] = useState(false);
@@ -123,6 +125,15 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       apiFieldMappings: updatedMappings
     };
 
+    onUpdateComponent(updatedComponent);
+  };
+
+  const handleApplyTooltip = (tooltipId: string) => {
+    const updatedComponent = {
+      ...component,
+      tooltipId
+    };
+    onApplyTooltip(tooltipId);
     onUpdateComponent(updatedComponent);
   };
 
@@ -492,7 +503,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
               <div className="flex items-center">
                 <HelpCircle size={16} className="text-blue-500 mr-2" />
                 <span className="text-sm">
-                  {tooltips.find(t => t.id === component.tooltipId)?.title || 'Tooltip'}
+                  {tooltips && tooltips.find(t => t.id === component.tooltipId)?.title || 'Tooltip'}
                 </span>
               </div>
               <Button
@@ -520,7 +531,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            {tooltips.map(tooltip => (
+            {tooltips && tooltips.map(tooltip => (
               <div key={tooltip.id} className="flex items-center space-x-2">
                 <Button
                   variant="outline"
