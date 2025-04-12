@@ -1,13 +1,19 @@
+
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import ComponentEditor from './ComponentEditor';
 import { Card } from '@/components/ui/card';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, X } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip } from './TooltipManager';
 import SearchBar from './SearchBar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 interface WidgetBuilderProps {
   components: WidgetComponent[];
@@ -33,6 +39,14 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isTagFilterOpen, setIsTagFilterOpen] = useState<boolean>(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  
+  // Extract all unique tags from tooltips
+  const allTags = tooltips
+    .flatMap(tooltip => tooltip.tags || [])
+    .filter((tag, index, self) => self.indexOf(tag) === index)
+    .sort();
   
   useEffect(() => {
     if (tooltips && onApplyTooltip) {
@@ -85,23 +99,48 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
     setSearchQuery(query);
   };
 
-  const filteredComponents = components.filter(component => {
-    if (!searchQuery.trim()) return true;
-    
-    if (component.type.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return true;
-    }
-    
-    for (const key in component.props) {
-      if (
-        typeof component.props[key] === 'string' && 
-        component.props[key].toLowerCase().includes(searchQuery.toLowerCase())
-      ) {
-        return true;
+  const handleTagFilterToggle = () => {
+    setIsTagFilterOpen(!isTagFilterOpen);
+  };
+
+  const handleTagSelectionChange = (tag: string) => {
+    setSelectedTags(prev => {
+      if (prev.includes(tag)) {
+        return prev.filter(t => t !== tag);
+      } else {
+        return [...prev, tag];
       }
-    }
+    });
+  };
+
+  const clearTagFilters = () => {
+    setSelectedTags([]);
+    setIsTagFilterOpen(false);
+  };
+
+  // Filter tooltips by selected tags
+  const filteredTooltips = tooltips.filter(tooltip => {
+    if (selectedTags.length === 0) return true;
+    return tooltip.tags?.some(tag => selectedTags.includes(tag));
+  });
+
+  // Get all tooltipIds from the filtered tooltips
+  const filteredTooltipIds = filteredTooltips.map(tooltip => tooltip.id);
+
+  const filteredComponents = components.filter(component => {
+    // Apply text search filter
+    const matchesTextSearch = !searchQuery.trim() || 
+      component.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      Object.entries(component.props).some(
+        ([key, value]) => typeof value === 'string' && value.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     
-    return false;
+    // Apply tag filter if any tags are selected
+    const matchesTagFilter = selectedTags.length === 0 || 
+      !component.tooltipId || 
+      filteredTooltipIds.includes(component.tooltipId);
+    
+    return matchesTextSearch && matchesTagFilter;
   });
 
   const filteredHeaderComponent = headerComponent && filteredComponents.includes(headerComponent) 
@@ -127,6 +166,8 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           <SearchBar
             placeholder="Search components..."
             onSearch={handleSearch}
+            showTagFilter={allTags.length > 0}
+            onTagFilterClick={handleTagFilterToggle}
             className="w-full"
           />
         </div>
@@ -247,6 +288,63 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
           </div>
         )}
       </div>
+
+      {/* Tag Filter Dialog */}
+      <Dialog open={isTagFilterOpen} onOpenChange={setIsTagFilterOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Filter by Tags</DialogTitle>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            {allTags.length === 0 ? (
+              <p className="text-center text-muted-foreground">No tags available</p>
+            ) : (
+              <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-2">
+                {allTags.map(tag => (
+                  <div key={tag} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`tag-${tag}`} 
+                      checked={selectedTags.includes(tag)}
+                      onCheckedChange={() => handleTagSelectionChange(tag)}
+                    />
+                    <Label htmlFor={`tag-${tag}`} className="flex-1 cursor-pointer">
+                      {tag}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          <div className="flex justify-between py-2">
+            <div className="flex flex-wrap gap-1">
+              {selectedTags.map(tag => (
+                <Badge 
+                  key={tag} 
+                  variant="secondary"
+                  className="flex items-center gap-1"
+                >
+                  {tag}
+                  <X 
+                    className="h-3 w-3 cursor-pointer" 
+                    onClick={() => handleTagSelectionChange(tag)}
+                  />
+                </Badge>
+              ))}
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={clearTagFilters}>
+              Clear All
+            </Button>
+            <Button onClick={() => setIsTagFilterOpen(false)}>
+              Apply Filters
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

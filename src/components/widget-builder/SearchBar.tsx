@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { Search, Tag } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -70,20 +70,24 @@ const SearchBar: React.FC<SearchBarProps> = ({
           borderColor: borderColor
         }}
       />
+      
       {showTagFilter && onTagFilterClick && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
-              onClick={onTagFilterClick}
-            >
-              <Tag className="h-4 w-4" style={{ color: iconColor }} />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Filter by tags</TooltipContent>
-        </Tooltip>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
+                onClick={onTagFilterClick}
+              >
+                <Tag className="h-4 w-4" style={{ color: iconColor }} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Filter by tags</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
     </div>
   );
