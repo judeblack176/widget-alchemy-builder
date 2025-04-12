@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Input } from "@/components/ui/input";
@@ -548,7 +547,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                           <SelectValue placeholder="Select field" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                           {selectedApi.possibleFields?.map((field, idx) => (
                             <SelectItem key={`field-${idx}`} value={field} className="text-xs">
                               {field}
@@ -601,7 +600,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
                         </SelectItem>
                       ))
                     ) : (
-                      <SelectItem value="no-apis" disabled>
+                      <SelectItem value="no-apis-available" disabled>
                         No APIs available
                       </SelectItem>
                     )}

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
@@ -59,13 +60,31 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
 
       for (const api of apis) {
         try {
+          if (!api.endpoint) {
+            console.log(`No endpoint defined for API ${api.name}`);
+            continue;
+          }
+          
+          // For demonstration/preview purposes only
+          if (api.sampleResponse) {
+            try {
+              apiDataResults[api.id] = JSON.parse(api.sampleResponse);
+              continue;
+            } catch (error) {
+              console.error(`Failed to parse sample response for API ${api.name}:`, error);
+            }
+          }
+          
+          // Only try to fetch if we don't have sample data
           const response = await fetch(api.endpoint, {
             method: api.method,
-            headers: api.headers,
+            headers: api.headers || {},
           });
 
           if (!response.ok) {
             console.error(`Failed to fetch API ${api.name}: ${response.status}`);
+            // Fallback to empty data
+            apiDataResults[api.id] = {};
             continue;
           }
 
@@ -73,6 +92,8 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
           apiDataResults[api.id] = data;
         } catch (error) {
           console.error(`Error fetching API ${api.name}:`, error);
+          // Set empty object as fallback
+          apiDataResults[api.id] = {};
         }
       }
 
