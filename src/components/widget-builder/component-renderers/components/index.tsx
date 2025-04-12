@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Alert as UIAlert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -6,37 +7,17 @@ import { ChartContainer } from '@/components/ui/chart';
 import * as RechartsPrimitive from "recharts";
 
 // Basic component definitions
-export const Header = ({ title, icon, backgroundColor, textColor, fontFamily, bold, italic }: any) => {
-  const headerStyle = {
-    backgroundColor: backgroundColor || '#3B82F6',
-    color: textColor || 'white',
-    fontFamily: fontFamily || 'system-ui',
-    fontWeight: bold === 'true' ? 'bold' : 'normal',
-    fontStyle: italic === 'true' ? 'italic' : 'normal',
-    padding: '10px 16px',
-    borderRadius: '8px 8px 0 0'
-  };
-
+export const Header = ({ title, icon }: any) => {
   return (
-    <div style={headerStyle} className="flex items-center gap-2">
+    <div className="bg-blue-500 text-white px-4 py-2.5 rounded-t-lg flex items-center gap-2">
       {icon && <span>{icon}</span>}
       <h3 className="text-base font-medium">{title}</h3>
     </div>
   );
 };
 
-export const Text = ({ content, size, color, backgroundColor, bold, italic }: any) => {
-  const textStyle = {
-    color: color || 'inherit',
-    backgroundColor: backgroundColor || 'transparent',
-    fontWeight: bold === 'true' ? 'bold' : 'normal',
-    fontStyle: italic === 'true' ? 'italic' : 'normal',
-    fontSize: size === 'small' ? '0.875rem' : size === 'large' ? '1.25rem' : '1rem',
-    padding: backgroundColor ? '8px' : '0',
-    borderRadius: backgroundColor ? '4px' : '0'
-  };
-
-  return <div style={textStyle}>{content}</div>;
+export const Text = ({ content }: any) => {
+  return <div className="text-foreground">{content}</div>;
 };
 
 export const Image = ({ source, altText, caption, width, height, borderRadius, objectFit }: any) => {
@@ -187,10 +168,10 @@ export const Dropdown = ({ label, placeholder, options }: any) => {
   );
 };
 
-export const Link = ({ text, url, openInNewTab, style, icon, color, backgroundColor }: any) => {
+export const Link = ({ text, url, openInNewTab, style, icon }: any) => {
   const linkStyle = {
-    color: color || '#3B82F6',
-    backgroundColor: style === 'button' ? (backgroundColor || '#EFF6FF') : 'transparent',
+    color: '#3B82F6',
+    backgroundColor: style === 'button' ? '#EFF6FF' : 'transparent',
     padding: style === 'button' ? '6px 12px' : '0',
     borderRadius: style === 'button' ? '4px' : '0',
     textDecoration: style === 'underlined' ? 'underline' : 'none',
