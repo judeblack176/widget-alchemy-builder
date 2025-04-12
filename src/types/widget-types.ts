@@ -209,7 +209,24 @@ export const COLOR_PALETTE = {
   ]
 };
 
-// Default data mapping configurations for each component type
+export const COMMON_TOOLTIP_TAGS = [
+  "Getting Started",
+  "Advanced",
+  "Interface",
+  "Features", 
+  "Tips",
+  "Help",
+  "Navigation",
+  "Forms",
+  "Charts",
+  "Tables",
+  "API",
+  "Data",
+  "Technical",
+  "User Guide",
+  "Best Practices"
+];
+
 export const DEFAULT_DATA_MAPPINGS: Record<ComponentType, Record<string, string>> = {
   header: {
     title: "title",
@@ -319,22 +336,3 @@ export const extractFieldPaths = (obj: any, prefix = ''): string[] => {
   
   return paths;
 };
-
-// Common predefined tooltip tags
-export const COMMON_TOOLTIP_TAGS = [
-  "Getting Started",
-  "Advanced",
-  "Interface",
-  "Features", 
-  "Tips",
-  "Help",
-  "Navigation",
-  "Forms",
-  "Charts",
-  "Tables",
-  "API",
-  "Data",
-  "Technical",
-  "User Guide",
-  "Best Practices"
-];
