@@ -303,7 +303,7 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
     });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 h-full flex flex-col">
       <div className="sticky top-0 bg-white z-10 pb-4 space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium">APIs</h3>
@@ -649,152 +649,156 @@ const ApiManager: React.FC<ApiManagerProps> = ({ apis, onAddApi, onRemoveApi, on
         </div>
       </div>
 
-      <ScrollArea className="h-[calc(100vh-240px)]">
-        {apis.length === 0 ? (
-          <div className="py-8 text-center text-gray-500">
-            <Globe className="mx-auto text-gray-400 mb-2" size={32} />
-            <p className="text-gray-500">No APIs configured yet</p>
-            <p className="text-sm text-gray-400 mt-1">Click "Add API" to create your first API integration or "Add Sample API" to see an example</p>
-          </div>
-        ) : filteredAndSortedApis.length === 0 ? (
-          <div className="py-8 text-center text-gray-500">
-            <Search className="mx-auto text-gray-400 mb-2" size={32} />
-            <p className="text-gray-500">No matching APIs found</p>
-            <p className="text-sm text-gray-400 mt-1">Try adjusting your search query</p>
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px]">API Name</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead className="text-right w-[100px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAndSortedApis.map((api) => (
-                <TableRow key={api.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <Badge 
-                        variant="outline" 
-                        className={`
-                          ${api.method === 'GET' ? 'border-green-500 bg-green-50 text-green-700' : ''}
-                          ${api.method === 'POST' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}
-                          ${api.method === 'PUT' ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : ''}
-                          ${api.method === 'DELETE' ? 'border-red-500 bg-red-50 text-red-700' : ''}
-                        `}
-                      >
-                        {api.method}
-                      </Badge>
-                      <span>{api.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm space-y-1">
-                      <div className="flex items-center">
-                        <span className="font-semibold w-24">Endpoint:</span>
-                        <span className="font-mono text-xs truncate" title={api.endpoint}>
-                          {api.endpoint}
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap gap-4">
-                        <div className="flex items-center">
-                          <span className="font-semibold w-24">Headers:</span>
-                          <span className="text-xs">{api.headers ? Object.keys(api.headers).length : 0}</span>
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full pr-2">
+          {apis.length === 0 ? (
+            <div className="py-8 text-center text-gray-500">
+              <Globe className="mx-auto text-gray-400 mb-2" size={32} />
+              <p className="text-gray-500">No APIs configured yet</p>
+              <p className="text-sm text-gray-400 mt-1">Click "Add API" to create your first API integration or "Add Sample API" to see an example</p>
+            </div>
+          ) : filteredAndSortedApis.length === 0 ? (
+            <div className="py-8 text-center text-gray-500">
+              <Search className="mx-auto text-gray-400 mb-2" size={32} />
+              <p className="text-gray-500">No matching APIs found</p>
+              <p className="text-sm text-gray-400 mt-1">Try adjusting your search query</p>
+            </div>
+          ) : (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[200px]">API Name</TableHead>
+                    <TableHead>Details</TableHead>
+                    <TableHead className="text-right w-[100px]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredAndSortedApis.map((api) => (
+                    <TableRow key={api.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <Badge 
+                            variant="outline" 
+                            className={`
+                              ${api.method === 'GET' ? 'border-green-500 bg-green-50 text-green-700' : ''}
+                              ${api.method === 'POST' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}
+                              ${api.method === 'PUT' ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : ''}
+                              ${api.method === 'DELETE' ? 'border-red-500 bg-red-50 text-red-700' : ''}
+                            `}
+                          >
+                            {api.method}
+                          </Badge>
+                          <span>{api.name}</span>
                         </div>
-                        <div className="flex items-center">
-                          <span className="font-semibold w-24">Parameters:</span>
-                          <span className="text-xs">{api.parameters ? Object.keys(api.parameters).length : 0}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="font-semibold w-24">Mappings:</span>
-                          <span className="text-xs">{api.responseMapping ? Object.keys(api.responseMapping).length : 0}</span>
-                        </div>
-                      </div>
-                      {api.possibleFields && api.possibleFields.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {api.possibleFields.slice(0, 3).map((field, index) => (
-                            <Badge 
-                              key={index} 
-                              variant="outline" 
-                              className="font-mono text-xs"
-                            >
-                              {field}
-                            </Badge>
-                          ))}
-                          {api.possibleFields.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{api.possibleFields.length - 3} more
-                            </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm space-y-1">
+                          <div className="flex items-center">
+                            <span className="font-semibold w-24">Endpoint:</span>
+                            <span className="font-mono text-xs truncate" title={api.endpoint}>
+                              {api.endpoint}
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap gap-4">
+                            <div className="flex items-center">
+                              <span className="font-semibold w-24">Headers:</span>
+                              <span className="text-xs">{api.headers ? Object.keys(api.headers).length : 0}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="font-semibold w-24">Parameters:</span>
+                              <span className="text-xs">{api.parameters ? Object.keys(api.parameters).length : 0}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="font-semibold w-24">Mappings:</span>
+                              <span className="text-xs">{api.responseMapping ? Object.keys(api.responseMapping).length : 0}</span>
+                            </div>
+                          </div>
+                          {api.possibleFields && api.possibleFields.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {api.possibleFields.slice(0, 3).map((field, index) => (
+                                <Badge 
+                                  key={index} 
+                                  variant="outline" 
+                                  className="font-mono text-xs"
+                                >
+                                  {field}
+                                </Badge>
+                              ))}
+                              {api.possibleFields.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{api.possibleFields.length - 3} more
+                                </Badge>
+                              )}
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => copyApiToClipboard(api)}
-                            >
-                              {copyStatus[api.id] ? <Check size={16} /> : <Copy size={16} />}
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Copy API configuration</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0"
-                              onClick={() => handleEditApi(api.id)}
-                            >
-                              <Code size={16} />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Edit API</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0" 
-                              onClick={() => onRemoveApi(api.id)}
-                            >
-                              <Trash2 size={16} />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Remove API</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </ScrollArea>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => copyApiToClipboard(api)}
+                                >
+                                  {copyStatus[api.id] ? <Check size={16} /> : <Copy size={16} />}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Copy API configuration</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => handleEditApi(api.id)}
+                                >
+                                  <Code size={16} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Edit API</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 w-8 p-0" 
+                                  onClick={() => onRemoveApi(api.id)}
+                                >
+                                  <Trash2 size={16} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Remove API</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </ScrollArea>
+      </div>
     </div>
   );
 };
