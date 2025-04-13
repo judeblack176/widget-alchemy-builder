@@ -45,12 +45,16 @@ const ComponentLibrary: React.FC<ComponentLibraryProps> = ({
   const toggleSort = () => {
     setSortAZ(!sortAZ);
   };
+  
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category);
+  };
 
   return (
     <div className="h-full flex flex-col">
       <ComponentTabs 
         activeCategory={activeCategory}
-        onChangeCategory={setActiveCategory}
+        onChangeCategory={handleCategoryChange}
       />
       
       <div className="pt-3 pb-2 flex items-center gap-2">
