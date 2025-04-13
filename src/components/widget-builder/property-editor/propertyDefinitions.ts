@@ -23,10 +23,7 @@ export const getPropertyDefinitions = (componentType: ComponentType): PropertyDe
           options: ['true', 'false'] }
       ];
     case 'text':
-      return [
-        { name: 'alignment', type: 'select', label: 'Text Alignment', 
-          options: ['left', 'center', 'right', 'justify'] }
-      ];
+      return [];
     case 'image':
       return [
         { name: 'source', type: 'text', label: 'Image URL' },
