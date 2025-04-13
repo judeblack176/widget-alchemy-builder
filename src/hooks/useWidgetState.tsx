@@ -17,7 +17,8 @@ export const useWidgetState = (widgetId: string | null) => {
     handleAddComponent,
     handleUpdateComponent,
     handleRemoveComponent,
-    handleReorderComponents
+    handleReorderComponents,
+    setWidgetComponents
   } = useComponentState();
   
   const {
@@ -33,7 +34,8 @@ export const useWidgetState = (widgetId: string | null) => {
     handleAddTooltip,
     handleUpdateTooltip,
     handleRemoveTooltip,
-    handleApplyTooltip
+    handleApplyTooltip,
+    setTooltips
   } = useTooltipState(widgetComponents);
   
   const {
@@ -50,10 +52,20 @@ export const useWidgetState = (widgetId: string | null) => {
           const submission = submissions.find(s => s.id === widgetId);
           
           if (submission) {
-            // We need to update both components and APIs
-            // Since the hooks don't expose setters directly, we need a way
-            // to initialize with data from storage
-            // For now, we'll work with what we have
+            // Initialize with data from storage
+            if (submission.components) {
+              setWidgetComponents(submission.components);
+            }
+            
+            if (submission.apis) {
+              // Since useApiState doesn't expose setApis, this would need refactoring
+              // For now we use what's available - this is a TODO item
+            }
+            
+            if (submission.tooltips) {
+              setTooltips(submission.tooltips);
+            }
+            
             toast({
               title: `Loaded: ${submission.name}`,
               description: `Status: ${submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}`
@@ -64,7 +76,7 @@ export const useWidgetState = (widgetId: string | null) => {
         console.error("Failed to load widget from ID", error);
       }
     }
-  }, [widgetId, toast]);
+  }, [widgetId, toast, setWidgetComponents, setTooltips]);
 
   return {
     widgetComponents,

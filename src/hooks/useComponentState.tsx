@@ -1,22 +1,27 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { WidgetComponent } from "@/types/widget-types";
 
 export const useComponentState = () => {
   const { toast } = useToast();
   
-  const [widgetComponents, setWidgetComponents] = useState<WidgetComponent[]>([
-    {
-      id: "header-1",
-      type: "header",
-      props: {
-        icon: "BookOpen",
-        title: "Learning Module",
-        actions: ["Edit", "More"]
-      }
+  const [widgetComponents, setWidgetComponents] = useState<WidgetComponent[]>([]);
+
+  // Initialize with default header component if no components exist
+  useEffect(() => {
+    if (widgetComponents.length === 0) {
+      setWidgetComponents([{
+        id: "header-1",
+        type: "header",
+        props: {
+          icon: "BookOpen",
+          title: "Learning Module",
+          actions: ["Edit", "More"]
+        }
+      }]);
     }
-  ]);
+  }, []);
 
   const handleAddComponent = (component: WidgetComponent | string) => {
     const componentToAdd = typeof component === 'string' 
@@ -96,6 +101,7 @@ export const useComponentState = () => {
 
   return {
     widgetComponents,
+    setWidgetComponents,
     handleAddComponent,
     handleUpdateComponent,
     handleRemoveComponent,

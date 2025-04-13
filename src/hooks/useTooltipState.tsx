@@ -67,6 +67,7 @@ export const useTooltipState = (widgetComponents: WidgetComponent[]) => {
 
   return {
     tooltips,
+    setTooltips,
     handleAddTooltip,
     handleUpdateTooltip,
     handleRemoveTooltip,

@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ApiConfig } from "@/types/widget-types";
 import { WidgetComponent } from "@/types/widget-types";
@@ -9,6 +8,18 @@ export const useApiState = (widgetComponents: WidgetComponent[]) => {
   const [apis, setApis] = useState<ApiConfig[]>([]);
   const [savedApiTemplates, setSavedApiTemplates] = useState<ApiConfig[]>([]);
   
+  // Load saved API templates
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('savedApiTemplates');
+      if (saved) {
+        setSavedApiTemplates(JSON.parse(saved));
+      }
+    } catch (error) {
+      console.error("Failed to load saved API templates", error);
+    }
+  }, []);
+
   const handleAddApi = (api: ApiConfig) => {
     let processedApi = {...api};
     if (api.sampleResponse) {
@@ -102,18 +113,6 @@ export const useApiState = (widgetComponents: WidgetComponent[]) => {
       description: "The API has been removed from your widget."
     });
   };
-
-  // Load saved API templates
-  useState(() => {
-    try {
-      const saved = localStorage.getItem('savedApiTemplates');
-      if (saved) {
-        setSavedApiTemplates(JSON.parse(saved));
-      }
-    } catch (error) {
-      console.error("Failed to load saved API templates", error);
-    }
-  });
 
   return {
     apis,
