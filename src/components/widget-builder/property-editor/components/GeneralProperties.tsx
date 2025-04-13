@@ -26,8 +26,8 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
 
   const propertyDefinitions = getPropertyDefinitions(component.type);
   
-  // For alert components, use a different header title
-  const headerTitle = component.type === 'alert' ? "Alert Settings" : "Properties";
+  // Change header title for alert components to "Alert Title"
+  const headerTitle = component.type === 'alert' ? "Alert Title" : "Properties";
 
   return (
     <div>
