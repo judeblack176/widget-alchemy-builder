@@ -43,6 +43,18 @@ const ContentFieldSection: React.FC<ContentFieldSectionProps> = ({
 
     onUpdateComponent(updatedComponent);
   };
+  
+  const updateContentField = (index: number, updatedField: ContentField) => {
+    const currentFields = [...(component.contentFields || [])];
+    currentFields[index] = updatedField;
+    
+    const updatedComponent = {
+      ...component,
+      contentFields: currentFields
+    };
+    
+    onUpdateComponent(updatedComponent);
+  };
 
   return (
     <div className="mt-3 border-t pt-3">
@@ -57,6 +69,9 @@ const ContentFieldSection: React.FC<ContentFieldSectionProps> = ({
       <ContentFieldList 
         contentFields={component.contentFields || []}
         onRemoveContentField={removeContentField}
+        onUpdateContentField={updateContentField}
+        availableApiFields={availableApiFields}
+        availableMappings={availableMappings}
       />
     </div>
   );
