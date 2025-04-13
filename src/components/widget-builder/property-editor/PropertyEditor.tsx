@@ -8,11 +8,13 @@ import { cleanHtmlContent } from "../component-renderers/renderComponentWithoutT
 interface PropertyEditorProps {
   component: WidgetComponent;
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
+  excludeProperties?: string[]; // Add prop to exclude specific properties
 }
 
 const PropertyEditor: React.FC<PropertyEditorProps> = ({
   component,
-  onUpdateComponent
+  onUpdateComponent,
+  excludeProperties = []
 }) => {
   // Special rendering for header components to ensure icon and name are always displayed
   if (component.type === 'header') {
@@ -30,33 +32,13 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
     return <HeaderProperties component={displayComponent} onUpdateComponent={onUpdateComponent} />;
   }
 
-  // For alert components with section specified, pass the section info to GeneralProperties
-  if (component.type === 'alert' && ('alertPropertiesSection' in component)) {
-    // If this is for the title field, we'll handle it differently
-    if (component.alertPropertiesSection === 'initial') {
-      // Filter out the title property as it will be handled by ContentFieldsManager
-      return (
-        <GeneralProperties 
-          component={component} 
-          onUpdateComponent={onUpdateComponent}
-          excludeProperties={['title']} 
-        />
-      );
-    }
-    
-    return (
-      <GeneralProperties 
-        component={component} 
-        onUpdateComponent={(updatedComponent) => {
-          // Remove the temporary section property before updating
-          const { alertPropertiesSection, ...cleanComponent } = updatedComponent as any;
-          onUpdateComponent(cleanComponent);
-        }} 
-      />
-    );
-  }
-
-  return <GeneralProperties component={component} onUpdateComponent={onUpdateComponent} />;
+  return (
+    <GeneralProperties 
+      component={component} 
+      onUpdateComponent={onUpdateComponent}
+      excludeProperties={excludeProperties}
+    />
+  );
 };
 
 export default PropertyEditor;

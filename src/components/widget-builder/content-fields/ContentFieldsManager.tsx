@@ -7,15 +7,17 @@ interface ContentFieldsManagerProps {
   component: WidgetComponent;
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
   customLabel?: string; // Optional custom label
+  singleLine?: boolean; // Added singleLine prop
 }
 
 const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
   component,
   onUpdateComponent,
-  customLabel
+  customLabel,
+  singleLine
 }) => {
   // For header components, use single line input
-  const singleLine = component.type === 'header';
+  const useSingleLine = singleLine || component.type === 'header';
   
   // Update function for handling changes
   const handleContentUpdate = (updatedComponent: WidgetComponent) => {
@@ -49,11 +51,10 @@ const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
     <FormattedTextEditor 
       component={component} 
       onUpdateComponent={handleContentUpdate}
-      singleLine={singleLine}
+      singleLine={useSingleLine}
       customLabel={customLabel}
     />
   );
 };
 
 export default ContentFieldsManager;
-

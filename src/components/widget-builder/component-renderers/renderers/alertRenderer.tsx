@@ -12,7 +12,7 @@ export const alertRenderer = (finalProps: Record<string, any>, id: string, onDis
   // Use formattedContent directly instead of falling back to message
   const alertContent = finalProps.formattedContent || "This is an alert message.";
   
-  // Get the title, which might be a formatted content value
+  // Get the title, which should be a formatted content value
   const alertTitle = finalProps.title || "Alert";
   
   return (

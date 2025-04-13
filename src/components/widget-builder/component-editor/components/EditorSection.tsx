@@ -62,22 +62,8 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     );
   }
   
-  // Special handling for alert components: 
-  // 1. API Integration
-  // 2. Alert Title via ContentFieldsManager
-  // 3. Alert Type via PropertyEditor
-  // 4. Alert Message via ContentFieldsManager
-  // 5. Dismissible & Auto Close via PropertyEditor 
-  // 6. Tooltip at the end
+  // Special handling for alert components
   if (component.type === 'alert') {
-    // Split the alert properties into initial (type) and end properties (dismissible, autoClose)
-    const initialProps = { ...component, props: { ...component.props } };
-    const endProps = { ...component, props: { ...component.props } };
-    
-    // For PropertyEditor rendering pass, we need to tell the component which properties to show
-    initialProps.alertPropertiesSection = 'initial'; // Will show type only (title is handled by ContentFieldsManager)
-    endProps.alertPropertiesSection = 'end'; // Will show dismissible & autoClose
-    
     // Create a special component just for the alert title
     // We'll use "title" as key for the FormattedContent
     const titleComponent = {
@@ -114,12 +100,14 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           component={titleComponent}
           onUpdateComponent={handleTitleUpdate}
           customLabel="Alert Title"
+          singleLine={true}
         />
         
-        {/* Property editor for type - Initial properties */}
+        {/* Property editor for type */}
         <PropertyEditor 
-          component={initialProps}
+          component={component}
           onUpdateComponent={onUpdateComponent}
+          excludeProperties={['title']} 
         />
         
         {/* Content Fields Manager - Alert Message */}
@@ -130,12 +118,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
             customLabel="Alert Message"
           />
         )}
-        
-        {/* Property editor for dismissible and autoClose - End properties */}
-        <PropertyEditor 
-          component={endProps}
-          onUpdateComponent={onUpdateComponent}
-        />
         
         {/* Tooltip selector - Very end of alert settings */}
         {onApplyTooltip && (
