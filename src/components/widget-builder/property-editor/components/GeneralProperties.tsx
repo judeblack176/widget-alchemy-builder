@@ -24,10 +24,28 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
     onUpdateComponent(updatedComponent);
   };
 
-  const propertyDefinitions = getPropertyDefinitions(component.type);
+  // Get property definitions but reorder for alert components
+  let propertyDefinitions = getPropertyDefinitions(component.type);
   
-  // Change header title for alert components to "Alert Title"
-  const headerTitle = component.type === 'alert' ? "Alert Title" : "Properties";
+  // For alert components, reorder properties to put title above type
+  if (component.type === 'alert') {
+    // Find title and type definitions
+    const titleDef = propertyDefinitions.find(p => p.name === 'title');
+    const typeDef = propertyDefinitions.find(p => p.name === 'type');
+    
+    // If both exist, reorder them
+    if (titleDef && typeDef) {
+      propertyDefinitions = propertyDefinitions
+        .filter(p => p.name !== 'title' && p.name !== 'type') // Remove both
+        .sort((a, b) => a.name.localeCompare(b.name)); // Sort other props
+      
+      // Add title first, then type, then other properties
+      propertyDefinitions = [titleDef, typeDef, ...propertyDefinitions];
+    }
+  }
+  
+  // Change header title for alert components to "Alert Settings"
+  const headerTitle = component.type === 'alert' ? "Alert Settings" : "Properties";
 
   return (
     <div>
