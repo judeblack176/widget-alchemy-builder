@@ -2,6 +2,9 @@
 import { useState, useRef, useEffect } from "react";
 import { WidgetComponent } from "@/types/widget-types";
 import { useToast } from "@/hooks/use-toast";
+import { applyTextFormatting, addApiPlaceholderToContent } from "./utils/formattingUtils";
+import { handleTextSelection, updateCursorPosition } from "./utils/selectionUtils";
+import { handleInputClick, handleInputFocus } from "./utils/eventHandlers";
 
 interface TextFormattingHookResult {
   selectedText: {start: number, end: number} | null;
@@ -33,155 +36,62 @@ export const useTextFormatting = (
     onUpdateComponent(updatedComponent);
   };
 
-  // Stop propagation on input interactions to prevent container from closing
-  const handleInputClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-
-  // Handle focus events separately with the correct event type
-  const handleInputFocus = (e: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    e.stopPropagation();
-  };
-
   // Handle selection in the textarea
   const handleTextareaSelect = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
-    const target = e.target as HTMLTextAreaElement;
-    if (target.selectionStart !== target.selectionEnd) {
-      setSelectedText({
-        start: target.selectionStart,
-        end: target.selectionEnd
-      });
-    } else {
-      setSelectedText(null);
-    }
+    handleTextSelection(e, setSelectedText);
   };
 
   const handleSingleLineSelect = (e: React.SyntheticEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement;
-    if (target.selectionStart !== target.selectionEnd) {
-      setSelectedText({
-        start: target.selectionStart || 0,
-        end: target.selectionEnd || 0
-      });
-    } else {
-      setSelectedText(null);
-    }
+    handleTextSelection(e, setSelectedText);
   };
 
-  // Apply formatting to selected text with error handling
+  // Apply formatting to selected text
   const applyFormatting = (format: string, value: string) => {
-    try {
-      if (!selectedText || (!textareaRef.current && !inputRef.current)) {
-        toast({
-          title: "No text selected",
-          description: "Please select some text to format it.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      const content = component.formattedContent || "";
-      
-      // Validate selection is still valid
-      if (selectedText.start < 0 || selectedText.end > content.length) {
-        setSelectedText(null);
-        toast({
-          title: "Selection changed",
-          description: "The text selection has changed. Please select text again.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      const beforeSelection = content.substring(0, selectedText.start);
-      const selection = content.substring(selectedText.start, selectedText.end);
-      const afterSelection = content.substring(selectedText.end);
-      
-      if (selection.trim() === "") {
-        toast({
-          title: "Empty selection",
-          description: "Cannot format empty text. Please select some text.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      // Create formatted text with the appropriate tag
-      let formattedText = '';
-      
-      // Apply the formatting based on the format type
-      switch (format) {
-        case "weight":
-          if (value === "bold") {
-            formattedText = `<strong>${selection}</strong>`;
-          }
-          break;
-        case "style":
-          if (value === "italic") {
-            formattedText = `<em>${selection}</em>`;
-          }
-          break;
-        case "align":
-          formattedText = `<span class="text-${value}">${selection}</span>`;
-          break;
-        case "size":
-          formattedText = `<span class="text-${value}">${selection}</span>`;
-          break;
-        case "color":
-        case "background-color":
-          formattedText = `<span class="${format}-${value}">${selection}</span>`;
-          break;
-        default:
-          formattedText = selection;
-      }
-      
-      const newContent = beforeSelection + formattedText + afterSelection;
-      
+    const content = component.formattedContent || "";
+    
+    const newContent = applyTextFormatting(format, value, selectedText, content, toast);
+    
+    if (newContent) {
       handleFormattedContentChange(newContent);
       
       // Reset selection after applying format
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-          const newCursorPos = beforeSelection.length + formattedText.length;
-          inputRef.current.setSelectionRange(newCursorPos, newCursorPos);
-        } else if (textareaRef.current) {
-          textareaRef.current.focus();
-          const newCursorPos = beforeSelection.length + formattedText.length;
-          textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+      if (selectedText) {
+        const beforeSelection = content.substring(0, selectedText.start);
+        let formattedLength = 0;
+        
+        // Calculate length of formatted text based on format type
+        switch (format) {
+          case "weight":
+            if (value === "bold") {
+              formattedLength = `<strong>${content.substring(selectedText.start, selectedText.end)}</strong>`.length;
+            }
+            break;
+          case "style":
+            if (value === "italic") {
+              formattedLength = `<em>${content.substring(selectedText.start, selectedText.end)}</em>`.length;
+            }
+            break;
+          default:
+            const selection = content.substring(selectedText.start, selectedText.end);
+            formattedLength = `<span class="${format === 'background-color' ? 'background-color' : format}-${value}">${selection}</span>`.length;
         }
-      }, 0);
+        
+        updateCursorPosition(textareaRef, inputRef, beforeSelection.length, formattedLength);
+      }
       
       toast({
         title: "Format applied",
         description: `Applied ${format}: ${value} to selected text.`
       });
-    } catch (error) {
-      console.error("Error applying text formatting:", error);
-      toast({
-        title: "Formatting error",
-        description: "An error occurred while formatting text. Please try again.",
-        variant: "destructive"
-      });
     }
   };
 
   const addApiPlaceholder = (placeholder: string) => {
-    try {
-      const currentContent = component.formattedContent || "";
-      handleFormattedContentChange(currentContent + placeholder);
-      
-      toast({
-        title: "Field added",
-        description: `Added ${placeholder} to content.`
-      });
-    } catch (error) {
-      console.error("Error adding API placeholder:", error);
-      toast({
-        title: "Error adding field",
-        description: "Failed to add API field. Please try again.",
-        variant: "destructive"
-      });
+    const currentContent = component.formattedContent || "";
+    const newContent = addApiPlaceholderToContent(placeholder, currentContent, toast);
+    
+    if (newContent) {
+      handleFormattedContentChange(newContent);
     }
   };
 
