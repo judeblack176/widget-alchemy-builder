@@ -1,3 +1,4 @@
+
 import React from "react";
 import { WidgetComponent } from "@/types/widget-types";
 import { Badge } from "@/components/ui/badge";
@@ -106,7 +107,7 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
         </button>
       )}
       
-      <div className="flex items-center">
+      <div className="absolute right-1/2 transform translate-x-1/2 top-1/2 -translate-y-1/2">
         {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
       </div>
     </div>
