@@ -7,6 +7,7 @@ import ApiIntegrationSection from "../../../api-integration/ApiIntegrationSectio
 import TooltipSelector from "../../../tooltip/TooltipSelector";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface ChartSectionRendererProps {
   component: WidgetComponent;
@@ -39,6 +40,16 @@ const ChartSectionRenderer: React.FC<ChartSectionRendererProps> = ({
     });
   };
 
+  const handleDataUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onUpdateComponent({
+      ...component,
+      props: {
+        ...component.props,
+        dataUrl: e.target.value,
+      },
+    });
+  };
+
   return (
     <>
       {shouldShowDataIntegration() && (
@@ -49,6 +60,28 @@ const ChartSectionRenderer: React.FC<ChartSectionRendererProps> = ({
           onRequestApiTemplate={onRequestApiTemplate}
         />
       )}
+
+      <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-gray-50 p-3">
+          <span className="font-medium">Chart Data Source</span>
+        </div>
+        <div className="p-4">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="dataUrl">Data URL</Label>
+              <Input 
+                id="dataUrl"
+                placeholder="https://api.example.com/data"
+                value={component.props.dataUrl || ""}
+                onChange={handleDataUrlChange}
+              />
+              <p className="text-xs text-gray-500">
+                Enter a URL to fetch JSON data for your chart
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
         <div className="bg-gray-50 p-3">
@@ -79,7 +112,7 @@ const ChartSectionRenderer: React.FC<ChartSectionRendererProps> = ({
       <PropertyEditor
         component={component}
         onUpdateComponent={onUpdateComponent}
-        excludeProperties={["height"]}
+        excludeProperties={["height", "dataUrl"]}
       />
 
       {onApplyTooltip && (

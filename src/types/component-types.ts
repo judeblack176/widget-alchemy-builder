@@ -1,3 +1,4 @@
+
 import { LucideIcon } from 'lucide-react';
 
 export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table' | 'searchbar';
@@ -67,7 +68,8 @@ export const DEFAULT_DATA_MAPPINGS: Record<ComponentType, Record<string, string>
   chart: {
     data: "data",
     labels: "labels",
-    title: "title"
+    title: "title",
+    dataUrl: "dataUrl"
   },
   form: {
     label: "label",

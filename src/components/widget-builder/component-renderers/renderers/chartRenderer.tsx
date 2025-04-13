@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   ResponsiveContainer, 
   BarChart, 
@@ -55,34 +55,134 @@ const parseData = (dataString?: string) => {
   }
 };
 
+const fetchDataFromUrl = async (url: string) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data from URL:', error);
+    return null;
+  }
+};
+
+const ChartDataLoader = ({ 
+  url, 
+  children, 
+  onDataLoaded 
+}: { 
+  url: string; 
+  children: (data: any[]) => React.ReactNode; 
+  onDataLoaded: (data: any[]) => void;
+}) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!url) {
+      setIsLoading(false);
+      return;
+    }
+
+    const loadData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const fetchedData = await fetchDataFromUrl(url);
+        if (fetchedData) {
+          onDataLoaded(fetchedData);
+        } else {
+          setError('Failed to load data');
+        }
+      } catch (err) {
+        setError('Error loading chart data');
+        console.error('Chart data loading error:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [url, onDataLoaded]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full bg-gray-50">
+        <p className="text-gray-500">Loading chart data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full bg-gray-50">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
+  return <>{children([])}</>;
+};
+
 export const chartRenderer = (finalProps: Record<string, any>) => {
+  const [chartData, setChartData] = useState<any[]>([]);
   const chartType = finalProps.chartType || 'bar';
   const chartHeight = finalProps.height ? Number(finalProps.height) : 300;
   const chartTitle = finalProps.title || '';
+  const dataUrl = finalProps.dataUrl || '';
   
   // Process data from different sources
-  let chartData = [];
+  let initialData: any[] = [];
   let hasData = false;
   
   if (finalProps.data) {
     // Direct data provided in props
-    chartData = parseData(finalProps.data);
-    hasData = chartData.length > 0;
+    initialData = parseData(finalProps.data);
+    hasData = initialData.length > 0;
   } else if (finalProps.staticData) {
     // Static data property
-    chartData = parseData(finalProps.staticData);
-    hasData = chartData.length > 0;
+    initialData = parseData(finalProps.staticData);
+    hasData = initialData.length > 0;
   } else {
-    // No data source
-    hasData = false;
+    // No direct data source, will check URL
+    hasData = !!dataUrl;
   }
+
+  // If we have initial data and no URL, use it immediately
+  useEffect(() => {
+    if (initialData.length > 0 && !dataUrl) {
+      setChartData(initialData);
+    }
+  }, [initialData.length, dataUrl]);
   
   const colors = getChartColors(finalProps.colors);
   const dataKey = finalProps.dataKey || 'value';
   const categoryKey = finalProps.categoryKey || 'name';
+
+  const handleDataLoaded = (data: any[]) => {
+    // Handle possible array nesting based on API response structure
+    let processedData = data;
+
+    // Check if data is nested inside a property
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      // Look for the first array property to use as data
+      const arrayProperties = Object.keys(data).filter(key => Array.isArray(data[key]));
+      if (arrayProperties.length > 0) {
+        processedData = data[arrayProperties[0]];
+      } else {
+        // If no array found, wrap the object in an array
+        processedData = [data];
+      }
+    }
+
+    setChartData(Array.isArray(processedData) ? processedData : []);
+  };
   
-  const renderChart = () => {
-    if (!hasData) {
+  const renderChartContent = (data: any[]) => {
+    if (!hasData && data.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center h-full bg-gray-50">
           <p className="text-gray-500 text-sm">No data available</p>
@@ -91,11 +191,13 @@ export const chartRenderer = (finalProps: Record<string, any>) => {
       );
     }
     
+    const currentData = data.length > 0 ? data : chartData;
+    
     switch (chartType) {
       case 'bar':
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 30 }}>
+            <BarChart data={currentData} margin={{ top: 20, right: 30, left: 20, bottom: 30 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey={categoryKey} />
               <YAxis />
@@ -109,7 +211,7 @@ export const chartRenderer = (finalProps: Record<string, any>) => {
       case 'line':
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 30 }}>
+            <LineChart data={currentData} margin={{ top: 20, right: 30, left: 20, bottom: 30 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey={categoryKey} />
               <YAxis />
@@ -125,7 +227,7 @@ export const chartRenderer = (finalProps: Record<string, any>) => {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={chartData}
+                data={currentData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -135,7 +237,7 @@ export const chartRenderer = (finalProps: Record<string, any>) => {
                 nameKey={categoryKey}
                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
               >
-                {chartData.map((entry, index) => (
+                {currentData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                 ))}
               </Pie>
@@ -158,7 +260,13 @@ export const chartRenderer = (finalProps: Record<string, any>) => {
     <div className="p-3 border rounded" style={{ backgroundColor: finalProps.backgroundColor || '#FFFFFF' }}>
       {chartTitle && <h3 className="text-center font-medium mb-3">{chartTitle}</h3>}
       <div className="bg-gray-50" style={{ height: `${chartHeight}px` }}>
-        {renderChart()}
+        {dataUrl ? (
+          <ChartDataLoader url={dataUrl} onDataLoaded={handleDataLoaded}>
+            {renderChartContent}
+          </ChartDataLoader>
+        ) : (
+          renderChartContent([])
+        )}
       </div>
       {finalProps.legend && (
         <div className={`flex justify-${finalProps.legendPosition || 'center'} mt-2 gap-2 flex-wrap`}>
