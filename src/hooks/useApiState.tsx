@@ -116,6 +116,7 @@ export const useApiState = (widgetComponents: WidgetComponent[]) => {
 
   return {
     apis,
+    setApis,
     savedApiTemplates,
     handleAddApi,
     handleUpdateApi,

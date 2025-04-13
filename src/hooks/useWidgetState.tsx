@@ -23,6 +23,7 @@ export const useWidgetState = (widgetId: string | null) => {
   
   const {
     apis,
+    setApis,
     savedApiTemplates,
     handleAddApi,
     handleUpdateApi,
@@ -49,7 +50,7 @@ export const useWidgetState = (widgetId: string | null) => {
         const savedSubmissions = localStorage.getItem('widgetSubmissions');
         if (savedSubmissions) {
           const submissions = JSON.parse(savedSubmissions);
-          const submission = submissions.find(s => s.id === widgetId);
+          const submission = submissions.find((s: any) => s.id === widgetId);
           
           if (submission) {
             // Initialize with data from storage
@@ -57,9 +58,8 @@ export const useWidgetState = (widgetId: string | null) => {
               setWidgetComponents(submission.components);
             }
             
-            if (submission.apis) {
-              // Since useApiState doesn't expose setApis, this would need refactoring
-              // For now we use what's available - this is a TODO item
+            if (submission.apis && setApis) {
+              setApis(submission.apis);
             }
             
             if (submission.tooltips) {
@@ -76,7 +76,7 @@ export const useWidgetState = (widgetId: string | null) => {
         console.error("Failed to load widget from ID", error);
       }
     }
-  }, [widgetId, toast, setWidgetComponents, setTooltips]);
+  }, [widgetId, toast, setWidgetComponents, setApis, setTooltips]);
 
   return {
     widgetComponents,
