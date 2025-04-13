@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import ComponentEditor from '../ComponentEditor';
+import ComponentEditor from '../component-editor';
 import { Tooltip } from '../TooltipManager';
 
 interface DraggableComponentsListProps {

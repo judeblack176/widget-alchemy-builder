@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
-import ComponentEditor from '../ComponentEditor';
+import ComponentEditor from '../component-editor';
 import { Tooltip } from '../TooltipManager';
 
 interface HeaderComponentSectionProps {

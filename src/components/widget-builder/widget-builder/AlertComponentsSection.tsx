@@ -4,7 +4,7 @@ import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
-import ComponentEditor from '../ComponentEditor';
+import ComponentEditor from '../component-editor';
 import { Tooltip } from '../TooltipManager';
 
 interface AlertComponentsSectionProps {
