@@ -6,7 +6,6 @@ import { useTextFormatting } from "./hooks/useTextFormatting";
 import FormattingToolbar from "./components/FormattingToolbar";
 import HeaderFormattingToolbar from "./components/HeaderFormattingToolbar";
 import TextInput from "./components/TextInput";
-import parse from "html-react-parser";
 
 interface FormattedTextEditorProps {
   component: WidgetComponent;
@@ -36,12 +35,12 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
   const isHeader = component.type === 'header';
 
   // Process the formatted content for display in the editor
-  // This simulates rendering the HTML tags as styled text
+  // This removes HTML tags so user doesn't see them while editing
   const processFormattedContent = (content: string) => {
     if (!content) return '';
     
     let processedContent = content
-      // Replace formatting tags with styled spans for editor display
+      // Replace HTML tags with nothing for clean display
       .replace(/<strong>(.*?)<\/strong>/g, '$1')
       .replace(/<em>(.*?)<\/em>/g, '$1')
       .replace(/<span class="align-left">(.*?)<\/span>/g, '$1')
@@ -50,6 +49,9 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
       .replace(/<span class="color-[^"]*">(.*?)<\/span>/g, '$1')
       .replace(/<span class="background-color-[^"]*">(.*?)<\/span>/g, '$1')
       .replace(/<span class="size-[^"]*">(.*?)<\/span>/g, '$1');
+    
+    // Handle any other HTML tag that might have been added
+    processedContent = processedContent.replace(/<[^>]*>(.*?)<\/[^>]*>/g, '$1');
     
     return processedContent;
   };
@@ -84,7 +86,7 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
           onInputClick={handleInputClick}
           onFocus={handleInputFocus}
           onSelect={singleLine ? handleSingleLineSelect : handleTextareaSelect}
-          visibleValue={visibleContent} // Add this prop to show clean content
+          visibleValue={visibleContent} // Pass clean content without HTML tags
         />
         
         <ApiFieldsDisplay 

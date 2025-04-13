@@ -2,7 +2,7 @@
 import { useToast } from "@/hooks/use-toast";
 
 /**
- * Applies formatting to selected text
+ * Applies formatting to selected text with toggle functionality for bold and italic
  */
 export const applyTextFormatting = (
   format: string,
@@ -13,7 +13,6 @@ export const applyTextFormatting = (
 ): string | null => {
   try {
     if (!selectedText) {
-      // Allow formatting even without selection
       // Apply to entire content if no selection
       const emptySelection = {
         start: 0,
@@ -45,22 +44,37 @@ export const applyTextFormatting = (
       return null;
     }
     
-    // Create formatted text with the appropriate tag
+    // Handle toggle functionality for bold and italic
     let formattedText = '';
     
     // Apply the formatting based on the format type
     switch (format) {
       case "weight":
         if (value === "bold") {
-          formattedText = `<strong>${selection}</strong>`;
+          // Check if selection is already bold
+          if (selection.match(/<strong>(.*?)<\/strong>/)) {
+            // If already bold, remove the bold formatting
+            formattedText = selection.replace(/<strong>(.*?)<\/strong>/g, '$1');
+          } else {
+            // If not bold, add the bold formatting
+            formattedText = `<strong>${selection}</strong>`;
+          }
         }
         break;
       case "style":
         if (value === "italic") {
-          formattedText = `<em>${selection}</em>`;
+          // Check if selection is already italic
+          if (selection.match(/<em>(.*?)<\/em>/)) {
+            // If already italic, remove the italic formatting
+            formattedText = selection.replace(/<em>(.*?)<\/em>/g, '$1');
+          } else {
+            // If not italic, add the italic formatting
+            formattedText = `<em>${selection}</em>`;
+          }
         }
         break;
       case "align":
+        // For other formatting, we just apply it directly
         formattedText = `<span class="align-${value}">${selection}</span>`;
         break;
       case "size":
