@@ -30,10 +30,19 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   shouldShowDataIntegration,
   shouldShowContentEditor,
 }) => {
-  // For header components, we want a specific order: Icon, Tooltip, then Content
+  // For header components, we want a specific order: Widget Name, Icon, then Tooltip
   if (isHeader) {
     return (
       <>
+        {/* Widget Name (Content Fields) first */}
+        {shouldShowContentEditor() && (
+          <ContentFieldsManager 
+            component={component}
+            onUpdateComponent={onUpdateComponent}
+            customLabel="Widget Name"
+          />
+        )}
+        
         {/* Property editor for icons */}
         <PropertyEditor 
           component={component}
@@ -47,14 +56,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
             customTooltips={customTooltips}
             onApplyTooltip={onApplyTooltip}
             label="Add Tooltip"
-          />
-        )}
-        
-        {shouldShowContentEditor() && (
-          <ContentFieldsManager 
-            component={component}
-            onUpdateComponent={onUpdateComponent}
-            customLabel="Widget Name"
           />
         )}
       </>

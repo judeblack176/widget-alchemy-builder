@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip as CustomTooltip } from "../TooltipManager";
-import PropertyEditor from "../property-editor/PropertyEditor";
 import { useComponentVisibility } from "./useComponentVisibility";
 import ActionButtons from "./ActionButtons";
 import { componentTypeLabels } from "./IconMapping";
@@ -74,39 +73,24 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
       {isExpanded && (
         <div className="p-4 space-y-6">
-          {/* For header components, show content editor first */}
-          {isHeader && shouldShowContentEditor() && (
-            <EditorSection 
-              component={component}
-              apis={apis}
-              onUpdateComponent={onUpdateComponent}
-              onRequestApiTemplate={onRequestApiTemplate}
-              onApplyTooltip={onApplyTooltip}
-              customTooltips={customTooltips}
-              isHeader={true}
-              shouldShowDataIntegration={shouldShowDataIntegration}
-              shouldShowContentEditor={shouldShowContentEditor}
-            />
-          )}
-          
-          {/* Add PropertyEditor component for all components */}
-          <PropertyEditor 
+          {/* For header components, use EditorSection with specific order */}
+          <EditorSection 
             component={component}
+            apis={apis}
             onUpdateComponent={onUpdateComponent}
+            onRequestApiTemplate={onRequestApiTemplate}
+            onApplyTooltip={onApplyTooltip}
+            customTooltips={customTooltips}
+            isHeader={isHeader}
+            shouldShowDataIntegration={shouldShowDataIntegration}
+            shouldShowContentEditor={shouldShowContentEditor}
           />
           
-          {/* For non-header components, use the original order */}
+          {/* For non-header components, show PropertyEditor */}
           {!isHeader && (
-            <EditorSection 
+            <PropertyEditor 
               component={component}
-              apis={apis}
               onUpdateComponent={onUpdateComponent}
-              onRequestApiTemplate={onRequestApiTemplate}
-              onApplyTooltip={onApplyTooltip}
-              customTooltips={customTooltips}
-              isHeader={false}
-              shouldShowDataIntegration={shouldShowDataIntegration}
-              shouldShowContentEditor={shouldShowContentEditor}
             />
           )}
 
