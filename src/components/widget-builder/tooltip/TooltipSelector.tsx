@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { WidgetComponent } from "@/types/widget-types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HelpCircle, Info, AlertTriangle, Star } from "lucide-react";
@@ -55,11 +55,12 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
     true;
   
   // If the tooltip is not valid, clear it
-  if (component.tooltipId && !isTooltipValid && onApplyTooltip) {
-    console.log("Clearing invalid tooltip:", component.tooltipId);
-    // Don't use setTimeout, as it causes issues with state management
-    // onApplyTooltip("");
-  }
+  useEffect(() => {
+    if (component.tooltipId && !isTooltipValid && onApplyTooltip) {
+      console.log("Clearing invalid tooltip:", component.tooltipId);
+      onApplyTooltip("");
+    }
+  }, [component.tooltipId, isTooltipValid, onApplyTooltip]);
 
   // Get the tooltip label to display in the SelectValue
   const getTooltipLabel = (tooltipId: string) => {
@@ -81,7 +82,7 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
       <div className="flex items-center gap-2">
         {component.tooltipId && component.tooltipId !== "none" && getTooltipIcon(component.tooltipId)}
         <Select
-          defaultValue={component.tooltipId || "none"}
+          value={component.tooltipId || "none"}
           onValueChange={handleTooltipChange}
         >
           <SelectTrigger className="w-full">
