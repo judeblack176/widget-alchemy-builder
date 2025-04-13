@@ -22,9 +22,10 @@ export const useComponentCategories = () => {
   // Priority components that should always be at the top
   const priorityComponents: ComponentType[] = ['header', 'alert'];
   
-  // Regular components
+  // Regular components - reordered to put multi-text right after text
   const regularComponents: ComponentType[] = [
     'text',
+    'multi-text',
     'button',
     'image',
     'chart',
@@ -33,7 +34,6 @@ export const useComponentCategories = () => {
     'calendar',
     'dropdown',
     'link',
-    'multi-text',
     'filter',
     'table',
     'searchbar'
@@ -46,10 +46,11 @@ export const useComponentCategories = () => {
     [key: string]: ComponentType[];
   };
 
+  // Updated category mapping to properly classify components
   const componentCategories: CategoryMap = {
     all: components,
-    layout: ['header', 'text', 'image', 'alert'],
-    input: ['form', 'dropdown', 'multi-text', 'filter', 'searchbar'],
+    layout: ['header', 'text', 'multi-text', 'image', 'alert'],
+    input: ['form', 'dropdown', 'filter', 'searchbar'],
     interactive: ['button', 'link', 'calendar', 'chart', 'table', 'video']
   };
 
