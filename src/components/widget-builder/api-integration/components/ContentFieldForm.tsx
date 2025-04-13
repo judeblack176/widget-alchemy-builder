@@ -36,8 +36,13 @@ const ContentFieldForm: React.FC<ContentFieldFormProps> = ({
     setNewFieldMapping("");
   };
 
+  // Prevent event propagation to stop container from closing
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div>
+    <div onClick={handleClick}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
         <div>
           <Label htmlFor="field-label" className="text-xs">Field Label</Label>
@@ -47,18 +52,19 @@ const ContentFieldForm: React.FC<ContentFieldFormProps> = ({
             onChange={(e) => setNewFieldLabel(e.target.value)}
             placeholder="Enter field label"
             className="h-8 text-sm"
+            onClick={handleClick}
           />
         </div>
         
         <div>
           <Label htmlFor="api-field" className="text-xs">API Field</Label>
           <Select value={newFieldApiField} onValueChange={setNewFieldApiField}>
-            <SelectTrigger id="api-field" className="h-8 text-sm">
+            <SelectTrigger id="api-field" className="h-8 text-sm" onClick={handleClick}>
               <SelectValue placeholder="Select API field" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent onClick={handleClick}>
               {availableApiFields.map((field) => (
-                <SelectItem key={field} value={field}>
+                <SelectItem key={field} value={field} onClick={handleClick}>
                   {field}
                 </SelectItem>
               ))}
@@ -69,12 +75,12 @@ const ContentFieldForm: React.FC<ContentFieldFormProps> = ({
         <div>
           <Label htmlFor="field-mapping" className="text-xs">Mapping</Label>
           <Select value={newFieldMapping} onValueChange={setNewFieldMapping}>
-            <SelectTrigger id="field-mapping" className="h-8 text-sm">
+            <SelectTrigger id="field-mapping" className="h-8 text-sm" onClick={handleClick}>
               <SelectValue placeholder="Select mapping" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent onClick={handleClick}>
               {availableMappings.map((field) => (
-                <SelectItem key={field} value={field}>
+                <SelectItem key={field} value={field} onClick={handleClick}>
                   {field}
                 </SelectItem>
               ))}
@@ -87,7 +93,10 @@ const ContentFieldForm: React.FC<ContentFieldFormProps> = ({
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={handleAddField}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleAddField();
+          }}
           disabled={!newFieldLabel || !newFieldApiField}
           className="h-8 px-3"
         >

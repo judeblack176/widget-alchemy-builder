@@ -35,8 +35,13 @@ const ApiIntegrationSection: React.FC<ApiIntegrationSectionProps> = ({
     onUpdateComponent(updatedComponent);
   };
 
+  // Prevent event propagation to stop container from closing
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
+    <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden" onClick={handleClick}>
       <div className="bg-gray-50 p-3 flex items-center justify-between">
         <div className="flex items-center">
           <Database size={16} className="mr-2 text-blue-500" />
@@ -49,7 +54,7 @@ const ApiIntegrationSection: React.FC<ApiIntegrationSectionProps> = ({
         </div>
       </div>
       
-      <div className="p-3">
+      <div className="p-3" onClick={handleClick}>
         {component.apiConfig ? (
           <ApiDetailsView 
             component={component} 
@@ -65,12 +70,12 @@ const ApiIntegrationSection: React.FC<ApiIntegrationSectionProps> = ({
             {apis.length > 0 ? (
               <div className="space-y-4">
                 <Select onValueChange={handleApiSelection}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full" onClick={handleClick}>
                     <SelectValue placeholder="Select an API" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent onClick={handleClick}>
                     {apis.map((api) => (
-                      <SelectItem key={api.id} value={api.id}>
+                      <SelectItem key={api.id} value={api.id} onClick={handleClick}>
                         {api.name}
                       </SelectItem>
                     ))}
@@ -80,7 +85,14 @@ const ApiIntegrationSection: React.FC<ApiIntegrationSectionProps> = ({
             ) : (
               <div className="text-center space-y-2 py-4">
                 <p className="text-sm text-gray-500">No APIs available</p>
-                <Button variant="outline" size="sm" onClick={onRequestApiTemplate}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRequestApiTemplate();
+                  }}
+                >
                   Create API Template
                 </Button>
               </div>

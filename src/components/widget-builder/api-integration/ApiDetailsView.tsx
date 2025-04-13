@@ -64,8 +64,13 @@ const ApiDetailsView: React.FC<ApiDetailsViewProps> = ({
     onUpdateComponent(updatedComponent);
   };
 
+  // Prevent event propagation to stop container from closing
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="space-y-4 mt-4 border rounded-md p-3 bg-gray-50">
+    <div className="space-y-4 mt-4 border rounded-md p-3 bg-gray-50" onClick={handleClick}>
       <ApiHeader 
         selectedApi={selectedApi}
         onDisconnectApi={handleDisconnectApi}
