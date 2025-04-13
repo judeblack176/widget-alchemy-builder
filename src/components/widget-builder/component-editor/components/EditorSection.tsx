@@ -62,7 +62,7 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     );
   }
   
-  // Special handling for alert components: Title & Type first, then Content (Alert Message), then Dismissible & AutoClose
+  // Special handling for alert components: API Integration, then Title & Type, then Alert Message (Content), then Dismissible & AutoClose
   if (component.type === 'alert') {
     return (
       <>
@@ -76,13 +76,13 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Property editor for title and type */}
+        {/* Property editor for title and type - This includes the Alert Title and Alert Type */}
         <PropertyEditor 
           component={component}
           onUpdateComponent={onUpdateComponent}
         />
         
-        {/* Content Fields Manager (for formatted content) */}
+        {/* Content Fields Manager (for formatted Alert Message) - Now positioned directly after Title & Type */}
         {shouldShowContentEditor() && (
           <ContentFieldsManager 
             component={component}
