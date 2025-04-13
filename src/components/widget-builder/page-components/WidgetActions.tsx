@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from "react-router-dom";
+import { NavigateFunction } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
@@ -11,6 +11,7 @@ interface WidgetActionsProps {
   tooltips: Tooltip[];
   isEditing: boolean;
   widgetId: string | null;
+  navigate: NavigateFunction;
   setIsEditing: (isEditing: boolean) => void;
   onSubmitSuccess: () => void;
 }
@@ -21,11 +22,11 @@ const WidgetActions: React.FC<WidgetActionsProps> = ({
   tooltips,
   isEditing,
   widgetId,
+  navigate,
   setIsEditing,
   onSubmitSuccess
 }) => {
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleSaveWidget = () => {
     const widgetConfig = {
@@ -79,11 +80,10 @@ export const useWidgetActions = (
   tooltips: Tooltip[],
   isEditing: boolean,
   widgetId: string | null,
-  setIsEditing: (isEditing: boolean) => void,
-  onSubmitSuccess: () => void
+  navigate: NavigateFunction,
+  setIsEditing: (isEditing: boolean) => void
 ) => {
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleSaveWidget = () => {
     const widgetConfig = {
@@ -121,6 +121,15 @@ export const useWidgetActions = (
     toast({
       title: "Editing Cancelled",
       description: "Changes to the widget have been discarded."
+    });
+  };
+
+  const onSubmitSuccess = () => {
+    setIsEditing(false);
+    navigate('/');
+    toast({
+      title: "Widget Submitted",
+      description: "Your widget has been submitted successfully."
     });
   };
 
