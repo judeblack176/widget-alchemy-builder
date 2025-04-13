@@ -148,6 +148,35 @@ const EditorSection: React.FC<EditorSectionProps> = ({
       </>
     );
   }
+  
+  // For button components, don't show the content editor as they don't use formatted content
+  if (component.type === 'button') {
+    return (
+      <>
+        {shouldShowDataIntegration() && (
+          <ApiIntegrationSection 
+            component={component}
+            apis={apis}
+            onUpdateComponent={onUpdateComponent}
+            onRequestApiTemplate={onRequestApiTemplate}
+          />
+        )}
+        
+        <PropertyEditor 
+          component={component}
+          onUpdateComponent={onUpdateComponent}
+        />
+        
+        {onApplyTooltip && (
+          <TooltipSelector 
+            component={component}
+            customTooltips={customTooltips}
+            onApplyTooltip={onApplyTooltip}
+          />
+        )}
+      </>
+    );
+  }
 
   // Default case for other component types
   return (

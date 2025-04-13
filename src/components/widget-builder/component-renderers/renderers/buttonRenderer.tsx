@@ -11,12 +11,18 @@ export const buttonRenderer = (finalProps: Record<string, any>) => {
     }
   };
   
+  // Determine alignment class based on alignment prop
+  const alignmentClass = 
+    finalProps.alignment === 'center' ? 'text-center w-full' : 
+    finalProps.alignment === 'right' ? 'text-right w-full' : 
+    'text-left w-full';
+  
   return (
-    <div className="inline-block w-1/2 pr-1 pb-2">
+    <div className={`pb-2 ${alignmentClass}`}>
       <Button
         variant={finalProps.variant || "default"}
         size="xs"
-        className={`w-full ${finalProps.className || ''}`}
+        className={finalProps.className || ''}
         onClick={handleButtonClick}
         style={{
           backgroundColor: finalProps.backgroundColor || '#3B82F6',

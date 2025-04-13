@@ -1,3 +1,4 @@
+
 import { ComponentType } from "@/types/component-types";
 
 export interface PropertyDefinition {
@@ -42,7 +43,9 @@ export const getPropertyDefinitions = (componentType: ComponentType): PropertyDe
           options: ['default', 'outline', 'secondary', 'ghost', 'link'] },
         { name: 'size', type: 'select', label: 'Size', 
           options: ['sm', 'default', 'lg'] },
-        { name: 'url', type: 'text', label: 'URL (if link)' }
+        { name: 'url', type: 'text', label: 'URL (if link)' },
+        { name: 'alignment', type: 'select', label: 'Alignment', 
+          options: ['left', 'center', 'right'] }
       ];
     case 'alert':
       return [
