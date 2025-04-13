@@ -30,6 +30,20 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
     return <HeaderProperties component={displayComponent} onUpdateComponent={onUpdateComponent} />;
   }
 
+  // For alert components with section specified, pass the section info to GeneralProperties
+  if (component.type === 'alert' && ('alertPropertiesSection' in component)) {
+    return (
+      <GeneralProperties 
+        component={component} 
+        onUpdateComponent={(updatedComponent) => {
+          // Remove the temporary section property before updating
+          const { alertPropertiesSection, ...cleanComponent } = updatedComponent as any;
+          onUpdateComponent(cleanComponent);
+        }} 
+      />
+    );
+  }
+
   return <GeneralProperties component={component} onUpdateComponent={onUpdateComponent} />;
 };
 

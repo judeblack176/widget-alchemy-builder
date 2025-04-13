@@ -27,28 +27,44 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
   // Get property definitions but reorder for alert components
   let propertyDefinitions = getPropertyDefinitions(component.type);
   
-  // For alert components, reorder properties specifically
+  // For alert components, reorder and filter properties based on section
   if (component.type === 'alert') {
-    // Reorder alert properties to match specific requirements: title, type, dismissible, autoClose
+    // Find all alert properties
     const titleDef = propertyDefinitions.find(p => p.name === 'title');
     const typeDef = propertyDefinitions.find(p => p.name === 'type');
     const dismissibleDef = propertyDefinitions.find(p => p.name === 'dismissible');
     const autoCloseDef = propertyDefinitions.find(p => p.name === 'autoClose');
     
-    // Explicitly set the order: title, type, dismissible, autoClose
-    // Note: formattedContent (Alert Message) is handled separately via ContentFieldsManager
-    if (titleDef && typeDef && dismissibleDef && autoCloseDef) {
-      propertyDefinitions = [
-        titleDef,
-        typeDef,
-        dismissibleDef,
-        autoCloseDef
-      ];
+    // If this is a sectioned alert component, show only the relevant properties
+    if ('alertPropertiesSection' in component) {
+      const section = (component as any).alertPropertiesSection;
+      
+      // Initial section: show title and type only
+      if (section === 'initial' && titleDef && typeDef) {
+        propertyDefinitions = [titleDef, typeDef];
+      }
+      // End section: show dismissible and autoClose only
+      else if (section === 'end' && dismissibleDef && autoCloseDef) {
+        propertyDefinitions = [dismissibleDef, autoCloseDef];
+      }
+    }
+    // If no section specified, show all alert properties in order
+    else if (titleDef && typeDef && dismissibleDef && autoCloseDef) {
+      propertyDefinitions = [titleDef, typeDef, dismissibleDef, autoCloseDef];
     }
   }
   
   // Change header title for alert components to "Alert Settings"
-  const headerTitle = component.type === 'alert' ? "Alert Settings" : "Properties";
+  // For sectioned alert properties, use more specific headers
+  let headerTitle = component.type === 'alert' ? "Alert Settings" : "Properties";
+  if (component.type === 'alert' && 'alertPropertiesSection' in component) {
+    const section = (component as any).alertPropertiesSection;
+    if (section === 'initial') {
+      headerTitle = "Alert Title & Type";
+    } else if (section === 'end') {
+      headerTitle = "Alert Display Options";
+    }
+  }
 
   return (
     <div>

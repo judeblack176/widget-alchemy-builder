@@ -62,12 +62,24 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     );
   }
   
-  // Special handling for alert components: API Integration first, then PropertyEditor (Title & Type),
-  // then ContentFieldsManager (Alert Message), then Tooltip Selector
+  // Special handling for alert components: 
+  // 1. API Integration
+  // 2. Alert Title & Type via PropertyEditor
+  // 3. Alert Message via ContentFieldsManager
+  // 4. Dismissible & Auto Close via PropertyEditor 
+  // 5. Tooltip at the end
   if (component.type === 'alert') {
+    // Split the alert properties into initial (title, type) and end properties (dismissible, autoClose)
+    const initialProps = { ...component, props: { ...component.props } };
+    const endProps = { ...component, props: { ...component.props } };
+    
+    // For PropertyEditor rendering pass, we need to tell the component which properties to show
+    initialProps.alertPropertiesSection = 'initial'; // Will show title & type
+    endProps.alertPropertiesSection = 'end'; // Will show dismissible & autoClose
+    
     return (
       <>
-        {/* API Integration Section */}
+        {/* API Integration Section - First */}
         {shouldShowDataIntegration() && (
           <ApiIntegrationSection 
             component={component}
@@ -77,13 +89,13 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Property editor for title and type - This includes the Alert Title and Alert Type */}
+        {/* Property editor for title and type - Initial properties */}
         <PropertyEditor 
-          component={component}
+          component={initialProps}
           onUpdateComponent={onUpdateComponent}
         />
         
-        {/* Content Fields Manager (for formatted Alert Message) - Now positioned directly after Title & Type */}
+        {/* Content Fields Manager - Alert Message */}
         {shouldShowContentEditor() && (
           <ContentFieldsManager 
             component={component}
@@ -92,7 +104,13 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Tooltip selector - Moved to the end of the alert settings */}
+        {/* Property editor for dismissible and autoClose - End properties */}
+        <PropertyEditor 
+          component={endProps}
+          onUpdateComponent={onUpdateComponent}
+        />
+        
+        {/* Tooltip selector - Very end of alert settings */}
         {onApplyTooltip && (
           <TooltipSelector 
             component={component}
