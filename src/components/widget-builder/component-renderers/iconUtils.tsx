@@ -19,8 +19,11 @@ import {
   LinkIcon,
   ExternalLink,
   Download,
-  ArrowDown,
+  ArrowDown
 } from 'lucide-react';
+
+import { ChevronDown, ChevronLeft, ChevronRight } from './icons/ChevronIcons';
+import { CustomArrowUpDown, ArrowUpDown } from './icons/ArrowIcons';
 
 export const getIconByName = (iconName: string) => {
   switch (iconName) {
@@ -54,92 +57,5 @@ export const getLinkIcon = (iconName: string) => {
   }
 };
 
-export const ChevronDown = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="m6 9 6 6 6-6"/>
-  </svg>
-);
-
-export const ChevronLeft = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="m15 18-6-6 6-6"/>
-  </svg>
-);
-
-export const ChevronRight = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="m9 18 6-6-6 6"/>
-  </svg>
-);
-
-export const CustomArrowUpDown = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="m21 16-4 4-4-4"/>
-    <path d="M17 20V4"/>
-    <path d="m3 8 4-4 4 4"/>
-    <path d="M7 4v16"/>
-  </svg>
-);
-
-// Define ArrowUpDown only once with proper component export
-export const ArrowUpDown = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="m5 7 7-7 7 7"/>
-    <path d="m5 17 7 7 7-7"/>
-  </svg>
-);
+// Re-export the icon components
+export { ChevronDown, ChevronLeft, ChevronRight, CustomArrowUpDown, ArrowUpDown };

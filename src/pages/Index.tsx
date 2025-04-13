@@ -1,10 +1,8 @@
 
-import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DragDropContext } from 'react-beautiful-dnd';
 import { useWidgetState } from "@/hooks/useWidgetState";
 import { useModalState } from "@/hooks/useModalState";
-import { useToast } from "@/hooks/use-toast";
 import WidgetBuilderHeader from "@/components/widget-builder/page-components/WidgetBuilderHeader";
 import ComponentLibraryPanel from "@/components/widget-builder/page-components/ComponentLibraryPanel";
 import WidgetBuilderPanel from "@/components/widget-builder/page-components/WidgetBuilderPanel";
@@ -13,9 +11,9 @@ import ApiTemplateModal from "@/components/widget-builder/modals/ApiTemplateModa
 import TooltipListModal from "@/components/widget-builder/modals/TooltipListModal";
 import { useApiTemplateHandler } from "@/components/widget-builder/page-components/ApiTemplateHandler";
 import { useWidgetActions } from "@/components/widget-builder/page-components/WidgetActions";
+import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 
 const Index = () => {
-  const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -66,14 +64,7 @@ const Index = () => {
     tooltips,
     isEditing,
     widgetId,
-    setIsEditing,
-    () => {
-      setIsEditing(false);
-      toast({
-        title: "Widget Submitted",
-        description: "Your widget has been submitted to the library for approval",
-      });
-    }
+    setIsEditing
   );
 
   // Use the API template handler hook
@@ -86,18 +77,10 @@ const Index = () => {
     setIsApiTemplateModalOpen
   );
 
-  const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
-    
-    if (result.source.droppableId === 'component-library' && result.destination.droppableId === 'widget-builder') {
-      const componentType = result.draggableId;
-      const componentLibraryItem = document.querySelector(`[data-component-type="${componentType}"]`);
-      
-      if (componentLibraryItem && componentLibraryItem instanceof HTMLElement) {
-        componentLibraryItem.click();
-      }
-    }
-  };
+  // Use the drag and drop handler
+  const { handleDragEnd } = useDragAndDrop({
+    onAddComponent: handleAddComponent
+  });
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
