@@ -91,22 +91,23 @@ const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
                 {textOptions.map((option) => (
                   <div key={option.name} className="mb-2">
                     <Label htmlFor={`prop-${option.name}`} className="text-xs mb-1 block">{option.label}</Label>
-                    <Select
-                      value={component.props?.[option.name]?.toString() || ""}
-                      onValueChange={(val) => handlePropertyChange(option.name, val)}
-                      onClick={handleInputClick}
-                    >
-                      <SelectTrigger id={`prop-${option.name}`} className="h-8 text-xs">
-                        <SelectValue placeholder={`Select ${option.label}`} />
-                      </SelectTrigger>
-                      <SelectContent onClick={handleInputClick}>
-                        {option.options.map((opt) => (
-                          <SelectItem key={opt} value={opt} className="text-xs">
-                            {opt}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div onClick={handleInputClick}>
+                      <Select
+                        value={component.props?.[option.name]?.toString() || ""}
+                        onValueChange={(val) => handlePropertyChange(option.name, val)}
+                      >
+                        <SelectTrigger id={`prop-${option.name}`} className="h-8 text-xs" onClick={handleInputClick}>
+                          <SelectValue placeholder={`Select ${option.label}`} />
+                        </SelectTrigger>
+                        <SelectContent onClick={handleInputClick}>
+                          {option.options.map((opt) => (
+                            <SelectItem key={opt} value={opt} className="text-xs">
+                              {opt}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 ))}
               </div>
