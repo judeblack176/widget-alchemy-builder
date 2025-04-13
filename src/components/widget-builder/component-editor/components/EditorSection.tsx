@@ -1,4 +1,3 @@
-
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
@@ -21,7 +20,7 @@ interface EditorSectionProps {
 
 // Define an extended type for alert components with section property
 interface AlertComponentWithSection extends WidgetComponent {
-  alertPropertiesSection?: 'initial' | 'end' | 'title' | 'type';
+  alertPropertiesSection?: 'initial' | 'end' | 'title';
 }
 
 const EditorSection: React.FC<EditorSectionProps> = ({
@@ -69,24 +68,16 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   
   // Special handling for alert components: 
   // 1. API Integration
-  // 2. Alert Type via PropertyEditor with type section for API fields
-  // 3. Alert Title via PropertyEditor with title section for API fields
-  // 4. Alert Message via ContentFieldsManager
-  // 5. Dismissible & Auto Close via PropertyEditor with end section
-  // 6. Tooltip at the end
+  // 2. Alert Title & Type via ContentFieldsManager
+  // 3. Alert Message via ContentFieldsManager
+  // 4. Dismissible & Auto Close via PropertyEditor 
+  // 5. Tooltip at the end
   if (component.type === 'alert') {
-    // Create a component with the type section for type properties
-    const typeProps: AlertComponentWithSection = { 
-      ...component, 
-      props: { ...component.props },
-      alertPropertiesSection: 'type' // Will show alert type with API fields
-    };
-    
-    // For the alert title, we'll use a separate section for PropertyEditor
+    // For the alert title, we'll use a separate content fields manager
     const titleComponent: AlertComponentWithSection = { 
       ...component, 
       props: { ...component.props },
-      alertPropertiesSection: 'title' // Title section for API fields
+      alertPropertiesSection: 'title' // New section for title with API fields
     };
     
     // For the alert message, we'll use the standard content fields manager
@@ -111,19 +102,13 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Alert Type with API Fields - Second */}
-        <PropertyEditor 
-          component={typeProps}
-          onUpdateComponent={onUpdateComponent}
-        />
-        
-        {/* Alert Title with API Fields - Third */}
+        {/* Alert Title with API Fields */}
         <PropertyEditor 
           component={titleComponent}
           onUpdateComponent={onUpdateComponent}
         />
         
-        {/* Content Fields Manager - Alert Message - Fourth */}
+        {/* Content Fields Manager - Alert Message */}
         {shouldShowContentEditor() && (
           <ContentFieldsManager 
             component={component}
@@ -132,13 +117,13 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Property editor for dismissible and autoClose - End properties - Fifth */}
+        {/* Property editor for dismissible and autoClose - End properties */}
         <PropertyEditor 
           component={endProps}
           onUpdateComponent={onUpdateComponent}
         />
         
-        {/* Tooltip selector - Very end of alert settings - Sixth */}
+        {/* Tooltip selector - Very end of alert settings */}
         {onApplyTooltip && (
           <TooltipSelector 
             component={component}
@@ -170,12 +155,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           onUpdateComponent={onUpdateComponent}
         />
       )}
-      
-      {/* Property Editor */}
-      <PropertyEditor 
-        component={component}
-        onUpdateComponent={onUpdateComponent}
-      />
       
       {/* Tooltip selector */}
       {onApplyTooltip && (
