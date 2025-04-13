@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form } from "@/components/ui/form";
 
 interface ContentFieldFormProps {
   availableApiFields: string[];
@@ -38,7 +37,7 @@ const ContentFieldForm: React.FC<ContentFieldFormProps> = ({
   };
 
   return (
-    <Form>
+    <div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
         <div>
           <Label htmlFor="field-label" className="text-xs">Field Label</Label>
@@ -95,7 +94,7 @@ const ContentFieldForm: React.FC<ContentFieldFormProps> = ({
           <Plus size={14} className="mr-1" /> Add Field
         </Button>
       </div>
-    </Form>
+    </div>
   );
 };
 

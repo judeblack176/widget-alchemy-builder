@@ -1,8 +1,10 @@
 
-import { WidgetComponent } from '@/types/widget-types';
+import { WidgetComponent, ContentField } from '@/types/component-types';
 
 export const processApiData = (component: WidgetComponent, apiData?: any) => {
   let finalProps = { ...component.props };
+  
+  // Process API data mapping if available
   if (component.apiConfig && apiData) {
     const { dataMapping } = component.apiConfig;
     
@@ -20,6 +22,31 @@ export const processApiData = (component: WidgetComponent, apiData?: any) => {
         }
       }
     });
+  }
+  
+  // Process formatted content with content fields
+  if (component.formattedContent && component.contentFields && component.contentFields.length > 0 && apiData) {
+    let processedContent = component.formattedContent;
+    
+    component.contentFields.forEach((field: ContentField) => {
+      const value = getNestedValue(apiData, field.apiField);
+      if (value !== undefined) {
+        const placeholder = `{{${field.label}}}`;
+        let displayValue = value;
+        
+        if (typeof value === 'object' && value !== null) {
+          if (Array.isArray(value)) {
+            displayValue = value.join(', ');
+          } else {
+            displayValue = JSON.stringify(value);
+          }
+        }
+        
+        processedContent = processedContent.replace(new RegExp(placeholder, 'g'), String(displayValue));
+      }
+    });
+    
+    finalProps.content = processedContent;
   }
   
   return finalProps;

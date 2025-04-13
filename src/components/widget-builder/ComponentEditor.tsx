@@ -106,6 +106,11 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
     return dataIntegrationComponents.includes(component.type);
   };
 
+  const shouldShowContentEditor = () => {
+    const contentEditorComponents = ['text', 'alert', 'multi-text'];
+    return contentEditorComponents.includes(component.type);
+  };
+
   return (
     <div>
       <ComponentHeader 
@@ -126,7 +131,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             />
           )}
 
-          {/* API Integration Section - Moved to the top */}
+          {/* API Integration Section - Always at the top */}
           {shouldShowDataIntegration() && (
             <ApiIntegrationSection 
               component={component}
@@ -142,8 +147,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             onUpdateComponent={onUpdateComponent}
           />
 
-          {/* Content Fields Manager */}
-          {component.type === 'text' && (
+          {/* Content Fields Manager - Show for components that support formatted content */}
+          {shouldShowContentEditor() && (
             <ContentFieldsManager 
               component={component}
               onUpdateComponent={onUpdateComponent}

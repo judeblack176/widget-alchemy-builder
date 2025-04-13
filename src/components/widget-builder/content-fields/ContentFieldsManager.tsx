@@ -21,11 +21,7 @@ const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
     onUpdateComponent(updatedComponent);
   };
 
-  // Don't render anything if there are no content fields and no formatted content
-  if (!component.contentFields?.length && !component.formattedContent) {
-    return null;
-  }
-
+  // Ensure we always render the content editor even if there are no content fields yet
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-semibold">Formatted Content</h3>
