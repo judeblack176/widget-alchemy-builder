@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
