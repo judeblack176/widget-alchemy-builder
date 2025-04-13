@@ -44,9 +44,11 @@ const HeaderComponentSection: React.FC<HeaderComponentSectionProps> = ({
           component={headerComponent}
           apis={apis}
           isExpanded={expandedComponentId === headerComponent.id}
-          onToggleExpand={() => setExpandedComponentId(
-            expandedComponentId === headerComponent.id ? null : headerComponent.id
-          )}
+          onToggleExpand={() => {
+            setExpandedComponentId(
+              expandedComponentId === headerComponent.id ? null : headerComponent.id
+            );
+          }}
           onUpdateComponent={onUpdateComponent}
           onRemoveComponent={onRemoveComponent}
           onRequestApiTemplate={() => onRequestApiTemplate(headerComponent.id)}

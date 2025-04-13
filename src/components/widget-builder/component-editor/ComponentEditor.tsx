@@ -50,13 +50,18 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   }, [component.type, isExpanded, onToggleExpand]);
 
   return (
-    <div>
-      <ComponentHeader 
-        component={component}
-        componentTypeLabels={componentTypeLabels}
-        isExpanded={isExpanded} 
-        onRemove={showActionButtons ? onRemoveComponent : undefined}
-      />
+    <div className="w-full">
+      <div 
+        className="cursor-pointer w-full" 
+        onClick={onToggleExpand}
+      >
+        <ComponentHeader 
+          component={component}
+          componentTypeLabels={componentTypeLabels}
+          isExpanded={isExpanded} 
+          onRemove={showActionButtons ? onRemoveComponent : undefined}
+        />
+      </div>
 
       {isExpanded && (
         <div className="p-4 space-y-6">

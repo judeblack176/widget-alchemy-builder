@@ -37,38 +37,38 @@ const AlertComponentsSection: React.FC<AlertComponentsSectionProps> = ({
       {alertComponents.map((alertComponent) => (
         <Card key={alertComponent.id} className={`${cardStyle} border-amber-500`}>
           <div className="relative w-full">
-            <div 
-              className="cursor-pointer flex-grow" 
-              onClick={() => setExpandedComponentId(
-                expandedComponentId === alertComponent.id ? null : alertComponent.id
-              )}
-            >
-              <ComponentEditor
-                component={alertComponent}
-                apis={apis}
-                isExpanded={expandedComponentId === alertComponent.id}
-                onToggleExpand={() => {}}  // Empty function as we're handling this in the parent div
-                onUpdateComponent={onUpdateComponent}
-                onRemoveComponent={onRemoveComponent}
-                onRequestApiTemplate={() => onRequestApiTemplate(alertComponent.id)}
-                onApplyTooltip={onApplyTooltip ? 
-                  (tooltipId: string) => onApplyTooltip(alertComponent.id, tooltipId) : 
-                  undefined}
-                customTooltips={tooltips}
-                showActionButtons={false}
-              />
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemoveComponent(alertComponent.id);
+            <ComponentEditor
+              component={alertComponent}
+              apis={apis}
+              isExpanded={expandedComponentId === alertComponent.id}
+              onToggleExpand={() => {
+                setExpandedComponentId(
+                  expandedComponentId === alertComponent.id ? null : alertComponent.id
+                );
               }}
-              className="absolute top-3 right-3 h-8 w-8 p-0 text-gray-500 hover:text-red-500"
-            >
-              <Trash2 size={16} />
-            </Button>
+              onUpdateComponent={onUpdateComponent}
+              onRemoveComponent={onRemoveComponent}
+              onRequestApiTemplate={() => onRequestApiTemplate(alertComponent.id)}
+              onApplyTooltip={onApplyTooltip ? 
+                (tooltipId: string) => onApplyTooltip(alertComponent.id, tooltipId) : 
+                undefined}
+              customTooltips={tooltips}
+              showActionButtons={false}
+            />
+            {/* Only show the remove button when component is not expanded */}
+            {expandedComponentId !== alertComponent.id && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemoveComponent(alertComponent.id);
+                }}
+                className="absolute top-3 right-3 h-8 w-8 p-0 text-gray-500 hover:text-red-500"
+              >
+                <Trash2 size={16} />
+              </Button>
+            )}
           </div>
         </Card>
       ))}
