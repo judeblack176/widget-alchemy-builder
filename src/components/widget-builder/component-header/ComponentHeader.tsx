@@ -107,7 +107,7 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
         </button>
       )}
       
-      <div className="absolute bottom-2 right-2">
+      <div className="absolute bottom-2 right-12">
         {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
       </div>
     </div>
