@@ -62,7 +62,7 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     );
   }
   
-  // Special handling for alert components: API Integration first, then Title and Type, then Content, then others
+  // Special handling for alert components: API Integration first, then Content (Alert Message), then Title and Type (Properties), then others
   if (component.type === 'alert') {
     return (
       <>
@@ -76,12 +76,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Property editor second (for title and type) */}
-        <PropertyEditor 
-          component={component}
-          onUpdateComponent={onUpdateComponent}
-        />
-        
         {/* Content Fields Manager (for formatted content) */}
         {shouldShowContentEditor() && (
           <ContentFieldsManager 
@@ -90,6 +84,12 @@ const EditorSection: React.FC<EditorSectionProps> = ({
             customLabel="Alert Message"
           />
         )}
+        
+        {/* Property editor second (for title and type) */}
+        <PropertyEditor 
+          component={component}
+          onUpdateComponent={onUpdateComponent}
+        />
         
         {/* Tooltip selector */}
         {onApplyTooltip && (

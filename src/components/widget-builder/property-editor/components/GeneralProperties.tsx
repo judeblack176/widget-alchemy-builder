@@ -26,9 +26,12 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
 
   const propertyDefinitions = getPropertyDefinitions(component.type);
   
+  // For alert components, use a different header title
+  const headerTitle = component.type === 'alert' ? "Alert Settings" : "Properties";
+
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-4">Properties</h3>
+      <h3 className="text-sm font-semibold mb-4">{headerTitle}</h3>
       <div className="space-y-1">
         {propertyDefinitions.map((property) => {
           // Skip content property as it's in ContentFieldsManager
