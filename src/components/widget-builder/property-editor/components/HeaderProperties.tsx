@@ -43,7 +43,7 @@ const HeaderProperties: React.FC<HeaderPropertiesProps> = ({
   
   return (
     <div>
-      <h3 className="text-sm font-semibold mb-4">Icon</h3>
+      <h3 className="text-sm font-semibold mb-4">Select Widget Icon</h3>
       <div className="space-y-1">
         {/* Show icon property */}
         {iconProperty && (

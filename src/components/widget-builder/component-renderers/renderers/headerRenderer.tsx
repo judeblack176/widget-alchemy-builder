@@ -118,7 +118,7 @@ export const headerRenderer = (finalProps: Record<string, any>) => {
     >
       <div className="flex items-center text-left pl-4">
         {getIconByName(finalProps.icon || 'BookOpen')}
-        <div className="ml-3 overflow-hidden text-ellipsis whitespace-nowrap">
+        <div className="ml-2 flex items-center overflow-hidden">
           {hasFormatting 
             ? parse(processedContent) 
             : <h2 className="text-left text-ellipsis overflow-hidden whitespace-nowrap">{processedContent}</h2>}
