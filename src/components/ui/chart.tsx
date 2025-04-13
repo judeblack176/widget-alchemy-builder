@@ -7,7 +7,7 @@ export {
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
-} from './chart';
+} from './chart/index';
 
 // Export the utility function that's commonly used
 export { getPayloadConfigFromPayload } from './chart/utils';
