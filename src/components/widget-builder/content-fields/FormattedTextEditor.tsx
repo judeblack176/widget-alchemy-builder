@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { WidgetComponent } from "@/types/widget-types";
@@ -100,7 +99,7 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
         return;
       }
       
-      // Create formatting tag
+      // Create formatting tag for both color and background-color
       const formattedText = `<span class="${format}-${value}">${selection}</span>`;
       const newContent = beforeSelection + formattedText + afterSelection;
       

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import parse from 'html-react-parser';
 
@@ -46,7 +45,28 @@ export const textRenderer = (finalProps: Record<string, any>) => {
     // Handle any hex color that might have been added
     const hexColorRegex = /<span class="color-([0-9a-f]{6})">(.*?)<\/span>/gi;
     formattedContent = formattedContent.replace(hexColorRegex, '<span style="color: #$1">$2</span>');
-      
+    
+    // Add background color formatting
+    let formattedContent = content
+      // Background color formatting
+      .replace(/<span class="background-color-black">(.*?)<\/span>/g, '<span style="background-color: #000000">$1</span>')
+      .replace(/<span class="background-color-white">(.*?)<\/span>/g, '<span style="background-color: #FFFFFF; border: 1px solid #e0e0e0">$1</span>')
+      .replace(/<span class="background-color-primary">(.*?)<\/span>/g, '<span style="background-color: #3b82f6; color: white">$1</span>')
+      .replace(/<span class="background-color-secondary">(.*?)<\/span>/g, '<span style="background-color: #6b7280; color: white">$1</span>')
+      .replace(/<span class="background-color-muted">(.*?)<\/span>/g, '<span style="background-color: #9ca3af; color: white">$1</span>')
+      .replace(/<span class="background-color-accent">(.*?)<\/span>/g, '<span style="background-color: #8b5cf6; color: white">$1</span>')
+      .replace(/<span class="background-color-red">(.*?)<\/span>/g, '<span style="background-color: #ef4444; color: white">$1</span>')
+      .replace(/<span class="background-color-green">(.*?)<\/span>/g, '<span style="background-color: #10b981; color: white">$1</span>')
+      .replace(/<span class="background-color-yellow">(.*?)<\/span>/g, '<span style="background-color: #f59e0b">$1</span>')
+      .replace(/<span class="background-color-blue">(.*?)<\/span>/g, '<span style="background-color: #3b82f6; color: white">$1</span>')
+      .replace(/<span class="background-color-purple">(.*?)<\/span>/g, '<span style="background-color: #8b5cf6; color: white">$1</span>')
+      .replace(/<span class="background-color-pink">(.*?)<\/span>/g, '<span style="background-color: #ec4899; color: white">$1</span>')
+      .replace(/<span class="background-color-orange">(.*?)<\/span>/g, '<span style="background-color: #f97316; color: white">$1</span>');
+    
+    // Handle any hex background color that might have been added
+    const hexBackgroundColorRegex = /<span class="background-color-([0-9a-f]{6})">(.*?)<\/span>/gi;
+    formattedContent = formattedContent.replace(hexBackgroundColorRegex, '<span style="background-color: #$1">$2</span>');
+    
     return formattedContent;
   };
 

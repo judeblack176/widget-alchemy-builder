@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { 
   Type, 
@@ -30,9 +29,10 @@ const TextFormattingToolbar: React.FC<TextFormattingToolbarProps> = ({
   onInputClick
 }) => {
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showBackgroundColorPicker, setShowBackgroundColorPicker] = useState(false);
   
   // Colors for the color picker
-  const textColors = [
+  const colors = [
     "#000000", // Black
     "#FFFFFF", // White
     "#3b82f6", // Primary (Blue)
@@ -42,7 +42,6 @@ const TextFormattingToolbar: React.FC<TextFormattingToolbarProps> = ({
     "#ef4444", // Red
     "#10b981", // Green
     "#f59e0b", // Yellow
-    "#3b82f6", // Blue (duplicate removed)
     "#ec4899", // Pink
     "#f97316"  // Orange
   ];
@@ -67,11 +66,12 @@ const TextFormattingToolbar: React.FC<TextFormattingToolbarProps> = ({
   };
 
   // Handle color selection
-  const handleColorSelect = (color: string) => {
+  const handleColorSelect = (color: string, isBackground: boolean = false) => {
     if (selectedText) {
-      onFormatText("color", getColorName(color));
+      onFormatText(isBackground ? "background-color" : "color", getColorName(color));
     }
     setShowColorPicker(false);
+    setShowBackgroundColorPicker(false);
   };
 
   return (
@@ -127,7 +127,6 @@ const TextFormattingToolbar: React.FC<TextFormattingToolbarProps> = ({
         
         <div className="border-r h-8 mx-1"></div>
         
-        {/* Color Picker Dropdown */}
         <DropdownMenu open={showColorPicker} onOpenChange={setShowColorPicker}>
           <DropdownMenuTrigger asChild onClick={onInputClick}>
             <Button 
@@ -136,7 +135,7 @@ const TextFormattingToolbar: React.FC<TextFormattingToolbarProps> = ({
               className="h-7 w-7 p-0" 
               disabled={!selectedText}
             >
-              <Palette size={16} />
+              <Palette size={16} color="#3b82f6" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent 
@@ -147,12 +146,48 @@ const TextFormattingToolbar: React.FC<TextFormattingToolbarProps> = ({
             <div className="w-[220px]">
               <p className="text-xs mb-2 font-medium">Select text color</p>
               <div className="grid grid-cols-5 gap-1">
-                {textColors.map((color) => (
+                {colors.map((color) => (
                   <div 
                     key={color}
                     className="w-8 h-8 rounded-md cursor-pointer border border-gray-200 flex items-center justify-center"
                     style={{ backgroundColor: color }}
                     onClick={() => handleColorSelect(color)}
+                  >
+                    {color === "#FFFFFF" && (
+                      <div className="w-full h-full rounded-md border border-gray-300"></div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu open={showBackgroundColorPicker} onOpenChange={setShowBackgroundColorPicker}>
+          <DropdownMenuTrigger asChild onClick={onInputClick}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-7 w-7 p-0" 
+              disabled={!selectedText}
+            >
+              <Palette size={16} color="#8b5cf6" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            className="p-2 bg-white border rounded-md shadow-md" 
+            onClick={onInputClick}
+            sideOffset={5}
+          >
+            <div className="w-[220px]">
+              <p className="text-xs mb-2 font-medium">Select background color</p>
+              <div className="grid grid-cols-5 gap-1">
+                {colors.map((color) => (
+                  <div 
+                    key={color}
+                    className="w-8 h-8 rounded-md cursor-pointer border border-gray-200 flex items-center justify-center"
+                    style={{ backgroundColor: color }}
+                    onClick={() => handleColorSelect(color, true)}
                   >
                     {color === "#FFFFFF" && (
                       <div className="w-full h-full rounded-md border border-gray-300"></div>
