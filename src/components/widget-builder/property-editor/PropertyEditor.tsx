@@ -165,29 +165,35 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
   };
 
   const propertyDefinitions = getPropertyDefinitions(component.type);
+  
+  // Force expand the property editor for header components
+  if (component.type === 'header') {
+    return (
+      <div>
+        <h3 className="text-sm font-semibold mb-4">Properties</h3>
+        <div className="space-y-1">
+          {/* Always show icon first, then name for header components */}
+          {propertyDefinitions
+            .filter(property => property.name === 'icon')
+            .map(property => renderPropertyEditor(property))}
+            
+          {propertyDefinitions
+            .filter(property => property.name === 'name')
+            .map(property => renderPropertyEditor(property))}
+            
+          {propertyDefinitions
+            .filter(property => !['icon', 'name'].includes(property.name))
+            .map(property => renderPropertyEditor(property))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
       <h3 className="text-sm font-semibold mb-4">Properties</h3>
       <div className="space-y-1">
-        {/* For header components, explicitly force icon to be first in order and name second */}
-        {component.type === 'header' ? (
-          <>
-            {propertyDefinitions
-              .filter(property => property.name === 'icon')
-              .map(property => renderPropertyEditor(property))}
-              
-            {propertyDefinitions
-              .filter(property => property.name === 'name')
-              .map(property => renderPropertyEditor(property))}
-              
-            {propertyDefinitions
-              .filter(property => !['icon', 'name'].includes(property.name))
-              .map(property => renderPropertyEditor(property))}
-          </>
-        ) : (
-          propertyDefinitions.map((property) => renderPropertyEditor(property))
-        )}
+        {propertyDefinitions.map((property) => renderPropertyEditor(property))}
       </div>
     </div>
   );
