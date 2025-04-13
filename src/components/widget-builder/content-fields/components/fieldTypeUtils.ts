@@ -17,7 +17,7 @@ export const getFieldTypeInfo = (fieldName: string, apiField: string) => {
     lowerApiField.includes('time')
   ) {
     return {
-      icon: <Calendar size={12} className="mr-1" />,
+      icon: React.createElement(Calendar, { size: 12, className: "mr-1" }),
       bgClass: "bg-yellow-50 text-yellow-600 border-yellow-200"
     };
   }
@@ -32,7 +32,7 @@ export const getFieldTypeInfo = (fieldName: string, apiField: string) => {
     lowerField.includes('id')
   ) {
     return {
-      icon: <Hash size={12} className="mr-1" />,
+      icon: React.createElement(Hash, { size: 12, className: "mr-1" }),
       bgClass: "bg-purple-50 text-purple-600 border-purple-200"
     };
   }
@@ -45,7 +45,7 @@ export const getFieldTypeInfo = (fieldName: string, apiField: string) => {
     lowerField.includes('array')
   ) {
     return {
-      icon: <Table size={12} className="mr-1" />,
+      icon: React.createElement(Table, { size: 12, className: "mr-1" }),
       bgClass: "bg-indigo-50 text-indigo-600 border-indigo-200"
     };
   }
@@ -57,14 +57,14 @@ export const getFieldTypeInfo = (fieldName: string, apiField: string) => {
     lowerField.includes('data')
   ) {
     return {
-      icon: <Database size={12} className="mr-1" />,
+      icon: React.createElement(Database, { size: 12, className: "mr-1" }),
       bgClass: "bg-blue-50 text-blue-600 border-blue-200"
     };
   }
   
   // Default for text/string fields
   return {
-    icon: <FileText size={12} className="mr-1" />,
+    icon: React.createElement(FileText, { size: 12, className: "mr-1" }),
     bgClass: "bg-green-50 text-green-600 border-green-200"
   };
 };
