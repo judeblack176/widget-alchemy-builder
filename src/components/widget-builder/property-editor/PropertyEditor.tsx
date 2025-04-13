@@ -32,6 +32,18 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
 
   // For alert components with section specified, pass the section info to GeneralProperties
   if (component.type === 'alert' && ('alertPropertiesSection' in component)) {
+    // If this is for the title field, we'll handle it differently
+    if (component.alertPropertiesSection === 'initial') {
+      // Filter out the title property as it will be handled by ContentFieldsManager
+      return (
+        <GeneralProperties 
+          component={component} 
+          onUpdateComponent={onUpdateComponent}
+          excludeProperties={['title']} 
+        />
+      );
+    }
+    
     return (
       <GeneralProperties 
         component={component} 

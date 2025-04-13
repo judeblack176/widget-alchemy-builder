@@ -7,11 +7,13 @@ import { getPropertyDefinitions } from "../propertyDefinitions";
 interface GeneralPropertiesProps {
   component: WidgetComponent;
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
+  excludeProperties?: string[]; // New prop to exclude specific properties
 }
 
 const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
   component,
-  onUpdateComponent
+  onUpdateComponent,
+  excludeProperties = []
 }) => {
   const handlePropertyChange = (propertyName: string, value: any) => {
     const updatedComponent = {
@@ -54,13 +56,20 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
     }
   }
   
+  // Filter out excluded properties
+  if (excludeProperties.length > 0) {
+    propertyDefinitions = propertyDefinitions.filter(
+      prop => !excludeProperties.includes(prop.name)
+    );
+  }
+  
   // Change header title for alert components to "Alert Settings"
   // For sectioned alert properties, use more specific headers
   let headerTitle = component.type === 'alert' ? "Alert Settings" : "Properties";
   if (component.type === 'alert' && 'alertPropertiesSection' in component) {
     const section = (component as any).alertPropertiesSection;
     if (section === 'initial') {
-      headerTitle = "Alert Title & Type";
+      headerTitle = "Alert Type";
     } else if (section === 'end') {
       headerTitle = "Alert Display Options";
     }
