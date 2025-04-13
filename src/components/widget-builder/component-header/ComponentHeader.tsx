@@ -103,7 +103,7 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
       {onRemove && (
         <button 
           onClick={() => onRemove(component.id)}
-          className="absolute bottom-2 left-2 text-gray-500 hover:text-red-500"
+          className="absolute bottom-2 right-2 text-gray-500 hover:text-red-500"
         >
           <Trash2 size={16} />
         </button>
@@ -117,3 +117,4 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
 };
 
 export default ComponentHeader;
+
