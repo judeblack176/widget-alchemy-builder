@@ -23,9 +23,7 @@ const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   
   // Handle color selection
   const handleColorSelect = (color: string, isBackground: boolean = false) => {
-    if (selectedText) {
-      onFormatText(isBackground ? "background-color" : "color", getColorName(color));
-    }
+    onFormatText(isBackground ? "background-color" : "color", getColorName(color));
   };
 
   return (
@@ -34,7 +32,7 @@ const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
       <div className="flex flex-wrap gap-1 w-full">
         <SizeToggleGroup 
           onValueChange={(val) => onFormatText("size", val)}
-          disabled={false}
+          disabled={false} // Always enabled
         />
         
         <div className="border-r h-8 mx-1"></div>
@@ -42,14 +40,14 @@ const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
         <TextStyleButtons 
           onStyleClick={(style) => onFormatText("style", style)} 
           onWeightClick={(weight) => onFormatText("weight", weight)}
-          disabled={false}
+          disabled={false} // Always enabled
         />
         
         <div className="border-r h-8 mx-1"></div>
         
         <AlignmentToggleGroup 
           onValueChange={(align) => onFormatText("align", align)}
-          disabled={false}
+          disabled={false} // Always enabled
         />
         
         <div className="border-r h-8 mx-1"></div>
@@ -59,7 +57,7 @@ const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
           onOpenChange={setShowColorPicker}
           onColorSelect={handleColorSelect}
           onInputClick={onInputClick}
-          disabled={false}
+          disabled={false} // Always enabled
         />
 
         <ColorPicker 
@@ -68,11 +66,11 @@ const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
           onColorSelect={handleColorSelect}
           onInputClick={onInputClick}
           isBackground={true}
-          disabled={false}
+          disabled={false} // Always enabled
         />
       </div>
       <p className="text-xs text-muted-foreground mt-1 w-full">
-        {selectedText ? "Select formatting to apply to text" : "Select text to format it"}
+        {selectedText ? "Select formatting to apply to text" : "Select text first or format all content"}
       </p>
     </div>
   );

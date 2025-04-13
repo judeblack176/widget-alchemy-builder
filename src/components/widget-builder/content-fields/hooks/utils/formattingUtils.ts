@@ -35,10 +35,10 @@ export const applyTextFormatting = (
     const selection = content.substring(selectedText.start, selectedText.end);
     const afterSelection = content.substring(selectedText.end);
     
-    if (selection.trim() === "") {
+    if (selection.trim() === "" && content.trim() === "") {
       toast({
-        title: "Empty selection",
-        description: "Cannot format empty text. Please select some text.",
+        title: "Empty text",
+        description: "Please enter some text first.",
         variant: "destructive"
       });
       return null;

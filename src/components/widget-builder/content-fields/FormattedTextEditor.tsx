@@ -39,8 +39,8 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
   const processFormattedContent = (content: string) => {
     if (!content) return '';
     
+    // First handle all the specific tag formats we support
     let processedContent = content
-      // Replace HTML tags with nothing for clean display
       .replace(/<strong>(.*?)<\/strong>/g, '$1')
       .replace(/<em>(.*?)<\/em>/g, '$1')
       .replace(/<span class="align-left">(.*?)<\/span>/g, '$1')
@@ -51,6 +51,7 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
       .replace(/<span class="size-[^"]*">(.*?)<\/span>/g, '$1');
     
     // Handle any other HTML tag that might have been added
+    // This ensures we catch ALL tags, even ones not explicitly handled above
     processedContent = processedContent.replace(/<[^>]*>(.*?)<\/[^>]*>/g, '$1');
     
     return processedContent;

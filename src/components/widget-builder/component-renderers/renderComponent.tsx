@@ -2,7 +2,7 @@
 import React from 'react';
 import { WidgetComponent } from '@/types/widget-types';
 import { renderComponentWithoutTooltip } from './renderComponentWithoutTooltip';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { getTooltipContent } from './tooltipUtils';
 import { Tooltip as CustomTooltip } from '../TooltipManager';
 
@@ -25,15 +25,17 @@ export const renderComponent = (
   }
   
   return (
-    <HoverCard>
-      <HoverCardTrigger asChild>
-        <div className="tooltip-trigger w-full">
-          {renderComponentWithoutTooltip(component, apiData, onDismiss)}
-        </div>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-80 p-3">
-        {tooltipContent}
-      </HoverCardContent>
-    </HoverCard>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="tooltip-trigger w-full">
+            {renderComponentWithoutTooltip(component, apiData, onDismiss)}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent className="w-80 p-3">
+          {tooltipContent}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };

@@ -47,15 +47,13 @@ export const useTextFormatting = (
 
   // Apply formatting to selected text
   const applyFormatting = (format: string, value: string) => {
+    // Apply the formatting whether there's a selection or not
     const content = component.formattedContent || "";
     
     const newContent = applyTextFormatting(format, value, selectedText, content, toast);
     
     if (newContent) {
       handleFormattedContentChange(newContent);
-      
-      // Reset selection after applying format to avoid seeing HTML tags
-      setSelectedText(null);
       
       toast({
         title: "Format applied",
@@ -73,7 +71,7 @@ export const useTextFormatting = (
     }
   };
 
-  // Reset selected text when content changes externally
+  // Reset selected text when component changes
   useEffect(() => {
     setSelectedText(null);
   }, [component.id]);
