@@ -48,7 +48,6 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Tooltip as CustomTooltip } from "./TooltipManager";
-import PropertyEditor from "./property-editor/PropertyEditor";
 import ApiIntegrationSection from "./api-integration/ApiIntegrationSection";
 import ComponentHeader from "./component-header/ComponentHeader";
 import ContentFieldsManager from "./content-fields/ContentFieldsManager";
@@ -148,12 +147,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
               onUpdateComponent={onUpdateComponent}
             />
           )}
-
-          {/* Property editor */}
-          <PropertyEditor 
-            component={component}
-            onUpdateComponent={onUpdateComponent}
-          />
 
           {/* Action Buttons */}
           {showActionButtons && (

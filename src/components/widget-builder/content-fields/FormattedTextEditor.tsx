@@ -4,8 +4,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { WidgetComponent } from "@/types/widget-types";
 import { useToast } from "@/hooks/use-toast";
 import TextFormattingToolbar from "./TextFormattingToolbar";
-import TextOptionsAccordion from "./TextOptionsAccordion";
 import ApiFieldsDisplay from "./ApiFieldsDisplay";
+import ColorPalettePicker from "../ColorPalettePicker";
 
 interface FormattedTextEditorProps {
   component: WidgetComponent;
@@ -174,11 +174,14 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
           onSelect={handleTextareaSelect}
         />
         
-        <TextOptionsAccordion 
-          component={component}
-          onPropertyChange={handlePropertyChange}
-          onInputClick={handleInputClick}
-        />
+        <div className="mt-3" onClick={handleInputClick}>
+          <ColorPalettePicker
+            label="Background Color"
+            value={component.props?.backgroundColor || "#FFFFFF"}
+            onChange={(value) => handlePropertyChange("backgroundColor", value)}
+            className="mb-0"
+          />
+        </div>
 
         <ApiFieldsDisplay 
           component={component}
