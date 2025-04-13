@@ -81,7 +81,7 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
       <div className="flex items-center gap-2">
         {component.tooltipId && component.tooltipId !== "none" && getTooltipIcon(component.tooltipId)}
         <Select
-          value={component.tooltipId || "none"}
+          defaultValue={component.tooltipId || "none"}
           onValueChange={handleTooltipChange}
         >
           <SelectTrigger className="w-full">
@@ -89,10 +89,13 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
               {getTooltipLabel(component.tooltipId || "none")}
             </SelectValue>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-60 overflow-y-auto">
             {tooltipOptions.map((option) => (
               <SelectItem key={option.id} value={option.id}>
-                {option.label}
+                <div className="flex items-center gap-2">
+                  {option.id !== "none" && getTooltipIcon(option.id)}
+                  <span>{option.label}</span>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
