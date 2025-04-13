@@ -30,13 +30,7 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
     return <HeaderProperties component={displayComponent} onUpdateComponent={onUpdateComponent} />;
   }
 
-  // Remove the duplicate alert properties rendering
-  // The alert properties are now handled in EditorSection
-  if (component.type !== 'alert') {
-    return <GeneralProperties component={component} onUpdateComponent={onUpdateComponent} />;
-  }
-
-  return null;
+  return <GeneralProperties component={component} onUpdateComponent={onUpdateComponent} />;
 };
 
 export default PropertyEditor;
