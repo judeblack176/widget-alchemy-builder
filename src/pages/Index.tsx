@@ -64,6 +64,7 @@ const Index = () => {
     tooltips,
     isEditing,
     widgetId,
+    navigate,
     setIsEditing
   );
 

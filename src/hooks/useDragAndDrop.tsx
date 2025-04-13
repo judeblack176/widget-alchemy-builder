@@ -1,8 +1,9 @@
 
 import { useCallback } from 'react';
+import { WidgetComponent } from '@/types/widget-types';
 
 interface UseDragAndDropProps {
-  onAddComponent: (type: string) => void;
+  onAddComponent: (type: string | WidgetComponent) => void;
 }
 
 export const useDragAndDrop = ({ onAddComponent }: UseDragAndDropProps) => {
@@ -17,7 +18,7 @@ export const useDragAndDrop = ({ onAddComponent }: UseDragAndDropProps) => {
         componentLibraryItem.click();
       }
     }
-  }, []);
+  }, [onAddComponent]);
 
   return { handleDragEnd };
 };
