@@ -6,6 +6,7 @@ export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | '
 export interface ContentField {
   label: string;
   apiField: string;
+  mapping?: string;
 }
 
 export interface WidgetComponent {

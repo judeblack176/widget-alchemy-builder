@@ -8,11 +8,20 @@ import { Input } from "@/components/ui/input";
 import { X, Plus, Trash2 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
 
 interface ApiDetailsViewProps {
   component: WidgetComponent;
   selectedApi?: ApiConfig;
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
+}
+
+interface ContentFieldForm {
+  label: string;
+  apiField: string;
+  mapping: string;
 }
 
 const ApiDetailsView: React.FC<ApiDetailsViewProps> = ({
@@ -22,6 +31,15 @@ const ApiDetailsView: React.FC<ApiDetailsViewProps> = ({
 }) => {
   const [newFieldLabel, setNewFieldLabel] = useState<string>("");
   const [newFieldApiField, setNewFieldApiField] = useState<string>("");
+  const [newFieldMapping, setNewFieldMapping] = useState<string>("");
+  
+  const form = useForm<ContentFieldForm>({
+    defaultValues: {
+      label: "",
+      apiField: "",
+      mapping: ""
+    }
+  });
 
   if (!selectedApi) return null;
 
@@ -45,6 +63,19 @@ const ApiDetailsView: React.FC<ApiDetailsViewProps> = ({
     }
     
     return [];
+  };
+
+  const getAvailableMappings = () => {
+    return [
+      "content",
+      "title",
+      "description",
+      "data",
+      "items",
+      "message",
+      "status",
+      "result"
+    ];
   };
 
   const handleDataMappingChange = (propKey: string, apiField: string) => {
@@ -95,7 +126,8 @@ const ApiDetailsView: React.FC<ApiDetailsViewProps> = ({
       ...(component.contentFields || []),
       {
         label: newFieldLabel,
-        apiField: newFieldApiField
+        apiField: newFieldApiField,
+        mapping: newFieldMapping || newFieldLabel.toLowerCase() // Use mapping or fallback to lowercase label
       }
     ];
 
@@ -110,6 +142,8 @@ const ApiDetailsView: React.FC<ApiDetailsViewProps> = ({
     // Reset the inputs
     setNewFieldLabel("");
     setNewFieldApiField("");
+    setNewFieldMapping("");
+    form.reset();
   };
 
   const removeContentField = (index: number) => {
@@ -125,6 +159,7 @@ const ApiDetailsView: React.FC<ApiDetailsViewProps> = ({
   };
 
   const availableApiFields = getAvailableApiFields();
+  const availableMappings = getAvailableMappings();
 
   return (
     <div className="space-y-4 mt-4 border rounded-md p-3 bg-gray-50">
@@ -184,55 +219,83 @@ const ApiDetailsView: React.FC<ApiDetailsViewProps> = ({
       {/* Content Field Mapping */}
       <div className="mt-3 border-t pt-3">
         <h5 className="text-sm font-medium mb-2">Add Content Fields</h5>
-        <div className="flex items-end gap-2 mb-3">
-          <div className="flex-1">
-            <Label htmlFor="field-label" className="text-xs">Field Label</Label>
-            <Input 
-              id="field-label" 
-              value={newFieldLabel} 
-              onChange={(e) => setNewFieldLabel(e.target.value)}
-              placeholder="Enter field label"
-              className="h-8 text-sm"
-            />
+        
+        <Form {...form}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+            <div>
+              <Label htmlFor="field-label" className="text-xs">Field Label</Label>
+              <Input 
+                id="field-label" 
+                value={newFieldLabel} 
+                onChange={(e) => setNewFieldLabel(e.target.value)}
+                placeholder="Enter field label"
+                className="h-8 text-sm"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="api-field" className="text-xs">API Field</Label>
+              <Select value={newFieldApiField} onValueChange={setNewFieldApiField}>
+                <SelectTrigger id="api-field" className="h-8 text-sm">
+                  <SelectValue placeholder="Select API field" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableApiFields.map((field) => (
+                    <SelectItem key={field} value={field}>
+                      {field}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="field-mapping" className="text-xs">Mapping</Label>
+              <Select value={newFieldMapping} onValueChange={setNewFieldMapping}>
+                <SelectTrigger id="field-mapping" className="h-8 text-sm">
+                  <SelectValue placeholder="Select mapping" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableMappings.map((field) => (
+                    <SelectItem key={field} value={field}>
+                      {field}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="flex-1">
-            <Label htmlFor="api-field" className="text-xs">API Field</Label>
-            <Select value={newFieldApiField} onValueChange={setNewFieldApiField}>
-              <SelectTrigger id="api-field" className="h-8 text-sm">
-                <SelectValue placeholder="Select API field" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableApiFields.map((field) => (
-                  <SelectItem key={field} value={field}>
-                    {field}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          
+          <div className="flex justify-end">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={addContentField}
+              disabled={!newFieldLabel || !newFieldApiField}
+              className="h-8 px-3"
+            >
+              <Plus size={14} className="mr-1" /> Add Field
+            </Button>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={addContentField}
-            disabled={!newFieldLabel || !newFieldApiField}
-            className="h-8 px-2"
-          >
-            <Plus size={14} />
-          </Button>
-        </div>
+        </Form>
 
         {/* List of mapped content fields */}
         {component.contentFields && component.contentFields.length > 0 && (
-          <div className="mt-2 space-y-2">
+          <div className="mt-4 space-y-2">
             <h6 className="text-xs font-medium">Mapped Fields:</h6>
             <div className="space-y-1">
               {component.contentFields.map((field, idx) => (
                 <div key={idx} className="flex justify-between items-center py-1 px-2 bg-white rounded border text-sm">
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-wrap">
                     <span className="font-medium">{field.label}:</span>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs bg-blue-50 text-blue-600">
                       {field.apiField}
                     </Badge>
+                    {field.mapping && (
+                      <Badge variant="outline" className="text-xs bg-green-50 text-green-600 ml-1">
+                        Maps to: {field.mapping}
+                      </Badge>
+                    )}
                   </div>
                   <Button 
                     variant="ghost" 

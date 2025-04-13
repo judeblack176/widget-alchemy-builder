@@ -52,7 +52,11 @@ const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
                     handleFormattedContentChange(currentContent + placeholder);
                   }}
                 >
-                  {field.label} <span className="text-gray-500 ml-1">({field.apiField})</span>
+                  {field.label} 
+                  <span className="text-gray-500 ml-1">({field.apiField})</span>
+                  {field.mapping && (
+                    <span className="text-green-600 ml-1">→ {field.mapping}</span>
+                  )}
                 </Badge>
               ))}
             </div>
