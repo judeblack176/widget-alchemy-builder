@@ -3,11 +3,10 @@ import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip as CustomTooltip } from "../TooltipManager";
 import { useComponentVisibility } from "./useComponentVisibility";
-import ActionButtons from "./ActionButtons";
 import { componentTypeLabels } from "./IconMapping";
 import HeaderSection from "./components/HeaderSection";
-import EditorSection from "./components/EditorSection";
-import { cleanHtmlContent } from "../component-renderers/renderComponentWithoutTooltip";
+import EditorContent from "./components/EditorContent";
+import useComponentDisplay from "./hooks/useComponentDisplay";
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -36,28 +35,11 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   customTooltips = [],
   showActionButtons = true
 }) => {
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const { shouldShowDataIntegration, shouldShowContentEditor } = useComponentVisibility(component.type);
-
-  // Is this a header component?
-  const isHeader = component.type === 'header';
+  const { isHeader, getDisplayComponent } = useComponentDisplay(component);
   
-  // Clean the component title for display in the editor
-  let displayComponent = { ...component };
-  if (component.formattedContent) {
-    const cleanContent = cleanHtmlContent(component.formattedContent);
-    
-    // For header, also update the name property to show clean content
-    if (isHeader && displayComponent.props) {
-      displayComponent = {
-        ...displayComponent,
-        props: {
-          ...displayComponent.props,
-          name: cleanContent
-        }
-      };
-    }
-  }
+  // Get cleaned display component for header display
+  const displayComponent = getDisplayComponent();
 
   return (
     <div className="w-full">
@@ -72,28 +54,20 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
       />
 
       {isExpanded && (
-        <div className="p-4 space-y-6">
-          <EditorSection 
-            component={component}
-            apis={apis}
-            onUpdateComponent={onUpdateComponent}
-            onRequestApiTemplate={onRequestApiTemplate}
-            onApplyTooltip={onApplyTooltip}
-            customTooltips={customTooltips}
-            isHeader={isHeader}
-            shouldShowDataIntegration={shouldShowDataIntegration}
-            shouldShowContentEditor={shouldShowContentEditor}
-          />
-          
-          {/* Action Buttons */}
-          {showActionButtons && (
-            <ActionButtons
-              componentId={component.id}
-              onRemoveComponent={onRemoveComponent}
-              disableRemove={disableRemove}
-            />
-          )}
-        </div>
+        <EditorContent
+          component={component}
+          apis={apis}
+          onUpdateComponent={onUpdateComponent}
+          onRemoveComponent={onRemoveComponent}
+          onRequestApiTemplate={onRequestApiTemplate}
+          onApplyTooltip={onApplyTooltip}
+          customTooltips={customTooltips}
+          showActionButtons={showActionButtons}
+          disableRemove={disableRemove}
+          isHeader={isHeader}
+          shouldShowDataIntegration={shouldShowDataIntegration}
+          shouldShowContentEditor={shouldShowContentEditor}
+        />
       )}
     </div>
   );

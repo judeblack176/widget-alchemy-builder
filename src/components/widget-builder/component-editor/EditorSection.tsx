@@ -1,11 +1,10 @@
-
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
-import ApiIntegrationSection from "../../api-integration/ApiIntegrationSection";
-import ContentFieldsManager from "../../content-fields/ContentFieldsManager";
-import TooltipSelector from "../../tooltip/TooltipSelector";
-import PropertyEditor from "../../property-editor/PropertyEditor";
+import ApiIntegrationSection from "../api-integration/ApiIntegrationSection";
+import ContentFieldsManager from "../content-fields/ContentFieldsManager";
+import TooltipSelector from "../tooltip/TooltipSelector";
+import PropertyEditor from "../property-editor/PropertyEditor";
 
 interface EditorSectionProps {
   component: WidgetComponent;
@@ -30,7 +29,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   shouldShowDataIntegration,
   shouldShowContentEditor,
 }) => {
-  // Handle different component types with specialized rendering
   const renderHeaderSection = () => (
     <>
       {shouldShowContentEditor() && (
@@ -156,7 +154,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     </>
   );
 
-  // Reusable component sections
   const renderApiIntegration = () => (
     <ApiIntegrationSection 
       component={component}
@@ -179,7 +176,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     );
   };
 
-  // Main rendering logic based on component type
   if (isHeader) {
     return renderHeaderSection();
   }
