@@ -69,7 +69,8 @@ export const DEFAULT_DATA_MAPPINGS: Record<ComponentType, Record<string, string>
     data: "data",
     labels: "labels",
     title: "title",
-    dataUrl: "dataUrl"
+    dataUrl: "dataUrl",
+    chartType: "chartType"
   },
   form: {
     label: "label",

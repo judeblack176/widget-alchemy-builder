@@ -8,6 +8,7 @@ import TooltipSelector from "../../../tooltip/TooltipSelector";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ChartSectionRendererProps {
   component: WidgetComponent;
@@ -50,6 +51,16 @@ const ChartSectionRenderer: React.FC<ChartSectionRendererProps> = ({
     });
   };
 
+  const handleChartTypeChange = (value: string) => {
+    onUpdateComponent({
+      ...component,
+      props: {
+        ...component.props,
+        chartType: value,
+      },
+    });
+  };
+
   return (
     <>
       {shouldShowDataIntegration() && (
@@ -63,10 +74,27 @@ const ChartSectionRenderer: React.FC<ChartSectionRendererProps> = ({
 
       <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
         <div className="bg-gray-50 p-3">
-          <span className="font-medium">Chart Data Source</span>
+          <span className="font-medium">Chart Configuration</span>
         </div>
         <div className="p-4">
           <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="chartType">Chart Type</Label>
+              <Select
+                value={component.props.chartType || "bar"}
+                onValueChange={handleChartTypeChange}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select chart type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bar">Bar Chart</SelectItem>
+                  <SelectItem value="line">Line Chart</SelectItem>
+                  <SelectItem value="pie">Pie Chart</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
             <div className="space-y-2">
               <Label htmlFor="dataUrl">Data URL</Label>
               <Input 
@@ -112,7 +140,7 @@ const ChartSectionRenderer: React.FC<ChartSectionRendererProps> = ({
       <PropertyEditor
         component={component}
         onUpdateComponent={onUpdateComponent}
-        excludeProperties={["height", "dataUrl"]}
+        excludeProperties={["height", "dataUrl", "chartType"]}
       />
 
       {onApplyTooltip && (
