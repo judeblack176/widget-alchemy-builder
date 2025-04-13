@@ -50,16 +50,17 @@ export const useTooltipState = (widgetComponents: WidgetComponent[]) => {
     localStorage.setItem('savedTooltips', JSON.stringify(updatedTooltips));
   };
 
-  // This is the function that needs to be fixed
   const handleApplyTooltip = (componentId: string, tooltipId: string) => {
-    // We're not actually updating any component in this function
-    // The actual component update should happen outside this hook
     // This function just shows a toast notification
+    // The actual component update happens in the parent component
+    const tooltipDisplay = tooltipId ? 
+      tooltips.find(t => t.id === tooltipId)?.title || tooltipId : 
+      "none";
     
     toast({
       title: tooltipId ? "Tooltip Applied" : "Tooltip Removed",
       description: tooltipId ? 
-        "Tooltip has been applied to the component." : 
+        `Tooltip "${tooltipDisplay}" has been applied to the component.` : 
         "Tooltip has been removed from the component."
     });
   };

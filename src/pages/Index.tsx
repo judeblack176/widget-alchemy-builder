@@ -83,6 +83,30 @@ const Index = () => {
     onAddComponent: handleAddComponent
   });
 
+  // The actual function that applies tooltips to components
+  const applyTooltipToComponent = (componentId: string, tooltipId: string) => {
+    // Find the component and update it with the new tooltip ID
+    const updatedComponents = widgetComponents.map(component => {
+      if (component.id === componentId) {
+        return {
+          ...component,
+          tooltipId: tooltipId || "" // Ensure empty string for no tooltip
+        };
+      }
+      return component;
+    });
+    
+    // Update all components
+    updatedComponents.forEach(component => {
+      if (component !== widgetComponents.find(c => c.id === component.id)) {
+        handleUpdateComponent(component);
+      }
+    });
+    
+    // Also call the notification function
+    handleApplyTooltip(componentId, tooltipId);
+  };
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="flex flex-col h-screen bg-gray-100">
@@ -115,7 +139,7 @@ const Index = () => {
             onRemoveComponent={handleRemoveComponent}
             onReorderComponents={handleReorderComponents}
             onRequestApiTemplate={openApiTemplateModal}
-            onApplyTooltip={handleApplyTooltip}
+            onApplyTooltip={applyTooltipToComponent}
             onNewWidget={handleNewWidget}
             onLoadWidget={handleLoadWidget}
           />

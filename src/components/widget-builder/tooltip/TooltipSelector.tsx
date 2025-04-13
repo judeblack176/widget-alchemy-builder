@@ -76,18 +76,21 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
     onApplyTooltip(value === "none" ? "" : value);
   };
 
+  // Get the currently selected tooltip ID, defaulting to "none" if not set
+  const currentTooltipId = component.tooltipId || "none";
+
   return (
     <div className="mb-4">
       <label className="text-sm font-medium mb-2 block">Component Tooltip</label>
       <div className="flex items-center gap-2">
         {component.tooltipId && component.tooltipId !== "none" && getTooltipIcon(component.tooltipId)}
         <Select
-          value={component.tooltipId || "none"}
+          value={currentTooltipId}
           onValueChange={handleTooltipChange}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select tooltip type">
-              {getTooltipLabel(component.tooltipId || "none")}
+              {getTooltipLabel(currentTooltipId)}
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="max-h-60 overflow-y-auto">
