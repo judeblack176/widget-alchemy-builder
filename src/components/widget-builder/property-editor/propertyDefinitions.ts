@@ -1,3 +1,4 @@
+
 import { ComponentType } from "@/types/component-types";
 
 export interface PropertyDefinition {
@@ -59,10 +60,9 @@ export const getPropertyDefinitions = (componentType: ComponentType): PropertyDe
       ];
     case 'alert':
       return [
-        { name: 'title', type: 'text', label: 'Alert Title' },
-        { name: 'message', type: 'text', label: 'Alert Message' },
         { name: 'type', type: 'select', label: 'Alert Type', 
           options: ['info', 'success', 'warning', 'error'] },
+        { name: 'title', type: 'text', label: 'Alert Title' },
         { name: 'dismissible', type: 'select', label: 'Dismissible', 
           options: ['true', 'false'] },
         { name: 'autoClose', type: 'select', label: 'Auto Close (seconds)', 

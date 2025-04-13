@@ -62,11 +62,21 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     );
   }
   
-  // Special handling for alert components: Title and Type first, then Content
+  // Special handling for alert components: API Integration first, then Title and Type, then Content, then others
   if (component.type === 'alert') {
     return (
       <>
-        {/* Property editor first for alerts (for title and type) */}
+        {/* API Integration Section - Now at the top */}
+        {shouldShowDataIntegration() && (
+          <ApiIntegrationSection 
+            component={component}
+            apis={apis}
+            onUpdateComponent={onUpdateComponent}
+            onRequestApiTemplate={onRequestApiTemplate}
+          />
+        )}
+        
+        {/* Property editor second (for title and type) */}
         <PropertyEditor 
           component={component}
           onUpdateComponent={onUpdateComponent}
@@ -78,16 +88,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
             component={component}
             onUpdateComponent={onUpdateComponent}
             customLabel="Alert Content"
-          />
-        )}
-        
-        {/* API Integration Section */}
-        {shouldShowDataIntegration() && (
-          <ApiIntegrationSection 
-            component={component}
-            apis={apis}
-            onUpdateComponent={onUpdateComponent}
-            onRequestApiTemplate={onRequestApiTemplate}
           />
         )}
         
