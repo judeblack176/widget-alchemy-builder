@@ -69,7 +69,7 @@ const ComponentRenderer: React.FC<ComponentRendererProps> = ({
             </div>
           </HoverCardTrigger>
           <HoverCardContent className="w-80 p-3">
-            <TooltipContent tooltipId={component.tooltipId} />
+            <TooltipContent tooltipId={component.tooltipId} customTooltips={tooltips} />
           </HoverCardContent>
         </HoverCard>
       </div>

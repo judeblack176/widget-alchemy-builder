@@ -61,6 +61,14 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
     // onApplyTooltip("");
   }
 
+  // Get the tooltip label to display in the SelectValue
+  const getTooltipLabel = (tooltipId: string) => {
+    if (!tooltipId || tooltipId === "none") return "No Tooltip";
+    
+    const option = tooltipOptions.find(opt => opt.id === tooltipId);
+    return option ? option.label : tooltipId;
+  };
+
   // Handler for value change
   const handleTooltipChange = (value: string) => {
     console.log("Setting tooltip to:", value);
@@ -77,7 +85,9 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
           onValueChange={handleTooltipChange}
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select tooltip type" />
+            <SelectValue placeholder="Select tooltip type">
+              {getTooltipLabel(component.tooltipId || "none")}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {tooltipOptions.map((option) => (
