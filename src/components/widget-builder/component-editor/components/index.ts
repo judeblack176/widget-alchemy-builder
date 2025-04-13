@@ -1,10 +1,24 @@
 
 import HeaderSection from "./HeaderSection";
 import EditorContent from "./EditorContent";
-import EditorSection from "../EditorSection";
+import EditorSection from "./EditorSection";
+import { 
+  HeaderSectionRenderer,
+  AlertSectionRenderer,
+  TextSectionRenderer,
+  ButtonSectionRenderer,
+  ImageSectionRenderer,
+  DefaultSectionRenderer
+} from "./renderers";
 
 export {
   HeaderSection,
   EditorContent,
-  EditorSection
+  EditorSection,
+  HeaderSectionRenderer,
+  AlertSectionRenderer,
+  TextSectionRenderer,
+  ButtonSectionRenderer,
+  ImageSectionRenderer,
+  DefaultSectionRenderer
 };
