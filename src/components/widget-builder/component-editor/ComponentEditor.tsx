@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip as CustomTooltip } from "../TooltipManager";
+import PropertyEditor from "../property-editor/PropertyEditor";
 import { useComponentVisibility } from "./useComponentVisibility";
 import ActionButtons from "./ActionButtons";
 import { componentTypeLabels } from "./IconMapping";
