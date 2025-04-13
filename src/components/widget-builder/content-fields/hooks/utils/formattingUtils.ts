@@ -52,7 +52,7 @@ export const applyTextFormatting = (
       case "weight":
         if (value === "bold") {
           // Check if selection is already bold
-          if (selection.match(/<strong>(.*?)<\/strong>/)) {
+          if (selection.includes('<strong>') && selection.includes('</strong>')) {
             // If already bold, remove the bold formatting
             formattedText = selection.replace(/<strong>(.*?)<\/strong>/g, '$1');
           } else {
@@ -64,7 +64,7 @@ export const applyTextFormatting = (
       case "style":
         if (value === "italic") {
           // Check if selection is already italic
-          if (selection.match(/<em>(.*?)<\/em>/)) {
+          if (selection.includes('<em>') && selection.includes('</em>')) {
             // If already italic, remove the italic formatting
             formattedText = selection.replace(/<em>(.*?)<\/em>/g, '$1');
           } else {
@@ -74,7 +74,7 @@ export const applyTextFormatting = (
         }
         break;
       case "align":
-        // For other formatting, we just apply it directly
+        // For alignment, we just apply it directly
         formattedText = `<span class="align-${value}">${selection}</span>`;
         break;
       case "size":

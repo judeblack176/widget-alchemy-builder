@@ -3,6 +3,7 @@ import React from "react";
 import { WidgetComponent } from "@/types/widget-types";
 import HeaderProperties from "./components/HeaderProperties";
 import GeneralProperties from "./components/GeneralProperties";
+import { cleanHtmlContent } from "../component-renderers/renderComponentWithoutTooltip";
 
 interface PropertyEditorProps {
   component: WidgetComponent;
@@ -15,7 +16,18 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
 }) => {
   // Special rendering for header components to ensure icon and name are always displayed
   if (component.type === 'header') {
-    return <HeaderProperties component={component} onUpdateComponent={onUpdateComponent} />;
+    // Create a display version of the component with clean content for display
+    const displayComponent = { ...component };
+    
+    if (component.formattedContent && displayComponent.props) {
+      const cleanContent = cleanHtmlContent(component.formattedContent);
+      displayComponent.props = {
+        ...displayComponent.props,
+        name: cleanContent
+      };
+    }
+    
+    return <HeaderProperties component={displayComponent} onUpdateComponent={onUpdateComponent} />;
   }
 
   return <GeneralProperties component={component} onUpdateComponent={onUpdateComponent} />;

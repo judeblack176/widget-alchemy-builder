@@ -18,6 +18,27 @@ import { alertRenderer } from './renderers/alertRenderer';
 import { tableRenderer } from './renderers/tableRenderer';
 import { searchBarRenderer } from './renderers/searchBarRenderer';
 
+// Helper function to clean HTML content for display in editor
+export const cleanHtmlContent = (content: string): string => {
+  if (!content) return '';
+  
+  // Remove HTML tags for display
+  let cleanContent = content
+    .replace(/<strong>(.*?)<\/strong>/g, '$1')
+    .replace(/<em>(.*?)<\/em>/g, '$1')
+    .replace(/<span class="align-left">(.*?)<\/span>/g, '$1')
+    .replace(/<span class="align-center">(.*?)<\/span>/g, '$1')
+    .replace(/<span class="align-right">(.*?)<\/span>/g, '$1')
+    .replace(/<span class="color-[^"]*">(.*?)<\/span>/g, '$1')
+    .replace(/<span class="background-color-[^"]*">(.*?)<\/span>/g, '$1')
+    .replace(/<span class="size-[^"]*">(.*?)<\/span>/g, '$1');
+  
+  // Handle any remaining HTML tags
+  cleanContent = cleanContent.replace(/<[^>]*>(.*?)<\/[^>]*>/g, '$1');
+  
+  return cleanContent;
+};
+
 export const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any, onDismiss?: (id: string) => void) => {
   const { props, type, id, formattedContent } = component;
   
@@ -31,9 +52,14 @@ export const renderComponentWithoutTooltip = (component: WidgetComponent, apiDat
   }
   
   // Process component props with formatted content
+  // For display in the component list, we clean the HTML content
+  const displayContent = formattedContent ? cleanHtmlContent(formattedContent) : '';
+  
+  // For rendering, we use the original formatted content with HTML tags
   const finalProps = {
     ...processApiData(component, apiData),
-    formattedContent
+    formattedContent,
+    displayContent // Add clean content for display purposes
   };
   
   switch (type) {

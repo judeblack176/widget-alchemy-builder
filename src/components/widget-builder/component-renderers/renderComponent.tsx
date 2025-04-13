@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { WidgetComponent } from '@/types/widget-types';
-import { renderComponentWithoutTooltip } from './renderComponentWithoutTooltip';
+import { renderComponentWithoutTooltip, cleanHtmlContent } from './renderComponentWithoutTooltip';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { getTooltipContent } from './tooltipUtils';
 import { Tooltip as CustomTooltip } from '../TooltipManager';
@@ -13,6 +13,14 @@ export const renderComponent = (
   tooltips?: CustomTooltip[]
 ) => {
   const { tooltipId } = component;
+  
+  // Make sure component title/content display is clean (without HTML tags)
+  if (component.formattedContent) {
+    component = {
+      ...component,
+      displayContent: cleanHtmlContent(component.formattedContent)
+    };
+  }
   
   if (!tooltipId) {
     return renderComponentWithoutTooltip(component, apiData, onDismiss);

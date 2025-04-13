@@ -8,6 +8,7 @@ import ActionButtons from "./ActionButtons";
 import { componentTypeLabels } from "./IconMapping";
 import HeaderSection from "./components/HeaderSection";
 import EditorSection from "./components/EditorSection";
+import { cleanHtmlContent } from "../component-renderers/renderComponentWithoutTooltip";
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -41,11 +42,28 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   // Is this a header component?
   const isHeader = component.type === 'header';
+  
+  // Clean the component title for display in the editor
+  let displayComponent = { ...component };
+  if (component.formattedContent) {
+    const cleanContent = cleanHtmlContent(component.formattedContent);
+    
+    // For header, also update the name property to show clean content
+    if (isHeader && displayComponent.props) {
+      displayComponent = {
+        ...displayComponent,
+        props: {
+          ...displayComponent.props,
+          name: cleanContent
+        }
+      };
+    }
+  }
 
   return (
     <div className="w-full">
       <HeaderSection 
-        component={component}
+        component={displayComponent}
         componentTypeLabels={componentTypeLabels}
         isExpanded={isExpanded}
         onToggleExpand={onToggleExpand}
