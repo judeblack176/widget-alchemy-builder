@@ -109,14 +109,30 @@ export const useTextFormatting = (
       // Create formatted text with the appropriate tag
       let formattedText = '';
       
-      // For weight and style, use HTML tags for proper formatting
-      if (format === "weight" && value === "bold") {
-        formattedText = `<strong>${selection}</strong>`;
-      } else if (format === "style" && value === "italic") {
-        formattedText = `<em>${selection}</em>`;
-      } else {
-        // For colors, use span with class
-        formattedText = `<span class="${format}-${value}">${selection}</span>`;
+      // Apply the formatting based on the format type
+      switch (format) {
+        case "weight":
+          if (value === "bold") {
+            formattedText = `<strong>${selection}</strong>`;
+          }
+          break;
+        case "style":
+          if (value === "italic") {
+            formattedText = `<em>${selection}</em>`;
+          }
+          break;
+        case "align":
+          formattedText = `<span class="text-${value}">${selection}</span>`;
+          break;
+        case "size":
+          formattedText = `<span class="text-${value}">${selection}</span>`;
+          break;
+        case "color":
+        case "background-color":
+          formattedText = `<span class="${format}-${value}">${selection}</span>`;
+          break;
+        default:
+          formattedText = selection;
       }
       
       const newContent = beforeSelection + formattedText + afterSelection;
