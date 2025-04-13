@@ -9,11 +9,8 @@ export const alertRenderer = (finalProps: Record<string, any>, id: string, onDis
   const alertType = finalProps.type as AlertType || 'info';
   const isDismissible = finalProps.dismissible !== false;
   
-  // Use formattedContent for the alert body message
+  // Use formattedContent directly instead of falling back to message
   const alertContent = finalProps.formattedContent || "This is an alert message.";
-  
-  // Get the title from props or use default
-  const alertTitle = finalProps.title || "Alert";
   
   return (
     <Alert
@@ -34,7 +31,7 @@ export const alertRenderer = (finalProps: Record<string, any>, id: string, onDis
         </div>
       )}
       <div className="flex-grow">
-        <AlertTitle dangerouslySetInnerHTML={{ __html: alertTitle }} />
+        <AlertTitle>{finalProps.title || "Alert"}</AlertTitle>
         <AlertDescription dangerouslySetInnerHTML={{ __html: alertContent }} />
       </div>
       {isDismissible && onDismiss && (

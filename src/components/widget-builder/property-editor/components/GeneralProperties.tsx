@@ -5,7 +5,7 @@ import PropertyField from "./PropertyField";
 import { getPropertyDefinitions } from "../propertyDefinitions";
 
 interface GeneralPropertiesProps {
-  component: WidgetComponent & { alertPropertiesSection?: 'initial' | 'end' | 'title' };
+  component: WidgetComponent;
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
 }
 
@@ -36,16 +36,12 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
     const autoCloseDef = propertyDefinitions.find(p => p.name === 'autoClose');
     
     // If this is a sectioned alert component, show only the relevant properties
-    if (component.alertPropertiesSection) {
-      const section = component.alertPropertiesSection;
+    if ('alertPropertiesSection' in component) {
+      const section = (component as any).alertPropertiesSection;
       
-      // Initial section: show only type (title is now handled separately)
-      if (section === 'initial' && typeDef) {
-        propertyDefinitions = [typeDef];
-      }
-      // Title section: show only title field (through FormattedTextEditor)
-      else if (section === 'title' && titleDef) {
-        propertyDefinitions = [titleDef];
+      // Initial section: show title and type only
+      if (section === 'initial' && titleDef && typeDef) {
+        propertyDefinitions = [titleDef, typeDef];
       }
       // End section: show dismissible and autoClose only
       else if (section === 'end' && dismissibleDef && autoCloseDef) {
@@ -61,12 +57,10 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
   // Change header title for alert components to "Alert Settings"
   // For sectioned alert properties, use more specific headers
   let headerTitle = component.type === 'alert' ? "Alert Settings" : "Properties";
-  if (component.type === 'alert' && component.alertPropertiesSection) {
-    const section = component.alertPropertiesSection;
+  if (component.type === 'alert' && 'alertPropertiesSection' in component) {
+    const section = (component as any).alertPropertiesSection;
     if (section === 'initial') {
-      headerTitle = "Alert Type";
-    } else if (section === 'title') {
-      headerTitle = "Alert Title";
+      headerTitle = "Alert Title & Type";
     } else if (section === 'end') {
       headerTitle = "Alert Display Options";
     }

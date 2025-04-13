@@ -1,3 +1,4 @@
+
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
@@ -16,11 +17,6 @@ interface EditorSectionProps {
   isHeader: boolean;
   shouldShowDataIntegration: () => boolean;
   shouldShowContentEditor: () => boolean;
-}
-
-// Define an extended type for alert components with section property
-interface AlertComponentWithSection extends WidgetComponent {
-  alertPropertiesSection?: 'initial' | 'end' | 'title';
 }
 
 const EditorSection: React.FC<EditorSectionProps> = ({
@@ -68,27 +64,18 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   
   // Special handling for alert components: 
   // 1. API Integration
-  // 2. Alert Title & Type via ContentFieldsManager
+  // 2. Alert Title & Type via PropertyEditor
   // 3. Alert Message via ContentFieldsManager
   // 4. Dismissible & Auto Close via PropertyEditor 
   // 5. Tooltip at the end
   if (component.type === 'alert') {
-    // For the alert title, we'll use a separate content fields manager
-    const titleComponent: AlertComponentWithSection = { 
-      ...component, 
-      props: { ...component.props },
-      alertPropertiesSection: 'title' // New section for title with API fields
-    };
+    // Split the alert properties into initial (title, type) and end properties (dismissible, autoClose)
+    const initialProps = { ...component, props: { ...component.props } };
+    const endProps = { ...component, props: { ...component.props } };
     
-    // For the alert message, we'll use the standard content fields manager
-    const messageComponent = { ...component };
-    
-    // For dismissible and autoClose settings
-    const endProps: AlertComponentWithSection = { 
-      ...component, 
-      props: { ...component.props },
-      alertPropertiesSection: 'end' // Will show dismissible & autoClose
-    };
+    // For PropertyEditor rendering pass, we need to tell the component which properties to show
+    initialProps.alertPropertiesSection = 'initial'; // Will show title & type
+    endProps.alertPropertiesSection = 'end'; // Will show dismissible & autoClose
     
     return (
       <>
@@ -102,9 +89,9 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Alert Title with API Fields */}
+        {/* Property editor for title and type - Initial properties */}
         <PropertyEditor 
-          component={titleComponent}
+          component={initialProps}
           onUpdateComponent={onUpdateComponent}
         />
         
