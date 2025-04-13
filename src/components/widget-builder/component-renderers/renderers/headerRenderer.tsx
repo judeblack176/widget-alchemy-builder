@@ -21,10 +21,10 @@ export const headerRenderer = (finalProps: Record<string, any>) => {
     >
       <div className="flex items-center text-left pl-8">
         {getIconByName(finalProps.icon || 'BookOpen')}
-        <div className="ml-2">
+        <div className="ml-2 overflow-hidden text-ellipsis whitespace-nowrap">
           {headerContent && typeof headerContent === 'string' && headerContent.includes('<span') 
             ? parse(headerContent) 
-            : <h2 className="text-left">{headerContent}</h2>}
+            : <h2 className="text-left text-ellipsis overflow-hidden whitespace-nowrap">{headerContent}</h2>}
         </div>
       </div>
     </div>

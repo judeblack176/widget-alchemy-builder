@@ -3,7 +3,6 @@ import React from "react";
 import { WidgetComponent } from "@/types/widget-types";
 import PropertyField from "./PropertyField";
 import { getPropertyDefinitions } from "../propertyDefinitions";
-import FormattedTextEditor from "../../content-fields/FormattedTextEditor";
 
 interface HeaderPropertiesProps {
   component: WidgetComponent;
@@ -26,7 +25,7 @@ const HeaderProperties: React.FC<HeaderPropertiesProps> = ({
   };
 
   const propertyDefinitions = getPropertyDefinitions(component.type);
-  // Only show icon property
+  // Only show icon property 
   const iconProperty = propertyDefinitions.find(p => p.name === 'icon');
   
   // Filter out properties we want to remove
@@ -46,12 +45,6 @@ const HeaderProperties: React.FC<HeaderPropertiesProps> = ({
             onChange={handlePropertyChange} 
           />
         )}
-        
-        {/* Use formatted text editor for header name */}
-        <FormattedTextEditor 
-          component={component}
-          onUpdateComponent={onUpdateComponent}
-        />
         
         {/* Show remaining properties */}
         {otherProperties.map(property => (

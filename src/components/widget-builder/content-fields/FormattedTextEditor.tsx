@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { WidgetComponent } from "@/types/widget-types";
 import { useToast } from "@/hooks/use-toast";
 import TextFormattingToolbar from "./TextFormattingToolbar";
@@ -9,14 +10,17 @@ import ApiFieldsDisplay from "./ApiFieldsDisplay";
 interface FormattedTextEditorProps {
   component: WidgetComponent;
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
+  singleLine?: boolean;
 }
 
 const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
   component,
-  onUpdateComponent
+  onUpdateComponent,
+  singleLine = false
 }) => {
   const [selectedText, setSelectedText] = useState<{start: number, end: number} | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const handleFormattedContentChange = (value: string) => {
@@ -27,24 +31,13 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
     onUpdateComponent(updatedComponent);
   };
 
-  const handlePropertyChange = (propertyName: string, value: any) => {
-    const updatedComponent = {
-      ...component,
-      props: {
-        ...component.props,
-        [propertyName]: value,
-      },
-    };
-    onUpdateComponent(updatedComponent);
-  };
-
   // Stop propagation on input interactions to prevent container from closing
   const handleInputClick = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
 
   // Handle focus events separately with the correct event type
-  const handleInputFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+  const handleInputFocus = (e: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     e.stopPropagation();
   };
 
@@ -64,7 +57,7 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
   // Apply formatting to selected text with error handling
   const applyFormatting = (format: string, value: string) => {
     try {
-      if (!selectedText || !textareaRef.current) {
+      if (!selectedText || (!textareaRef.current && !inputRef.current)) {
         toast({
           title: "No text selected",
           description: "Please select some text to format it.",
@@ -107,7 +100,11 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
       
       // Reset selection after applying format
       setTimeout(() => {
-        if (textareaRef.current) {
+        if (singleLine && inputRef.current) {
+          inputRef.current.focus();
+          const newCursorPos = beforeSelection.length + formattedText.length;
+          inputRef.current.setSelectionRange(newCursorPos, newCursorPos);
+        } else if (textareaRef.current) {
           textareaRef.current.focus();
           const newCursorPos = beforeSelection.length + formattedText.length;
           textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
@@ -152,6 +149,18 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
     setSelectedText(null);
   }, [component.id]);
 
+  const handleSingleLineSelect = (e: React.SyntheticEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement;
+    if (target.selectionStart !== target.selectionEnd) {
+      setSelectedText({
+        start: target.selectionStart || 0,
+        end: target.selectionEnd || 0
+      });
+    } else {
+      setSelectedText(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-semibold">Formatted Content</h3>
@@ -162,16 +171,29 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
           onInputClick={handleInputClick}
         />
         
-        <Textarea
-          ref={textareaRef}
-          className="w-full h-32 border rounded p-2 text-sm"
-          value={component.formattedContent || ""}
-          onChange={(e) => handleFormattedContentChange(e.target.value)}
-          placeholder="Enter formatted content or use API fields..."
-          onClick={handleInputClick}
-          onFocus={handleInputFocus}
-          onSelect={handleTextareaSelect}
-        />
+        {singleLine ? (
+          <Input
+            ref={inputRef}
+            className="w-full border rounded p-2 text-sm"
+            value={component.formattedContent || ""}
+            onChange={(e) => handleFormattedContentChange(e.target.value)}
+            placeholder="Enter header text..."
+            onClick={handleInputClick}
+            onFocus={handleInputFocus}
+            onSelect={handleSingleLineSelect}
+          />
+        ) : (
+          <Textarea
+            ref={textareaRef}
+            className="w-full h-32 border rounded p-2 text-sm"
+            value={component.formattedContent || ""}
+            onChange={(e) => handleFormattedContentChange(e.target.value)}
+            placeholder="Enter formatted content or use API fields..."
+            onClick={handleInputClick}
+            onFocus={handleInputFocus}
+            onSelect={handleTextareaSelect}
+          />
+        )}
         
         <ApiFieldsDisplay 
           component={component}

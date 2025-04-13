@@ -12,7 +12,16 @@ const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
   component,
   onUpdateComponent
 }) => {
-  return <FormattedTextEditor component={component} onUpdateComponent={onUpdateComponent} />;
+  // For header components, use single line input
+  const singleLine = component.type === 'header';
+  
+  return (
+    <FormattedTextEditor 
+      component={component} 
+      onUpdateComponent={onUpdateComponent}
+      singleLine={singleLine}
+    />
+  );
 };
 
 export default ContentFieldsManager;
