@@ -69,7 +69,7 @@ const WidgetPreviewPanel: React.FC<WidgetPreviewPanelProps> = ({
                 </TabsContent>
                 <TabsContent value="submit" className="pt-4">
                   <WidgetSubmissionForm
-                    components={widgetComponents}
+                    widgetComponents={widgetComponents}
                     apis={apis}
                     widgetId={widgetId}
                     onSubmitSuccess={onSubmitSuccess}
