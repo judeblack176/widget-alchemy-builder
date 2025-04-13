@@ -8,6 +8,7 @@ import {
   TextSectionRenderer,
   ButtonSectionRenderer,
   ImageSectionRenderer,
+  ChartSectionRenderer,
   DefaultSectionRenderer
 } from "./renderers";
 
@@ -20,5 +21,6 @@ export {
   TextSectionRenderer,
   ButtonSectionRenderer,
   ImageSectionRenderer,
+  ChartSectionRenderer,
   DefaultSectionRenderer
 };

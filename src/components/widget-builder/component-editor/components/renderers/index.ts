@@ -4,6 +4,7 @@ import AlertSectionRenderer from "./AlertSectionRenderer";
 import TextSectionRenderer from "./TextSectionRenderer";
 import ButtonSectionRenderer from "./ButtonSectionRenderer";
 import ImageSectionRenderer from "./ImageSectionRenderer";
+import ChartSectionRenderer from "./ChartSectionRenderer";
 import DefaultSectionRenderer from "./DefaultSectionRenderer";
 
 export {
@@ -12,5 +13,6 @@ export {
   TextSectionRenderer,
   ButtonSectionRenderer,
   ImageSectionRenderer,
+  ChartSectionRenderer,
   DefaultSectionRenderer
 };

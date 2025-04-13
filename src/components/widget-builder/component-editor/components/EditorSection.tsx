@@ -8,6 +8,7 @@ import {
   TextSectionRenderer,
   ButtonSectionRenderer,
   ImageSectionRenderer,
+  ChartSectionRenderer,
   DefaultSectionRenderer
 } from "./renderers";
 
@@ -92,6 +93,18 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           onUpdateComponent={onUpdateComponent}
           onApplyTooltip={onApplyTooltip}
           customTooltips={customTooltips}
+        />
+      );
+    case 'chart':
+      return (
+        <ChartSectionRenderer
+          component={component}
+          apis={apis}
+          onUpdateComponent={onUpdateComponent}
+          onRequestApiTemplate={onRequestApiTemplate}
+          onApplyTooltip={onApplyTooltip}
+          customTooltips={customTooltips}
+          shouldShowDataIntegration={shouldShowDataIntegration}
         />
       );
     default:
