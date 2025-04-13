@@ -2,8 +2,6 @@
 import React from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
 import ComponentEditor from '../component-editor';
 import { Tooltip } from '../TooltipManager';
 
@@ -55,20 +53,6 @@ const AlertComponentsSection: React.FC<AlertComponentsSectionProps> = ({
               customTooltips={tooltips}
               showActionButtons={false}
             />
-            {/* Only show the remove button when component is not expanded */}
-            {expandedComponentId !== alertComponent.id && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemoveComponent(alertComponent.id);
-                }}
-                className="absolute top-3 right-3 h-8 w-8 p-0 text-gray-500 hover:text-red-500"
-              >
-                <Trash2 size={16} />
-              </Button>
-            )}
           </div>
         </Card>
       ))}

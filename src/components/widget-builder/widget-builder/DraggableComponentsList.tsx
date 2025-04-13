@@ -76,20 +76,6 @@ const DraggableComponentsList: React.FC<DraggableComponentsListProps> = ({
                             undefined}
                           customTooltips={tooltips}
                         />
-                        {/* Only show the remove button when component is not expanded */}
-                        {expandedComponentId !== component.id && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onRemoveComponent(component.id);
-                            }}
-                            className="absolute top-3 right-3 h-8 w-8 p-0 text-gray-500 hover:text-red-500"
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                        )}
                       </div>
                     </Card>
                   </div>

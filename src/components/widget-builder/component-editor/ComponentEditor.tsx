@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Button } from "@/components/ui/button";
 import { Tooltip as CustomTooltip } from "../TooltipManager";
@@ -11,6 +11,7 @@ import PropertyEditor from "../property-editor/PropertyEditor";
 import { useComponentVisibility } from "./useComponentVisibility";
 import ActionButtons from "./ActionButtons";
 import { componentTypeLabels } from "./IconMapping";
+import { Trash2 } from "lucide-react";
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -41,26 +42,34 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 }) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const { shouldShowDataIntegration, shouldShowContentEditor } = useComponentVisibility(component.type);
-  
-  // Auto-expand for header components
-  useEffect(() => {
-    if (component.type === 'header' && !isExpanded) {
-      onToggleExpand();
-    }
-  }, [component.type, isExpanded, onToggleExpand]);
 
   return (
     <div className="w-full">
       <div 
-        className="cursor-pointer w-full" 
+        className="cursor-pointer w-full relative" 
         onClick={onToggleExpand}
       >
         <ComponentHeader 
           component={component}
           componentTypeLabels={componentTypeLabels}
           isExpanded={isExpanded} 
-          onRemove={showActionButtons ? onRemoveComponent : undefined}
+          onRemove={onRemoveComponent}
         />
+        
+        {/* Only show the remove button when component is not expanded and not disabled */}
+        {!isExpanded && !disableRemove && showActionButtons && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemoveComponent(component.id);
+            }}
+            className="absolute top-3 right-3 h-8 w-8 p-0 text-gray-500 hover:text-red-500"
+          >
+            <Trash2 size={16} />
+          </Button>
+        )}
       </div>
 
       {isExpanded && (

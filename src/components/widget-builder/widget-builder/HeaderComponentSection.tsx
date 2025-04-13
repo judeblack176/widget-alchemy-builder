@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
 import ComponentEditor from '../component-editor';
@@ -30,12 +30,7 @@ const HeaderComponentSection: React.FC<HeaderComponentSectionProps> = ({
 }) => {
   const cardStyle = "w-full bg-white border shadow-sm";
   
-  // Auto-expand header component on mount
-  useEffect(() => {
-    if (expandedComponentId !== headerComponent.id) {
-      setExpandedComponentId(headerComponent.id);
-    }
-  }, [headerComponent.id, expandedComponentId, setExpandedComponentId]);
+  // Remove auto-expand effect
 
   return (
     <Card className={`${cardStyle} border-blue-500`}>

@@ -13,7 +13,6 @@ import {
   List, 
   LinkIcon, 
   Text,
-  Trash2,
   AlertTriangle,
   Filter,
   Table2,
