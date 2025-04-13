@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { WidgetComponent } from "@/types/widget-types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,12 +8,14 @@ interface TooltipSelectorProps {
   component: WidgetComponent;
   customTooltips?: Tooltip[];
   onApplyTooltip: (tooltipId: string) => void;
+  label?: string; // Optional custom label
 }
 
 const TooltipSelector: React.FC<TooltipSelectorProps> = ({
   component,
   customTooltips = [],
-  onApplyTooltip
+  onApplyTooltip,
+  label = "Component Tooltip"
 }) => {
   const defaultTooltipOptions = [
     { id: "none", label: "No Tooltip" },
@@ -49,12 +50,10 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
     }
   };
 
-  // This function checks if the tooltip ID is valid
   const isTooltipValid = component.tooltipId ? 
     tooltipOptions.some(option => option.id === component.tooltipId) : 
     true;
   
-  // If the tooltip is not valid, clear it
   useEffect(() => {
     if (component.tooltipId && !isTooltipValid && onApplyTooltip) {
       console.log("Clearing invalid tooltip:", component.tooltipId);
@@ -62,7 +61,6 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
     }
   }, [component.tooltipId, isTooltipValid, onApplyTooltip]);
 
-  // Get the tooltip label to display in the SelectValue
   const getTooltipLabel = (tooltipId: string) => {
     if (!tooltipId || tooltipId === "none") return "No Tooltip";
     
@@ -70,18 +68,16 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
     return option ? option.label : tooltipId;
   };
 
-  // Handler for value change
   const handleTooltipChange = (value: string) => {
     console.log("Setting tooltip to:", value);
     onApplyTooltip(value === "none" ? "" : value);
   };
 
-  // Get the currently selected tooltip ID, defaulting to "none" if not set
   const currentTooltipId = component.tooltipId || "none";
 
   return (
     <div className="mb-4">
-      <label className="text-sm font-medium mb-2 block">Component Tooltip</label>
+      <label className="text-sm font-medium mb-2 block">{label}</label>
       <div className="flex items-center gap-2">
         {component.tooltipId && component.tooltipId !== "none" && getTooltipIcon(component.tooltipId)}
         <Select

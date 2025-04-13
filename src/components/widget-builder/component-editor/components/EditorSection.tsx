@@ -29,23 +29,24 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   shouldShowDataIntegration,
   shouldShowContentEditor,
 }) => {
-  // For header components, we want a specific order: Tooltip first, then Content
+  // For header components, we want a specific order: Content first, then Tooltip
   if (isHeader) {
     return (
       <>
-        {/* Tooltip selector for header components - now above the content */}
+        {shouldShowContentEditor() && (
+          <ContentFieldsManager 
+            component={component}
+            onUpdateComponent={onUpdateComponent}
+            customLabel="Widget Name"
+          />
+        )}
+        
         {onApplyTooltip && (
           <TooltipSelector 
             component={component}
             customTooltips={customTooltips}
             onApplyTooltip={onApplyTooltip}
-          />
-        )}
-        
-        {shouldShowContentEditor() && (
-          <ContentFieldsManager 
-            component={component}
-            onUpdateComponent={onUpdateComponent}
+            label="Add Tooltip"
           />
         )}
       </>
@@ -86,3 +87,4 @@ const EditorSection: React.FC<EditorSectionProps> = ({
 };
 
 export default EditorSection;
+

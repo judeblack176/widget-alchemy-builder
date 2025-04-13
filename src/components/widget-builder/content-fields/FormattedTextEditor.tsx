@@ -1,4 +1,3 @@
-
 import React from "react";
 import { WidgetComponent } from "@/types/widget-types";
 import ApiFieldsDisplay from "./ApiFieldsDisplay";
@@ -11,12 +10,14 @@ interface FormattedTextEditorProps {
   component: WidgetComponent;
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
   singleLine?: boolean;
+  customLabel?: string; // Optional custom label
 }
 
 const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
   component,
   onUpdateComponent,
-  singleLine = false
+  singleLine = false,
+  customLabel
 }) => {
   const {
     selectedText,
@@ -31,15 +32,11 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
     addApiPlaceholder,
   } = useTextFormatting(component, onUpdateComponent);
 
-  // Determine if we're rendering a header component
   const isHeader = component.type === 'header';
 
-  // Process the formatted content for display in the editor
-  // This removes HTML tags so user doesn't see them while editing
   const processFormattedContent = (content: string) => {
     if (!content) return '';
     
-    // First handle all the specific tag formats we support
     let processedContent = content
       .replace(/<strong>(.*?)<\/strong>/g, '$1')
       .replace(/<em>(.*?)<\/em>/g, '$1')
@@ -50,19 +47,16 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
       .replace(/<span class="background-color-[^"]*">(.*?)<\/span>/g, '$1')
       .replace(/<span class="size-[^"]*">(.*?)<\/span>/g, '$1');
     
-    // Handle any other HTML tag that might have been added
-    // This ensures we catch ALL tags, even ones not explicitly handled above
     processedContent = processedContent.replace(/<[^>]*>(.*?)<\/[^>]*>/g, '$1');
     
     return processedContent;
   };
 
-  // Process visible content (what user sees in the editor)
   const visibleContent = processFormattedContent(component.formattedContent || "");
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold">Formatted Content</h3>
+      <h3 className="text-sm font-semibold">{customLabel || "Formatted Content"}</h3>
       <div className="border rounded-md p-3 bg-gray-50">
         {isHeader ? (
           <HeaderFormattingToolbar 
@@ -87,7 +81,7 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
           onInputClick={handleInputClick}
           onFocus={handleInputFocus}
           onSelect={singleLine ? handleSingleLineSelect : handleTextareaSelect}
-          visibleValue={visibleContent} // Pass clean content without HTML tags
+          visibleValue={visibleContent}
         />
         
         <ApiFieldsDisplay 

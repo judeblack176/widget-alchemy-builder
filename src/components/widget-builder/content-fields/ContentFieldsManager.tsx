@@ -6,11 +6,13 @@ import FormattedTextEditor from "./FormattedTextEditor";
 interface ContentFieldsManagerProps {
   component: WidgetComponent;
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
+  customLabel?: string; // Optional custom label
 }
 
 const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
   component,
-  onUpdateComponent
+  onUpdateComponent,
+  customLabel
 }) => {
   // For header components, use single line input
   const singleLine = component.type === 'header';
@@ -48,8 +50,10 @@ const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
       component={component} 
       onUpdateComponent={handleContentUpdate}
       singleLine={singleLine}
+      customLabel={customLabel}
     />
   );
 };
 
 export default ContentFieldsManager;
+
