@@ -14,10 +14,16 @@ export const textRenderer = (finalProps: Record<string, any>) => {
       .replace(/<span class="size-medium">(.*?)<\/span>/g, '<span style="font-size: 1rem">$1</span>')
       .replace(/<span class="size-large">(.*?)<\/span>/g, '<span style="font-size: 1.25rem">$1</span>')
       
-      // Weight formatting
+      // Format <strong> tags directly
+      .replace(/<strong>(.*?)<\/strong>/g, '<span style="font-weight: bold">$1</span>')
+      
+      // Format <em> tags directly
+      .replace(/<em>(.*?)<\/em>/g, '<span style="font-style: italic">$1</span>')
+      
+      // Weight formatting (for compatibility with older content)
       .replace(/<span class="weight-bold">(.*?)<\/span>/g, '<span style="font-weight: bold">$1</span>')
       
-      // Style formatting
+      // Style formatting (for compatibility with older content)
       .replace(/<span class="style-italic">(.*?)<\/span>/g, '<span style="font-style: italic">$1</span>')
       
       // Alignment formatting

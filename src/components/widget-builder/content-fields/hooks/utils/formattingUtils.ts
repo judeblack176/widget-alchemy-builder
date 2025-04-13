@@ -60,10 +60,10 @@ export const applyTextFormatting = (
         }
         break;
       case "align":
-        formattedText = `<span class="text-${value}">${selection}</span>`;
+        formattedText = `<span class="align-${value}">${selection}</span>`;
         break;
       case "size":
-        formattedText = `<span class="text-${value}">${selection}</span>`;
+        formattedText = `<span class="size-${value}">${selection}</span>`;
         break;
       case "color":
       case "background-color":
