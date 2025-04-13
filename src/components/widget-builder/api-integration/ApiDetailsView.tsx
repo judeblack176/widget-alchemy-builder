@@ -1,16 +1,10 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { X, Plus, Trash2 } from "lucide-react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { useForm } from "react-hook-form";
+import ApiHeader from "./components/ApiHeader";
+import ApiInfo from "./components/ApiInfo";
+import ContentFieldSection from "./components/ContentFieldSection";
+import { useApiFields } from "./hooks/useApiFields";
 
 interface ApiDetailsViewProps {
   component: WidgetComponent;
@@ -18,64 +12,19 @@ interface ApiDetailsViewProps {
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
 }
 
-interface ContentFieldForm {
-  label: string;
-  apiField: string;
-  mapping: string;
-}
-
 const ApiDetailsView: React.FC<ApiDetailsViewProps> = ({
   component,
   selectedApi,
   onUpdateComponent
 }) => {
-  const [newFieldLabel, setNewFieldLabel] = useState<string>("");
-  const [newFieldApiField, setNewFieldApiField] = useState<string>("");
-  const [newFieldMapping, setNewFieldMapping] = useState<string>("");
-  
-  const form = useForm<ContentFieldForm>({
-    defaultValues: {
-      label: "",
-      apiField: "",
-      mapping: ""
-    }
-  });
-
   if (!selectedApi) return null;
 
-  const getAvailableApiFields = () => {
-    if (!selectedApi) return [];
-    
-    // Use possibleFields if available, otherwise extract from sampleResponse
-    if (selectedApi.possibleFields && selectedApi.possibleFields.length > 0) {
-      return selectedApi.possibleFields;
-    }
-    
-    // Try to parse sampleResponse if available
-    if (selectedApi.sampleResponse) {
-      try {
-        const sampleData = JSON.parse(selectedApi.sampleResponse);
-        // Get all top-level keys
-        return Object.keys(sampleData);
-      } catch (e) {
-        return [];
-      }
-    }
-    
-    return [];
-  };
+  const { availableApiFields, availableMappings } = useApiFields(selectedApi);
 
-  const getAvailableMappings = () => {
-    return [
-      "content",
-      "title",
-      "description",
-      "data",
-      "items",
-      "message",
-      "status",
-      "result"
-    ];
+  const handleDisconnectApi = () => {
+    const updatedComponent = { ...component };
+    delete updatedComponent.apiConfig;
+    onUpdateComponent(updatedComponent);
   };
 
   const handleDataMappingChange = (propKey: string, apiField: string) => {
@@ -115,202 +64,21 @@ const ApiDetailsView: React.FC<ApiDetailsViewProps> = ({
     onUpdateComponent(updatedComponent);
   };
 
-  const isFieldSelected = (propKey: string, apiField: string) => {
-    return component.apiConfig?.multiMapping?.[propKey]?.includes(apiField) || false;
-  };
-
-  const addContentField = () => {
-    if (!newFieldLabel.trim() || !newFieldApiField.trim()) return;
-
-    const newContentFields = [
-      ...(component.contentFields || []),
-      {
-        label: newFieldLabel,
-        apiField: newFieldApiField,
-        mapping: newFieldMapping || newFieldLabel.toLowerCase() // Use mapping or fallback to lowercase label
-      }
-    ];
-
-    // Update the component with the new content field
-    const updatedComponent = {
-      ...component,
-      contentFields: newContentFields
-    };
-
-    onUpdateComponent(updatedComponent);
-
-    // Reset the inputs
-    setNewFieldLabel("");
-    setNewFieldApiField("");
-    setNewFieldMapping("");
-    form.reset();
-  };
-
-  const removeContentField = (index: number) => {
-    const currentFields = [...(component.contentFields || [])];
-    currentFields.splice(index, 1);
-
-    const updatedComponent = {
-      ...component,
-      contentFields: currentFields
-    };
-
-    onUpdateComponent(updatedComponent);
-  };
-
-  const availableApiFields = getAvailableApiFields();
-  const availableMappings = getAvailableMappings();
-
   return (
     <div className="space-y-4 mt-4 border rounded-md p-3 bg-gray-50">
-      <div className="flex justify-between items-center">
-        <h4 className="font-medium text-sm">Connected to: {selectedApi.name}</h4>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => {
-            const updatedComponent = { ...component };
-            delete updatedComponent.apiConfig;
-            onUpdateComponent(updatedComponent);
-          }}
-          className="h-6 text-red-500 hover:text-red-700"
-        >
-          <X size={14} className="mr-1" /> Disconnect
-        </Button>
-      </div>
+      <ApiHeader 
+        selectedApi={selectedApi}
+        onDisconnectApi={handleDisconnectApi}
+      />
 
-      {/* Display API details */}
-      <div className="space-y-3 text-sm">
-        <div className="flex items-center gap-2">
-          <span className="font-medium w-20">Endpoint:</span>
-          <span className="text-xs overflow-hidden overflow-ellipsis">{selectedApi.endpoint}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="font-medium w-20">Method:</span>
-          <Badge variant="outline" className="text-xs font-mono">
-            {selectedApi.method}
-          </Badge>
-        </div>
-      </div>
+      <ApiInfo selectedApi={selectedApi} />
 
-      {/* Parameters */}
-      {selectedApi.parameters && Object.keys(selectedApi.parameters).length > 0 && (
-        <div className="mt-1">
-          <Accordion type="single" collapsible>
-            <AccordionItem value="parameters">
-              <AccordionTrigger className="text-xs font-medium py-1">
-                Parameters
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="space-y-1 text-xs">
-                  {Object.entries(selectedApi.parameters).map(([key, value], idx) => (
-                    <div key={`param-${idx}`} className="flex items-center gap-2">
-                      <span className="font-medium">{key}:</span>
-                      <span className="text-gray-600">{value}</span>
-                    </div>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-      )}
-
-      {/* Content Field Mapping */}
-      <div className="mt-3 border-t pt-3">
-        <h5 className="text-sm font-medium mb-2">Add Content Fields</h5>
-        
-        <Form {...form}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-            <div>
-              <Label htmlFor="field-label" className="text-xs">Field Label</Label>
-              <Input 
-                id="field-label" 
-                value={newFieldLabel} 
-                onChange={(e) => setNewFieldLabel(e.target.value)}
-                placeholder="Enter field label"
-                className="h-8 text-sm"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="api-field" className="text-xs">API Field</Label>
-              <Select value={newFieldApiField} onValueChange={setNewFieldApiField}>
-                <SelectTrigger id="api-field" className="h-8 text-sm">
-                  <SelectValue placeholder="Select API field" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableApiFields.map((field) => (
-                    <SelectItem key={field} value={field}>
-                      {field}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="field-mapping" className="text-xs">Mapping</Label>
-              <Select value={newFieldMapping} onValueChange={setNewFieldMapping}>
-                <SelectTrigger id="field-mapping" className="h-8 text-sm">
-                  <SelectValue placeholder="Select mapping" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableMappings.map((field) => (
-                    <SelectItem key={field} value={field}>
-                      {field}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <div className="flex justify-end">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={addContentField}
-              disabled={!newFieldLabel || !newFieldApiField}
-              className="h-8 px-3"
-            >
-              <Plus size={14} className="mr-1" /> Add Field
-            </Button>
-          </div>
-        </Form>
-
-        {/* List of mapped content fields */}
-        {component.contentFields && component.contentFields.length > 0 && (
-          <div className="mt-4 space-y-2">
-            <h6 className="text-xs font-medium">Mapped Fields:</h6>
-            <div className="space-y-1">
-              {component.contentFields.map((field, idx) => (
-                <div key={idx} className="flex justify-between items-center py-1 px-2 bg-white rounded border text-sm">
-                  <div className="flex items-center gap-1 flex-wrap">
-                    <span className="font-medium">{field.label}:</span>
-                    <Badge variant="outline" className="text-xs bg-blue-50 text-blue-600">
-                      {field.apiField}
-                    </Badge>
-                    {field.mapping && (
-                      <Badge variant="outline" className="text-xs bg-green-50 text-green-600 ml-1">
-                        Maps to: {field.mapping}
-                      </Badge>
-                    )}
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => removeContentField(idx)}
-                    className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 size={14} />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+      <ContentFieldSection 
+        component={component}
+        availableApiFields={availableApiFields}
+        availableMappings={availableMappings}
+        onUpdateComponent={onUpdateComponent}
+      />
     </div>
   );
 };
