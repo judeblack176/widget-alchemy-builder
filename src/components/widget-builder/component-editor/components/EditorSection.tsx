@@ -1,4 +1,3 @@
-
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
@@ -21,7 +20,7 @@ interface EditorSectionProps {
 
 // Define an extended type for alert components with section property
 interface AlertComponentWithSection extends WidgetComponent {
-  alertPropertiesSection?: 'initial' | 'end';
+  alertPropertiesSection?: 'initial' | 'end' | 'title';
 }
 
 const EditorSection: React.FC<EditorSectionProps> = ({
@@ -69,18 +68,22 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   
   // Special handling for alert components: 
   // 1. API Integration
-  // 2. Alert Title & Type via PropertyEditor
+  // 2. Alert Title & Type via ContentFieldsManager
   // 3. Alert Message via ContentFieldsManager
   // 4. Dismissible & Auto Close via PropertyEditor 
   // 5. Tooltip at the end
   if (component.type === 'alert') {
-    // Split the alert properties into initial (title, type) and end properties (dismissible, autoClose)
-    const initialProps: AlertComponentWithSection = { 
+    // For the alert title, we'll use a separate content fields manager
+    const titleComponent: AlertComponentWithSection = { 
       ...component, 
       props: { ...component.props },
-      alertPropertiesSection: 'initial' // Will show title & type
+      alertPropertiesSection: 'title' // New section for title with API fields
     };
     
+    // For the alert message, we'll use the standard content fields manager
+    const messageComponent = { ...component };
+    
+    // For dismissible and autoClose settings
     const endProps: AlertComponentWithSection = { 
       ...component, 
       props: { ...component.props },
@@ -99,9 +102,9 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Property editor for title and type - Initial properties */}
+        {/* Alert Title with API Fields */}
         <PropertyEditor 
-          component={initialProps}
+          component={titleComponent}
           onUpdateComponent={onUpdateComponent}
         />
         
