@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { 
   Type, 
@@ -134,6 +135,7 @@ const TextFormattingToolbar: React.FC<TextFormattingToolbarProps> = ({
               size="sm" 
               className="h-7 w-7 p-0" 
               disabled={!selectedText}
+              title="Text Color"
             >
               <Palette size={16} color="#3b82f6" />
             </Button>
@@ -170,6 +172,7 @@ const TextFormattingToolbar: React.FC<TextFormattingToolbarProps> = ({
               size="sm" 
               className="h-7 w-7 p-0" 
               disabled={!selectedText}
+              title="Background Color"
             >
               <Palette size={16} color="#8b5cf6" />
             </Button>

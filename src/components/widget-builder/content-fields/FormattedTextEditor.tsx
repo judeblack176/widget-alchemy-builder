@@ -1,10 +1,10 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { WidgetComponent } from "@/types/widget-types";
 import { useToast } from "@/hooks/use-toast";
 import TextFormattingToolbar from "./TextFormattingToolbar";
 import ApiFieldsDisplay from "./ApiFieldsDisplay";
-import ColorPalettePicker from "../ColorPalettePicker";
 
 interface FormattedTextEditorProps {
   component: WidgetComponent;
@@ -173,15 +173,6 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
           onSelect={handleTextareaSelect}
         />
         
-        <div className="mt-3" onClick={handleInputClick}>
-          <ColorPalettePicker
-            label="Background Color"
-            value={component.props?.backgroundColor || "#FFFFFF"}
-            onChange={(value) => handlePropertyChange("backgroundColor", value)}
-            className="mb-0"
-          />
-        </div>
-
         <ApiFieldsDisplay 
           component={component}
           onInputClick={handleInputClick}
