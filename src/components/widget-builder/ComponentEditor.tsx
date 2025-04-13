@@ -141,12 +141,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             />
           )}
 
-          {/* Property editor */}
-          <PropertyEditor 
-            component={component}
-            onUpdateComponent={onUpdateComponent}
-          />
-
           {/* Content Fields Manager - Show for components that support formatted content */}
           {shouldShowContentEditor() && (
             <ContentFieldsManager 
@@ -154,6 +148,12 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
               onUpdateComponent={onUpdateComponent}
             />
           )}
+
+          {/* Property editor */}
+          <PropertyEditor 
+            component={component}
+            onUpdateComponent={onUpdateComponent}
+          />
 
           {/* Action Buttons */}
           {showActionButtons && (

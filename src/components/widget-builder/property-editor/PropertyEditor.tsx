@@ -46,14 +46,6 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
     onUpdateComponent(updatedComponent);
   };
 
-  const handleFormattedContentChange = (value: string) => {
-    const updatedComponent = {
-      ...component,
-      formattedContent: value
-    };
-    onUpdateComponent(updatedComponent);
-  };
-
   const availableIcons = [
     { name: "BookOpen", component: <BookOpen size={18} /> },
     { name: "Library", component: <Library size={18} /> },
@@ -78,6 +70,11 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
     label: string;
     options?: string[];
   }) => {
+    // Skip content property as we've moved it to ContentFieldsManager
+    if (property.name === "content") {
+      return null;
+    }
+    
     const value = component.props && component.props[property.name];
 
     switch (property.type) {
@@ -114,6 +111,10 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
           />
         );
       case "text":
+        // Skip text-related properties for text components as they're in ContentFieldsManager
+        if (component.type === "text" && ["size", "color", "bold", "italic"].includes(property.name)) {
+          return null;
+        }
         return (
           <div key={property.name} className="mb-4">
             <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
@@ -125,6 +126,10 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
           </div>
         );
       case "select":
+        // Skip text-related properties for text components as they're in ContentFieldsManager
+        if (component.type === "text" && ["size", "bold", "italic"].includes(property.name)) {
+          return null;
+        }
         return (
           <div key={property.name} className="mb-4">
             <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
