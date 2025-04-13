@@ -1,8 +1,12 @@
 
 import React from 'react';
 import { getIconByName } from '../iconUtils';
+import parse from 'html-react-parser';
 
 export const headerRenderer = (finalProps: Record<string, any>) => {
+  // Process the header content - use either formattedContent or name
+  const headerContent = finalProps.formattedContent || finalProps.name || "Header";
+  
   return (
     <div 
       className="w-full p-3 sticky top-0 z-10"
@@ -17,16 +21,11 @@ export const headerRenderer = (finalProps: Record<string, any>) => {
     >
       <div className="flex items-center text-left pl-8">
         {getIconByName(finalProps.icon || 'BookOpen')}
-        <h2 
-          className="text-left ml-2"
-          style={{
-            fontFamily: finalProps.fontFamily || 'system-ui',
-            fontWeight: finalProps.bold ? 'bold' : 'normal',
-            fontStyle: finalProps.italic ? 'italic' : 'normal'
-          }}
-        >
-          {finalProps.name || "Header"}
-        </h2>
+        <div className="ml-2">
+          {headerContent && typeof headerContent === 'string' && headerContent.includes('<span') 
+            ? parse(headerContent) 
+            : <h2 className="text-left">{headerContent}</h2>}
+        </div>
       </div>
     </div>
   );

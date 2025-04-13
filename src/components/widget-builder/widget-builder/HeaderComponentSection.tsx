@@ -29,9 +29,18 @@ const HeaderComponentSection: React.FC<HeaderComponentSectionProps> = ({
   tooltips = []
 }) => {
   const cardStyle = "w-full bg-white border shadow-sm";
-  
-  // Remove auto-expand effect
 
+  // Update component when formatted content changes
+  const handleUpdateComponent = (updatedComponent: WidgetComponent) => {
+    // Initialize formattedContent if needed
+    if (updatedComponent.formattedContent === undefined && 
+        updatedComponent.props && 
+        updatedComponent.props.name) {
+      updatedComponent.formattedContent = updatedComponent.props.name;
+    }
+    onUpdateComponent(updatedComponent);
+  };
+  
   return (
     <Card className={`${cardStyle} border-blue-500`}>
       <div className="relative w-full">
@@ -44,7 +53,7 @@ const HeaderComponentSection: React.FC<HeaderComponentSectionProps> = ({
               expandedComponentId === headerComponent.id ? null : headerComponent.id
             );
           }}
-          onUpdateComponent={onUpdateComponent}
+          onUpdateComponent={handleUpdateComponent}
           onRemoveComponent={onRemoveComponent}
           onRequestApiTemplate={() => onRequestApiTemplate(headerComponent.id)}
           onApplyTooltip={onApplyTooltip ? 

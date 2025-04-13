@@ -1,17 +1,39 @@
 
-import { WidgetComponent } from "@/types/widget-types";
+import { ComponentType } from "@/types/widget-types";
 
-export const useComponentVisibility = (componentType: string) => {
+interface ComponentVisibility {
+  shouldShowDataIntegration: () => boolean;
+  shouldShowContentEditor: () => boolean;
+}
+
+export const useComponentVisibility = (componentType: ComponentType): ComponentVisibility => {
   const shouldShowDataIntegration = () => {
-    const dataIntegrationComponents = ['text', 'alert', 'chart', 'calendar', 'multi-text', 'table', 'searchbar'];
-    return dataIntegrationComponents.includes(componentType);
+    // Components that support data integration
+    const supportsDataIntegration = [
+      'text',
+      'image',
+      'chart',
+      'table',
+      'multi-text',
+      'filter'
+    ];
+    
+    return supportsDataIntegration.includes(componentType);
   };
-
+  
   const shouldShowContentEditor = () => {
-    const contentEditorComponents = ['text', 'alert', 'multi-text'];
-    return contentEditorComponents.includes(componentType);
+    // Components that support content editing
+    const supportsContentEditor = [
+      'text',
+      'header',
+      'button',
+      'alert',
+      'multi-text'
+    ];
+    
+    return supportsContentEditor.includes(componentType);
   };
-
+  
   return {
     shouldShowDataIntegration,
     shouldShowContentEditor

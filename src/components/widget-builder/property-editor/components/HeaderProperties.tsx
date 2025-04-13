@@ -3,6 +3,7 @@ import React from "react";
 import { WidgetComponent } from "@/types/widget-types";
 import PropertyField from "./PropertyField";
 import { getPropertyDefinitions } from "../propertyDefinitions";
+import FormattedTextEditor from "../../content-fields/FormattedTextEditor";
 
 interface HeaderPropertiesProps {
   component: WidgetComponent;
@@ -25,10 +26,13 @@ const HeaderProperties: React.FC<HeaderPropertiesProps> = ({
   };
 
   const propertyDefinitions = getPropertyDefinitions(component.type);
-  // Extract the properties we want to show
+  // Only show icon property
   const iconProperty = propertyDefinitions.find(p => p.name === 'icon');
-  const nameProperty = propertyDefinitions.find(p => p.name === 'name');
-  const otherProperties = propertyDefinitions.filter(p => !['icon', 'name'].includes(p.name));
+  
+  // Filter out properties we want to remove
+  const otherProperties = propertyDefinitions.filter(p => 
+    !['icon', 'name', 'backgroundColor', 'textColor', 'fontFamily', 'bold', 'italic'].includes(p.name)
+  );
   
   return (
     <div>
@@ -43,16 +47,13 @@ const HeaderProperties: React.FC<HeaderPropertiesProps> = ({
           />
         )}
         
-        {/* Then show name */}
-        {nameProperty && (
-          <PropertyField 
-            property={nameProperty} 
-            value={component.props?.[nameProperty.name]} 
-            onChange={handlePropertyChange} 
-          />
-        )}
+        {/* Use formatted text editor for header name */}
+        <FormattedTextEditor 
+          component={component}
+          onUpdateComponent={onUpdateComponent}
+        />
         
-        {/* Then show other properties */}
+        {/* Show remaining properties */}
         {otherProperties.map(property => (
           <PropertyField 
             key={property.name}

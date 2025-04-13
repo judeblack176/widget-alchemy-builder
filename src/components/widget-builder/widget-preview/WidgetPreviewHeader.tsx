@@ -16,13 +16,20 @@ const WidgetPreviewHeader: React.FC<WidgetPreviewHeaderProps> = ({
     return null;
   }
 
+  // Ensure headerComponent has formattedContent set
+  const processedHeaderComponent = {
+    ...headerComponent,
+    // Initialize with name if formattedContent is not set
+    formattedContent: headerComponent.formattedContent || headerComponent.props?.name || "Header"
+  };
+
   return (
     <div className="sticky top-0 z-20">
       <ComponentRenderer
-        component={headerComponent}
-        componentData={componentDataProvider(headerComponent)}
+        component={processedHeaderComponent}
+        componentData={componentDataProvider(processedHeaderComponent)}
         index={0}
-        headerComponent={headerComponent}
+        headerComponent={processedHeaderComponent}
       />
     </div>
   );
