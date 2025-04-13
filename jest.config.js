@@ -22,5 +22,8 @@ module.exports = {
     'ts-jest': {
       isolatedModules: true
     }
+  },
+  testEnvironmentOptions: {
+    url: 'http://localhost/'
   }
 };
