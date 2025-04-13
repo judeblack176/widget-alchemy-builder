@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip as CustomTooltip } from "../TooltipManager";
-import PropertyEditor from "../property-editor/PropertyEditor";
 import { useComponentVisibility } from "./useComponentVisibility";
 import ActionButtons from "./ActionButtons";
 import { componentTypeLabels } from "./IconMapping";
@@ -74,7 +73,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
       {isExpanded && (
         <div className="p-4 space-y-6">
-          {/* For header components, use EditorSection with specific order */}
           <EditorSection 
             component={component}
             apis={apis}
@@ -87,14 +85,6 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             shouldShowContentEditor={shouldShowContentEditor}
           />
           
-          {/* For non-header and non-alert components, show PropertyEditor */}
-          {!isHeader && component.type !== 'alert' && (
-            <PropertyEditor 
-              component={component}
-              onUpdateComponent={onUpdateComponent}
-            />
-          )}
-
           {/* Action Buttons */}
           {showActionButtons && (
             <ActionButtons
@@ -110,4 +100,3 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 };
 
 export default ComponentEditor;
-

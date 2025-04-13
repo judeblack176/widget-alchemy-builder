@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { getIconByName } from '../iconUtils';
 
 export const buttonRenderer = (finalProps: Record<string, any>) => {
   const handleButtonClick = () => {
@@ -17,6 +18,9 @@ export const buttonRenderer = (finalProps: Record<string, any>) => {
     finalProps.alignment === 'right' ? 'text-right w-full' : 
     'text-left w-full';
   
+  // Get the icon component if an icon is specified
+  const iconComponent = finalProps.icon ? getIconByName(finalProps.icon) : null;
+  
   return (
     <div className={`pb-2 ${alignmentClass}`}>
       <Button
@@ -29,6 +33,7 @@ export const buttonRenderer = (finalProps: Record<string, any>) => {
           color: finalProps.textColor || '#FFFFFF',
         }}
       >
+        {iconComponent}
         {finalProps.label || "Button"}
       </Button>
     </div>
