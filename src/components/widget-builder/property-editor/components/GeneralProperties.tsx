@@ -27,20 +27,24 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
   // Get property definitions but reorder for alert components
   let propertyDefinitions = getPropertyDefinitions(component.type);
   
-  // For alert components, reorder properties to put title above type
+  // For alert components, reorder properties specifically
   if (component.type === 'alert') {
-    // Find title and type definitions
+    // Reorder alert properties to match specific requirements
     const titleDef = propertyDefinitions.find(p => p.name === 'title');
     const typeDef = propertyDefinitions.find(p => p.name === 'type');
+    const contentDef = propertyDefinitions.find(p => p.name === 'content');
+    const dismissibleDef = propertyDefinitions.find(p => p.name === 'dismissible');
+    const autoCloseDef = propertyDefinitions.find(p => p.name === 'autoClose');
     
-    // If both exist, reorder them
-    if (titleDef && typeDef) {
-      propertyDefinitions = propertyDefinitions
-        .filter(p => p.name !== 'title' && p.name !== 'type') // Remove both
-        .sort((a, b) => a.name.localeCompare(b.name)); // Sort other props
-      
-      // Add title first, then type, then other properties
-      propertyDefinitions = [titleDef, typeDef, ...propertyDefinitions];
+    // Explicitly set the order: title, type, content, dismissible, autoClose
+    if (titleDef && typeDef && contentDef && dismissibleDef && autoCloseDef) {
+      propertyDefinitions = [
+        titleDef,
+        typeDef,
+        contentDef,
+        dismissibleDef,
+        autoCloseDef
+      ];
     }
   }
   
@@ -51,26 +55,14 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
     <div>
       <h3 className="text-sm font-semibold mb-4">{headerTitle}</h3>
       <div className="space-y-1">
-        {propertyDefinitions.map((property) => {
-          // Skip content property as it's in ContentFieldsManager
-          if (property.name === "content") {
-            return null;
-          }
-          
-          // Skip text-related properties for text components as they're in ContentFieldsManager
-          if (component.type === "text" && ["size", "color", "bold", "italic"].includes(property.name)) {
-            return null;
-          }
-          
-          return (
-            <PropertyField 
-              key={property.name}
-              property={property} 
-              value={component.props?.[property.name]} 
-              onChange={handlePropertyChange} 
-            />
-          );
-        })}
+        {propertyDefinitions.map((property) => (
+          <PropertyField 
+            key={property.name}
+            property={property} 
+            value={component.props?.[property.name]} 
+            onChange={handlePropertyChange} 
+          />
+        ))}
       </div>
     </div>
   );
