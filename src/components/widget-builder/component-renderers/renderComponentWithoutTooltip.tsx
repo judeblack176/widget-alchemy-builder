@@ -23,14 +23,16 @@ export const renderComponentWithoutTooltip = (component: WidgetComponent, apiDat
     return renderErrorComponent(`Unsupported component type: ${type}`);
   }
   
-  // Process component props with formatted content
-  // For display in the component list, we clean the HTML content
-  const displayContent = formattedContent ? cleanHtmlContent(formattedContent) : '';
+  // Process component props with API data and content fields
+  const processedProps = processApiData(component, apiData);
   
-  // For rendering, we use the original formatted content with HTML tags
+  // For display in the component list, we clean the HTML content
+  const originalContent = formattedContent || '';
+  const displayContent = originalContent ? cleanHtmlContent(originalContent) : '';
+  
+  // For rendering, we use the processed content with replaced field values
   const finalProps = {
-    ...processApiData(component, apiData),
-    formattedContent,
+    ...processedProps,
     displayContent // Add clean content for display purposes
   };
   

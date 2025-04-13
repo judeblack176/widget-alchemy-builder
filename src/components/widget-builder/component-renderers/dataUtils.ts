@@ -42,10 +42,13 @@ export const processApiData = (component: WidgetComponent, apiData?: any) => {
           }
         }
         
+        // Replace all occurrences of the placeholder
         processedContent = processedContent.replace(new RegExp(placeholder, 'g'), String(displayValue));
       }
     });
     
+    // Update both formattedContent and content props for consistent rendering
+    finalProps.formattedContent = processedContent;
     finalProps.content = processedContent;
   }
   

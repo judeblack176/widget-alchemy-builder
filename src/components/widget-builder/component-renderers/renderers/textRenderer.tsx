@@ -77,6 +77,7 @@ export const textRenderer = (finalProps: Record<string, any>) => {
     return formattedContent;
   };
 
+  // Use the already processed content from dataUtils if available, otherwise fall back to original content
   const content = finalProps.formattedContent || finalProps.content || "Text content";
   const processedContent = processFormattedContent(content);
   

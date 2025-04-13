@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
@@ -51,7 +52,13 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
     const apiId = component.apiConfig.apiId;
     const apiResult = apiData[apiId];
     
-    if (!apiResult || !component.apiConfig.multiMapping) {
+    if (!apiResult || !apiResult) {
+      console.log(`No API data found for component ${component.id}, API ID: ${apiId}`);
+      return undefined;
+    }
+    
+    if (!component.apiConfig.multiMapping) {
+      console.log(`Returning API data for component ${component.id}:`, apiResult);
       return apiResult;
     }
     
@@ -69,6 +76,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
       }
     });
     
+    console.log(`Processed API data for component ${component.id}:`, processedData);
     return processedData;
   };
 

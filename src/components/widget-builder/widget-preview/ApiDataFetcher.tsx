@@ -23,15 +23,20 @@ export const useApiDataFetcher = (apis: ApiConfig[]) => {
             continue;
           }
           
+          // First try to use sample response if available
           if (api.sampleResponse) {
             try {
-              apiDataResults[api.id] = JSON.parse(api.sampleResponse);
+              const sampleData = JSON.parse(api.sampleResponse);
+              apiDataResults[api.id] = sampleData;
+              console.log(`Using sample response for API ${api.name}`);
               continue;
             } catch (error) {
               console.error(`Failed to parse sample response for API ${api.name}:`, error);
             }
           }
           
+          // If no sample response or parsing failed, try to fetch data
+          console.log(`Fetching data for API ${api.name} from ${api.endpoint}`);
           const response = await fetch(api.endpoint, {
             method: api.method,
             headers: api.headers || {},
@@ -44,6 +49,7 @@ export const useApiDataFetcher = (apis: ApiConfig[]) => {
           }
 
           const data = await response.json();
+          console.log(`Received data for API ${api.name}:`, data);
           apiDataResults[api.id] = data;
         } catch (error) {
           console.error(`Error fetching API ${api.name}:`, error);
@@ -51,6 +57,7 @@ export const useApiDataFetcher = (apis: ApiConfig[]) => {
         }
       }
 
+      console.log('Final API data:', apiDataResults);
       setApiData(apiDataResults);
     };
 
