@@ -5,7 +5,7 @@ import PropertyField from "./PropertyField";
 import { getPropertyDefinitions } from "../propertyDefinitions";
 
 interface GeneralPropertiesProps {
-  component: WidgetComponent & { alertPropertiesSection?: 'initial' | 'end' | 'title' | 'type' };
+  component: WidgetComponent & { alertPropertiesSection?: 'initial' | 'end' | 'title' };
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
 }
 
@@ -43,11 +43,7 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
       if (section === 'initial' && typeDef) {
         propertyDefinitions = [typeDef];
       }
-      // Type section: handled by FormattedTextEditor
-      else if (section === 'type' && typeDef) {
-        propertyDefinitions = [typeDef]; 
-      }
-      // Title section: handled by FormattedTextEditor
+      // Title section: show only title field (through FormattedTextEditor)
       else if (section === 'title' && titleDef) {
         propertyDefinitions = [titleDef];
       }
@@ -68,8 +64,6 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
   if (component.type === 'alert' && component.alertPropertiesSection) {
     const section = component.alertPropertiesSection;
     if (section === 'initial') {
-      headerTitle = "Alert Type";
-    } else if (section === 'type') {
       headerTitle = "Alert Type";
     } else if (section === 'title') {
       headerTitle = "Alert Title";
