@@ -76,21 +76,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     
     return (
       <>
-        {shouldShowDataIntegration() && (
-          <ApiIntegrationSection 
-            component={component}
-            apis={apis}
-            onUpdateComponent={onUpdateComponent}
-            onRequestApiTemplate={onRequestApiTemplate}
-          />
-        )}
-        
-        <PropertyEditor 
-          component={component}
-          onUpdateComponent={onUpdateComponent}
-          excludeProperties={['title']} 
-        />
-        
         <ContentFieldsManager 
           component={titleComponent}
           onUpdateComponent={handleTitleUpdate}
@@ -103,6 +88,21 @@ const EditorSection: React.FC<EditorSectionProps> = ({
             component={component}
             onUpdateComponent={onUpdateComponent}
             customLabel="Alert Message"
+          />
+        )}
+        
+        <PropertyEditor 
+          component={component}
+          onUpdateComponent={onUpdateComponent}
+          excludeProperties={['title']} 
+        />
+        
+        {shouldShowDataIntegration() && (
+          <ApiIntegrationSection 
+            component={component}
+            apis={apis}
+            onUpdateComponent={onUpdateComponent}
+            onRequestApiTemplate={onRequestApiTemplate}
           />
         )}
         
