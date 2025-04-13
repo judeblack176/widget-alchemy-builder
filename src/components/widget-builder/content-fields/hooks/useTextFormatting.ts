@@ -54,34 +54,12 @@ export const useTextFormatting = (
     if (newContent) {
       handleFormattedContentChange(newContent);
       
-      // Reset selection after applying format
-      if (selectedText) {
-        const beforeSelection = content.substring(0, selectedText.start);
-        let formattedLength = 0;
-        
-        // Calculate length of formatted text based on format type
-        switch (format) {
-          case "weight":
-            if (value === "bold") {
-              formattedLength = `<strong>${content.substring(selectedText.start, selectedText.end)}</strong>`.length;
-            }
-            break;
-          case "style":
-            if (value === "italic") {
-              formattedLength = `<em>${content.substring(selectedText.start, selectedText.end)}</em>`.length;
-            }
-            break;
-          default:
-            const selection = content.substring(selectedText.start, selectedText.end);
-            formattedLength = `<span class="${format === 'background-color' ? 'background-color' : format}-${value}">${selection}</span>`.length;
-        }
-        
-        updateCursorPosition(textareaRef, inputRef, beforeSelection.length, formattedLength);
-      }
+      // Reset selection after applying format to avoid seeing HTML tags
+      setSelectedText(null);
       
       toast({
         title: "Format applied",
-        description: `Applied ${format}: ${value} to selected text.`
+        description: `Applied ${format}: ${value} to text.`
       });
     }
   };

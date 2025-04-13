@@ -1,7 +1,5 @@
 
 import React from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 
 interface TextInputProps {
   singleLine: boolean;
@@ -12,6 +10,7 @@ interface TextInputProps {
   onInputClick: (e: React.MouseEvent) => void;
   onFocus: (e: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
   onSelect: (e: React.SyntheticEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+  visibleValue?: string; // New prop for displaying clean content
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -23,33 +22,43 @@ const TextInput: React.FC<TextInputProps> = ({
   onInputClick,
   onFocus,
   onSelect,
+  visibleValue
 }) => {
-  if (singleLine) {
-    return (
-      <Input
+  // Use visibleValue for display if provided, otherwise use the raw value
+  const displayValue = visibleValue !== undefined ? visibleValue : value;
+
+  // We maintain the actual HTML in 'value' for the component state
+  // but show the user the cleaner 'displayValue'
+  
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    onChange(e.target.value);
+  };
+
+  return singleLine ? (
+    <div className="mt-2">
+      <input
         ref={inputRef}
-        className="w-full border rounded p-2 text-sm"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Enter header text..."
+        type="text"
+        className="w-full h-10 px-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        value={displayValue}
+        onChange={handleChange}
         onClick={onInputClick}
         onFocus={onFocus}
-        onSelect={onSelect as React.FormEventHandler<HTMLInputElement>}
+        onSelect={onSelect as any}
       />
-    );
-  }
-
-  return (
-    <Textarea
-      ref={textareaRef}
-      className="w-full h-32 border rounded p-2 text-sm"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder="Enter formatted content or use API fields..."
-      onClick={onInputClick}
-      onFocus={onFocus}
-      onSelect={onSelect as React.FormEventHandler<HTMLTextAreaElement>}
-    />
+    </div>
+  ) : (
+    <div className="mt-2">
+      <textarea
+        ref={textareaRef}
+        className="w-full h-32 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        value={displayValue}
+        onChange={handleChange}
+        onClick={onInputClick}
+        onFocus={onFocus}
+        onSelect={onSelect as any}
+      />
+    </div>
   );
 };
 
