@@ -13,7 +13,11 @@ import {
   List, 
   LinkIcon, 
   Text,
-  Trash2
+  Trash2,
+  AlertTriangle,
+  Filter,
+  Table2,
+  Search
 } from 'lucide-react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
