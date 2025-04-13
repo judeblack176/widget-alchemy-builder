@@ -3,7 +3,7 @@
 import '@testing-library/jest-dom';
 
 // Mock timers
-global.jest.useFakeTimers();
+jest.useFakeTimers();
 
 // Mock ResizeObserver which isn't available in jest-dom environment
 global.ResizeObserver = jest.fn().mockImplementation(() => ({

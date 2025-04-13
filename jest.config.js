@@ -18,4 +18,9 @@ module.exports = {
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
   ],
+  globals: {
+    'ts-jest': {
+      isolatedModules: true
+    }
+  }
 };
