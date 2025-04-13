@@ -20,7 +20,6 @@ import {
   ExternalLink,
   Download,
   ArrowDown,
-  ArrowUpDown
 } from 'lucide-react';
 
 export const getIconByName = (iconName: string) => {
@@ -55,7 +54,7 @@ export const getLinkIcon = (iconName: string) => {
   }
 };
 
-export const ChevronDown = ({ size = 24, className = "" }) => (
+export const ChevronDown = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     width={size} 
@@ -72,7 +71,7 @@ export const ChevronDown = ({ size = 24, className = "" }) => (
   </svg>
 );
 
-export const ChevronLeft = ({ size = 24, className = "" }) => (
+export const ChevronLeft = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     width={size} 
@@ -89,7 +88,7 @@ export const ChevronLeft = ({ size = 24, className = "" }) => (
   </svg>
 );
 
-export const ChevronRight = ({ size = 24, className = "" }) => (
+export const ChevronRight = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     width={size} 
@@ -106,7 +105,7 @@ export const ChevronRight = ({ size = 24, className = "" }) => (
   </svg>
 );
 
-export const ArrowUpDown = ({ size = 24, className = "" }) => (
+export const CustomArrowUpDown = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     width={size} 

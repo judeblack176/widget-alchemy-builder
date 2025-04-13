@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
-import { renderComponent } from './component-renderers';
+import { renderComponent } from '@/components/widget-builder/component-renderers';
 import { HelpCircle, AlertCircle, Check, Ruler, Palette } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
