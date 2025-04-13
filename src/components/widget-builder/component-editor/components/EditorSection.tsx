@@ -19,6 +19,11 @@ interface EditorSectionProps {
   shouldShowContentEditor: () => boolean;
 }
 
+// Define an extended type for alert components with section property
+interface AlertComponentWithSection extends WidgetComponent {
+  alertPropertiesSection?: 'initial' | 'end';
+}
+
 const EditorSection: React.FC<EditorSectionProps> = ({
   component,
   apis,
@@ -70,12 +75,17 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   // 5. Tooltip at the end
   if (component.type === 'alert') {
     // Split the alert properties into initial (title, type) and end properties (dismissible, autoClose)
-    const initialProps = { ...component, props: { ...component.props } };
-    const endProps = { ...component, props: { ...component.props } };
+    const initialProps: AlertComponentWithSection = { 
+      ...component, 
+      props: { ...component.props },
+      alertPropertiesSection: 'initial' // Will show title & type
+    };
     
-    // For PropertyEditor rendering pass, we need to tell the component which properties to show
-    initialProps.alertPropertiesSection = 'initial'; // Will show title & type
-    endProps.alertPropertiesSection = 'end'; // Will show dismissible & autoClose
+    const endProps: AlertComponentWithSection = { 
+      ...component, 
+      props: { ...component.props },
+      alertPropertiesSection: 'end' // Will show dismissible & autoClose
+    };
     
     return (
       <>

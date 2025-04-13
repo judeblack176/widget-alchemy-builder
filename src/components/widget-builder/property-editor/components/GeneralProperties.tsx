@@ -5,7 +5,7 @@ import PropertyField from "./PropertyField";
 import { getPropertyDefinitions } from "../propertyDefinitions";
 
 interface GeneralPropertiesProps {
-  component: WidgetComponent;
+  component: WidgetComponent & { alertPropertiesSection?: 'initial' | 'end' };
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
 }
 
@@ -36,8 +36,8 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
     const autoCloseDef = propertyDefinitions.find(p => p.name === 'autoClose');
     
     // If this is a sectioned alert component, show only the relevant properties
-    if ('alertPropertiesSection' in component) {
-      const section = (component as any).alertPropertiesSection;
+    if (component.alertPropertiesSection) {
+      const section = component.alertPropertiesSection;
       
       // Initial section: show title and type only
       if (section === 'initial' && titleDef && typeDef) {
@@ -57,8 +57,8 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
   // Change header title for alert components to "Alert Settings"
   // For sectioned alert properties, use more specific headers
   let headerTitle = component.type === 'alert' ? "Alert Settings" : "Properties";
-  if (component.type === 'alert' && 'alertPropertiesSection' in component) {
-    const section = (component as any).alertPropertiesSection;
+  if (component.type === 'alert' && component.alertPropertiesSection) {
+    const section = component.alertPropertiesSection;
     if (section === 'initial') {
       headerTitle = "Alert Title & Type";
     } else if (section === 'end') {

@@ -6,7 +6,7 @@ import GeneralProperties from "./components/GeneralProperties";
 import { cleanHtmlContent } from "../component-renderers/renderComponentWithoutTooltip";
 
 interface PropertyEditorProps {
-  component: WidgetComponent;
+  component: WidgetComponent & { alertPropertiesSection?: 'initial' | 'end' };
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
 }
 
@@ -38,7 +38,7 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
         onUpdateComponent={(updatedComponent) => {
           // Remove the temporary section property before updating
           const { alertPropertiesSection, ...cleanComponent } = updatedComponent as any;
-          onUpdateComponent(cleanComponent);
+          onUpdateComponent(cleanComponent as WidgetComponent);
         }} 
       />
     );
