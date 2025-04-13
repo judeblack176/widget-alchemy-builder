@@ -1,4 +1,3 @@
-
 import React from "react";
 import { WidgetComponent } from "@/types/widget-types";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +33,6 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
   isExpanded,
   onRemove
 }) => {
-  // Function to get the appropriate icon based on component type
   const getComponentIcon = () => {
     switch (component.type) {
       case 'header': return <BookOpen size={16} />;
@@ -69,7 +67,6 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
     }
     
     if (component.props?.content) {
-      // Truncate content if too long
       const content = String(component.props.content);
       return content.length > 30 ? `${content.slice(0, 30)}...` : content;
     }
@@ -117,4 +114,3 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
 };
 
 export default ComponentHeader;
-
