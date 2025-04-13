@@ -18,14 +18,14 @@ export const headerRenderer = (finalProps: Record<string, any>) => {
       <div className="flex items-center text-left pl-8">
         {getIconByName(finalProps.icon || 'BookOpen')}
         <h2 
-          className="text-left"
+          className="text-left ml-2"
           style={{
             fontFamily: finalProps.fontFamily || 'system-ui',
             fontWeight: finalProps.bold ? 'bold' : 'normal',
             fontStyle: finalProps.italic ? 'italic' : 'normal'
           }}
         >
-          {finalProps.name || finalProps.title || "Header"}
+          {finalProps.name || "Header"}
         </h2>
       </div>
     </div>

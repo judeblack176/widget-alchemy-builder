@@ -76,6 +76,8 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
     }
     
     const value = component.props && component.props[property.name];
+    
+    console.log(`Rendering property: ${property.name}, type: ${property.type}, value: ${value}`);
 
     switch (property.type) {
       case "icon":
@@ -165,6 +167,7 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
   };
 
   const propertyDefinitions = getPropertyDefinitions(component.type);
+  console.log(`Property definitions for ${component.type}:`, propertyDefinitions);
 
   return (
     <div>

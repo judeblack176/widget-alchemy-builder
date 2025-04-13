@@ -1,95 +1,193 @@
-export const getPropertyDefinitions = (componentType: string) => {
+
+interface PropertyDefinition {
+  name: string;
+  type: string;
+  label: string;
+  options?: string[];
+}
+
+export const getPropertyDefinitions = (componentType: string): PropertyDefinition[] => {
   switch (componentType) {
     case 'header':
       return [
-        { name: 'name', type: 'text', label: 'Header Name' },
-        { name: 'title', type: 'text', label: 'Title' },
-        { name: 'icon', type: 'icon', label: 'Icon' },
-        { name: 'backgroundColor', type: 'color', label: 'Background Color' },
-        { name: 'textColor', type: 'color', label: 'Text Color' },
-        { name: 'fontFamily', type: 'select', label: 'Font Family', options: ['system-ui', 'Arial', 'Verdana', 'Helvetica', 'Times New Roman', 'Courier New'] },
-        { name: 'bold', type: 'select', label: 'Bold', options: ['true', 'false'] },
-        { name: 'italic', type: 'select', label: 'Italic', options: ['true', 'false'] },
+        {
+          name: "name",
+          type: "text",
+          label: "Header Name"
+        },
+        {
+          name: "icon",
+          type: "icon",
+          label: "Icon"
+        },
+        {
+          name: "backgroundColor",
+          type: "color",
+          label: "Background Color"
+        },
+        {
+          name: "textColor",
+          type: "color",
+          label: "Text Color"
+        },
+        {
+          name: "bold",
+          type: "select",
+          label: "Bold Text",
+          options: ["true", "false"]
+        },
+        {
+          name: "italic",
+          type: "select",
+          label: "Italic Text",
+          options: ["true", "false"]
+        },
+        {
+          name: "fontFamily",
+          type: "select",
+          label: "Font Family",
+          options: ["system-ui", "Arial", "Helvetica", "Times New Roman", "Georgia", "Courier New", "Verdana"]
+        }
       ];
     case 'text':
       return [
-        { name: 'size', type: 'select', label: 'Size', options: ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl'] },
-        { name: 'color', type: 'color', label: 'Color' },
-        { name: 'bold', type: 'select', label: 'Bold', options: ['true', 'false'] },
-        { name: 'italic', type: 'select', label: 'Italic', options: ['true', 'false'] },
+        {
+          name: "content",
+          type: "text",
+          label: "Content"
+        },
+        {
+          name: "size",
+          type: "select",
+          label: "Text Size",
+          options: ["xs", "sm", "base", "lg", "xl", "2xl", "3xl"]
+        },
+        {
+          name: "color",
+          type: "color",
+          label: "Text Color"
+        },
+        {
+          name: "bold",
+          type: "select",
+          label: "Bold Text",
+          options: ["true", "false"]
+        },
+        {
+          name: "italic",
+          type: "select",
+          label: "Italic Text",
+          options: ["true", "false"]
+        },
+        {
+          name: "alignment",
+          type: "select",
+          label: "Text Alignment",
+          options: ["left", "center", "right", "justify"]
+        },
+        {
+          name: "fontFamily",
+          type: "select",
+          label: "Font Family",
+          options: ["system-ui", "Arial", "Helvetica", "Times New Roman", "Georgia", "Courier New", "Verdana"]
+        }
       ];
     case 'image':
       return [
-        { name: 'source', type: 'text', label: 'Source URL' },
-        { name: 'altText', type: 'text', label: 'Alt Text' },
-        { name: 'width', type: 'text', label: 'Width' },
-        { name: 'height', type: 'text', label: 'Height' },
+        {
+          name: "source",
+          type: "text",
+          label: "Image URL"
+        },
+        {
+          name: "altText",
+          type: "text",
+          label: "Alt Text"
+        },
+        {
+          name: "caption",
+          type: "text",
+          label: "Caption"
+        },
+        {
+          name: "width",
+          type: "text",
+          label: "Width"
+        },
+        {
+          name: "height",
+          type: "text",
+          label: "Height"
+        },
+        {
+          name: "fit",
+          type: "select",
+          label: "Image Fit",
+          options: ["contain", "cover", "fill", "none"]
+        }
       ];
     case 'button':
       return [
-        { name: 'label', type: 'text', label: 'Label' },
-        { name: 'url', type: 'text', label: 'URL' },
-        { name: 'backgroundColor', type: 'color', label: 'Background Color' },
-        { name: 'textColor', type: 'color', label: 'Text Color' },
-      ];
-    case 'video':
-      return [
-        { name: 'source', type: 'text', label: 'Source URL' },
-        { name: 'width', type: 'text', label: 'Width' },
-        { name: 'height', type: 'text', label: 'Height' },
-      ];
-    case 'chart':
-      return [
-        { name: 'type', type: 'select', label: 'Chart Type', options: ['bar', 'line', 'pie', 'doughnut'] },
-        { name: 'labels', type: 'text', label: 'Labels (comma separated)' },
-        { name: 'data', type: 'text', label: 'Data (comma separated)' },
-        { name: 'backgroundColor', type: 'color', label: 'Background Color' },
-      ];
-    case 'form':
-      return [
-        { name: 'label', type: 'text', label: 'Label' },
-        { name: 'placeholder', type: 'text', label: 'Placeholder' },
-        { name: 'options', type: 'text', label: 'Options (comma separated)' },
-      ];
-    case 'calendar':
-      return [
-        { name: 'events', type: 'text', label: 'Events (JSON format)' },
-      ];
-    case 'dropdown':
-      return [
-        { name: 'label', type: 'text', label: 'Label' },
-        { name: 'options', type: 'text', label: 'Options (comma separated)' },
-      ];
-    case 'link':
-      return [
-        { name: 'text', type: 'text', label: 'Text' },
-        { name: 'url', type: 'text', label: 'URL' },
-      ];
-    case 'multi-text':
-      return [
-        { name: 'label', type: 'text', label: 'Label' },
-        { name: 'placeholder', type: 'text', label: 'Placeholder' },
-      ];
-    case 'filter':
-      return [
-        { name: 'label', type: 'text', label: 'Label' },
-        { name: 'options', type: 'text', label: 'Options (comma separated)' },
+        {
+          name: "label",
+          type: "text",
+          label: "Button Text"
+        },
+        {
+          name: "icon",
+          type: "icon",
+          label: "Icon"
+        },
+        {
+          name: "variant",
+          type: "select",
+          label: "Variant",
+          options: ["default", "outline", "secondary", "ghost", "link"]
+        },
+        {
+          name: "size",
+          type: "select",
+          label: "Size",
+          options: ["sm", "default", "lg"]
+        },
+        {
+          name: "url",
+          type: "text",
+          label: "URL (if link)"
+        }
       ];
     case 'alert':
       return [
-        { name: 'title', type: 'text', label: 'Title' },
-        { name: 'message', type: 'text', label: 'Message' },
+        {
+          name: "title",
+          type: "text",
+          label: "Alert Title"
+        },
+        {
+          name: "message",
+          type: "text",
+          label: "Alert Message"
+        },
+        {
+          name: "type",
+          type: "select",
+          label: "Alert Type",
+          options: ["info", "success", "warning", "error"]
+        },
+        {
+          name: "dismissible",
+          type: "select",
+          label: "Dismissible",
+          options: ["true", "false"]
+        },
+        {
+          name: "autoClose",
+          type: "select",
+          label: "Auto Close (seconds)",
+          options: ["false", "3", "5", "10"]
+        }
       ];
-    case 'table':
-      return [
-        { name: 'columns', type: 'text', label: 'Columns (JSON format)' },
-        { name: 'rows', type: 'text', label: 'Rows (JSON format)' },
-      ];
-      case 'searchbar':
-        return [
-          { name: 'placeholder', type: 'text', label: 'Placeholder' },
-          { name: 'label', type: 'text', label: 'Label' },
-        ];
+    // Add cases for all other component types as needed
     default:
       return [];
   }

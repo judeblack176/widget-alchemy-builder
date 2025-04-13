@@ -17,8 +17,11 @@ export const useComponentState = () => {
         props: {
           name: "Learning Module",
           icon: "BookOpen",
-          title: "Learning Module",
-          actions: ["Edit", "More"]
+          backgroundColor: "#3B82F6",
+          textColor: "#FFFFFF",
+          fontFamily: "system-ui",
+          bold: false,
+          italic: false
         }
       }]);
     }
