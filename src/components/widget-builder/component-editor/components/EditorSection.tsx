@@ -1,4 +1,3 @@
-
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
@@ -30,11 +29,9 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   shouldShowDataIntegration,
   shouldShowContentEditor,
 }) => {
-  // For header components, we want a specific order: Widget Name, Icon, then Tooltip
   if (isHeader) {
     return (
       <>
-        {/* Widget Name (Content Fields) first */}
         {shouldShowContentEditor() && (
           <ContentFieldsManager 
             component={component}
@@ -43,13 +40,11 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Property editor for icons */}
         <PropertyEditor 
           component={component}
           onUpdateComponent={onUpdateComponent}
         />
         
-        {/* Tooltip selector */}
         {onApplyTooltip && (
           <TooltipSelector 
             component={component}
@@ -62,16 +57,12 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     );
   }
   
-  // Special handling for alert components
   if (component.type === 'alert') {
-    // Create a special component just for the alert title
-    // We'll use "title" as key for the FormattedContent
     const titleComponent = {
       ...component,
       formattedContent: component.props?.title || ""
     };
     
-    // Handler to update the title when changed via ContentFieldsManager
     const handleTitleUpdate = (updatedTitleComponent: WidgetComponent) => {
       const updatedComponent = {
         ...component,
@@ -85,7 +76,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     
     return (
       <>
-        {/* API Integration Section - First */}
         {shouldShowDataIntegration() && (
           <ApiIntegrationSection 
             component={component}
@@ -95,7 +85,12 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* ContentFieldsManager for Alert Title - Single Line */}
+        <PropertyEditor 
+          component={component}
+          onUpdateComponent={onUpdateComponent}
+          excludeProperties={['title']} 
+        />
+        
         <ContentFieldsManager 
           component={titleComponent}
           onUpdateComponent={handleTitleUpdate}
@@ -103,14 +98,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           singleLine={true}
         />
         
-        {/* Property editor for type */}
-        <PropertyEditor 
-          component={component}
-          onUpdateComponent={onUpdateComponent}
-          excludeProperties={['title']} 
-        />
-        
-        {/* Content Fields Manager - Alert Message */}
         {shouldShowContentEditor() && (
           <ContentFieldsManager 
             component={component}
@@ -119,7 +106,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Tooltip selector - Very end of alert settings */}
         {onApplyTooltip && (
           <TooltipSelector 
             component={component}
@@ -131,10 +117,8 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     );
   }
 
-  // For other non-header, non-alert components, use the original order
   return (
     <>
-      {/* API Integration Section */}
       {shouldShowDataIntegration() && (
         <ApiIntegrationSection 
           component={component}
@@ -143,8 +127,7 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           onRequestApiTemplate={onRequestApiTemplate}
         />
       )}
-
-      {/* Content Fields Manager */}
+      
       {shouldShowContentEditor() && (
         <ContentFieldsManager 
           component={component}
@@ -152,7 +135,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
         />
       )}
       
-      {/* Tooltip selector */}
       {onApplyTooltip && (
         <TooltipSelector 
           component={component}
