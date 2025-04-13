@@ -4,6 +4,7 @@ import { WidgetComponent } from "@/types/widget-types";
 import ApiFieldsDisplay from "./ApiFieldsDisplay";
 import { useTextFormatting } from "./hooks/useTextFormatting";
 import FormattingToolbar from "./components/FormattingToolbar";
+import HeaderFormattingToolbar from "./components/HeaderFormattingToolbar";
 import TextInput from "./components/TextInput";
 
 interface FormattedTextEditorProps {
@@ -30,15 +31,26 @@ const FormattedTextEditor: React.FC<FormattedTextEditorProps> = ({
     addApiPlaceholder,
   } = useTextFormatting(component, onUpdateComponent);
 
+  // Determine if we're rendering a header component
+  const isHeader = component.type === 'header';
+
   return (
     <div className="space-y-4">
       <h3 className="text-sm font-semibold">Formatted Content</h3>
       <div className="border rounded-md p-3 bg-gray-50">
-        <FormattingToolbar 
-          selectedText={selectedText}
-          onFormatText={applyFormatting}
-          onInputClick={handleInputClick}
-        />
+        {isHeader ? (
+          <HeaderFormattingToolbar 
+            selectedText={selectedText}
+            onFormatText={applyFormatting}
+            onInputClick={handleInputClick}
+          />
+        ) : (
+          <FormattingToolbar 
+            selectedText={selectedText}
+            onFormatText={applyFormatting}
+            onInputClick={handleInputClick}
+          />
+        )}
         
         <TextInput 
           singleLine={singleLine}

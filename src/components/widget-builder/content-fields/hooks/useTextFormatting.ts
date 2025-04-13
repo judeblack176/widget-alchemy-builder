@@ -106,8 +106,19 @@ export const useTextFormatting = (
         return;
       }
       
-      // Create formatting tag for both color and background-color
-      const formattedText = `<span class="${format}-${value}">${selection}</span>`;
+      // Create formatted text with the appropriate tag
+      let formattedText = '';
+      
+      // For weight and style, use HTML tags for proper formatting
+      if (format === "weight" && value === "bold") {
+        formattedText = `<strong>${selection}</strong>`;
+      } else if (format === "style" && value === "italic") {
+        formattedText = `<em>${selection}</em>`;
+      } else {
+        // For colors, use span with class
+        formattedText = `<span class="${format}-${value}">${selection}</span>`;
+      }
+      
       const newContent = beforeSelection + formattedText + afterSelection;
       
       handleFormattedContentChange(newContent);
