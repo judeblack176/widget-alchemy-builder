@@ -6,7 +6,14 @@ import { Info, CheckCircle, AlertTriangle, AlertCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const alertRenderer = (finalProps: Record<string, any>, id: string, onDismiss?: (id: string) => void) => {
-  const alertType = finalProps.type as AlertType || 'info';
+  // Get alert type from props or API data
+  let alertType = finalProps.type as AlertType || 'info';
+  
+  // Make sure alertType is a valid value - default to 'info' if invalid
+  if (!['info', 'success', 'warning', 'error'].includes(alertType)) {
+    alertType = 'info';
+  }
+  
   const isDismissible = finalProps.dismissible !== false;
   
   // Use formattedContent for the alert body message

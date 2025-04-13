@@ -21,7 +21,7 @@ interface EditorSectionProps {
 
 // Define an extended type for alert components with section property
 interface AlertComponentWithSection extends WidgetComponent {
-  alertPropertiesSection?: 'initial' | 'end' | 'title';
+  alertPropertiesSection?: 'initial' | 'end' | 'title' | 'type';
 }
 
 const EditorSection: React.FC<EditorSectionProps> = ({
@@ -69,24 +69,24 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   
   // Special handling for alert components: 
   // 1. API Integration
-  // 2. Alert Type via PropertyEditor with initial section
-  // 3. Alert Title via ContentFieldsManager
+  // 2. Alert Type via PropertyEditor with type section for API fields
+  // 3. Alert Title via PropertyEditor with title section for API fields
   // 4. Alert Message via ContentFieldsManager
   // 5. Dismissible & Auto Close via PropertyEditor with end section
   // 6. Tooltip at the end
   if (component.type === 'alert') {
-    // Create a component with the initial section for type properties
-    const initialProps: AlertComponentWithSection = { 
+    // Create a component with the type section for type properties
+    const typeProps: AlertComponentWithSection = { 
       ...component, 
       props: { ...component.props },
-      alertPropertiesSection: 'initial' // Will show alert type
+      alertPropertiesSection: 'type' // Will show alert type with API fields
     };
     
-    // For the alert title, we'll use a separate content fields manager
+    // For the alert title, we'll use a separate section for PropertyEditor
     const titleComponent: AlertComponentWithSection = { 
       ...component, 
       props: { ...component.props },
-      alertPropertiesSection: 'title' // New section for title with API fields
+      alertPropertiesSection: 'title' // Title section for API fields
     };
     
     // For the alert message, we'll use the standard content fields manager
@@ -111,9 +111,9 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Alert Type - Second (Initial properties) */}
+        {/* Alert Type with API Fields - Second */}
         <PropertyEditor 
-          component={initialProps}
+          component={typeProps}
           onUpdateComponent={onUpdateComponent}
         />
         
