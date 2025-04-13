@@ -101,13 +101,13 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
       {onRemove && (
         <button 
           onClick={() => onRemove(component.id)}
-          className="absolute bottom-2 right-2 text-gray-500 hover:text-red-500"
+          className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
         >
           <Trash2 size={16} />
         </button>
       )}
       
-      <div className="absolute right-1/2 transform translate-x-1/2 top-1/2 -translate-y-1/2">
+      <div className="absolute right-10 top-1/2 -translate-y-1/2">
         {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
       </div>
     </div>
