@@ -1,36 +1,36 @@
 
 import React from 'react';
 import { WidgetComponent } from '@/types/widget-types';
-import ComponentRenderer from './ComponentRenderer';
+import { renderComponent } from '@/components/widget-builder/component-renderers';
+import { Tooltip } from '../TooltipManager';
 
 interface WidgetPreviewHeaderProps {
-  headerComponent: WidgetComponent | null;
+  headerComponent?: WidgetComponent | null;
   componentDataProvider: (component: WidgetComponent) => any;
+  tooltips?: Tooltip[];
 }
 
 const WidgetPreviewHeader: React.FC<WidgetPreviewHeaderProps> = ({ 
   headerComponent, 
-  componentDataProvider 
+  componentDataProvider,
+  tooltips = []
 }) => {
   if (!headerComponent) {
-    return null;
+    return (
+      <div className="bg-gray-50 p-3 border-b border-gray-200">
+        <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+      </div>
+    );
   }
 
-  // Ensure headerComponent has formattedContent set
-  const processedHeaderComponent = {
-    ...headerComponent,
-    // Use formattedContent if available, otherwise fall back to name
-    formattedContent: headerComponent.formattedContent || headerComponent.props?.name || "Header"
-  };
-
   return (
-    <div className="sticky top-0 z-20">
-      <ComponentRenderer
-        component={processedHeaderComponent}
-        componentData={componentDataProvider(processedHeaderComponent)}
-        index={0}
-        headerComponent={processedHeaderComponent}
-      />
+    <div className="border-b border-gray-200">
+      {renderComponent(
+        headerComponent, 
+        componentDataProvider(headerComponent),
+        undefined,
+        tooltips // Pass tooltips here
+      )}
     </div>
   );
 };

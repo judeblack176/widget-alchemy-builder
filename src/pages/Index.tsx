@@ -128,6 +128,7 @@ const Index = () => {
             onSaveWidget={handleSaveWidget}
             onCancelEditing={handleCancelEditing}
             onSubmitSuccess={handleSubmitSuccess}
+            tooltips={tooltips}
           />
         </div>
         

@@ -7,13 +7,19 @@ import { useToast } from '@/hooks/use-toast';
 import { useApiDataFetcher } from './widget-preview/ApiDataFetcher';
 import WidgetPreviewHeader from './widget-preview/WidgetPreviewHeader';
 import WidgetComponentList from './widget-preview/WidgetComponentList';
+import { Tooltip } from './TooltipManager';
 
 interface WidgetPreviewProps {
   components: WidgetComponent[];
   apis: ApiConfig[];
+  tooltips?: Tooltip[];
 }
 
-const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
+const WidgetPreview: React.FC<WidgetPreviewProps> = ({ 
+  components, 
+  apis,
+  tooltips = []
+}) => {
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
   const apiData = useApiDataFetcher(apis);
   const { toast } = useToast();
@@ -94,6 +100,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
       <WidgetPreviewHeader
         headerComponent={headerComponent}
         componentDataProvider={processComponentData}
+        tooltips={tooltips}
       />
       
       <ScrollArea className="h-full w-full">
@@ -105,6 +112,7 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({ components, apis }) => {
           maxComponents={MAX_COMPONENTS}
           nonHeaderNonAlertComponentsLength={nonHeaderNonAlertComponents.length}
           onAlertDismiss={handleAlertDismiss}
+          tooltips={tooltips}
         />
       </ScrollArea>
     </Card>

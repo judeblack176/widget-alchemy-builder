@@ -5,6 +5,7 @@ import { renderComponent } from '@/components/widget-builder/component-renderers
 import { HelpCircle } from 'lucide-react';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import TooltipContent from './TooltipContent';
+import { Tooltip } from '../TooltipManager';
 
 interface ComponentRendererProps {
   component: WidgetComponent;
@@ -12,6 +13,7 @@ interface ComponentRendererProps {
   index: number;
   onAlertDismiss?: (alertId: string) => void;
   headerComponent?: WidgetComponent | null;
+  tooltips?: Tooltip[];
 }
 
 const ComponentRenderer: React.FC<ComponentRendererProps> = ({
@@ -19,7 +21,8 @@ const ComponentRenderer: React.FC<ComponentRendererProps> = ({
   componentData,
   index,
   onAlertDismiss,
-  headerComponent
+  headerComponent,
+  tooltips = []
 }) => {
   if (component.type === 'alert' && onAlertDismiss === undefined) {
     return null;
@@ -30,7 +33,8 @@ const ComponentRenderer: React.FC<ComponentRendererProps> = ({
       {renderComponent(
         component, 
         componentData, 
-        component.type === 'alert' ? onAlertDismiss : undefined
+        component.type === 'alert' ? onAlertDismiss : undefined,
+        tooltips // Pass tooltips to the renderComponent function
       )}
     </div>
   );

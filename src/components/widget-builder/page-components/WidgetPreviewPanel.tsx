@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { WidgetComponent, ApiConfig } from "@/types/widget-types";
-import { Button } from "@/components/ui/button";
-import { X } from 'lucide-react';
-import WidgetPreview from "@/components/widget-builder/WidgetPreview";
-import WidgetSubmissionForm from "@/components/widget-builder/WidgetSubmissionForm";
+import { WidgetComponent, ApiConfig } from '@/types/widget-types';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import WidgetPreview from '@/components/widget-builder/WidgetPreview';
+import WidgetSubmissionForm from '@/components/widget-builder/WidgetSubmissionForm';
+import { Tooltip } from '../TooltipManager';
 
 interface WidgetPreviewPanelProps {
   widgetComponents: WidgetComponent[];
@@ -14,6 +15,7 @@ interface WidgetPreviewPanelProps {
   onSaveWidget: () => void;
   onCancelEditing: () => void;
   onSubmitSuccess: () => void;
+  tooltips?: Tooltip[];
 }
 
 const WidgetPreviewPanel: React.FC<WidgetPreviewPanelProps> = ({
@@ -23,49 +25,61 @@ const WidgetPreviewPanel: React.FC<WidgetPreviewPanelProps> = ({
   widgetId,
   onSaveWidget,
   onCancelEditing,
-  onSubmitSuccess
+  onSubmitSuccess,
+  tooltips = []
 }) => {
   return (
-    <div className="w-1/3 bg-gray-200 overflow-hidden flex flex-col">
-      <div className="sticky top-0 z-40 bg-gray-200 p-4 border-b border-gray-300">
-        <div className="flex justify-between items-center self-stretch mb-6">
-          <h2 className="text-xl font-semibold">Preview</h2>
-          <div className="space-x-2">
-            {isEditing && (
-              <Button
-                onClick={onCancelEditing}
-                variant="outline"
-                size="default"
-                className="border-red-500 text-red-500 hover:bg-red-50"
-              >
-                <X size={16} className="mr-2" /> Cancel
-              </Button>
-            )}
-            <Button
-              onClick={onSaveWidget}
-              variant="default"
-              size="default"
-              className="bg-green-500 hover:bg-green-600 transition-colors"
-            >
-              Save
-            </Button>
+    <div className="w-1/3 border-l border-gray-200 bg-gray-50 p-4 overflow-y-auto">
+      <Card className="bg-white shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-medium">Widget Preview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center mb-4">
+            <WidgetPreview components={widgetComponents} apis={apis} tooltips={tooltips} />
           </div>
-        </div>
-      </div>
-      <div className="flex-1 overflow-auto flex flex-col items-center justify-start pt-8 px-4">
-        <WidgetPreview components={widgetComponents} apis={apis} />
-        
-        <div className="mt-6 mb-4">
-          <WidgetSubmissionForm
-            widgetComponents={widgetComponents}
-            apis={apis}
-            onSubmitSuccess={onSubmitSuccess}
-            widgetId={widgetId}
-            isEditing={isEditing}
-            onCancelEditing={onCancelEditing}
-          />
-        </div>
-      </div>
+
+          {isEditing && (
+            <div className="mt-4">
+              <Tabs defaultValue="save">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="save">Save</TabsTrigger>
+                  <TabsTrigger value="submit">Submit</TabsTrigger>
+                </TabsList>
+                <TabsContent value="save" className="pt-4">
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Save your widget to continue editing later.
+                    </p>
+                    <div className="flex space-x-2">
+                      <button
+                        className="flex-1 px-3 py-2 bg-primary text-white rounded hover:bg-primary/90"
+                        onClick={onSaveWidget}
+                      >
+                        Save Widget
+                      </button>
+                      <button
+                        className="px-3 py-2 border rounded hover:bg-gray-50"
+                        onClick={onCancelEditing}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="submit" className="pt-4">
+                  <WidgetSubmissionForm
+                    components={widgetComponents}
+                    apis={apis}
+                    widgetId={widgetId}
+                    onSubmitSuccess={onSubmitSuccess}
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -1,12 +1,15 @@
 
 import React from 'react';
-import { HelpCircle, AlertCircle } from 'lucide-react';
+import { HelpCircle, AlertCircle, Info, Star } from 'lucide-react';
+import { Tooltip } from '../TooltipManager';
 
 interface TooltipContentProps {
   tooltipId: string;
+  customTooltips?: Tooltip[];
 }
 
-const TooltipContent: React.FC<TooltipContentProps> = ({ tooltipId }) => {
+const TooltipContent: React.FC<TooltipContentProps> = ({ tooltipId, customTooltips = [] }) => {
+  // First check standard tooltips
   switch (tooltipId) {
     case "help":
       return (
@@ -18,7 +21,7 @@ const TooltipContent: React.FC<TooltipContentProps> = ({ tooltipId }) => {
     case "info":
       return (
         <div className="flex items-start gap-2">
-          <HelpCircle size={16} className="text-green-500 mt-0.5" />
+          <Info size={16} className="text-green-500 mt-0.5" />
           <span>Additional information about this component</span>
         </div>
       );
@@ -32,11 +35,25 @@ const TooltipContent: React.FC<TooltipContentProps> = ({ tooltipId }) => {
     case "tip":
       return (
         <div className="flex items-start gap-2">
-          <HelpCircle size={16} className="text-purple-500 mt-0.5" />
+          <Star size={16} className="text-purple-500 mt-0.5" />
           <span>Pro Tip: This feature can help you save time</span>
         </div>
       );
     default:
+      // Check if it's a custom tooltip
+      if (customTooltips && customTooltips.length > 0) {
+        const customTooltip = customTooltips.find(t => t.id === tooltipId);
+        if (customTooltip) {
+          return (
+            <div>
+              <p className="font-medium mb-1">{customTooltip.title}</p>
+              <p className="text-sm">{customTooltip.content}</p>
+            </div>
+          );
+        }
+      }
+      
+      // Default fallback
       return (
         <div>Information</div>
       );

@@ -30,9 +30,12 @@ export const renderComponent = (
     return renderComponentWithoutTooltip(processedComponent, apiData, onDismiss);
   }
   
+  // Pass the tooltips array to getTooltipContent
   const tooltipContent = getTooltipContent(tooltipId, tooltips);
   
+  // If no valid tooltip content found, render without tooltip
   if (!tooltipContent) {
+    console.log("No valid tooltip content found for ID:", tooltipId);
     return renderComponentWithoutTooltip(processedComponent, apiData, onDismiss);
   }
   

@@ -49,15 +49,23 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
     }
   };
 
+  // This function checks if the tooltip ID is valid
   const isTooltipValid = component.tooltipId ? 
     tooltipOptions.some(option => option.id === component.tooltipId) : 
     true;
   
+  // If the tooltip is not valid, clear it
   if (component.tooltipId && !isTooltipValid && onApplyTooltip) {
-    setTimeout(() => {
-      onApplyTooltip("");
-    }, 0);
+    console.log("Clearing invalid tooltip:", component.tooltipId);
+    // Don't use setTimeout, as it causes issues with state management
+    // onApplyTooltip("");
   }
+
+  // Handler for value change
+  const handleTooltipChange = (value: string) => {
+    console.log("Setting tooltip to:", value);
+    onApplyTooltip(value === "none" ? "" : value);
+  };
 
   return (
     <div className="mb-4">
@@ -66,7 +74,7 @@ const TooltipSelector: React.FC<TooltipSelectorProps> = ({
         {component.tooltipId && component.tooltipId !== "none" && getTooltipIcon(component.tooltipId)}
         <Select
           value={component.tooltipId || "none"}
-          onValueChange={(value) => onApplyTooltip(value === "none" ? "" : value)}
+          onValueChange={handleTooltipChange}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select tooltip type" />

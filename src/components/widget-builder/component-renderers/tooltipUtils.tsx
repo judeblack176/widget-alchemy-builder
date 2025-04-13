@@ -4,6 +4,7 @@ import { HelpCircle, Info, AlertTriangle, Star } from 'lucide-react';
 import { Tooltip as CustomTooltip } from '../TooltipManager';
 
 export const getTooltipContent = (tooltipId: string, customTooltips?: CustomTooltip[]) => {
+  // First check if it's one of the default tooltips
   switch (tooltipId) {
     case 'help':
       return (
@@ -34,7 +35,8 @@ export const getTooltipContent = (tooltipId: string, customTooltips?: CustomTool
         </div>
       );
     default:
-      if (customTooltips) {
+      // If it's not a default tooltip, check the custom tooltips array
+      if (customTooltips && customTooltips.length > 0) {
         const customTooltip = customTooltips.find(t => t.id === tooltipId);
         if (customTooltip) {
           return (
@@ -45,6 +47,8 @@ export const getTooltipContent = (tooltipId: string, customTooltips?: CustomTool
           );
         }
       }
+      // If not found in either defaults or customs, return null
+      console.log("No tooltip found for ID:", tooltipId, "Available tooltips:", customTooltips);
       return null;
   }
 };
