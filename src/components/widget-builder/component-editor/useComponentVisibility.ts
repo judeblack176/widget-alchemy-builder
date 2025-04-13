@@ -1,41 +1,29 @@
 
-import { ComponentType } from "@/types/widget-types";
+import { ComponentType } from "@/types/component-types";
 
-interface ComponentVisibility {
-  shouldShowDataIntegration: () => boolean;
-  shouldShowContentEditor: () => boolean;
-}
+export const useComponentVisibility = (componentType: ComponentType) => {
+  // These components support API integration
+  const supportsApiIntegration = [
+    'text', 
+    'image', 
+    'multi-text', 
+    'table', 
+    'chart', 
+    'alert'  // Added alert to the list that supports API integration
+  ].includes(componentType);
 
-export const useComponentVisibility = (componentType: ComponentType): ComponentVisibility => {
-  const shouldShowDataIntegration = () => {
-    // Components that support data integration
-    const supportsDataIntegration = [
-      'text',
-      'image',
-      'chart',
-      'table',
-      'multi-text',
-      'filter'
-    ];
-    
-    return supportsDataIntegration.includes(componentType);
-  };
-  
-  const shouldShowContentEditor = () => {
-    // Components that support content editing
-    const supportsContentEditor = [
-      'text',
-      'header',
-      'button',
-      'alert',
-      'multi-text'
-    ];
-    
-    return supportsContentEditor.includes(componentType);
-  };
-  
+  // These components support content editing
+  const supportsContentEditor = [
+    'text', 
+    'header', 
+    'button', 
+    'link', 
+    'multi-text',
+    'alert'  // Added alert to show content editor
+  ].includes(componentType);
+
   return {
-    shouldShowDataIntegration,
-    shouldShowContentEditor
+    shouldShowDataIntegration: () => supportsApiIntegration,
+    shouldShowContentEditor: () => supportsContentEditor
   };
 };

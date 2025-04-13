@@ -51,7 +51,8 @@ const AlertComponentsSection: React.FC<AlertComponentsSectionProps> = ({
                 (tooltipId: string) => onApplyTooltip(alertComponent.id, tooltipId) : 
                 undefined}
               customTooltips={tooltips}
-              showActionButtons={false}
+              showActionButtons={true} // Changed from false to true to allow removal
+              disableRemove={false} // Explicitly allow removal
             />
           </div>
         </Card>
