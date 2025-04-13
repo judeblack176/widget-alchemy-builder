@@ -1,4 +1,3 @@
-
 import { ComponentType } from "@/types/component-types";
 
 export interface PropertyDefinition {
@@ -25,18 +24,8 @@ export const getPropertyDefinitions = (componentType: ComponentType): PropertyDe
       ];
     case 'text':
       return [
-        { name: 'content', type: 'text', label: 'Content' },
-        { name: 'size', type: 'select', label: 'Text Size', 
-          options: ['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl'] },
-        { name: 'color', type: 'color', label: 'Text Color' },
-        { name: 'bold', type: 'select', label: 'Bold Text', 
-          options: ['true', 'false'] },
-        { name: 'italic', type: 'select', label: 'Italic Text', 
-          options: ['true', 'false'] },
         { name: 'alignment', type: 'select', label: 'Text Alignment', 
-          options: ['left', 'center', 'right', 'justify'] },
-        { name: 'fontFamily', type: 'select', label: 'Font Family', 
-          options: ['system-ui', 'Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Courier New', 'Verdana'] }
+          options: ['left', 'center', 'right', 'justify'] }
       ];
     case 'image':
       return [
@@ -63,7 +52,6 @@ export const getPropertyDefinitions = (componentType: ComponentType): PropertyDe
         { name: 'title', type: 'text', label: 'Alert Title' },
         { name: 'type', type: 'select', label: 'Alert Type', 
           options: ['info', 'success', 'warning', 'error'] },
-        // Removed 'content' property as we'll use formattedContent instead
         { name: 'dismissible', type: 'select', label: 'Dismissible', 
           options: ['true', 'false'] },
         { name: 'autoClose', type: 'select', label: 'Auto Close (seconds)', 
