@@ -166,24 +166,25 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
 
   const propertyDefinitions = getPropertyDefinitions(component.type);
   
-  // Force expand the property editor for header components
+  // Special rendering for header components to ensure icon and name are always displayed
   if (component.type === 'header') {
+    // Extract the properties we want to show
+    const iconProperty = propertyDefinitions.find(p => p.name === 'icon');
+    const nameProperty = propertyDefinitions.find(p => p.name === 'name');
+    const otherProperties = propertyDefinitions.filter(p => !['icon', 'name'].includes(p.name));
+    
     return (
       <div>
         <h3 className="text-sm font-semibold mb-4">Properties</h3>
         <div className="space-y-1">
-          {/* Always show icon first, then name for header components */}
-          {propertyDefinitions
-            .filter(property => property.name === 'icon')
-            .map(property => renderPropertyEditor(property))}
-            
-          {propertyDefinitions
-            .filter(property => property.name === 'name')
-            .map(property => renderPropertyEditor(property))}
-            
-          {propertyDefinitions
-            .filter(property => !['icon', 'name'].includes(property.name))
-            .map(property => renderPropertyEditor(property))}
+          {/* Always show icon first */}
+          {iconProperty && renderPropertyEditor(iconProperty)}
+          
+          {/* Then show name */}
+          {nameProperty && renderPropertyEditor(nameProperty)}
+          
+          {/* Then show other properties */}
+          {otherProperties.map(property => renderPropertyEditor(property))}
         </div>
       </div>
     );

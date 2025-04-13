@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { 
   Settings, 
@@ -52,6 +52,7 @@ import ApiIntegrationSection from "./api-integration/ApiIntegrationSection";
 import ComponentHeader from "./component-header/ComponentHeader";
 import ContentFieldsManager from "./content-fields/ContentFieldsManager";
 import TooltipSelector from "./tooltip/TooltipSelector";
+import PropertyEditor from "./property-editor/PropertyEditor";
 
 interface ComponentEditorProps {
   component: WidgetComponent;
@@ -81,6 +82,13 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   showActionButtons = true
 }) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  
+  // Auto-expand for header components
+  useEffect(() => {
+    if (component.type === 'header' && !isExpanded) {
+      onToggleExpand();
+    }
+  }, [component.type, isExpanded, onToggleExpand]);
 
   const componentTypeLabels: Record<string, string> = {
     header: "Header",
@@ -121,6 +129,12 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
       {isExpanded && (
         <div className="p-4 space-y-6">
+          {/* Add PropertyEditor component for all components */}
+          <PropertyEditor 
+            component={component}
+            onUpdateComponent={onUpdateComponent}
+          />
+          
           {/* Tooltip selector at top of expanded view */}
           {onApplyTooltip && (
             <TooltipSelector 
