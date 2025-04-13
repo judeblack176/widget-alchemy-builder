@@ -1,6 +1,6 @@
 
 export { renderComponent } from './renderComponent';
-export { renderComponentWithoutTooltip } from './renderComponentWithoutTooltip';
+export { renderComponentWithoutTooltip, cleanHtmlContent } from './renderComponentWithoutTooltip';
 export { processApiData, getNestedValue } from './dataUtils';
 export { 
   getIconByName,
@@ -11,3 +11,4 @@ export {
   CustomArrowUpDown,
   ArrowUpDown
 } from './iconUtils';
+export { getRendererForType, renderErrorComponent } from './rendererFactory';
