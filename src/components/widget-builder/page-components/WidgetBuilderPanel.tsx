@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Plus, ChevronDown, Library } from 'lucide-react';
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
+import { Droppable } from 'react-beautiful-dnd';
 
 interface WidgetBuilderPanelProps {
   widgetComponents: WidgetComponent[];

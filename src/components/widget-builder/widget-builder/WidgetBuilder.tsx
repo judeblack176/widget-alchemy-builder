@@ -4,6 +4,7 @@ import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { Tooltip } from '../TooltipManager';
+import { Droppable } from 'react-beautiful-dnd';
 import SearchBar from '../SearchBar';
 import HeaderComponentSection from './HeaderComponentSection';
 import AlertComponentsSection from './AlertComponentsSection';
