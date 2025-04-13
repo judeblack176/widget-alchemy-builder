@@ -102,7 +102,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   };
 
   const shouldShowDataIntegration = () => {
-    const dataIntegrationComponents = ['calendar', 'chart', 'table', 'dropdown', 'alert', 'searchbar'];
+    const dataIntegrationComponents = ['text', 'alert', 'chart', 'calendar', 'multi-text', 'table', 'searchbar'];
     return dataIntegrationComponents.includes(component.type);
   };
 
@@ -112,6 +112,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
         component={component}
         componentTypeLabels={componentTypeLabels}
         isExpanded={isExpanded} 
+        onRemove={showActionButtons ? onRemoveComponent : undefined}
       />
 
       {isExpanded && (
@@ -125,13 +126,7 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             />
           )}
 
-          {/* Property editor */}
-          <PropertyEditor 
-            component={component}
-            onUpdateComponent={onUpdateComponent}
-          />
-
-          {/* API Integration Section */}
+          {/* API Integration Section - Moved to the top */}
           {shouldShowDataIntegration() && (
             <ApiIntegrationSection 
               component={component}
@@ -140,6 +135,12 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
               onRequestApiTemplate={onRequestApiTemplate}
             />
           )}
+
+          {/* Property editor */}
+          <PropertyEditor 
+            component={component}
+            onUpdateComponent={onUpdateComponent}
+          />
 
           {/* Content Fields Manager */}
           {component.type === 'text' && (

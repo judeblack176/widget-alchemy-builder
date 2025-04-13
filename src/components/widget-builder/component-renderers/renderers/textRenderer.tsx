@@ -20,6 +20,11 @@ export const textRenderer = (finalProps: Record<string, any>) => {
       >
         {finalProps.content || "Text content"}
       </p>
+      {finalProps.apiData && (
+        <div className="mt-1 text-xs">
+          <span className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded">API Connected</span>
+        </div>
+      )}
     </div>
   );
 };
