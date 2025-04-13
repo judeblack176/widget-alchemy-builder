@@ -118,6 +118,38 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     );
   }
 
+  // For text components, don't show PropertyEditor as they'll use formatted content only
+  if (component.type === 'text') {
+    return (
+      <>
+        {shouldShowDataIntegration() && (
+          <ApiIntegrationSection 
+            component={component}
+            apis={apis}
+            onUpdateComponent={onUpdateComponent}
+            onRequestApiTemplate={onRequestApiTemplate}
+          />
+        )}
+        
+        {shouldShowContentEditor() && (
+          <ContentFieldsManager 
+            component={component}
+            onUpdateComponent={onUpdateComponent}
+          />
+        )}
+        
+        {onApplyTooltip && (
+          <TooltipSelector 
+            component={component}
+            customTooltips={customTooltips}
+            onApplyTooltip={onApplyTooltip}
+          />
+        )}
+      </>
+    );
+  }
+
+  // Default case for other component types
   return (
     <>
       {shouldShowDataIntegration() && (
@@ -135,6 +167,11 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           onUpdateComponent={onUpdateComponent}
         />
       )}
+      
+      <PropertyEditor 
+        component={component}
+        onUpdateComponent={onUpdateComponent}
+      />
       
       {onApplyTooltip && (
         <TooltipSelector 
