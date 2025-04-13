@@ -3,7 +3,7 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { WidgetComponent } from "@/types/widget-types";
 import { AlertCircle } from "lucide-react";
-import ApiFieldsList from "../content-fields/components/ApiFieldsList";  // Corrected import path
+import ApiFieldsList from "../../content-fields/components/ApiFieldsList";
 
 interface ApiFieldsDisplayProps {
   component: WidgetComponent;

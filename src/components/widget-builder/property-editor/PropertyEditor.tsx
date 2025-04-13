@@ -1,4 +1,3 @@
-
 import React from "react";
 import { WidgetComponent } from "@/types/widget-types";
 import HeaderProperties from "./components/HeaderProperties";
@@ -7,7 +6,7 @@ import { cleanHtmlContent } from "../component-renderers/renderComponentWithoutT
 import FormattedTextEditor from "../content-fields/FormattedTextEditor";
 
 interface PropertyEditorProps {
-  component: WidgetComponent & { alertPropertiesSection?: 'initial' | 'end' | 'title' };
+  component: WidgetComponent & { alertPropertiesSection?: 'initial' | 'end' | 'title' | 'type' };
   onUpdateComponent: (updatedComponent: WidgetComponent) => void;
 }
 
@@ -56,6 +55,39 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
           }}
           singleLine={true}
           customLabel="Alert Title"
+        />
+      </div>
+    );
+  }
+
+  // Special handling for alert type with API fields - similar to title handling
+  if (component.type === 'alert' && component.alertPropertiesSection === 'type') {
+    return (
+      <div>
+        <h3 className="text-sm font-semibold mb-4">Alert Type</h3>
+        <FormattedTextEditor
+          component={component}
+          onUpdateComponent={(updatedComponent) => {
+            // When the type is updated, update both formattedContent and type prop
+            // But we need to keep the original type as a fallback
+            const typeValue = updatedComponent.formattedContent || updatedComponent.props?.type || 'info';
+            
+            const updatedProps = {
+              ...updatedComponent.props,
+              type: typeValue
+            };
+            
+            // Create a clean component without the section property
+            const { alertPropertiesSection, ...cleanComponent } = updatedComponent as any;
+            
+            // Update the component with new type 
+            onUpdateComponent({
+              ...cleanComponent,
+              props: updatedProps
+            } as WidgetComponent);
+          }}
+          singleLine={true}
+          customLabel="Alert Type"
         />
       </div>
     );
