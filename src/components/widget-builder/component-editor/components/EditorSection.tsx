@@ -62,7 +62,7 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     );
   }
   
-  // Special handling for alert components: PropertyEditor first, then Content
+  // Special handling for alert components: Title and Type first, then Content
   if (component.type === 'alert') {
     return (
       <>
@@ -72,7 +72,7 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           onUpdateComponent={onUpdateComponent}
         />
         
-        {/* Content Fields Manager (for formatted message) */}
+        {/* Content Fields Manager (for formatted content) */}
         {shouldShowContentEditor() && (
           <ContentFieldsManager 
             component={component}

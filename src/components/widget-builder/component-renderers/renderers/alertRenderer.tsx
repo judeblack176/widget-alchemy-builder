@@ -9,8 +9,8 @@ export const alertRenderer = (finalProps: Record<string, any>, id: string, onDis
   const alertType = finalProps.type as AlertType || 'info';
   const isDismissible = finalProps.dismissible !== false;
   
-  // Use formattedContent instead of message if available
-  const alertContent = finalProps.formattedContent || finalProps.message || "This is an alert message.";
+  // Use formattedContent directly instead of falling back to message
+  const alertContent = finalProps.formattedContent || "This is an alert message.";
   
   return (
     <Alert

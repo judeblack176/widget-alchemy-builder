@@ -1,4 +1,3 @@
-
 import { LucideIcon } from 'lucide-react';
 
 export type ComponentType = 'header' | 'text' | 'image' | 'button' | 'video' | 'chart' | 'form' | 'calendar' | 'dropdown' | 'link' | 'multi-text' | 'filter' | 'alert' | 'table' | 'searchbar';
@@ -104,8 +103,8 @@ export const DEFAULT_DATA_MAPPINGS: Record<ComponentType, Record<string, string>
   },
   alert: {
     title: "title",
-    message: "message",
-    type: "type"
+    type: "type",
+    formattedContent: "content"
   },
   table: {
     data: "rows",
