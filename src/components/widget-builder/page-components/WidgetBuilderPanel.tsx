@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
-import WidgetBuilder from "@/components/widget-builder/WidgetBuilder";
+import WidgetBuilder from "@/components/widget-builder/widget-builder";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Plus, ChevronDown, Library } from 'lucide-react';
