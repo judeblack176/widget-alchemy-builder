@@ -1,3 +1,4 @@
+
 import React from "react";
 import { WidgetComponent } from "@/types/widget-types";
 import HeaderProperties from "./components/HeaderProperties";
