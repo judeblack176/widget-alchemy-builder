@@ -5,11 +5,10 @@ export const useComponentVisibility = (componentType: ComponentType) => {
   // These components support API integration
   const supportsApiIntegration = [
     'text', 
-    'image', 
     'multi-text', 
     'table', 
     'chart', 
-    'alert'  // Added alert to the list that supports API integration
+    'alert'  // Removed 'image' from API integration support
   ].includes(componentType);
 
   // These components support content editing
@@ -19,7 +18,7 @@ export const useComponentVisibility = (componentType: ComponentType) => {
     'button', 
     'link', 
     'multi-text',
-    'alert'  // Added alert to show content editor
+    'alert'
   ].includes(componentType);
 
   return {

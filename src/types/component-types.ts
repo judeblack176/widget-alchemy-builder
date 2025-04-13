@@ -54,11 +54,7 @@ export const DEFAULT_DATA_MAPPINGS: Record<ComponentType, Record<string, string>
   text: {
     content: "content"
   },
-  image: {
-    source: "imageUrl",
-    altText: "altText",
-    caption: "caption"
-  },
+  image: {},
   button: {
     label: "label",
     url: "url"
