@@ -62,7 +62,8 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     );
   }
   
-  // Special handling for alert components: API Integration, then Title & Type, then Alert Message (Content), then Dismissible & AutoClose
+  // Special handling for alert components: API Integration first, then PropertyEditor (Title & Type),
+  // then ContentFieldsManager (Alert Message), then Tooltip Selector
   if (component.type === 'alert') {
     return (
       <>
@@ -91,7 +92,7 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Tooltip selector */}
+        {/* Tooltip selector - Moved to the end of the alert settings */}
         {onApplyTooltip && (
           <TooltipSelector 
             component={component}

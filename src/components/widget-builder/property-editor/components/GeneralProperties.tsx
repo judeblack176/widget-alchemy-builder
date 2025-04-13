@@ -29,14 +29,14 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
   
   // For alert components, reorder properties specifically
   if (component.type === 'alert') {
-    // Reorder alert properties to match specific requirements
+    // Reorder alert properties to match specific requirements: title, type, dismissible, autoClose
     const titleDef = propertyDefinitions.find(p => p.name === 'title');
     const typeDef = propertyDefinitions.find(p => p.name === 'type');
     const dismissibleDef = propertyDefinitions.find(p => p.name === 'dismissible');
     const autoCloseDef = propertyDefinitions.find(p => p.name === 'autoClose');
     
     // Explicitly set the order: title, type, dismissible, autoClose
-    // Note: We've removed contentDef from this list as we'll use the formatted content editor instead
+    // Note: formattedContent (Alert Message) is handled separately via ContentFieldsManager
     if (titleDef && typeDef && dismissibleDef && autoCloseDef) {
       propertyDefinitions = [
         titleDef,
