@@ -11,7 +11,8 @@ import WidgetBuilderPanel from "@/components/widget-builder/page-components/Widg
 import WidgetPreviewPanel from "@/components/widget-builder/page-components/WidgetPreviewPanel";
 import ApiTemplateModal from "@/components/widget-builder/modals/ApiTemplateModal";
 import TooltipListModal from "@/components/widget-builder/modals/TooltipListModal";
-import ApiTemplateHandler from "@/components/widget-builder/page-components/ApiTemplateHandler";
+import { useApiTemplateHandler } from "@/components/widget-builder/page-components/ApiTemplateHandler";
+import { useWidgetActions } from "@/components/widget-builder/page-components/WidgetActions";
 
 const Index = () => {
   const { toast } = useToast();
@@ -52,63 +53,38 @@ const Index = () => {
     openApiTemplateModal
   } = useModalState();
 
-  // Widget action handlers
-  const handleSaveWidget = () => {
-    const widgetConfig = {
-      components: widgetComponents,
-      apis: apis,
-      tooltips: tooltips
-    };
-    
-    localStorage.setItem('savedWidget', JSON.stringify(widgetConfig));
-    
-    toast({
-      title: "Widget Saved",
-      description: "Your widget configuration has been saved."
-    });
-  };
+  // Use the widget actions hook
+  const {
+    handleSaveWidget,
+    handleLoadWidget,
+    handleNewWidget,
+    handleCancelEditing,
+    onSubmitSuccess: handleSubmitSuccess
+  } = useWidgetActions(
+    widgetComponents,
+    apis,
+    tooltips,
+    isEditing,
+    widgetId,
+    setIsEditing,
+    () => {
+      setIsEditing(false);
+      toast({
+        title: "Widget Submitted",
+        description: "Your widget has been submitted to the library for approval",
+      });
+    }
+  );
 
-  const handleLoadWidget = () => {
-    navigate('/library?mode=select');
-    setIsEditing(false);
-  };
-
-  const handleNewWidget = () => {
-    setIsEditing(false);
-    navigate('/');
-    
-    toast({
-      title: "New Widget Started",
-      description: "You can now start building a new widget from scratch."
-    });
-  };
-
-  const handleCancelEditing = () => {
-    setIsEditing(false);
-    navigate('/');
-    toast({
-      title: "Editing Cancelled",
-      description: "Changes to the widget have been discarded."
-    });
-  };
-
-  const handleSubmitSuccess = () => {
-    setIsEditing(false);
-    toast({
-      title: "Widget Submitted",
-      description: "Your widget has been submitted to the library for approval",
-    });
-  };
-
-  // API template handler
-  const apiTemplateHandler = ApiTemplateHandler({
+  // Use the API template handler hook
+  const apiTemplateHandler = useApiTemplateHandler(
     widgetComponents,
     apis,
     selectedComponentId,
-    onUpdateComponent: handleUpdateComponent,
-    onAddApi: handleAddApi,
+    handleUpdateComponent,
+    handleAddApi,
     setIsApiTemplateModalOpen
-  });
+  );
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
