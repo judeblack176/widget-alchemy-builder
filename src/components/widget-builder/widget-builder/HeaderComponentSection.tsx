@@ -32,11 +32,15 @@ const HeaderComponentSection: React.FC<HeaderComponentSectionProps> = ({
 
   // Update component when formatted content changes
   const handleUpdateComponent = (updatedComponent: WidgetComponent) => {
-    // Initialize formattedContent if needed
-    if (updatedComponent.formattedContent === undefined && 
-        updatedComponent.props && 
-        updatedComponent.props.name) {
-      updatedComponent.formattedContent = updatedComponent.props.name;
+    // Synchronize name and formattedContent both ways
+    if (updatedComponent.type === 'header') {
+      if (updatedComponent.formattedContent && updatedComponent.props && 
+          updatedComponent.props.name !== updatedComponent.formattedContent) {
+        updatedComponent.props.name = updatedComponent.formattedContent;
+      } else if (updatedComponent.props && updatedComponent.props.name && 
+                 !updatedComponent.formattedContent) {
+        updatedComponent.formattedContent = updatedComponent.props.name;
+      }
     }
     onUpdateComponent(updatedComponent);
   };

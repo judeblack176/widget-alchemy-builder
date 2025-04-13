@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { WidgetComponent } from "@/types/widget-types";
 import { getPropertyDefinitions } from "../propertyDefinitions";
 import IconField from "./IconField";
@@ -21,8 +21,21 @@ const HeaderProperties: React.FC<HeaderPropertiesProps> = ({
         [propertyName]: value,
       },
     };
+    
+    // If the name is being changed, sync to formattedContent too
+    if (propertyName === 'name') {
+      updatedComponent.formattedContent = value;
+    }
+    
     onUpdateComponent(updatedComponent);
   };
+
+  // Ensure name and formattedContent are synchronized
+  useEffect(() => {
+    if (component.formattedContent && component.props?.name !== component.formattedContent) {
+      handlePropertyChange('name', component.formattedContent);
+    }
+  }, [component.formattedContent]);
 
   const propertyDefinitions = getPropertyDefinitions(component.type);
   // Only show icon property 
