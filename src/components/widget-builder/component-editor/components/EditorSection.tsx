@@ -87,7 +87,7 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           <ContentFieldsManager 
             component={component}
             onUpdateComponent={onUpdateComponent}
-            customLabel="Alert Content"
+            customLabel="Alert Message"
           />
         )}
         
