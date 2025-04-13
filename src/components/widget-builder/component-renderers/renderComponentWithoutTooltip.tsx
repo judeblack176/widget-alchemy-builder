@@ -19,7 +19,7 @@ import { tableRenderer } from './renderers/tableRenderer';
 import { searchBarRenderer } from './renderers/searchBarRenderer';
 
 export const renderComponentWithoutTooltip = (component: WidgetComponent, apiData?: any, onDismiss?: (id: string) => void) => {
-  const { props, type, id } = component;
+  const { props, type, id, formattedContent } = component;
   
   if (!type) {
     console.error('Component has no type defined:', component);
@@ -30,7 +30,11 @@ export const renderComponentWithoutTooltip = (component: WidgetComponent, apiDat
     );
   }
   
-  const finalProps = processApiData(component, apiData);
+  // Process component props with formatted content
+  const finalProps = {
+    ...processApiData(component, apiData),
+    formattedContent
+  };
   
   switch (type) {
     case 'header':

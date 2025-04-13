@@ -66,8 +66,10 @@ export const applyTextFormatting = (
         formattedText = `<span class="size-${value}">${selection}</span>`;
         break;
       case "color":
+        formattedText = `<span class="color-${value}">${selection}</span>`;
+        break;
       case "background-color":
-        formattedText = `<span class="${format}-${value}">${selection}</span>`;
+        formattedText = `<span class="background-color-${value}">${selection}</span>`;
         break;
       default:
         formattedText = selection;

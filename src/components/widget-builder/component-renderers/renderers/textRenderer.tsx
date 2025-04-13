@@ -79,12 +79,47 @@ export const textRenderer = (finalProps: Record<string, any>) => {
 
   const content = finalProps.formattedContent || finalProps.content || "Text content";
   const processedContent = processFormattedContent(content);
+  
+  // Determine if there's a background color specified in the formatted content
+  let backgroundColor = finalProps.backgroundColor || 'transparent';
+  
+  if (content && content.includes('background-color')) {
+    const bgMatch = content.match(/<span class="background-color-([a-z0-9]+)">/i);
+    if (bgMatch && bgMatch[1]) {
+      const colorName = bgMatch[1];
+      // Map color names to actual colors
+      const colorMap: Record<string, string> = {
+        'black': '#000000',
+        'white': '#FFFFFF',
+        'primary': '#3b82f6',
+        'secondary': '#6b7280',
+        'muted': '#9ca3af',
+        'accent': '#8b5cf6',
+        'red': '#ef4444',
+        'green': '#10b981',
+        'blue': '#3b82f6',
+        'purple': '#8b5cf6',
+        'pink': '#ec4899',
+        'orange': '#f97316',
+        'yellow': '#f59e0b'
+      };
+      
+      if (colorMap[colorName]) {
+        backgroundColor = colorMap[colorName];
+      }
+      
+      // Check if it's a hex color
+      if (/^[0-9a-f]{6}$/i.test(colorName)) {
+        backgroundColor = `#${colorName}`;
+      }
+    }
+  }
 
   return (
     <div 
       className="p-3 rounded"
       style={{
-        backgroundColor: finalProps.backgroundColor || 'transparent',
+        backgroundColor: backgroundColor,
         color: finalProps.color === 'default' ? '#333333' : 
                finalProps.color === 'primary' ? '#3b82f6' : 
                finalProps.color === 'secondary' ? '#6b7280' : 
