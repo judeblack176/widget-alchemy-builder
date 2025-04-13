@@ -55,6 +55,10 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
   };
 
   const getComponentTitle = () => {
+    if (component.props?.name) {
+      return component.props.name;
+    }
+    
     if (component.props?.title) {
       return component.props.title;
     }

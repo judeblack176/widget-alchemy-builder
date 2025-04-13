@@ -25,7 +25,7 @@ export const headerRenderer = (finalProps: Record<string, any>) => {
             fontStyle: finalProps.italic ? 'italic' : 'normal'
           }}
         >
-          {finalProps.title || "Header"}
+          {finalProps.name || finalProps.title || "Header"}
         </h2>
       </div>
     </div>

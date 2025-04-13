@@ -15,6 +15,7 @@ export const useComponentState = () => {
         id: "header-1",
         type: "header",
         props: {
+          name: "Learning Module",
           icon: "BookOpen",
           title: "Learning Module",
           actions: ["Edit", "More"]
