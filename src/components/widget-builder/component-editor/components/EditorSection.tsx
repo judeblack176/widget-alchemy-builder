@@ -1,3 +1,4 @@
+
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
@@ -76,6 +77,15 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     
     return (
       <>
+        {shouldShowDataIntegration() && (
+          <ApiIntegrationSection 
+            component={component}
+            apis={apis}
+            onUpdateComponent={onUpdateComponent}
+            onRequestApiTemplate={onRequestApiTemplate}
+          />
+        )}
+        
         <ContentFieldsManager 
           component={titleComponent}
           onUpdateComponent={handleTitleUpdate}
@@ -96,15 +106,6 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           onUpdateComponent={onUpdateComponent}
           excludeProperties={['title']} 
         />
-        
-        {shouldShowDataIntegration() && (
-          <ApiIntegrationSection 
-            component={component}
-            apis={apis}
-            onUpdateComponent={onUpdateComponent}
-            onRequestApiTemplate={onRequestApiTemplate}
-          />
-        )}
         
         {onApplyTooltip && (
           <TooltipSelector 
