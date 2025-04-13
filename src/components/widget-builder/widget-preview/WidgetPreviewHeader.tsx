@@ -19,7 +19,7 @@ const WidgetPreviewHeader: React.FC<WidgetPreviewHeaderProps> = ({
   // Ensure headerComponent has formattedContent set
   const processedHeaderComponent = {
     ...headerComponent,
-    // Initialize with name if formattedContent is not set
+    // Use formattedContent if available, otherwise fall back to name
     formattedContent: headerComponent.formattedContent || headerComponent.props?.name || "Header"
   };
 

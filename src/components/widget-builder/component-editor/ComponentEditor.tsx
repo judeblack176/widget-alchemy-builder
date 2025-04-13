@@ -43,6 +43,9 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const { shouldShowDataIntegration, shouldShowContentEditor } = useComponentVisibility(component.type);
 
+  // For header components, we want a specific order: Content, Icon, then Tooltip
+  const isHeader = component.type === 'header';
+
   return (
     <div className="w-full">
       <div 
@@ -74,37 +77,59 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
       {isExpanded && (
         <div className="p-4 space-y-6">
+          {/* For header components, show content editor first */}
+          {isHeader && shouldShowContentEditor() && (
+            <ContentFieldsManager 
+              component={component}
+              onUpdateComponent={onUpdateComponent}
+            />
+          )}
+          
           {/* Add PropertyEditor component for all components */}
           <PropertyEditor 
             component={component}
             onUpdateComponent={onUpdateComponent}
           />
           
-          {/* Tooltip selector at top of expanded view */}
-          {onApplyTooltip && (
+          {/* Tooltip selector for header components */}
+          {isHeader && onApplyTooltip && (
             <TooltipSelector 
               component={component}
               customTooltips={customTooltips}
               onApplyTooltip={onApplyTooltip}
             />
           )}
+          
+          {/* For non-header components, use the original order */}
+          {!isHeader && (
+            <>
+              {/* API Integration Section */}
+              {shouldShowDataIntegration() && (
+                <ApiIntegrationSection 
+                  component={component}
+                  apis={apis}
+                  onUpdateComponent={onUpdateComponent}
+                  onRequestApiTemplate={onRequestApiTemplate}
+                />
+              )}
 
-          {/* API Integration Section - Always at the top */}
-          {shouldShowDataIntegration() && (
-            <ApiIntegrationSection 
-              component={component}
-              apis={apis}
-              onUpdateComponent={onUpdateComponent}
-              onRequestApiTemplate={onRequestApiTemplate}
-            />
-          )}
-
-          {/* Content Fields Manager - Show for components that support formatted content */}
-          {shouldShowContentEditor() && (
-            <ContentFieldsManager 
-              component={component}
-              onUpdateComponent={onUpdateComponent}
-            />
+              {/* Content Fields Manager */}
+              {shouldShowContentEditor() && (
+                <ContentFieldsManager 
+                  component={component}
+                  onUpdateComponent={onUpdateComponent}
+                />
+              )}
+              
+              {/* Tooltip selector */}
+              {onApplyTooltip && (
+                <TooltipSelector 
+                  component={component}
+                  customTooltips={customTooltips}
+                  onApplyTooltip={onApplyTooltip}
+                />
+              )}
+            </>
           )}
 
           {/* Action Buttons */}
