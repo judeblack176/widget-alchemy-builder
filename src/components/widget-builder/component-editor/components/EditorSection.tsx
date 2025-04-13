@@ -1,3 +1,4 @@
+
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
@@ -61,11 +62,11 @@ const EditorSection: React.FC<EditorSectionProps> = ({
     );
   }
   
-  // Special handling for alert components: API Integration first, then Settings, then Content (Alert Message), then others
+  // Special handling for alert components: Title & Type first, then Content (Alert Message), then Dismissible & AutoClose
   if (component.type === 'alert') {
     return (
       <>
-        {/* API Integration Section - Now at the top */}
+        {/* API Integration Section */}
         {shouldShowDataIntegration() && (
           <ApiIntegrationSection 
             component={component}
@@ -75,7 +76,7 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           />
         )}
         
-        {/* Property editor second (for title and type) */}
+        {/* Property editor for title and type */}
         <PropertyEditor 
           component={component}
           onUpdateComponent={onUpdateComponent}

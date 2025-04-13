@@ -32,16 +32,15 @@ const GeneralProperties: React.FC<GeneralPropertiesProps> = ({
     // Reorder alert properties to match specific requirements
     const titleDef = propertyDefinitions.find(p => p.name === 'title');
     const typeDef = propertyDefinitions.find(p => p.name === 'type');
-    const contentDef = propertyDefinitions.find(p => p.name === 'content');
     const dismissibleDef = propertyDefinitions.find(p => p.name === 'dismissible');
     const autoCloseDef = propertyDefinitions.find(p => p.name === 'autoClose');
     
-    // Explicitly set the order: title, type, content, dismissible, autoClose
-    if (titleDef && typeDef && contentDef && dismissibleDef && autoCloseDef) {
+    // Explicitly set the order: title, type, dismissible, autoClose
+    // Note: We've removed contentDef from this list as we'll use the formatted content editor instead
+    if (titleDef && typeDef && dismissibleDef && autoCloseDef) {
       propertyDefinitions = [
         titleDef,
         typeDef,
-        contentDef,
         dismissibleDef,
         autoCloseDef
       ];

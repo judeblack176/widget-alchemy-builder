@@ -1,3 +1,4 @@
+
 import { ComponentType } from "@/types/component-types";
 
 export interface PropertyDefinition {
@@ -62,7 +63,7 @@ export const getPropertyDefinitions = (componentType: ComponentType): PropertyDe
         { name: 'title', type: 'text', label: 'Alert Title' },
         { name: 'type', type: 'select', label: 'Alert Type', 
           options: ['info', 'success', 'warning', 'error'] },
-        { name: 'content', type: 'text', label: 'Alert Message' },
+        // Removed 'content' property as we'll use formattedContent instead
         { name: 'dismissible', type: 'select', label: 'Dismissible', 
           options: ['true', 'false'] },
         { name: 'autoClose', type: 'select', label: 'Auto Close (seconds)', 
