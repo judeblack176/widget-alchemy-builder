@@ -77,8 +77,6 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
     
     const value = component.props && component.props[property.name];
     
-    console.log(`Rendering property: ${property.name}, type: ${property.type}, value: ${value}`);
-
     switch (property.type) {
       case "icon":
         return (
@@ -167,13 +165,29 @@ const PropertyEditor: React.FC<PropertyEditorProps> = ({
   };
 
   const propertyDefinitions = getPropertyDefinitions(component.type);
-  console.log(`Property definitions for ${component.type}:`, propertyDefinitions);
 
   return (
     <div>
       <h3 className="text-sm font-semibold mb-4">Properties</h3>
       <div className="space-y-1">
-        {propertyDefinitions.map((property) => renderPropertyEditor(property))}
+        {/* For header components, explicitly force icon to be first in order and name second */}
+        {component.type === 'header' ? (
+          <>
+            {propertyDefinitions
+              .filter(property => property.name === 'icon')
+              .map(property => renderPropertyEditor(property))}
+              
+            {propertyDefinitions
+              .filter(property => property.name === 'name')
+              .map(property => renderPropertyEditor(property))}
+              
+            {propertyDefinitions
+              .filter(property => !['icon', 'name'].includes(property.name))
+              .map(property => renderPropertyEditor(property))}
+          </>
+        ) : (
+          propertyDefinitions.map((property) => renderPropertyEditor(property))
+        )}
       </div>
     </div>
   );
