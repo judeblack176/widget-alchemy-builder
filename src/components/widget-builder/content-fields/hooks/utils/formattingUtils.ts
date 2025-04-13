@@ -13,12 +13,13 @@ export const applyTextFormatting = (
 ): string | null => {
   try {
     if (!selectedText) {
-      toast({
-        title: "No text selected",
-        description: "Please select some text to format it.",
-        variant: "destructive"
-      });
-      return null;
+      // Allow formatting even without selection
+      // Apply to entire content if no selection
+      const emptySelection = {
+        start: 0,
+        end: content.length
+      };
+      selectedText = emptySelection;
     }
     
     // Validate selection is still valid

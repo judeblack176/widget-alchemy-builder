@@ -33,7 +33,7 @@ const HeaderFormattingToolbar: React.FC<HeaderFormattingToolbarProps> = ({
         <TextStyleButtons 
           onStyleClick={(style) => onFormatText("style", style)} 
           onWeightClick={(weight) => onFormatText("weight", weight)}
-          disabled={!selectedText}
+          disabled={false}
         />
         
         <div className="border-r h-8 mx-1"></div>
@@ -43,7 +43,7 @@ const HeaderFormattingToolbar: React.FC<HeaderFormattingToolbarProps> = ({
           onOpenChange={setShowColorPicker}
           onColorSelect={handleColorSelect}
           onInputClick={onInputClick}
-          disabled={!selectedText}
+          disabled={false}
         />
 
         <ColorPicker 
@@ -52,7 +52,7 @@ const HeaderFormattingToolbar: React.FC<HeaderFormattingToolbarProps> = ({
           onColorSelect={handleColorSelect}
           onInputClick={onInputClick}
           isBackground={true}
-          disabled={!selectedText}
+          disabled={false}
         />
       </div>
       <p className="text-xs text-muted-foreground mt-1 w-full">

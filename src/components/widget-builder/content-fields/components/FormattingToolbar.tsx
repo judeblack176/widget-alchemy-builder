@@ -34,7 +34,7 @@ const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
       <div className="flex flex-wrap gap-1 w-full">
         <SizeToggleGroup 
           onValueChange={(val) => onFormatText("size", val)}
-          disabled={!selectedText}
+          disabled={false}
         />
         
         <div className="border-r h-8 mx-1"></div>
@@ -42,14 +42,14 @@ const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
         <TextStyleButtons 
           onStyleClick={(style) => onFormatText("style", style)} 
           onWeightClick={(weight) => onFormatText("weight", weight)}
-          disabled={!selectedText}
+          disabled={false}
         />
         
         <div className="border-r h-8 mx-1"></div>
         
         <AlignmentToggleGroup 
           onValueChange={(align) => onFormatText("align", align)}
-          disabled={!selectedText}
+          disabled={false}
         />
         
         <div className="border-r h-8 mx-1"></div>
@@ -59,7 +59,7 @@ const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
           onOpenChange={setShowColorPicker}
           onColorSelect={handleColorSelect}
           onInputClick={onInputClick}
-          disabled={!selectedText}
+          disabled={false}
         />
 
         <ColorPicker 
@@ -68,7 +68,7 @@ const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
           onColorSelect={handleColorSelect}
           onInputClick={onInputClick}
           isBackground={true}
-          disabled={!selectedText}
+          disabled={false}
         />
       </div>
       <p className="text-xs text-muted-foreground mt-1 w-full">
