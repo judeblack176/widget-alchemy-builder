@@ -114,8 +114,7 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Fixed section - header, alert, search */}
-      <div className="sticky top-0 bg-widget-gray z-10 space-y-4 pb-4">
+      <div className="space-y-4 pb-4">
         {atComponentLimit && (
           <Alert variant="destructive" className="mb-4">
             <AlertCircle className="h-4 w-4 mr-2" />
@@ -164,28 +163,26 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
         )}
       </div>
       
-      {/* Scrollable section - regular components */}
-      <div className="flex-1 overflow-auto">
-        <div className="pr-4 pb-4">
-          {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
-            <EmptyStateMessage message="No components match your search" />
-          ) : filteredComponents.length === 0 ? (
-            <EmptyStateMessage message="Add components to your widget from the left panel" />
-          ) : filteredRegularComponents.length > 0 && (
-            <DraggableComponentsList
-              components={filteredRegularComponents}
-              expandedComponentId={expandedComponentId}
-              setExpandedComponentId={setExpandedComponentId}
-              apis={apis}
-              onUpdateComponent={onUpdateComponent}
-              onRemoveComponent={onRemoveComponent}
-              onRequestApiTemplate={onRequestApiTemplate}
-              onApplyTooltip={onApplyTooltip}
-              tooltips={tooltips}
-              onDragEnd={handleDragEnd}
-            />
-          )}
-        </div>
+      {/* Regular components */}
+      <div className="pb-4">
+        {filteredComponents.length === 0 && searchQuery.trim() !== '' ? (
+          <EmptyStateMessage message="No components match your search" />
+        ) : filteredComponents.length === 0 ? (
+          <EmptyStateMessage message="Add components to your widget from the left panel" />
+        ) : filteredRegularComponents.length > 0 && (
+          <DraggableComponentsList
+            components={filteredRegularComponents}
+            expandedComponentId={expandedComponentId}
+            setExpandedComponentId={setExpandedComponentId}
+            apis={apis}
+            onUpdateComponent={onUpdateComponent}
+            onRemoveComponent={onRemoveComponent}
+            onRequestApiTemplate={onRequestApiTemplate}
+            onApplyTooltip={onApplyTooltip}
+            tooltips={tooltips}
+            onDragEnd={handleDragEnd}
+          />
+        )}
       </div>
     </div>
   );

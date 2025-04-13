@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Plus, ChevronDown, Library } from 'lucide-react';
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
 import { Droppable } from 'react-beautiful-dnd';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface WidgetBuilderPanelProps {
   widgetComponents: WidgetComponent[];
@@ -34,7 +35,7 @@ const WidgetBuilderPanel: React.FC<WidgetBuilderPanelProps> = ({
   onLoadWidget
 }) => {
   return (
-    <div className="w-2/5 bg-widget-gray overflow-hidden flex flex-col">
+    <div className="w-2/5 bg-widget-gray flex flex-col h-full">
       <div className="sticky top-0 z-40 bg-widget-gray p-4 border-b border-gray-200">
         <div className="flex justify-between mb-4">
           <h2 className="text-xl font-semibold">Widget Builder</h2>
@@ -66,29 +67,31 @@ const WidgetBuilderPanel: React.FC<WidgetBuilderPanelProps> = ({
         </div>
       </div>
       
-      <div className="flex-1 overflow-hidden px-4 pb-4">
-        <Droppable droppableId="widget-builder">
-          {(provided) => (
-            <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-              className="h-full"
-            >
-              <WidgetBuilder
-                components={widgetComponents}
-                apis={apis}
-                onUpdateComponent={onUpdateComponent}
-                onRemoveComponent={onRemoveComponent}
-                onReorderComponents={onReorderComponents}
-                onRequestApiTemplate={onRequestApiTemplate}
-                onApplyTooltip={onApplyTooltip}
-                tooltips={tooltips}
-              />
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </div>
+      <ScrollArea className="flex-1">
+        <div className="px-4 pb-4 h-full">
+          <Droppable droppableId="widget-builder">
+            {(provided) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className="h-full"
+              >
+                <WidgetBuilder
+                  components={widgetComponents}
+                  apis={apis}
+                  onUpdateComponent={onUpdateComponent}
+                  onRemoveComponent={onRemoveComponent}
+                  onReorderComponents={onReorderComponents}
+                  onRequestApiTemplate={onRequestApiTemplate}
+                  onApplyTooltip={onApplyTooltip}
+                  tooltips={tooltips}
+                />
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </div>
+      </ScrollArea>
     </div>
   );
 };
