@@ -1,8 +1,8 @@
 
 import React from "react";
 import { WidgetComponent } from "@/types/widget-types";
-import PropertyField from "./PropertyField";
 import { getPropertyDefinitions } from "../propertyDefinitions";
+import IconField from "./IconField";
 
 interface HeaderPropertiesProps {
   component: WidgetComponent;
@@ -34,8 +34,7 @@ const HeaderProperties: React.FC<HeaderPropertiesProps> = ({
       <div className="space-y-1">
         {/* Show icon property */}
         {iconProperty && (
-          <PropertyField 
-            key={iconProperty.name}
+          <IconField 
             property={iconProperty} 
             value={component.props?.[iconProperty.name]} 
             onChange={handlePropertyChange} 
