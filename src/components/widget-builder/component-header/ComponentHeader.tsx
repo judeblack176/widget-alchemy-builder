@@ -13,10 +13,7 @@ import {
   List, 
   LinkIcon, 
   Text,
-  Filter,
-  AlertTriangle,
-  Table2,
-  Search
+  Trash2
 } from 'lucide-react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -24,12 +21,14 @@ interface ComponentHeaderProps {
   component: WidgetComponent;
   componentTypeLabels: Record<string, string>;
   isExpanded: boolean;
+  onRemove?: (componentId: string) => void;
 }
 
 const ComponentHeader: React.FC<ComponentHeaderProps> = ({
   component,
   componentTypeLabels,
-  isExpanded
+  isExpanded,
+  onRemove
 }) => {
   // Function to get the appropriate icon based on component type
   const getComponentIcon = () => {
@@ -75,8 +74,8 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
   };
 
   return (
-    <div className="p-4 border-b flex items-center justify-between">
-      <div className="flex items-center gap-3">
+    <div className="p-4 border-b flex items-center justify-between relative">
+      <div className="flex items-center gap-3 flex-grow">
         <div className="flex flex-col items-center">
           <div className="bg-gray-100 p-1.5 rounded mb-1">
             {getComponentIcon()}
@@ -85,7 +84,7 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
             {componentTypeLabels[component.type] || component.type}
           </Badge>
         </div>
-        <div className="ml-1">
+        <div className="ml-1 flex-grow">
           <span className="font-medium text-sm">{getComponentTitle()}</span>
           {component.apiConfig && (
             <div className="mt-1">
@@ -96,6 +95,16 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
           )}
         </div>
       </div>
+      
+      {onRemove && (
+        <button 
+          onClick={() => onRemove(component.id)}
+          className="absolute bottom-2 left-2 text-gray-500 hover:text-red-500"
+        >
+          <Trash2 size={16} />
+        </button>
+      )}
+      
       <div className="flex items-center">
         {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
       </div>
