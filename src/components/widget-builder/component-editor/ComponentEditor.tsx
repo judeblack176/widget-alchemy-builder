@@ -87,8 +87,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
             shouldShowContentEditor={shouldShowContentEditor}
           />
           
-          {/* For non-header components, show PropertyEditor */}
-          {!isHeader && (
+          {/* For non-header and non-alert components, show PropertyEditor */}
+          {!isHeader && component.type !== 'alert' && (
             <PropertyEditor 
               component={component}
               onUpdateComponent={onUpdateComponent}
@@ -110,3 +110,4 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
 };
 
 export default ComponentEditor;
+
