@@ -18,11 +18,18 @@ import {
   AlignLeft, 
   AlignCenter, 
   AlignRight,
-  ChevronUp
+  ChevronUp,
+  Palette
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import ColorPalettePicker from "../ColorPalettePicker";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ContentFieldsManagerProps {
   component: WidgetComponent;
@@ -36,6 +43,7 @@ const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
   const [expanded, setExpanded] = useState(false);
   const [selectedText, setSelectedText] = useState<{start: number, end: number} | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   const handleFormattedContentChange = (value: string) => {
     const updatedComponent = {
@@ -104,6 +112,52 @@ const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
     }, 0);
   };
 
+  // Colors for the color picker
+  const textColors = [
+    "#000000", // Black
+    "#FFFFFF", // White
+    "#3b82f6", // Primary (Blue)
+    "#6b7280", // Secondary (Gray)
+    "#9ca3af", // Muted
+    "#8b5cf6", // Accent (Purple)
+    "#ef4444", // Red
+    "#10b981", // Green
+    "#f59e0b", // Yellow
+    "#3b82f6", // Blue
+    "#8b5cf6", // Purple
+    "#ec4899", // Pink
+    "#f97316"  // Orange
+  ];
+
+  // Map color to named color for class name
+  const getColorName = (colorHex: string) => {
+    const colorMap: Record<string, string> = {
+      "#000000": "black",
+      "#FFFFFF": "white",
+      "#3b82f6": "primary",
+      "#6b7280": "secondary",
+      "#9ca3af": "muted",
+      "#8b5cf6": "accent",
+      "#ef4444": "red",
+      "#10b981": "green",
+      "#f59e0b": "yellow",
+      "#3b82f6": "blue",
+      "#8b5cf6": "purple",
+      "#ec4899": "pink",
+      "#f97316": "orange"
+    };
+    
+    return colorMap[colorHex] || colorHex.replace('#', '');
+  };
+
+  // Handle color selection
+  const handleColorSelect = (color: string) => {
+    if (selectedText) {
+      applyFormatting("color", getColorName(color));
+    }
+    setShowColorPicker(false);
+  };
+
   const textOptions = [
     { name: "size", label: "Text Size", type: "select", options: ["small", "medium", "large"] },
     { name: "color", label: "Text Color", type: "select", options: ["default", "primary", "secondary", "muted", "accent"] },
@@ -169,24 +223,42 @@ const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
             
             <div className="border-r h-8 mx-1"></div>
             
-            <Select 
-              value="" 
-              onValueChange={(val) => selectedText && applyFormatting("color", val)}
-              disabled={!selectedText}
-            >
-              <div onClick={handleInputClick}>
-                <SelectTrigger className="h-7 text-xs w-[100px]" onClick={handleInputClick}>
-                  <SelectValue placeholder="Text color" />
-                </SelectTrigger>
-                <SelectContent onClick={handleInputClick}>
-                  <SelectItem value="default">Default</SelectItem>
-                  <SelectItem value="primary">Primary</SelectItem>
-                  <SelectItem value="secondary">Secondary</SelectItem>
-                  <SelectItem value="muted">Muted</SelectItem>
-                  <SelectItem value="accent">Accent</SelectItem>
-                </SelectContent>
-              </div>
-            </Select>
+            {/* Color Picker Dropdown */}
+            <DropdownMenu open={showColorPicker} onOpenChange={setShowColorPicker}>
+              <DropdownMenuTrigger asChild onClick={handleInputClick}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-7 w-7 p-0" 
+                  disabled={!selectedText}
+                >
+                  <Palette size={16} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                className="p-2 bg-white border rounded-md shadow-md" 
+                onClick={handleInputClick}
+                sideOffset={5}
+              >
+                <div className="w-[220px]">
+                  <p className="text-xs mb-2 font-medium">Select text color</p>
+                  <div className="grid grid-cols-5 gap-1">
+                    {textColors.map((color) => (
+                      <div 
+                        key={color}
+                        className="w-8 h-8 rounded-md cursor-pointer border border-gray-200 flex items-center justify-center"
+                        style={{ backgroundColor: color }}
+                        onClick={() => handleColorSelect(color)}
+                      >
+                        {color === "#FFFFFF" && (
+                          <div className="w-full h-full rounded-md border border-gray-300"></div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <p className="text-xs text-muted-foreground mt-1 w-full">
             {selectedText ? "Select formatting to apply to text" : "Select text to format it"}

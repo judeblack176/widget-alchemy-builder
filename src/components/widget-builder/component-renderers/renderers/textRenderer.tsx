@@ -9,19 +9,43 @@ export const textRenderer = (finalProps: Record<string, any>) => {
     
     // Replace spans with appropriate styling
     let formattedContent = content
+      // Size formatting
       .replace(/<span class="size-small">(.*?)<\/span>/g, '<span style="font-size: 0.875rem">$1</span>')
       .replace(/<span class="size-medium">(.*?)<\/span>/g, '<span style="font-size: 1rem">$1</span>')
       .replace(/<span class="size-large">(.*?)<\/span>/g, '<span style="font-size: 1.25rem">$1</span>')
+      
+      // Weight formatting
       .replace(/<span class="weight-bold">(.*?)<\/span>/g, '<span style="font-weight: bold">$1</span>')
+      
+      // Style formatting
       .replace(/<span class="style-italic">(.*?)<\/span>/g, '<span style="font-style: italic">$1</span>')
+      
+      // Alignment formatting
       .replace(/<span class="align-left">(.*?)<\/span>/g, '<span style="text-align: left; display: block">$1</span>')
       .replace(/<span class="align-center">(.*?)<\/span>/g, '<span style="text-align: center; display: block">$1</span>')
       .replace(/<span class="align-right">(.*?)<\/span>/g, '<span style="text-align: right; display: block">$1</span>')
+      
+      // Basic color formatting
       .replace(/<span class="color-default">(.*?)<\/span>/g, '<span style="color: inherit">$1</span>')
       .replace(/<span class="color-primary">(.*?)<\/span>/g, '<span style="color: #3b82f6">$1</span>')
       .replace(/<span class="color-secondary">(.*?)<\/span>/g, '<span style="color: #6b7280">$1</span>')
       .replace(/<span class="color-muted">(.*?)<\/span>/g, '<span style="color: #9ca3af">$1</span>')
-      .replace(/<span class="color-accent">(.*?)<\/span>/g, '<span style="color: #8b5cf6">$1</span>');
+      .replace(/<span class="color-accent">(.*?)<\/span>/g, '<span style="color: #8b5cf6">$1</span>')
+      
+      // Additional colors from color picker
+      .replace(/<span class="color-black">(.*?)<\/span>/g, '<span style="color: #000000">$1</span>')
+      .replace(/<span class="color-white">(.*?)<\/span>/g, '<span style="color: #FFFFFF">$1</span>')
+      .replace(/<span class="color-red">(.*?)<\/span>/g, '<span style="color: #ef4444">$1</span>')
+      .replace(/<span class="color-green">(.*?)<\/span>/g, '<span style="color: #10b981">$1</span>')
+      .replace(/<span class="color-yellow">(.*?)<\/span>/g, '<span style="color: #f59e0b">$1</span>')
+      .replace(/<span class="color-blue">(.*?)<\/span>/g, '<span style="color: #3b82f6">$1</span>')
+      .replace(/<span class="color-purple">(.*?)<\/span>/g, '<span style="color: #8b5cf6">$1</span>')
+      .replace(/<span class="color-pink">(.*?)<\/span>/g, '<span style="color: #ec4899">$1</span>')
+      .replace(/<span class="color-orange">(.*?)<\/span>/g, '<span style="color: #f97316">$1</span>');
+      
+    // Handle any hex color that might have been added
+    const hexColorRegex = /<span class="color-([0-9a-f]{6})">(.*?)<\/span>/gi;
+    formattedContent = formattedContent.replace(hexColorRegex, '<span style="color: #$1">$2</span>');
       
     return formattedContent;
   };
