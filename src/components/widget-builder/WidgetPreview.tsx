@@ -31,15 +31,15 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
   const hasAlertComponent = alertComponents.length > 0;
   const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
   
+  // Get all non-header and non-alert components
   const nonHeaderNonAlertComponents = components.filter(c => c.type !== 'header' && c.type !== 'alert');
   
   const displayableAlerts = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
   
   const regularComponentsToDisplay = nonHeaderNonAlertComponents.slice(0, MAX_COMPONENTS);
   
-  // Make sure we only have one header in the display components
+  // Create display components WITHOUT the header (since it's handled separately)
   const displayComponents = [
-    ...(headerComponent ? [headerComponent] : []),
     ...displayableAlerts,
     ...regularComponentsToDisplay
   ];
