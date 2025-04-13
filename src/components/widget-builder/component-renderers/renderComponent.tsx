@@ -15,21 +15,25 @@ export const renderComponent = (
   const { tooltipId } = component;
   
   // Make sure component title/content display is clean (without HTML tags)
+  let processedComponent = component;
   if (component.formattedContent) {
-    component = {
+    processedComponent = {
       ...component,
-      displayContent: cleanHtmlContent(component.formattedContent)
+      props: {
+        ...component.props,
+        displayContent: cleanHtmlContent(component.formattedContent)
+      }
     };
   }
   
   if (!tooltipId) {
-    return renderComponentWithoutTooltip(component, apiData, onDismiss);
+    return renderComponentWithoutTooltip(processedComponent, apiData, onDismiss);
   }
   
   const tooltipContent = getTooltipContent(tooltipId, tooltips);
   
   if (!tooltipContent) {
-    return renderComponentWithoutTooltip(component, apiData, onDismiss);
+    return renderComponentWithoutTooltip(processedComponent, apiData, onDismiss);
   }
   
   return (
@@ -37,7 +41,7 @@ export const renderComponent = (
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="tooltip-trigger w-full">
-            {renderComponentWithoutTooltip(component, apiData, onDismiss)}
+            {renderComponentWithoutTooltip(processedComponent, apiData, onDismiss)}
           </div>
         </TooltipTrigger>
         <TooltipContent className="w-80 p-3">
