@@ -20,7 +20,6 @@ import {
   ExternalLink,
   Download,
   ArrowDown,
-  ArrowUpDown,
 } from 'lucide-react';
 
 export const getIconByName = (iconName: string) => {
@@ -126,7 +125,7 @@ export const CustomArrowUpDown = ({ size = 24, className = "" }: { size?: number
   </svg>
 );
 
-// Add the ArrowUpDown component (this was missing)
+// Define ArrowUpDown only once with proper component export
 export const ArrowUpDown = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
