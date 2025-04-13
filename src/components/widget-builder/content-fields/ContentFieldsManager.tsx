@@ -27,6 +27,11 @@ const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
     e.stopPropagation();
   };
 
+  // Handle focus events separately with the correct event type
+  const handleInputFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    e.stopPropagation();
+  };
+
   // Ensure we always render the content editor even if there are no content fields yet
   return (
     <div className="space-y-4">
@@ -38,7 +43,7 @@ const ContentFieldsManager: React.FC<ContentFieldsManagerProps> = ({
           onChange={(e) => handleFormattedContentChange(e.target.value)}
           placeholder="Enter formatted content or use API fields..."
           onClick={handleInputClick}
-          onFocus={handleInputClick}
+          onFocus={handleInputFocus}
         />
         
         {component.contentFields && component.contentFields.length > 0 && (
