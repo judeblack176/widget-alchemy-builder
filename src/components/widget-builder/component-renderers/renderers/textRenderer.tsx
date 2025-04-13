@@ -1,3 +1,4 @@
+
 import React from 'react';
 import parse from 'html-react-parser';
 
@@ -46,8 +47,8 @@ export const textRenderer = (finalProps: Record<string, any>) => {
     const hexColorRegex = /<span class="color-([0-9a-f]{6})">(.*?)<\/span>/gi;
     formattedContent = formattedContent.replace(hexColorRegex, '<span style="color: #$1">$2</span>');
     
-    // Add background color formatting
-    let formattedContent = content
+    // Add background color formatting - use the same variable instead of redeclaring
+    formattedContent = formattedContent
       // Background color formatting
       .replace(/<span class="background-color-black">(.*?)<\/span>/g, '<span style="background-color: #000000">$1</span>')
       .replace(/<span class="background-color-white">(.*?)<\/span>/g, '<span style="background-color: #FFFFFF; border: 1px solid #e0e0e0">$1</span>')
