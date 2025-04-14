@@ -14,7 +14,7 @@ const SubmissionStatusButton: React.FC<SubmissionStatusButtonProps> = ({
 }) => {
   if (!submissionStatus || submissionStatus === 'none') {
     return (
-      <Button className="bg-widget-blue">
+      <Button className="bg-widget-blue w-full">
         <Send size={16} className="mr-2" /> Submit for Approval
       </Button>
     );
@@ -22,7 +22,7 @@ const SubmissionStatusButton: React.FC<SubmissionStatusButtonProps> = ({
 
   if (hasChanges) {
     return (
-      <Button className="bg-orange-500 text-white hover:bg-orange-600">
+      <Button className="bg-orange-500 text-white hover:bg-orange-600 w-full">
         <RefreshCw size={16} className="mr-2" /> Resubmit for Approval
       </Button>
     );
@@ -31,25 +31,25 @@ const SubmissionStatusButton: React.FC<SubmissionStatusButtonProps> = ({
   switch (submissionStatus) {
     case 'pending':
       return (
-        <Button variant="outline" disabled className="border-amber-500 text-amber-500">
+        <Button className="bg-orange-500 text-white hover:bg-orange-600 w-full">
           <Clock size={16} className="mr-2" /> Pending Approval
         </Button>
       );
     case 'approved':
       return (
-        <Button variant="outline" disabled className="border-green-500 text-green-500">
+        <Button className="bg-orange-500 text-white hover:bg-orange-600 w-full">
           <CheckCircle size={16} className="mr-2" /> Approved
         </Button>
       );
     case 'rejected':
       return (
-        <Button variant="outline" disabled className="border-red-500 text-red-500">
+        <Button variant="outline" className="border-red-500 text-red-500 w-full">
           <XCircle size={16} className="mr-2" /> Rejected
         </Button>
       );
     default:
       return (
-        <Button className="bg-widget-blue">
+        <Button className="bg-widget-blue w-full">
           <Send size={16} className="mr-2" /> Submit for Approval
         </Button>
       );

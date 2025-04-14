@@ -2,10 +2,10 @@
 import React from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import WidgetPreview from '@/components/widget-builder/WidgetPreview';
 import WidgetSubmissionForm from '@/components/widget-builder/WidgetSubmissionForm';
 import { Tooltip } from '../TooltipManager';
+import { Button } from '@/components/ui/button';
 
 interface WidgetPreviewPanelProps {
   widgetComponents: WidgetComponent[];
@@ -40,42 +40,32 @@ const WidgetPreviewPanel: React.FC<WidgetPreviewPanelProps> = ({
           </div>
 
           {isEditing && (
-            <div className="mt-4">
-              <Tabs defaultValue="save">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="save">Save</TabsTrigger>
-                  <TabsTrigger value="submit">Submit</TabsTrigger>
-                </TabsList>
-                <TabsContent value="save" className="pt-4">
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      Save your widget to continue editing later.
-                    </p>
-                    <div className="flex space-x-2">
-                      <button
-                        className="flex-1 px-3 py-2 bg-primary text-white rounded hover:bg-primary/90"
-                        onClick={onSaveWidget}
-                      >
-                        Save Widget
-                      </button>
-                      <button
-                        className="px-3 py-2 border rounded hover:bg-gray-50"
-                        onClick={onCancelEditing}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                </TabsContent>
-                <TabsContent value="submit" className="pt-4">
-                  <WidgetSubmissionForm
-                    widgetComponents={widgetComponents}
-                    apis={apis}
-                    widgetId={widgetId}
-                    onSubmitSuccess={onSubmitSuccess}
-                  />
-                </TabsContent>
-              </Tabs>
+            <div className="mt-4 space-y-4">
+              <div className="flex space-x-2">
+                <Button
+                  className="flex-1"
+                  onClick={onSaveWidget}
+                >
+                  Save Widget
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={onCancelEditing}
+                >
+                  Cancel
+                </Button>
+              </div>
+              
+              <div>
+                <WidgetSubmissionForm
+                  widgetComponents={widgetComponents}
+                  apis={apis}
+                  widgetId={widgetId}
+                  onSubmitSuccess={onSubmitSuccess}
+                  isEditing={isEditing}
+                  onCancelEditing={onCancelEditing}
+                />
+              </div>
             </div>
           )}
         </CardContent>
