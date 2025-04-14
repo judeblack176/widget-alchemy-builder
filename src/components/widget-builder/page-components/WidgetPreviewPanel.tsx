@@ -40,7 +40,7 @@ const WidgetPreviewPanel: React.FC<WidgetPreviewPanelProps> = ({
           </div>
 
           <div className="mt-4 space-y-4">
-            {isEditing && (
+            {isEditing ? (
               <div className="flex space-x-2">
                 <Button
                   className="flex-1"
@@ -55,18 +55,14 @@ const WidgetPreviewPanel: React.FC<WidgetPreviewPanelProps> = ({
                   Cancel
                 </Button>
               </div>
-            )}
-            
-            <div>
+            ) : (
               <WidgetSubmissionForm
                 widgetComponents={widgetComponents}
                 apis={apis}
                 widgetId={widgetId}
                 onSubmitSuccess={onSubmitSuccess}
-                isEditing={isEditing}
-                onCancelEditing={onCancelEditing}
               />
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>
