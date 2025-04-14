@@ -1,10 +1,16 @@
+
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
-import ApiIntegrationSection from "../api-integration/ApiIntegrationSection";
-import ContentFieldsManager from "../content-fields/ContentFieldsManager";
-import TooltipSelector from "../tooltip/TooltipSelector";
-import PropertyEditor from "../property-editor/PropertyEditor";
+import {
+  HeaderSectionRenderer,
+  AlertSectionRenderer,
+  TextSectionRenderer,
+  ButtonSectionRenderer,
+  ImageSectionRenderer,
+  ChartSectionRenderer,
+  DefaultSectionRenderer
+} from "./components/renderers";
 
 interface EditorSectionProps {
   component: WidgetComponent;
@@ -29,168 +35,91 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   shouldShowDataIntegration,
   shouldShowContentEditor,
 }) => {
-  const renderHeaderSection = () => (
-    <>
-      {shouldShowContentEditor() && (
-        <ContentFieldsManager 
-          component={component}
-          onUpdateComponent={onUpdateComponent}
-          customLabel="Widget Name"
-        />
-      )}
-      
-      <PropertyEditor 
-        component={component}
-        onUpdateComponent={onUpdateComponent}
-      />
-      
-      {renderTooltipSelector()}
-    </>
-  );
-
-  const renderAlertSection = () => {
-    const titleComponent = {
-      ...component,
-      formattedContent: component.props?.title || ""
-    };
-    
-    const handleTitleUpdate = (updatedTitleComponent: WidgetComponent) => {
-      const updatedComponent = {
-        ...component,
-        props: {
-          ...component.props,
-          title: updatedTitleComponent.formattedContent
-        }
-      };
-      onUpdateComponent(updatedComponent);
-    };
-    
-    return (
-      <>
-        {shouldShowDataIntegration() && renderApiIntegration()}
-        
-        <ContentFieldsManager 
-          component={titleComponent}
-          onUpdateComponent={handleTitleUpdate}
-          customLabel="Alert Title"
-          singleLine={true}
-        />
-        
-        {shouldShowContentEditor() && (
-          <ContentFieldsManager 
-            component={component}
-            onUpdateComponent={onUpdateComponent}
-            customLabel="Alert Message"
-          />
-        )}
-        
-        <PropertyEditor 
-          component={component}
-          onUpdateComponent={onUpdateComponent}
-          excludeProperties={['title']} 
-        />
-        
-        {renderTooltipSelector()}
-      </>
-    );
-  };
-
-  const renderTextSection = () => (
-    <>
-      {shouldShowDataIntegration() && renderApiIntegration()}
-      
-      {shouldShowContentEditor() && (
-        <ContentFieldsManager 
-          component={component}
-          onUpdateComponent={onUpdateComponent}
-        />
-      )}
-      
-      {renderTooltipSelector()}
-    </>
-  );
-
-  const renderButtonSection = () => (
-    <>
-      {shouldShowDataIntegration() && renderApiIntegration()}
-      
-      <PropertyEditor 
-        component={component}
-        onUpdateComponent={onUpdateComponent}
-      />
-      
-      {renderTooltipSelector()}
-    </>
-  );
-
-  const renderImageSection = () => (
-    <>
-      <PropertyEditor 
-        component={component}
-        onUpdateComponent={onUpdateComponent}
-      />
-      
-      {renderTooltipSelector()}
-    </>
-  );
-
-  const renderDefaultSection = () => (
-    <>
-      {shouldShowDataIntegration() && renderApiIntegration()}
-      
-      {shouldShowContentEditor() && (
-        <ContentFieldsManager 
-          component={component}
-          onUpdateComponent={onUpdateComponent}
-        />
-      )}
-      
-      <PropertyEditor 
-        component={component}
-        onUpdateComponent={onUpdateComponent}
-      />
-      
-      {renderTooltipSelector()}
-    </>
-  );
-
-  const renderApiIntegration = () => (
-    <ApiIntegrationSection 
-      component={component}
-      apis={apis}
-      onUpdateComponent={onUpdateComponent}
-      onRequestApiTemplate={onRequestApiTemplate}
-    />
-  );
-
-  const renderTooltipSelector = () => {
-    if (!onApplyTooltip) return null;
-    
-    return (
-      <TooltipSelector 
-        component={component}
-        customTooltips={customTooltips}
-        onApplyTooltip={onApplyTooltip}
-        label={isHeader ? "Add Tooltip" : undefined}
-      />
-    );
-  };
-
   if (isHeader) {
-    return renderHeaderSection();
+    return (
+      <HeaderSectionRenderer
+        component={component}
+        onUpdateComponent={onUpdateComponent}
+        onApplyTooltip={onApplyTooltip}
+        customTooltips={customTooltips}
+        shouldShowContentEditor={shouldShowContentEditor}
+      />
+    );
   }
   
   switch (component.type) {
     case 'alert':
-      return renderAlertSection();
+      return (
+        <AlertSectionRenderer
+          component={component}
+          apis={apis}
+          onUpdateComponent={onUpdateComponent}
+          onRequestApiTemplate={onRequestApiTemplate}
+          onApplyTooltip={onApplyTooltip}
+          customTooltips={customTooltips}
+          shouldShowDataIntegration={shouldShowDataIntegration}
+          shouldShowContentEditor={shouldShowContentEditor}
+        />
+      );
     case 'text':
-      return renderTextSection();
+      return (
+        <TextSectionRenderer
+          component={component}
+          apis={apis}
+          onUpdateComponent={onUpdateComponent}
+          onRequestApiTemplate={onRequestApiTemplate}
+          onApplyTooltip={onApplyTooltip}
+          customTooltips={customTooltips}
+          shouldShowDataIntegration={shouldShowDataIntegration}
+          shouldShowContentEditor={shouldShowContentEditor}
+        />
+      );
     case 'button':
-      return renderButtonSection();
+      return (
+        <ButtonSectionRenderer
+          component={component}
+          apis={apis}
+          onUpdateComponent={onUpdateComponent}
+          onRequestApiTemplate={onRequestApiTemplate}
+          onApplyTooltip={onApplyTooltip}
+          customTooltips={customTooltips}
+          shouldShowDataIntegration={shouldShowDataIntegration}
+        />
+      );
     case 'image':
-      return renderImageSection();
+      return (
+        <ImageSectionRenderer
+          component={component}
+          onUpdateComponent={onUpdateComponent}
+          onApplyTooltip={onApplyTooltip}
+          customTooltips={customTooltips}
+        />
+      );
+    case 'chart':
+      return (
+        <ChartSectionRenderer
+          component={component}
+          apis={apis}
+          onUpdateComponent={onUpdateComponent}
+          onRequestApiTemplate={onRequestApiTemplate}
+          onApplyTooltip={onApplyTooltip}
+          customTooltips={customTooltips}
+          shouldShowDataIntegration={shouldShowDataIntegration}
+        />
+      );
     default:
-      return renderDefaultSection();
+      return (
+        <DefaultSectionRenderer
+          component={component}
+          apis={apis}
+          onUpdateComponent={onUpdateComponent}
+          onRequestApiTemplate={onRequestApiTemplate}
+          onApplyTooltip={onApplyTooltip}
+          customTooltips={customTooltips}
+          shouldShowDataIntegration={shouldShowDataIntegration}
+          shouldShowContentEditor={shouldShowContentEditor}
+        />
+      );
   }
 };
 
