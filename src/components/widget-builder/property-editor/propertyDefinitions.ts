@@ -47,6 +47,26 @@ export const getPropertyDefinitions = (componentType: ComponentType): PropertyDe
         { name: 'alignment', type: 'select', label: 'Alignment', 
           options: ['left', 'center', 'right'] }
       ];
+    case 'chart':
+      return [
+        { name: 'title', type: 'text', label: 'Chart Title' },
+        { name: 'chartType', type: 'select', label: 'Chart Type', 
+          options: ['bar', 'line', 'pie', 'area'] },
+        { name: 'height', type: 'number', label: 'Height (px)' },
+        { name: 'dataUrl', type: 'text', label: 'Data URL' },
+        { name: 'staticData', type: 'text', label: 'Static Data' },
+        { name: 'categoryKey', type: 'text', label: 'Category Field' },
+        { name: 'dataKey', type: 'text', label: 'Value Field' },
+        { name: 'xAxisLabel', type: 'text', label: 'X-Axis Label' },
+        { name: 'yAxisLabel', type: 'text', label: 'Y-Axis Label' },
+        { name: 'legend', type: 'select', label: 'Show Legend', 
+          options: ['true', 'false'] },
+        { name: 'legendPosition', type: 'select', label: 'Legend Position', 
+          options: ['left', 'center', 'right'] },
+        { name: 'labels', type: 'text', label: 'Legend Labels' },
+        { name: 'colors', type: 'text', label: 'Chart Colors' },
+        { name: 'backgroundColor', type: 'color', label: 'Background Color' }
+      ];
     case 'alert':
       return [
         { name: 'title', type: 'text', label: 'Alert Title' },

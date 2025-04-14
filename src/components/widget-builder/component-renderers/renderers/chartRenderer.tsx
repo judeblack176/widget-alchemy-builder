@@ -6,6 +6,8 @@ import {
   Bar,
   LineChart,
   Line,
+  AreaChart,
+  Area,
   PieChart, 
   Pie, 
   XAxis, 
@@ -133,6 +135,8 @@ export const chartRenderer = (finalProps: Record<string, any>) => {
   const chartHeight = finalProps.height ? Number(finalProps.height) : 300;
   const chartTitle = finalProps.title || '';
   const dataUrl = finalProps.dataUrl || '';
+  const xAxisLabel = finalProps.xAxisLabel || '';
+  const yAxisLabel = finalProps.yAxisLabel || '';
   
   // Process data from different sources
   let initialData: any[] = [];
@@ -193,17 +197,36 @@ export const chartRenderer = (finalProps: Record<string, any>) => {
     
     const currentData = data.length > 0 ? data : chartData;
     
+    const commonCartesianProps = {
+      data: currentData,
+      margin: { top: 20, right: 30, left: 20, bottom: 30 }
+    };
+    
+    const commonAxisProps = {
+      xAxisLabel,
+      yAxisLabel
+    };
+    
     switch (chartType) {
       case 'bar':
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={currentData} margin={{ top: 20, right: 30, left: 20, bottom: 30 }}>
+            <BarChart {...commonCartesianProps}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey={categoryKey} />
-              <YAxis />
+              <XAxis 
+                dataKey={categoryKey} 
+                label={xAxisLabel ? { value: xAxisLabel, position: 'insideBottom', offset: -5 } : undefined}
+              />
+              <YAxis 
+                label={yAxisLabel ? { value: yAxisLabel, angle: -90, position: 'insideLeft' } : undefined}
+              />
               <Tooltip />
               <Legend />
-              <Bar dataKey={dataKey} fill={colors[0]} />
+              <Bar dataKey={dataKey} fill={colors[0]}>
+                {currentData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         );
@@ -211,14 +234,50 @@ export const chartRenderer = (finalProps: Record<string, any>) => {
       case 'line':
         return (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={currentData} margin={{ top: 20, right: 30, left: 20, bottom: 30 }}>
+            <LineChart {...commonCartesianProps}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey={categoryKey} />
-              <YAxis />
+              <XAxis 
+                dataKey={categoryKey} 
+                label={xAxisLabel ? { value: xAxisLabel, position: 'insideBottom', offset: -5 } : undefined}
+              />
+              <YAxis 
+                label={yAxisLabel ? { value: yAxisLabel, angle: -90, position: 'insideLeft' } : undefined}
+              />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey={dataKey} stroke={colors[0]} />
+              <Line type="monotone" dataKey={dataKey} stroke={colors[0]} strokeWidth={2} dot={{ stroke: colors[0], strokeWidth: 2 }} />
             </LineChart>
+          </ResponsiveContainer>
+        );
+        
+      case 'area':
+        return (
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart {...commonCartesianProps}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis 
+                dataKey={categoryKey} 
+                label={xAxisLabel ? { value: xAxisLabel, position: 'insideBottom', offset: -5 } : undefined}
+              />
+              <YAxis 
+                label={yAxisLabel ? { value: yAxisLabel, angle: -90, position: 'insideLeft' } : undefined}
+              />
+              <Tooltip />
+              <Legend />
+              <defs>
+                <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={colors[0]} stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor={colors[0]} stopOpacity={0.1}/>
+                </linearGradient>
+              </defs>
+              <Area 
+                type="monotone" 
+                dataKey={dataKey} 
+                stroke={colors[0]} 
+                fillOpacity={1} 
+                fill="url(#colorGradient)" 
+              />
+            </AreaChart>
           </ResponsiveContainer>
         );
         
