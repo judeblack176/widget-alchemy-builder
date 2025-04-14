@@ -1,18 +1,8 @@
 
-import HeaderSectionRenderer from "./HeaderSectionRenderer";
-import AlertSectionRenderer from "./AlertSectionRenderer";
-import TextSectionRenderer from "./TextSectionRenderer";
-import ButtonSectionRenderer from "./ButtonSectionRenderer";
-import ImageSectionRenderer from "./ImageSectionRenderer";
-import ChartSectionRenderer from "./ChartSectionRenderer";
-import DefaultSectionRenderer from "./DefaultSectionRenderer";
-
-export {
-  HeaderSectionRenderer,
-  AlertSectionRenderer,
-  TextSectionRenderer,
-  ButtonSectionRenderer,
-  ImageSectionRenderer,
-  ChartSectionRenderer,
-  DefaultSectionRenderer
-};
+export { default as HeaderSectionRenderer } from './HeaderSectionRenderer';
+export { default as AlertSectionRenderer } from './AlertSectionRenderer';
+export { default as TextSectionRenderer } from './TextSectionRenderer';
+export { default as ButtonSectionRenderer } from './ButtonSectionRenderer';
+export { default as ImageSectionRenderer } from './ImageSectionRenderer';
+export { default as ChartSectionRenderer } from './chart';
+export { default as DefaultSectionRenderer } from './DefaultSectionRenderer';
