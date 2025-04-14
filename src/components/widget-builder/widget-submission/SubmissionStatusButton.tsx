@@ -12,22 +12,25 @@ const SubmissionStatusButton: React.FC<SubmissionStatusButtonProps> = ({
   submissionStatus,
   hasChanges
 }) => {
+  // If no previous submission or never submitted
   if (!submissionStatus || submissionStatus === 'none') {
     return (
       <Button className="bg-widget-blue w-full">
-        <Send size={16} className="mr-2" /> Submit for Approval
+        <Send size={16} className="mr-2" /> Submit Widget
       </Button>
     );
   }
 
-  if (hasChanges) {
+  // Only show resubmit if there's a previous submission AND changes
+  if (hasChanges && ['pending', 'approved', 'rejected'].includes(submissionStatus)) {
     return (
       <Button className="bg-orange-500 text-white hover:bg-orange-600 w-full">
-        <RefreshCw size={16} className="mr-2" /> Resubmit for Approval
+        <RefreshCw size={16} className="mr-2" /> Resubmit Widget
       </Button>
     );
   }
 
+  // Show status buttons without changes
   switch (submissionStatus) {
     case 'pending':
       return (
@@ -50,7 +53,7 @@ const SubmissionStatusButton: React.FC<SubmissionStatusButtonProps> = ({
     default:
       return (
         <Button className="bg-widget-blue w-full">
-          <Send size={16} className="mr-2" /> Submit for Approval
+          <Send size={16} className="mr-2" /> Submit Widget
         </Button>
       );
   }
