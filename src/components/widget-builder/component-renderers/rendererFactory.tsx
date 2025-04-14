@@ -6,7 +6,7 @@ import { textRenderer } from './renderers/textRenderer';
 import { imageRenderer } from './renderers/imageRenderer';
 import { buttonRenderer } from './renderers/buttonRenderer';
 import { videoRenderer } from './renderers/videoRenderer';
-import { chartRenderer } from './renderers/chartRenderer';
+import { chartRenderer } from './renderers/chart';
 import { formRenderer } from './renderers/formRenderer';
 import { calendarRenderer } from './renderers/calendarRenderer';
 import { dropdownRenderer } from './renderers/dropdownRenderer';
