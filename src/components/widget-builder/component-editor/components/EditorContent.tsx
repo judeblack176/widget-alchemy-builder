@@ -1,4 +1,3 @@
-
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
@@ -18,6 +17,8 @@ interface EditorContentProps {
   isHeader: boolean;
   shouldShowDataIntegration: () => boolean;
   shouldShowContentEditor: () => boolean;
+  isTemplate?: boolean;
+  onToggleVisibility?: () => void;
 }
 
 const EditorContent: React.FC<EditorContentProps> = ({
@@ -32,7 +33,9 @@ const EditorContent: React.FC<EditorContentProps> = ({
   disableRemove = false,
   isHeader,
   shouldShowDataIntegration,
-  shouldShowContentEditor
+  shouldShowContentEditor,
+  isTemplate,
+  onToggleVisibility
 }) => {
   return (
     <div className="p-4 space-y-6">
