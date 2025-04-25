@@ -1,3 +1,4 @@
+
 import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
@@ -58,6 +59,18 @@ const EditorContent: React.FC<EditorContentProps> = ({
           onRemoveComponent={onRemoveComponent}
           disableRemove={disableRemove}
         />
+      )}
+
+      {/* Visibility Toggle */}
+      {onToggleVisibility && (
+        <div className="mt-4 flex items-center">
+          <button
+            onClick={onToggleVisibility}
+            className="text-sm text-gray-500 hover:text-blue-600 flex items-center"
+          >
+            {component.visible !== false ? 'Hide Component' : 'Show Component'} in Preview
+          </button>
+        </div>
       )}
     </div>
   );

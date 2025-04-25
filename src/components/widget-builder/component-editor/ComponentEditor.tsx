@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip as CustomTooltip } from "../TooltipManager";
@@ -71,7 +72,9 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           shouldShowDataIntegration={shouldShowDataIntegration}
           shouldShowContentEditor={shouldShowContentEditor}
           isTemplate={isTemplate}
-          onToggleVisibility={onToggleVisibility}
+          onToggleVisibility={onToggleVisibility ? 
+            () => onToggleVisibility(component.id) : 
+            undefined}
         />
       )}
     </div>
