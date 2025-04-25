@@ -15,6 +15,8 @@ interface HeaderComponentSectionProps {
   onRequestApiTemplate: (componentId: string) => void;
   onApplyTooltip?: (componentId: string, tooltipId: string) => void;
   tooltips?: Tooltip[];
+  isTemplate?: boolean;
+  onToggleVisibility?: (componentId: string) => void;
 }
 
 const HeaderComponentSection: React.FC<HeaderComponentSectionProps> = ({
@@ -26,7 +28,9 @@ const HeaderComponentSection: React.FC<HeaderComponentSectionProps> = ({
   onRemoveComponent,
   onRequestApiTemplate,
   onApplyTooltip,
-  tooltips = []
+  tooltips = [],
+  isTemplate = false,
+  onToggleVisibility
 }) => {
   const cardStyle = "w-full bg-white border shadow-sm";
 
@@ -66,6 +70,10 @@ const HeaderComponentSection: React.FC<HeaderComponentSectionProps> = ({
           disableRemove={true}
           customTooltips={tooltips}
           showActionButtons={false}
+          isTemplate={isTemplate}
+          onToggleVisibility={onToggleVisibility ? 
+            () => onToggleVisibility(headerComponent.id) : 
+            undefined}
         />
       </div>
     </Card>

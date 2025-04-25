@@ -19,6 +19,8 @@ interface DraggableComponentsListProps {
   onApplyTooltip?: (componentId: string, tooltipId: string) => void;
   tooltips?: Tooltip[];
   onDragEnd: (result: any) => void;
+  isTemplate?: boolean;
+  onToggleVisibility?: (componentId: string) => void;
 }
 
 const DraggableComponentsList: React.FC<DraggableComponentsListProps> = ({
@@ -31,7 +33,9 @@ const DraggableComponentsList: React.FC<DraggableComponentsListProps> = ({
   onRequestApiTemplate,
   onApplyTooltip,
   tooltips = [],
-  onDragEnd
+  onDragEnd,
+  isTemplate = false,
+  onToggleVisibility
 }) => {
   const cardStyle = "w-full bg-white border shadow-sm";
 
@@ -69,12 +73,16 @@ const DraggableComponentsList: React.FC<DraggableComponentsListProps> = ({
                             );
                           }}
                           onUpdateComponent={onUpdateComponent}
-                          onRemoveComponent={onRemoveComponent}
+                          onRemoveComponent={isTemplate ? undefined : onRemoveComponent}
                           onRequestApiTemplate={() => onRequestApiTemplate(component.id)}
                           onApplyTooltip={onApplyTooltip ? 
                             (tooltipId: string) => onApplyTooltip(component.id, tooltipId) : 
                             undefined}
                           customTooltips={tooltips}
+                          isTemplate={isTemplate}
+                          onToggleVisibility={onToggleVisibility ? 
+                            () => onToggleVisibility(component.id) : 
+                            undefined}
                         />
                       </div>
                     </Card>
