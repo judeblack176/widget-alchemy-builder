@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip as CustomTooltip } from "../TooltipManager";
@@ -20,6 +19,8 @@ interface ComponentEditorProps {
   disableRemove?: boolean;
   customTooltips?: CustomTooltip[];
   showActionButtons?: boolean;
+  isTemplate?: boolean;
+  onToggleVisibility?: (componentId: string) => void;
 }
 
 const ComponentEditor: React.FC<ComponentEditorProps> = ({
@@ -33,7 +34,9 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
   onApplyTooltip,
   disableRemove = false,
   customTooltips = [],
-  showActionButtons = true
+  showActionButtons = true,
+  isTemplate,
+  onToggleVisibility
 }) => {
   const { shouldShowDataIntegration, shouldShowContentEditor } = useComponentVisibility(component.type);
   const { isHeader, getDisplayComponent } = useComponentDisplay(component);
@@ -67,6 +70,8 @@ const ComponentEditor: React.FC<ComponentEditorProps> = ({
           isHeader={isHeader}
           shouldShowDataIntegration={shouldShowDataIntegration}
           shouldShowContentEditor={shouldShowContentEditor}
+          isTemplate={isTemplate}
+          onToggleVisibility={onToggleVisibility}
         />
       )}
     </div>
