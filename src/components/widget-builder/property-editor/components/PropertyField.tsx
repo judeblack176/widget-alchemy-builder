@@ -48,6 +48,18 @@ const PropertyField: React.FC<PropertyFieldProps> = ({
           />
         </div>
       );
+    case "number":
+      return (
+        <div className="mb-4">
+          <Label htmlFor={`prop-${property.name}`}>{property.label}</Label>
+          <Input
+            id={`prop-${property.name}`}
+            type="number"
+            value={value || ""}
+            onChange={(e) => onChange(property.name, e.target.value ? Number(e.target.value) : "")}
+          />
+        </div>
+      );
     case "select":
       return (
         <div className="mb-4">

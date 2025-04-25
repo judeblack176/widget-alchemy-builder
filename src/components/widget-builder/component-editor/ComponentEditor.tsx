@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip as CustomTooltip } from "../TooltipManager";
 import { useComponentVisibility } from "./useComponentVisibility";

@@ -35,6 +35,11 @@ const EditorSection: React.FC<EditorSectionProps> = ({
   shouldShowDataIntegration,
   shouldShowContentEditor,
 }) => {
+  // Skip property editor for components that will have custom property editors
+  const skipPropertyEditor = (componentType: string): boolean => {
+    return ['text', 'button', 'image', 'header', 'alert'].includes(componentType);
+  };
+
   if (isHeader) {
     return (
       <HeaderSectionRenderer
@@ -118,6 +123,7 @@ const EditorSection: React.FC<EditorSectionProps> = ({
           customTooltips={customTooltips}
           shouldShowDataIntegration={shouldShowDataIntegration}
           shouldShowContentEditor={shouldShowContentEditor}
+          skipPropertyEditor={skipPropertyEditor(component.type)}
         />
       );
   }

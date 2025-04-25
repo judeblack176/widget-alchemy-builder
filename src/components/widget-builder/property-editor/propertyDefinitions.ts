@@ -24,7 +24,18 @@ export const getPropertyDefinitions = (componentType: ComponentType): PropertyDe
           options: ['true', 'false'] }
       ];
     case 'text':
-      return [];
+      return [
+        { name: 'size', type: 'select', label: 'Text Size',
+          options: ['small', 'medium', 'large'] },
+        { name: 'color', type: 'select', label: 'Text Color',
+          options: ['default', 'primary', 'secondary', 'muted', 'accent'] },
+        { name: 'bold', type: 'select', label: 'Bold',
+          options: ['true', 'false'] },
+        { name: 'italic', type: 'select', label: 'Italic',
+          options: ['true', 'false'] },
+        { name: 'alignment', type: 'select', label: 'Alignment',
+          options: ['left', 'center', 'right'] }
+      ];
     case 'image':
       return [
         { name: 'source', type: 'text', label: 'Image URL' },
@@ -33,7 +44,9 @@ export const getPropertyDefinitions = (componentType: ComponentType): PropertyDe
         { name: 'width', type: 'text', label: 'Width' },
         { name: 'height', type: 'text', label: 'Height' },
         { name: 'fit', type: 'select', label: 'Image Fit', 
-          options: ['contain', 'cover', 'fill', 'none'] }
+          options: ['contain', 'cover', 'fill', 'none'] },
+        { name: 'borderRadius', type: 'select', label: 'Border Radius',
+          options: ['none', 'small', 'medium', 'large', 'full'] }
       ];
     case 'button':
       return [
@@ -45,7 +58,9 @@ export const getPropertyDefinitions = (componentType: ComponentType): PropertyDe
           options: ['sm', 'default', 'lg'] },
         { name: 'url', type: 'text', label: 'URL (if link)' },
         { name: 'alignment', type: 'select', label: 'Alignment', 
-          options: ['left', 'center', 'right'] }
+          options: ['left', 'center', 'right'] },
+        { name: 'fullWidth', type: 'select', label: 'Full Width',
+          options: ['true', 'false'] }
       ];
     case 'chart':
       return [
@@ -65,7 +80,9 @@ export const getPropertyDefinitions = (componentType: ComponentType): PropertyDe
           options: ['left', 'center', 'right'] },
         { name: 'labels', type: 'text', label: 'Legend Labels' },
         { name: 'colors', type: 'text', label: 'Chart Colors' },
-        { name: 'backgroundColor', type: 'color', label: 'Background Color' }
+        { name: 'backgroundColor', type: 'color', label: 'Background Color' },
+        { name: 'gridLines', type: 'select', label: 'Show Grid Lines',
+          options: ['true', 'false'] }
       ];
     case 'alert':
       return [
@@ -75,7 +92,21 @@ export const getPropertyDefinitions = (componentType: ComponentType): PropertyDe
         { name: 'dismissible', type: 'select', label: 'Dismissible', 
           options: ['true', 'false'] },
         { name: 'autoClose', type: 'select', label: 'Auto Close (seconds)', 
-          options: ['0', '3', '5', '10'] }
+          options: ['0', '3', '5', '10'] },
+        { name: 'icon', type: 'icon', label: 'Custom Icon' },
+        { name: 'variant', type: 'select', label: 'Alert Style',
+          options: ['default', 'outline', 'subtle'] }
+      ];
+    case 'table':
+      return [
+        { name: 'striped', type: 'select', label: 'Striped Rows',
+          options: ['true', 'false'] },
+        { name: 'hover', type: 'select', label: 'Hover Effect',
+          options: ['true', 'false'] },
+        { name: 'border', type: 'select', label: 'Border Style',
+          options: ['none', 'thin', 'medium', 'thick'] },
+        { name: 'size', type: 'select', label: 'Table Size',
+          options: ['sm', 'md', 'lg'] }
       ];
     default:
       return [];

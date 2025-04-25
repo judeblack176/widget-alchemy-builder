@@ -16,6 +16,7 @@ interface DefaultSectionRendererProps {
   customTooltips?: Tooltip[];
   shouldShowDataIntegration: () => boolean;
   shouldShowContentEditor: () => boolean;
+  skipPropertyEditor?: boolean;
 }
 
 const DefaultSectionRenderer: React.FC<DefaultSectionRendererProps> = ({
@@ -27,6 +28,7 @@ const DefaultSectionRenderer: React.FC<DefaultSectionRendererProps> = ({
   customTooltips = [],
   shouldShowDataIntegration,
   shouldShowContentEditor,
+  skipPropertyEditor = false
 }) => {
   return (
     <>
@@ -46,10 +48,13 @@ const DefaultSectionRenderer: React.FC<DefaultSectionRendererProps> = ({
         />
       )}
       
-      <PropertyEditor 
-        component={component}
-        onUpdateComponent={onUpdateComponent}
-      />
+      {/* Only show property editor if not skipped */}
+      {!skipPropertyEditor && (
+        <PropertyEditor 
+          component={component}
+          onUpdateComponent={onUpdateComponent}
+        />
+      )}
       
       {onApplyTooltip && (
         <TooltipSelector 

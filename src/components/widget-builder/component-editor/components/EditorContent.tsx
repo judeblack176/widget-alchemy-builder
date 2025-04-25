@@ -4,6 +4,8 @@ import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
 import EditorSection from "../EditorSection";
 import ActionButtons from "../ActionButtons";
+import PropertyEditor from "@/components/widget-builder/property-editor/PropertyEditor";
+import TextOptionsAccordion from "@/components/widget-builder/content-fields/TextOptionsAccordion";
 
 interface EditorContentProps {
   component: WidgetComponent;
@@ -38,6 +40,69 @@ const EditorContent: React.FC<EditorContentProps> = ({
   isTemplate,
   onToggleVisibility
 }) => {
+  // Handle property change for custom options
+  const handlePropertyChange = (propertyName: string, value: any) => {
+    const updatedComponent = {
+      ...component,
+      props: {
+        ...component.props,
+        [propertyName]: value,
+      },
+    };
+    onUpdateComponent(updatedComponent);
+  };
+
+  // Prevent event propagation for nested components
+  const handleInputClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
+  // Render component-specific custom options
+  const renderCustomOptions = () => {
+    switch (component.type) {
+      case 'text':
+        return (
+          <TextOptionsAccordion 
+            component={component} 
+            onPropertyChange={handlePropertyChange}
+            onInputClick={handleInputClick}
+          />
+        );
+      case 'button':
+        return (
+          <div className="mt-4 border-t pt-4 border-gray-200">
+            <h3 className="text-sm font-medium mb-2">Button Options</h3>
+            <PropertyEditor 
+              component={component}
+              onUpdateComponent={onUpdateComponent}
+            />
+          </div>
+        );
+      case 'image':
+        return (
+          <div className="mt-4 border-t pt-4 border-gray-200">
+            <h3 className="text-sm font-medium mb-2">Image Settings</h3>
+            <PropertyEditor 
+              component={component}
+              onUpdateComponent={onUpdateComponent}
+            />
+          </div>
+        );
+      default:
+        if (component.type !== 'header' && !isHeader) {
+          return (
+            <div className="mt-4 border-t pt-4 border-gray-200">
+              <PropertyEditor 
+                component={component}
+                onUpdateComponent={onUpdateComponent}
+              />
+            </div>
+          );
+        }
+        return null;
+    }
+  };
+
   return (
     <div className="p-4 space-y-6">
       <EditorSection 
@@ -51,6 +116,9 @@ const EditorContent: React.FC<EditorContentProps> = ({
         shouldShowDataIntegration={shouldShowDataIntegration}
         shouldShowContentEditor={shouldShowContentEditor}
       />
+      
+      {/* Custom Options for each component type */}
+      {renderCustomOptions()}
       
       {/* Action Buttons */}
       {showActionButtons && (
