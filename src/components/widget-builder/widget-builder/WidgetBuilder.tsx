@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -20,6 +19,8 @@ interface WidgetBuilderProps {
   onRequestApiTemplate: (componentId: string) => void;
   onApplyTooltip?: (componentId: string, tooltipId: string) => void;
   tooltips?: Tooltip[];
+  isTemplate?: boolean;
+  onToggleVisibility?: (componentId: string, visible: boolean) => void;
 }
 
 const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
@@ -30,7 +31,9 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   onReorderComponents,
   onRequestApiTemplate,
   onApplyTooltip,
-  tooltips = []
+  tooltips = [],
+  isTemplate = false,
+  onToggleVisibility
 }) => {
   
   const [expandedComponentId, setExpandedComponentId] = useState<string | null>(null);
@@ -112,6 +115,13 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
   const filteredAlertComponents = alertComponents.filter(alert => filteredComponents.includes(alert));
   const filteredRegularComponents = filteredComponents.filter(c => c.type !== 'header' && c.type !== 'alert');
 
+  const handleVisibilityToggle = (componentId: string) => {
+    const component = components.find(c => c.id === componentId);
+    if (component && onToggleVisibility) {
+      onToggleVisibility(componentId, !(component.visible ?? true));
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="space-y-4 pb-4">
@@ -140,10 +150,12 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
             setExpandedComponentId={setExpandedComponentId}
             apis={apis}
             onUpdateComponent={onUpdateComponent}
-            onRemoveComponent={onRemoveComponent}
+            onRemoveComponent={isTemplate ? undefined : onRemoveComponent}
             onRequestApiTemplate={onRequestApiTemplate}
             onApplyTooltip={onApplyTooltip}
             tooltips={tooltips}
+            isTemplate={isTemplate}
+            onToggleVisibility={handleVisibilityToggle}
           />
         )}
         
@@ -176,11 +188,13 @@ const WidgetBuilder: React.FC<WidgetBuilderProps> = ({
             setExpandedComponentId={setExpandedComponentId}
             apis={apis}
             onUpdateComponent={onUpdateComponent}
-            onRemoveComponent={onRemoveComponent}
+            onRemoveComponent={isTemplate ? undefined : onRemoveComponent}
             onRequestApiTemplate={onRequestApiTemplate}
             onApplyTooltip={onApplyTooltip}
             tooltips={tooltips}
             onDragEnd={handleDragEnd}
+            isTemplate={isTemplate}
+            onToggleVisibility={handleVisibilityToggle}
           />
         )}
       </div>

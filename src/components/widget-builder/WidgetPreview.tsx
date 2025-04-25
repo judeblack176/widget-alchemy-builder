@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { WidgetComponent, ApiConfig } from '@/types/widget-types';
 import { Card } from '@/components/ui/card';
@@ -24,15 +23,18 @@ const WidgetPreview: React.FC<WidgetPreviewProps> = ({
   const apiData = useApiDataFetcher(apis);
   const { toast } = useToast();
   
-  // Get only the first header component to prevent duplicates
-  const headerComponent = components.find(c => c.type === 'header');
+  // Filter out invisible components
+  const visibleComponents = components.filter(c => c.visible !== false);
   
-  const alertComponents = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
+  // Get only the first header component to prevent duplicates
+  const headerComponent = visibleComponents.find(c => c.type === 'header');
+  
+  const alertComponents = visibleComponents.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
   const hasAlertComponent = alertComponents.length > 0;
   const MAX_COMPONENTS = hasAlertComponent ? 7 : 6;
   
   // Get all non-header and non-alert components
-  const nonHeaderNonAlertComponents = components.filter(c => c.type !== 'header' && c.type !== 'alert');
+  const nonHeaderNonAlertComponents = visibleComponents.filter(c => c.type !== 'header' && c.type !== 'alert');
   
   const displayableAlerts = components.filter(c => c.type === 'alert' && !dismissedAlerts.includes(c.id));
   

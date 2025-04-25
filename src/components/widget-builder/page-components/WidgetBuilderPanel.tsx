@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import WidgetBuilder from "@/components/widget-builder/widget-builder";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { Plus, ChevronDown, Library } from 'lucide-react';
 import { Tooltip } from "@/components/widget-builder/TooltipManager";
 import { Droppable } from 'react-beautiful-dnd';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import TemplateSelectionModal from "../modals/TemplateSelectionModal";
+import { DEFAULT_TEMPLATES } from "@/types/template-types";
 
 interface WidgetBuilderPanelProps {
   widgetComponents: WidgetComponent[];
@@ -34,6 +36,32 @@ const WidgetBuilderPanel: React.FC<WidgetBuilderPanelProps> = ({
   onNewWidget,
   onLoadWidget
 }) => {
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [isFromTemplate, setIsFromTemplate] = useState(false);
+
+  const handleSelectTemplate = (template: typeof DEFAULT_TEMPLATES[0]) => {
+    // Reset components with template components
+    template.components.forEach((component) => {
+      // Add visible property to each component
+      const componentWithVisibility = {
+        ...component,
+        visible: true
+      };
+      onUpdateComponent(componentWithVisibility);
+    });
+    setIsFromTemplate(true);
+  };
+
+  const handleComponentVisibility = (componentId: string, visible: boolean) => {
+    const component = widgetComponents.find(c => c.id === componentId);
+    if (component) {
+      onUpdateComponent({
+        ...component,
+        visible: visible
+      });
+    }
+  };
+
   return (
     <div className="w-2/5 bg-widget-gray flex flex-col h-full">
       <div className="sticky top-0 z-40 bg-widget-gray p-4 border-b border-gray-200">
@@ -53,13 +81,13 @@ const WidgetBuilderPanel: React.FC<WidgetBuilderPanelProps> = ({
                 </DropdownMenuTrigger>
               </Button>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setIsTemplateModalOpen(true)}>
+                  <Library size={16} className="mr-2" /> 
+                  Use Template
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={onNewWidget}>
                   <Plus size={16} className="mr-2" /> 
-                  Create New Widget
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onLoadWidget}>
-                  <Library size={16} className="mr-2" /> 
-                  Load from Widget Library
+                  Create Blank Widget
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -80,11 +108,17 @@ const WidgetBuilderPanel: React.FC<WidgetBuilderPanelProps> = ({
                   components={widgetComponents}
                   apis={apis}
                   onUpdateComponent={onUpdateComponent}
-                  onRemoveComponent={onRemoveComponent}
+                  onRemoveComponent={(componentId) => {
+                    if (!isFromTemplate) {
+                      onRemoveComponent(componentId);
+                    }
+                  }}
                   onReorderComponents={onReorderComponents}
                   onRequestApiTemplate={onRequestApiTemplate}
                   onApplyTooltip={onApplyTooltip}
                   tooltips={tooltips}
+                  isTemplate={isFromTemplate}
+                  onToggleVisibility={handleComponentVisibility}
                 />
                 {provided.placeholder}
               </div>
@@ -92,6 +126,13 @@ const WidgetBuilderPanel: React.FC<WidgetBuilderPanelProps> = ({
           </Droppable>
         </div>
       </ScrollArea>
+
+      <TemplateSelectionModal
+        isOpen={isTemplateModalOpen}
+        onOpenChange={setIsTemplateModalOpen}
+        onSelectTemplate={handleSelectTemplate}
+        templates={DEFAULT_TEMPLATES}
+      />
     </div>
   );
 };
