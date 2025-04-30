@@ -4,8 +4,9 @@ import { ApiConfig } from "@/types/api-types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, Code, Trash2, Search } from "lucide-react";
+import { Copy, Check, Code, Trash2, Search, ExternalLink } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface ApiTableProps {
   apis: ApiConfig[];
@@ -32,6 +33,10 @@ const ApiTable: React.FC<ApiTableProps> = ({
     );
   }
 
+  const truncateString = (str: string, maxLength = 40) => {
+    return str.length > maxLength ? str.substring(0, maxLength) + '...' : str;
+  };
+
   return (
     <div className="rounded-md border">
       <Table className="w-full">
@@ -44,7 +49,7 @@ const ApiTable: React.FC<ApiTableProps> = ({
         </TableHeader>
         <TableBody>
           {apis.map((api) => (
-            <TableRow key={api.id}>
+            <TableRow key={api.id} className="group hover:bg-gray-50">
               <TableCell className="font-medium p-2">
                 <div className="flex items-center gap-2">
                   <Badge 
@@ -63,27 +68,75 @@ const ApiTable: React.FC<ApiTableProps> = ({
                 </div>
               </TableCell>
               <TableCell className="p-2">
-                <div className="text-xs space-y-1">
+                <div className="text-xs space-y-2">
                   <div className="flex items-center">
                     <span className="font-semibold w-20 mr-2">Endpoint:</span>
                     <span className="font-mono truncate max-w-[200px]" title={api.endpoint}>
-                      {api.endpoint}
+                      {truncateString(api.endpoint, 40)}
                     </span>
                   </div>
                   
-                  <div className="flex items-center">
-                    <span className="font-semibold w-20 mr-2">Headers:</span>
-                    <span className="text-xs">
-                      {Object.keys(api.headers || {}).length || 'None'}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <span className="font-semibold w-20 mr-2">Mappings:</span>
-                    <span className="text-xs">
-                      {Object.keys(api.responseMapping || {}).length || 'None'}
-                    </span>
-                  </div>
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="details" className="border-none">
+                      <AccordionTrigger className="py-0 text-xs text-blue-600 hover:text-blue-800 hover:no-underline">
+                        Show more details
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-2">
+                        <div className="space-y-2">
+                          <div className="flex items-center">
+                            <span className="font-semibold w-20 mr-2">Headers:</span>
+                            <span className="text-xs">
+                              {api.headers ? Object.keys(api.headers).length : 'None'}
+                              {api.headers && Object.keys(api.headers).length > 0 && (
+                                <span className="text-gray-500 ml-2">
+                                  ({Object.keys(api.headers).join(', ')})
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center">
+                            <span className="font-semibold w-20 mr-2">Parameters:</span>
+                            <span className="text-xs">
+                              {api.parameters ? Object.keys(api.parameters).length : 'None'}
+                              {api.parameters && Object.keys(api.parameters).length > 0 && (
+                                <span className="text-gray-500 ml-2">
+                                  ({Object.keys(api.parameters).join(', ')})
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center">
+                            <span className="font-semibold w-20 mr-2">Mappings:</span>
+                            <span className="text-xs">
+                              {api.responseMapping ? Object.keys(api.responseMapping).length : 'None'}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center">
+                            <span className="font-semibold w-20 mr-2">Sample:</span>
+                            <span className="text-xs">
+                              {api.sampleResponse ? 
+                                (
+                                  <span className="text-green-600">Available</span>
+                                ) : (
+                                  <span className="text-gray-500">None</span>
+                                )
+                              }
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center">
+                            <span className="font-semibold w-20 mr-2">Fields:</span>
+                            <span className="text-xs">
+                              {api.possibleFields ? api.possibleFields.length : 'None'}
+                            </span>
+                          </div>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
                 </div>
               </TableCell>
               <TableCell className="text-right p-2">
@@ -123,6 +176,27 @@ const ApiTable: React.FC<ApiTableProps> = ({
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+                  
+                  {/* New button to test API if it has an endpoint */}
+                  {api.endpoint && api.endpoint.startsWith('http') && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 w-7 p-1 text-blue-500 hover:text-blue-700"
+                            onClick={() => window.open(api.endpoint, '_blank', 'noopener,noreferrer')}
+                          >
+                            <ExternalLink size={14} />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Open API endpoint in new tab</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                   
                   <TooltipProvider>
                     <Tooltip>

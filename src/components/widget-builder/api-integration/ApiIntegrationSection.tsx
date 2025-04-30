@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import { WidgetComponent, ApiConfig } from "@/types/widget-types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Database } from "lucide-react";
+import { X, Database, ChevronDown, ChevronUp } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import ApiDetailsView from "./ApiDetailsView";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ApiIntegrationSectionProps {
   component: WidgetComponent;
@@ -21,6 +21,7 @@ const ApiIntegrationSection: React.FC<ApiIntegrationSectionProps> = ({
   onUpdateComponent,
   onRequestApiTemplate
 }) => {
+  const [showDetails, setShowDetails] = useState(false);
   const selectedApi = component.apiConfig ? apis.find(api => api.id === component.apiConfig?.apiId) : undefined;
 
   const handleApiSelection = (apiId: string) => {
@@ -52,15 +53,66 @@ const ApiIntegrationSection: React.FC<ApiIntegrationSectionProps> = ({
             </Badge>
           )}
         </div>
+        
+        {component.apiConfig && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-7 w-7 p-0"
+            onClick={() => setShowDetails(!showDetails)}
+          >
+            {showDetails ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </Button>
+        )}
       </div>
       
       <div className="p-3" onClick={handleClick}>
         {component.apiConfig ? (
-          <ApiDetailsView 
-            component={component} 
-            selectedApi={selectedApi} 
-            onUpdateComponent={onUpdateComponent} 
-          />
+          <>
+            {showDetails ? (
+              <ScrollArea className="max-h-[400px]">
+                <ApiDetailsView 
+                  component={component} 
+                  selectedApi={selectedApi} 
+                  onUpdateComponent={onUpdateComponent} 
+                />
+              </ScrollArea>
+            ) : (
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <span className="text-sm font-medium mr-2">Connected to:</span>
+                  <Badge className="bg-blue-500 hover:bg-blue-600">
+                    {selectedApi?.name || "Unknown API"}
+                  </Badge>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowDetails(true)}
+                    className="text-xs"
+                  >
+                    View Details
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      const updatedComponent = { ...component };
+                      delete updatedComponent.apiConfig;
+                      onUpdateComponent(updatedComponent);
+                    }}
+                    className="text-xs text-red-500 hover:text-red-700 border-red-200 hover:border-red-300"
+                  >
+                    <X size={12} className="mr-1" />
+                    Disconnect
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="space-y-4">
             <p className="text-sm text-gray-600">
@@ -76,11 +128,29 @@ const ApiIntegrationSection: React.FC<ApiIntegrationSectionProps> = ({
                   <SelectContent onClick={handleClick}>
                     {apis.map((api) => (
                       <SelectItem key={api.id} value={api.id} onClick={handleClick}>
-                        {api.name}
+                        <div className="flex items-center">
+                          <span>{api.name}</span>
+                          <Badge 
+                            variant="outline" 
+                            className={`
+                              ml-2 text-xs
+                              ${api.method === 'GET' ? 'border-green-500 bg-green-50 text-green-700' : ''}
+                              ${api.method === 'POST' ? 'border-blue-500 bg-blue-50 text-blue-700' : ''}
+                              ${api.method === 'PUT' ? 'border-yellow-500 bg-yellow-50 text-yellow-700' : ''}
+                              ${api.method === 'DELETE' ? 'border-red-500 bg-red-50 text-red-700' : ''}
+                            `}
+                          >
+                            {api.method}
+                          </Badge>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                
+                <div className="text-xs text-gray-500">
+                  Select an API to connect to this component and map data fields.
+                </div>
               </div>
             ) : (
               <div className="text-center space-y-2 py-4">
